@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hfa-silverstrong Healthcare Portal</title>
+  <style>
+    body {font-family: Arial, sans-serif; background:#f3f7fb; color:#202840; margin:0; padding:0;}
+    .container {width: 100%; max-width: 1080px; margin: auto; padding: 20px;}
+    h1, h2, h3 {margin: 0 0 10px;}
+    .flex {display:flex; gap:12px; flex-wrap:wrap;}
+    .card {background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:16px; margin-bottom:16px; flex:1 1 360px;}
+    label {display:block; margin:8px 0 4px; font-weight:600;}
+    input, select, textarea, button {width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccd8ea; border-radius:4px;}
+    button {cursor:pointer; background:#0e72ed; border:none; color:#fff; font-weight:700; margin-top:10px;}
+    button.secondary {background:#6e7f9f;}
+    button.danger {background:#cc2e3a;}
+    .tabs {display:flex; margin-bottom:12px; gap:8px;}
+    .tab {flex:1; text-align:center; padding:10px; background:#fff; border:1px solid #ccd8ea; border-radius:6px; cursor:pointer;}
+    .tab.active {background:#0e72ed; color:#fff; border-color:#0a55b9;}
+    .hidden {display:none;}
+    table {width:100%; border-collapse:collapse; font-size:14px; margin-top:10px;}
+    th, td {border:1px solid #d8e1ef; padding:8px; text-align:left;}
+    th {background:#edf3ff;}
+    .small {font-size:0.92em; color:#4d5d7e;}
+    .status {font-weight:700;}
+    .success {color:#0f8a4d;}
+    .warning {color:#ff9700;}
+    .danger {color:#cc2e3a;}
+    .log {max-height:220px; overflow:auto; background:#f9fbff; border:1px solid #dfe7f7; border-radius:4px; padding:10px; white-space:pre-wrap; font-family:monospace;}
+    .video-frame {width:100%; border:1px solid #ccd8ea; border-radius:6px; min-height:420px;}
+    .message-bubble {padding:8px 10px; margin-bottom:6px; border-radius:8px; max-width:80%;}
+    .self {background:#0e72ed; color:#fff; margin-left:auto;}
+    .other {background:#edf3ff; color:#202840;}
+    .inline-row {display:flex; gap:10px; align-items:center;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="card">
+      <h1>hfa-silverstrong Healthcare Portal</h1>
+      <p class="small">Roles: Doctor, Nurse, Patient. Admin first account is seeded with full permissions.</p>
+    </header>
+
+    <section class="card">
+      <div class="tabs" id="navTabs">
+        <div class="tab active" data-panel="registerPanel">Register</div>
+        <div class="tab" data-panel="loginPanel">Login</div>
+        <div class="tab" data-panel="dashboardPanel">Dashboard</div>
+      </div>
+
+      <div id="registerPanel">
+        <h2>Sign Up</h2>
+        <div class="flex">
+          <div class="card">
+            <label for="regRole">I am a</label>
+            <select id="regRole">
+              <option value="doctor">Doctor</option>
+              <option value="nurse">Nurse</option>
+              <option value="patient" selected>Patient</option>
+            </select>
+
+            <label for="regName">Full Name</label>
+            <input id="regName" placeholder="e.g., Jane Doe" />
+
+            <label for="regEmail">Email</label>
+            <input id="regEmail" type="email" placeholder="example@domain.com" />
+
+            <label for="regPassword">Password</label>
+            <input id="regPassword" type="password" placeholder="strong password" />
+
+            <label for="regExtra" id="regExtraLabel">Health ID</label>
+            <input id="regExtra" placeholder="e.g., HFA-1234" />
+
+            <button id="registerBtn">Register</button>
+            <p id="registerStatus" class="small"></p>
+          </div>
+          <div class="card" style="flex:1 1 320px;">
+            <h3>Guidelines</h3>
+            <ul class="small">
+              <li>Doctors: include License Number.</li>
+              <li>Nurses: include License Number/Department.</li>
+              <li>Patients: include Health ID / symptoms for triage.</li>
+              <li>Admin can manage all accounts and audit logs.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div id="loginPanel" class="hidden">
+        <h2>Login</h2>
+        <div class="card" style="max-width:480px;">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" />
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" />
+          <button id="loginBtn">Login</button>
+          <p id="loginStatus" class="small"></p>
+        </div>
+      </div>
+
+      <div id="dashboardPanel" class="hidden">
+        <h2>Dashboard</h2>
+        <div id="authSection" class="card">
+          <p id="welcomeText">Not signed in.</p>
+          <div class="inline-row"><button id="logoutBtn" class="secondary">Logout</button></div>
+        </div>
+
+        <div id="adminSection" class="card hidden">
+          <h3>Admin User Management</h3>
+          <button id="refreshUsersBtn" class="secondary">Refresh User List</button>
+          <div id="usersList"></div>
+          <h4>Add New User (Admin Shortcut)</h4>
+          <div class="inline-row">
+            <select id="adminAddRole"><option value="doctor">Doctor</option><option value="nurse">Nurse</option><option value="patient">Patient</option><option value="admin">Admin</option></select>
+            <input id="adminAddName" placeholder="Full Name" />
+            <input id="adminAddEmail" placeholder="Email" />
+            <input id="adminAddPass" placeholder="Password" />
+            <button id="adminAddBtn" class="secondary">Add User</button>
+          </div>
+          <p id="adminNotice" class="small"></p>
+        </div>
+
+        <div id="consultSection" class="card hidden">
+          <h3>Communication / Teleconsultation</h3>
+          <p class="small">Choose mode below before a visit.</p>
+          <label for="commMode">Consultation Mode</label>
+          <select id="commMode"><option value="video">Video + Chat (Jitsi)</option><option value="text">In-app Text Chat</option></select>
+          <button id="startConsultBtn">Start Consultation</button>
+          <p id="consultStatus" class="small"></p>
+
+          <div id="jitsiContainer" class="hidden" style="margin-top:12px;">
+            <h4>Jitsi Conference</h4>
+            <div class="video-frame" id="jitsiFrame"></div>
+          </div>
+
+          <div id="textChat" class="hidden" style="margin-top:12px;">
+            <h4>In-app Chat</h4>
+            <div id="chatWindow" style="height:220px; overflow:auto; border:1px solid #d8e1ef; border-radius:6px; padding:8px; background:#fff;"></div>
+            <div class="inline-row" style="margin-top:8px;">
+              <input id="chatInput" placeholder="Message" type="text" />
+              <button id="chatSendBtn">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="auditSection" class="card">
+          <h3>Audit Log</h3>
+          <div class="log" id="auditLog"></div>
+          <button id="clearAuditBtn" class="danger">Clear Audit Log</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_USERS = 'hfa_users';
+    const STORAGE_CURRENT = 'hfa_current_user';
+    const STORAGE_AUDIT = 'hfa_audit_log';
+    const STORAGE_CHAT = 'hfa_inapp_chat';
+
+    const defaults = [{name:'Super Admin', email:'admin@hfa.com', password:'Admin@123', role:'admin', extra:'Full system access'}];
+
+    function readJson(key, fallback) {
+      try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { console.warn(e); return fallback; }
+    }
+    function writeJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+
+    function bootstrap() {
+      if (!readJson(STORAGE_USERS, null)) writeJson(STORAGE_USERS, defaults);
+      const curr = readJson(STORAGE_CURRENT, null);
+      updateCurrentState(curr);
+      refreshAudit();
+    }
+
+    function addAudit(text) {
+      const log = readJson(STORAGE_AUDIT, []);
+      log.unshift(`${new Date().toISOString()} - ${text}`);
+      writeJson(STORAGE_AUDIT, log.slice(0,500));
+      refreshAudit();
+    }
+
+    function refreshAudit() {
+      document.getElementById('auditLog').innerText = readJson(STORAGE_AUDIT, []).join('\n') || 'No audit events yet.';
+    }
+
+    function updateCurrentState(user) {
+      const welcome = document.getElementById('welcomeText');
+      const adminSection = document.getElementById('adminSection');
+      const consultSection = document.getElementById('consultSection');
+
+      if (!user) {
+        welcome.textContent = 'Not signed in. Please register or login.';
+        adminSection.classList.add('hidden');
+        consultSection.classList.add('hidden');
+        return;
+      }
+
+      welcome.innerHTML = `Signed in as <strong>${user.name}</strong> (${user.role})`;
+      consultSection.classList.remove('hidden');
+      if (user.role === 'admin') {
+        adminSection.classList.remove('hidden');
+        renderUsersList();
+      } else {
+        adminSection.classList.add('hidden');
+      }
+    }
+
+    function setCurrentUser(user) { writeJson(STORAGE_CURRENT, user); updateCurrentState(user); }
+
+    function renderUsersList() {
+      const users = readJson(STORAGE_USERS, []);
+      const table = ['<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Extra</th><th>Action</th></tr></thead><tbody>'];
+      users.forEach((u, i)=>{ table.push(`<tr><td>${u.name}</td><td>${u.email}</td><td>${u.role}</td><td>${u.extra||''}</td><td><button data-index="${i}" class="danger removeUserBtn">Delete</button></td></tr>`); });
+      table.push('</tbody></table>');
+      document.getElementById('usersList').innerHTML = users.length ? table.join('') : '<p>No users yet.</p>';
+      document.querySelectorAll('.removeUserBtn').forEach(btn=>btn.onclick = () => {
+        const index = Number(btn.dataset.index);
+        const users = readJson(STORAGE_USERS, []);
+        const curr = readJson(STORAGE_CURRENT, null);
+        if (users[index].email === curr?.email) { alert('You cannot delete your own logged-in admin account.'); return; }
+        const removed = users.splice(index,1)[0];
+        writeJson(STORAGE_USERS, users);
+        addAudit(`Admin deleted user ${removed.email}`);
+        renderUsersList();
+      });
+    }
+
+    function getFieldValue(id){ return document.getElementById(id).value.trim(); }
+
+    document.getElementById('registerBtn').addEventListener('click', ()=>{
+      const name = getFieldValue('regName'), email = getFieldValue('regEmail').toLowerCase(),
+            password = getFieldValue('regPassword'), role = getFieldValue('regRole'), extra = getFieldValue('regExtra');
+      const status = document.getElementById('registerStatus');
+
+      if (!name || !email || !password || !extra) { status.textContent='Please fill all fields.'; status.className='small danger'; return; }
+      const users = readJson(STORAGE_USERS, []);
+      if (users.some(u => u.email === email)) { status.textContent='Email already exists.'; status.className='small danger'; return; }
+
+      users.push({name,password,email,role,extra}); writeJson(STORAGE_USERS, users);
+      status.textContent='Registration successful. Please login.'; status.className='small success';
+      addAudit(`New ${role} registered: ${name} (${email})`);
+      document.getElementById('regName').value=''; document.getElementById('regEmail').value=''; document.getElementById('regPassword').value=''; document.getElementById('regExtra').value='';
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', ()=>{
+      const email = getFieldValue('loginEmail').toLowerCase(); const password = getFieldValue('loginPassword');
+      const status = document.getElementById('loginStatus');
+      const users = readJson(STORAGE_USERS, []);
+      const user = users.find(u => u.email === email && u.password === password);
+      if (!user) { status.textContent='Invalid credentials.'; status.className='small danger'; addAudit(`Failed login attempt: ${email}`); return; }
+      status.textContent='Login successful.'; status.className='small success';
+      setCurrentUser(user); addAudit(`User login: ${user.email}`);
+      showPanel('dashboardPanel');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      const curr = readJson(STORAGE_CURRENT, null); if(curr) addAudit(`User logout: ${curr.email}`);
+      localStorage.removeItem(STORAGE_CURRENT); updateCurrentState(null); document.getElementById('jitsiContainer').classList.add('hidden'); document.getElementById('textChat').classList.add('hidden');
+    });
+
+    document.getElementById('clearAuditBtn').addEventListener('click', ()=>{ if(confirm('Clear audit history?')) { localStorage.removeItem(STORAGE_AUDIT); refreshAudit(); }});
+    document.getElementById('refreshUsersBtn').addEventListener('click', renderUsersList);
+
+    document.getElementById('adminAddBtn').addEventListener('click', ()=>{
+      const name = getFieldValue('adminAddName'); const email = getFieldValue('adminAddEmail').toLowerCase(); const password = getFieldValue('adminAddPass'); const role = getFieldValue('adminAddRole');
+      const notice = document.getElementById('adminNotice');
+      if(!name||!email||!password) { notice.textContent='Fill all fields.'; notice.className='small danger'; return; }
+      const users = readJson(STORAGE_USERS, []);
+      if(users.some(u=>u.email===email)) { notice.textContent='Existing email.'; notice.className='small danger'; return; }
+      users.push({name,email,password,role,extra:'Added by admin'}); writeJson(STORAGE_USERS, users);
+      notice.textContent='User added successfully.'; notice.className='small success'; renderUsersList(); addAudit(`Admin added user: ${email}`);
+      document.getElementById('adminAddName').value=''; document.getElementById('adminAddEmail').value=''; document.getElementById('adminAddPass').value='';
+    });
+
+    document.getElementById('startConsultBtn').addEventListener('click', ()=>{
+      const user = readJson(STORAGE_CURRENT, null); if(!user){alert('Please login first'); return;}
+      const mode = getFieldValue('commMode'); const consultStatus = document.getElementById('consultStatus');
+      addAudit(`Consultation started by ${user.email} mode=${mode}`);
+      if(mode==='video') {
+        document.getElementById('textChat').classList.add('hidden');
+        document.getElementById('jitsiContainer').classList.remove('hidden');
+        const room = `hfa-silverstrong-${Date.now()}`;
+        document.getElementById('jitsiFrame').innerHTML = `<iframe class="video-frame" allow="camera;microphone;fullscreen" src="https://meet.jit.si/${room}" title="Video consultation"></iframe>`;
+        consultStatus.textContent='Jitsi video consultation started. Share URL: https://meet.jit.si/' + room;
+      } else {
+        document.getElementById('jitsiContainer').classList.add('hidden');
+        document.getElementById('textChat').classList.remove('hidden');
+        loadChat();
+        consultStatus.textContent='Text chat ready in-app.';
+      }
+    });
+
+    function loadChat(){
+      const messages = readJson(STORAGE_CHAT, []);
+      const chatWindow = document.getElementById('chatWindow');
+      chatWindow.innerHTML = '';
+      const current = readJson(STORAGE_CURRENT,null);
+      messages.slice(-100).forEach(msg=>{ const p=document.createElement('div'); p.className='message-bubble '+(msg.email===current?.email?'self':'other'); p.innerText=`${new Date(msg.timestamp).toLocaleTimeString()} ${msg.name}: ${msg.text}`; chatWindow.appendChild(p); });
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    document.getElementById('chatSendBtn').addEventListener('click', ()=>{
+      const input=document.getElementById('chatInput'); const text=input.value.trim();
+      if(!text){return;}
+      const user=readJson(STORAGE_CURRENT,null); if(!user){alert('Login required');return;}
+      const messages = readJson(STORAGE_CHAT, []);
+      messages.push({name:user.name,email:user.email,text,timestamp:Date.now()});
+      writeJson(STORAGE_CHAT,messages);
+      input.value=''; loadChat(); addAudit(`Chat message from ${user.email}`);
+    });
+
+    function showPanel(panelId) {
+      ['registerPanel','loginPanel','dashboardPanel'].forEach(pid=>document.getElementById(pid).classList.toggle('hidden', pid !== panelId));
+      document.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active', tab.dataset.panel===panelId));
+    }
+
+    document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click', ()=>showPanel(tab.dataset.panel)));
+
+    document.getElementById('regRole').addEventListener('change', e=>{
+      const role=e.target.value; const label=document.getElementById('regExtraLabel'); const extra=document.getElementById('regExtra');
+      if(role==='doctor'){label.textContent='License Number'; extra.placeholder='e.g., DOC-91011';}
+      else if(role==='nurse'){label.textContent='License / Department'; extra.placeholder='e.g., NUR-231 or Cardiology';}
+      else {label.textContent='Health ID / Symptoms'; extra.placeholder='e.g., PAT-5353 or fever/diabetes';}
+    });
+
+    bootstrap();
+  </script>
+</body>
+</html>
