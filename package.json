@@ -1,0 +1,16 @@
+{
+  "name": "hfa-silverstrong",
+  "version": "1.0.0",
+  "description": "Static healthcare portal website",
+  "private": true,
+  "scripts": {
+    "test": "jest --runInBand",
+    "lint": "html-validate index.html",
+    "ci": "npm run lint && npm test",
+    "docker:build": "docker build -t hfa-silverstrong:latest ."
+  },
+  "devDependencies": {
+    "html-validate": "^8.4.0",
+    "jest": "^29.7.0"
+  }
+}
