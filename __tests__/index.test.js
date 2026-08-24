@@ -79,10 +79,29 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("role==='admin'?{adminRole:");
   });
 
-  test('keeps demo credentials in the admin control center only', () => {
+  test('keeps demo credentials inside the admin portal only', () => {
     expect(content).not.toContain('<strong>Demo Credentials</strong>');
     expect(content).toContain('Testing Access');
     expect(content).toContain('Admin-only demo credentials');
     expect(content).toContain("DB.users.filter(u=>['admin','doctor','nurse','patient'].includes(u.role))");
+    expect(content).toContain('${renderDemoCredentials()}');
+  });
+
+  test('provisions Chinjie as the Super Admin', () => {
+    expect(content).toContain("email:'chinjiesylvestern@gmail.com'");
+    expect(content).toContain("adminRole:'Super Admin'");
+    expect(content).toContain("permissions:['all']");
+  });
+
+  test('uses the HFA logo asset across the app', () => {
+    expect(fs.existsSync(path.join(__dirname, '..', 'assets', 'hfa-logo.svg'))).toBe(true);
+    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(3);
+    expect(content).toContain('alt="HFA SilverStrong logo"');
+  });
+
+  test('provides a public non-admin demo entry point', () => {
+    expect(content).toContain('onclick="startDemo(\'patient\')"');
+    expect(content).toContain("function startDemo(role='patient')");
+    expect(content).toContain("user.role===role&&user.status==='active'");
   });
 });

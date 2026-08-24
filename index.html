@@ -160,6 +160,10 @@ tbody tr:hover{background:#fcfdfe}
 .lnav{display:flex;align-items:center;justify-content:space-between;padding:18px 56px;border-bottom:1px solid rgba(255,255,255,.07)}
 .llogo{font-family:var(--fd);font-size:1.5rem;color:#fff}
 .llogo span{color:var(--go)}
+.logo-mark{display:block;object-fit:contain}
+.landing-mark{width:58px;height:38px}
+.auth-mark{width:96px;height:72px;margin:0 auto 8px}
+.sidebar-mark{width:38px;height:32px}
 .lnr{display:flex;align-items:center;gap:8px}
 .hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:56px;padding:72px 56px;max-width:1200px;margin:0 auto}
 .ht h2{font-family:var(--fd);font-size:3rem;line-height:1.08;color:#fff}
@@ -366,8 +370,9 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 <!-- LANDING -->
 <div id="land">
   <nav class="lnav">
-    <div class="llogo">HFA <span>SilverStrong</span></div>
+    <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span>SilverStrong</span></div>
     <div class="lnr">
+      <button class="btn bgh" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="startDemo('patient')">Try Demo</button>
       <button class="btn bgh" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')">Sign In</button>
       <button class="btn bg2" onclick="goAuth('register')">Register</button>
     </div>
@@ -426,7 +431,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 <div id="auth-wrap" class="hid">
   <div class="al">
     <div class="abr">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--em-l),var(--em-d));display:flex;align-items:center;justify-content:center;margin:0 auto 12px"><svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <img class="logo-mark auth-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo">
       <h1>HFA<br><span class="go">SilverStrong</span></h1>
       <p>Healthcare Telehealth Platform</p>
     </div>
@@ -499,7 +504,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
   <div id="sidebar">
     <div class="sb-logo">
       <div class="sb-li">
-        <div class="sb-ic"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="sb-ic"><img class="logo-mark sidebar-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"></div>
         <div><div class="sb-br">HFA SilverStrong</div><div class="sb-tg">Healthy Future Africa</div></div>
       </div>
       <span id="srb" class="sb-rb"></span>
@@ -606,7 +611,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 // ═══════════════════════ DATA STORE ═══════════════════════
 const DB = {
   users: [
-    {id:'adm1',role:'admin',name:'Chinjie Sylvester',email:'admin@hfa-silverstrong.org',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Platform Owner',permissions:['all']},
+    {id:'adm1',role:'admin',name:'Chinjie Sylvester',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
     {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
     {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10'},
     {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15'},
@@ -789,6 +794,12 @@ function goAuth(tab, role) {
   swtTab(tab || 'login');
   if (role) setRole(role);
 }
+function startDemo(role='patient') {
+  if(!['patient','doctor','nurse'].includes(role)) return goAuth('login');
+  const demo=DB.users.find(user=>user.role===role&&user.status==='active');
+  if(!demo) return goAuth('login');
+  CU=demo; SC=null; log('START_DEMO','System'); goApp();
+}
 function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
   buildSidebar();
@@ -933,6 +944,10 @@ function aptCard(a) {
 function completeApt(id) { const a=DB.appointments.find(x=>x.id===id); if(a){a.status='completed'; log('COMPLETE_APPOINTMENT','Appointments');} navigate(CP); }
 
 // ═══════════════════════ ADMIN ═══════════════════════
+function renderDemoCredentials() {
+  return `<div class="card mt18"><div class="ch"><div><div class="ct">Testing Access</div><div class="rating-note">Admin-only demo credentials. Share them only with approved testers.</div></div><span class="badge bwa">Restricted</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>Temporary testing password: ${user.password}</span></div></div>`).join('')}</div></div>`;
+}
+
 function renderAdminDash(pc) {
   $('tbt').textContent='Admin Dashboard';
   topBtn(`<button class="btn bp bsm" onclick="navigate('admin-control')">${IC.shield} Control Center</button>`);
@@ -958,6 +973,7 @@ function renderAdminDash(pc) {
         <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}OK</span>`:`<span class="badge bda">${IC.x}Failed</span>`}</td>
       </tr>`).join('')}</tbody></table></div>
     </div>
+    ${renderDemoCredentials()}
   </div>`;
 }
 
@@ -970,7 +986,7 @@ function renderAdminControl(pc) {
     <div class="stats"><div class="sc ce"><div class="sv">${DB.users.filter(u=>u.role==='admin'&&u.status==='active').length}</div><div class="sl">Active Administrators</div></div><div class="sc cb"><div class="sv">${verified}</div><div class="sl">Verified Clinicians</div></div><div class="sc cr"><div class="sv">${openAlerts}</div><div class="sl">Open Safety Alerts</div></div><div class="sc cg"><div class="sv">${activeConsents}</div><div class="sl">Active Consents</div></div></div>
     <div class="g2"><div class="card"><div class="ch"><div class="ct">Access & Governance</div></div><div class="code-list"><div class="code-item"><code class="code-chip">RBAC</code><div><strong>Role-based admin permissions</strong><span>Every administrator has an auditable role and permission set.</span></div></div><div class="code-item"><code class="code-chip">CONSENT</code><div><strong>Patient consent registry</strong><span>${activeConsents} active telehealth consent record(s).</span></div></div><div class="code-item"><code class="code-chip">VERIFY</code><div><strong>Clinician verification</strong><span>${verified} verified provider credential record(s).</span></div></div></div><button class="btn bp bsm w100 mt8" onclick="navigate('mgr-a')">Manage Administrators</button></div>
       <div class="card"><div class="ch"><div class="ct">Safety & Integrations</div></div><div class="code-list"><div class="code-item"><code class="code-chip">FHIR R4</code><div><strong>Clinical exchange</strong><span>Configuration status: ${DB.integrations[0].status}.</span></div></div><div class="code-item"><code class="code-chip">MED SAFE</code><div><strong>Medication safety</strong><span>${openAlerts} open allergy or medication review alert(s).</span></div></div><div class="code-item"><code class="code-chip">TRIAGE</code><div><strong>Urgent-care queue</strong><span>${DB.triageCases.filter(c=>c.status!=='closed').length} active triage request(s).</span></div></div></div><button class="btn bgh bsm w100 mt8" onclick="navigate('integrations')">Review Integrations</button></div></div>
-    <div class="card mt18"><div class="ch"><div><div class="ct">Testing Access</div><div class="rating-note">Admin-only demo credentials. Share them only with approved testers.</div></div><span class="badge bwa">Restricted</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>Temporary testing password: ${user.password}</span></div></div>`).join('')}</div></div>
+    ${renderDemoCredentials()}
   </div>`;
 }
 

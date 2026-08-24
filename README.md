@@ -11,6 +11,7 @@ A three-in-one application that covers 1. healthcare, 2. fitness & health tips a
 
 - `.github/workflows/ci.yml`: lint + tests + docker build
 - `.github/workflows/release.yml`: build + push container image to GHCR on semantic version tags
+- `.github/workflows/pages.yml`: publish the static demo to GitHub Pages on every push to `main`
 - `docker-compose.yml`: local multi-service test environment
 
 ## AWS deployment with Jenkins
@@ -46,4 +47,10 @@ The deployment command creates or updates the CloudFormation stack, uploads only
 S3 and CloudFront are appropriate for this repository because it has no server-side runtime yet. They avoid always-on compute and the unused local Redis sidecar is not deployed. AWS charges still apply outside applicable free tiers, especially CloudFront requests, data transfer, DNS, logs, and invalidations. Set AWS Budgets and billing alerts before enabling deployment.
 
 This pipeline deploys the current demo frontend only. It does not make the clinical features production-safe: real identity, database, FHIR/terminology services, encryption key management, consent/audit storage, emergency integrations, and regulatory controls must be implemented behind a backend before handling real patient data.
+
+## Shareable free demo
+
+The GitHub Pages workflow publishes the static demo after pushes to `main`. Enable **Settings > Pages > Build and deployment > GitHub Actions** in the repository, then open the URL shown by the `Publish shareable demo` workflow. For this repository it will normally be `https://healthyfutureafrica.github.io/hfa-silverstrong/`.
+
+The landing page includes a one-click **Try Demo** entry for the patient experience. The Admin portal is intentionally excluded from that shortcut; use the provisioned Super Admin account through normal sign-in. This demo stores data in browser memory only, resets on refresh, and must never receive real patient data or production credentials.
 
