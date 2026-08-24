@@ -4,8 +4,8 @@ FROM nginx:stable-alpine
 # Remove default nginx content
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy app
-COPY index.html /usr/share/nginx/html/index.html
+# Copy all app files
+COPY . /usr/share/nginx/html/
 
 # Expose port
 EXPOSE 80

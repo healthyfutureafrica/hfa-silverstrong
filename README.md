@@ -13,3 +13,37 @@ A three-in-one application that covers 1. healthcare, 2. fitness & health tips a
 - `.github/workflows/release.yml`: build + push container image to GHCR on semantic version tags
 - `docker-compose.yml`: local multi-service test environment
 
+## AWS deployment with Jenkins
+
+This repository includes a cost-conscious AWS deployment path for the current static frontend:
+
+- `Jenkinsfile`: reproducible dependency install, tests, inline JavaScript validation, Docker build, optional Trivy scan, and opt-in AWS deployment.
+- `infra/cloudformation.yml`: private, encrypted, versioned S3 bucket behind CloudFront Origin Access Control. Public S3 access is blocked and HTTPS is enforced at CloudFront.
+- `.dockerignore`: keeps CI and infrastructure files out of the runtime image.
+- `package-lock.json`: pins the npm dependency tree for Jenkins.
+- `jenkins/plugins.txt`: minimal Jenkins plugin set for Pipeline, Docker, AWS credentials, Git, and test reporting.
+- `infra/deployment-policy.json`: starting IAM policy for the named CloudFormation stack, site bucket, CloudFront invalidation, and identity check.
+
+### Jenkins prerequisites
+
+Install or configure these on the Jenkins agent:
+
+- A Linux Jenkins agent labeled `linux-docker-aws`, with Node.js 20 or newer, npm, and Docker.
+- AWS CLI v2.
+- Trivy from the official open-source distribution. The pipeline reports when Trivy is unavailable; install it to enforce image scanning.
+- Jenkins credentials with ID `hfa-aws-deployer`, using an AWS IAM role or short-lived AWS credentials. Do not store access keys in this repository.
+
+The Jenkins AWS identity needs only the permissions required for the selected stack, S3 sync, CloudFront invalidation, and `sts:GetCallerIdentity`. Prefer a dedicated deployment role with short-lived credentials and a region-specific policy.
+
+### Running the pipeline
+
+Run the pipeline with `DEPLOY=false` first. Set `DEPLOY=true` only after the build and scan pass. Set `AWS_REGION` on the Jenkins agent or job; it defaults to `us-east-1`. `PRICE_CLASS=PriceClass_100` is the lowest-cost CloudFront option and is the default.
+
+The deployment command creates or updates the CloudFormation stack, uploads only the static site, and invalidates CloudFront. The S3 bucket is retained when the stack is deleted to reduce accidental data loss.
+
+### Cost and production boundary
+
+S3 and CloudFront are appropriate for this repository because it has no server-side runtime yet. They avoid always-on compute and the unused local Redis sidecar is not deployed. AWS charges still apply outside applicable free tiers, especially CloudFront requests, data transfer, DNS, logs, and invalidations. Set AWS Budgets and billing alerts before enabling deployment.
+
+This pipeline deploys the current demo frontend only. It does not make the clinical features production-safe: real identity, database, FHIR/terminology services, encryption key management, consent/audit storage, emergency integrations, and regulatory controls must be implemented behind a backend before handling real patient data.
+
