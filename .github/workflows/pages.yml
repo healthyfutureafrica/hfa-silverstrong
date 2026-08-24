@@ -27,6 +27,12 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Explain Pages setup if unavailable
+        if: failure()
+        run: |
+          echo "GitHub Pages is not enabled for this repository. In Settings > Pages, set Build and deployment to GitHub Actions, then rerun this workflow."
+          exit 1
+
       - name: Upload demo artifact
         uses: actions/upload-pages-artifact@v3
         with:
