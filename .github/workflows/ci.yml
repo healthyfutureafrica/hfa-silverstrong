@@ -32,6 +32,9 @@ jobs:
   docker-build:
     runs-on: ubuntu-latest
     needs: test
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,3 +48,38 @@ jobs:
 
       - name: Verify image exists
         run: docker images hfa-silverstrong:latest
+
+      - name: Smoke test container
+        run: |
+          docker run -d --name hfa-smoke -p 8080:80 hfa-silverstrong:latest
+          for i in $(seq 1 10); do
+            if curl -fsS http://localhost:8080/ -o /dev/null; then
+              echo "Container responded successfully"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Container did not respond in time"
+          docker logs hfa-smoke
+          exit 1
+
+      - name: Stop smoke test container
+        if: always()
+        run: docker rm -f hfa-smoke || true
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          IMAGE=ghcr.io/${{ github.repository_owner }}/hfa-silverstrong
+          docker tag hfa-silverstrong:latest $IMAGE:latest
+          docker tag hfa-silverstrong:latest $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
+          docker push $IMAGE:${{ github.sha }}
