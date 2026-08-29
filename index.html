@@ -160,10 +160,6 @@ tbody tr:hover{background:#fcfdfe}
 .lnav{display:flex;align-items:center;justify-content:space-between;padding:18px 56px;border-bottom:1px solid rgba(255,255,255,.07)}
 .llogo{font-family:var(--fd);font-size:1.5rem;color:#fff}
 .llogo span{color:var(--go)}
-.logo-mark{display:block;object-fit:contain}
-.landing-mark{width:58px;height:38px}
-.auth-mark{width:96px;height:72px;margin:0 auto 8px}
-.sidebar-mark{width:38px;height:32px}
 .lnr{display:flex;align-items:center;gap:8px}
 .hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:56px;padding:72px 56px;max-width:1200px;margin:0 auto}
 .ht h2{font-family:var(--fd);font-size:3rem;line-height:1.08;color:#fff}
@@ -251,37 +247,6 @@ tbody tr:hover{background:#fcfdfe}
 .cdf{display:flex;justify-content:center;gap:14px;font-size:.72rem;color:var(--t3);margin-bottom:18px}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.service-item{padding:12px;border:1px solid var(--bd);border-radius:var(--rs);background:var(--ow)}
-.service-item h4{font-family:var(--fd);font-size:.84rem;color:var(--na);margin-bottom:3px}
-.service-item p{font-size:.72rem;color:var(--t3);line-height:1.45;margin-bottom:9px}
-.code-list{display:grid;gap:9px}
-.code-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
-.code-item:last-child{border-bottom:none}
-.code-chip{font-family:var(--fm);font-size:.67rem;background:var(--si-p);color:var(--na);border:1px solid var(--bd);border-radius:3px;padding:3px 5px;white-space:nowrap}
-.code-item strong{display:block;font-size:.8rem}
-.code-item span{display:block;color:var(--t3);font-size:.72rem;margin-top:2px}
-.safety-banner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:#fff6e6;border:1px solid #f1d39b;border-left:3px solid var(--go);border-radius:var(--rs);margin-bottom:18px}
-.safety-banner strong{display:block;color:#7d5800;font-size:.8rem}
-.safety-banner p{color:#856404;font-size:.74rem;margin-top:2px}
-.goal-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd)}
-.goal-row:last-child{border-bottom:none}
-.goal-progress{height:6px;background:var(--si-l);border-radius:4px;overflow:hidden;margin-top:5px}
-.goal-progress span{display:block;height:100%;background:var(--em-l);border-radius:4px}
-.triage-alert{background:#fff1f1;border:1px solid #efb7b3;color:#6e1a13;border-radius:var(--rs);padding:12px 14px;font-size:.8rem;line-height:1.5}
-.rating-list{display:grid;gap:12px}
-.rating-row{display:flex;align-items:center;gap:12px;padding:12px;background:var(--ow);border:1px solid var(--bd);border-radius:var(--rs)}
-.rating-row .av{width:38px;height:38px;font-size:.7rem}
-.rating-info{flex:1;min-width:0}
-.rating-stars{display:flex;gap:2px;align-items:center;color:var(--go);font-size:1.05rem;white-space:nowrap}
-.rating-stars .muted{color:var(--bd2)}
-.rating-note{font-size:.72rem;color:var(--t3);margin-top:2px}
-.star-picker{display:flex;gap:3px;margin-top:6px}
-.star-picker input{position:absolute;opacity:0;pointer-events:none}
-.star-picker label{color:var(--bd2);font-size:1.75rem;line-height:1;cursor:pointer;transition:var(--tr)}
-.star-picker label:hover,.star-picker input:checked~label,.star-picker label:has(~ input:checked){color:var(--go)}
-.star-picker input:focus-visible+label{outline:2px solid var(--em-l);outline-offset:3px;border-radius:2px}
-.rating-empty{color:var(--t3);font-size:.84rem;padding:8px 0}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .mb12{margin-bottom:12px}
 .mb18{margin-bottom:18px}
@@ -346,35 +311,90 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .vo-bar:nth-child(5){animation-delay:0s}
 @keyframes vobar{0%,100%{height:6px}50%{height:24px}}
 
-@media(max-width:900px){
-  .hero{grid-template-columns:1fr;padding:48px 28px}
-  .service-grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:700px){
-  #sidebar{width:210px}
-  #main{margin-left:210px}
-  .page{padding:20px 16px}
-  .topbar{padding:10px 16px}
-  .g2,.fr{grid-template-columns:1fr}
-  .rating-row{align-items:flex-start;flex-wrap:wrap}
-  .rating-stars{margin-left:50px;margin-top:-6px}
-  .rating-row .btn{margin-left:auto}
-  .service-grid{grid-template-columns:1fr}
-}
 
+/* ═══ BILINGUAL ═══════════════════════════════════════════════════════════════ */
+:root[data-lang="fr"] .t-en { display: none !important; }
+:root[data-lang="en"] .t-fr { display: none !important; }
+
+/* Language picker overlay */
+#lang-pick {
+  position: fixed; inset: 0; background: var(--na);
+  z-index: 9999; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.lp-logo {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--em-l), var(--em-d));
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+}
+.lp-brand { font-family: var(--fd); font-size: 1.6rem; color: #fff;
+  text-align: center; margin-bottom: 6px; }
+.lp-sub { font-size: .75rem; color: var(--go); letter-spacing: .14em;
+  text-transform: uppercase; text-align: center; margin-bottom: 48px; }
+.lp-prompt { font-size: .82rem; color: rgba(255,255,255,.45);
+  text-align: center; margin-bottom: 20px; letter-spacing: .04em; }
+.lp-btns { display: flex; gap: 16px; }
+.lp-btn {
+  width: 160px; padding: 22px 16px; border-radius: var(--r);
+  border: 2px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05);
+  cursor: pointer; transition: all .25s; text-align: center; color: #fff;
+  font-family: var(--fd);
+}
+.lp-btn:hover { background: rgba(255,255,255,.12); border-color: var(--go);
+  transform: translateY(-2px); }
+.lp-btn-flag { font-size: 2.4rem; margin-bottom: 10px; }
+.lp-btn-lang { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.lp-btn-name { font-size: .72rem; color: rgba(255,255,255,.5);
+  font-family: var(--fb); }
+
+/* Language toggle in sidebar */
+.sb-lang { display: flex; gap: 5px; padding: 10px 16px; margin-top: 2px; }
+.sb-lang-btn {
+  flex: 1; padding: 6px; border-radius: var(--rs);
+  border: 1px solid rgba(255,255,255,.12); background: transparent;
+  color: rgba(255,255,255,.5); font-size: .72rem; font-weight: 600;
+  cursor: pointer; transition: all .2s; letter-spacing: .05em;
+}
+.sb-lang-btn.active { background: rgba(200,146,26,.25);
+  border-color: rgba(200,146,26,.4); color: var(--go-l); }
+.sb-lang-btn:hover:not(.active) { background: rgba(255,255,255,.08); color: #fff; }
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
 </style>
 </head>
 <body>
 
+
+<!-- LANGUAGE PICKER -->
+<div id="lang-pick">
+  <div class="lp-logo">
+    <svg width="32" height="32" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+  </div>
+  <div class="lp-brand">HFA SilverStrong</div>
+  <div class="lp-sub">Healthy Future Africa</div>
+  <div class="lp-prompt">Please choose your language<br>Choisissez votre langue</div>
+  <div class="lp-btns">
+    <button class="lp-btn" onclick="chooseLang('en')">
+      <div class="lp-btn-flag">🇬🇧</div>
+      <div class="lp-btn-lang">English</div>
+      <div class="lp-btn-name">Continue in English</div>
+    </button>
+    <button class="lp-btn" onclick="chooseLang('fr')">
+      <div class="lp-btn-flag">🇫🇷</div>
+      <div class="lp-btn-lang">Français</div>
+      <div class="lp-btn-name">Continuer en Français</div>
+    </button>
+  </div>
+</div>
+
 <!-- LANDING -->
-<div id="land">
+<div id="land" class="hid">
   <nav class="lnav">
-    <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span>SilverStrong</span></div>
+    <div class="llogo" id="land-hero-title">HFA <span>SilverStrong</span></div>
     <div class="lnr">
-      <button class="btn bgh" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="startDemo('patient')">Try Demo</button>
-      <button class="btn bgh" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')">Sign In</button>
-      <button class="btn bg2" onclick="goAuth('register')">Register</button>
+      <a href="index.html" id="lnd-back-btn" style="color:rgba(255,255,255,.42);font-size:.78rem;padding:8px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.12);text-decoration:none;margin-right:4px;transition:.2s" onmouseover="this.style.color='rgba(255,255,255,.8)'" onmouseout="this.style.color='rgba(255,255,255,.42)'">← Website</a>
+      <button class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
+      <button class="btn bg2 land-nav-btn" onclick="goAuth('register')" id="lnd-register">Register</button>
     </div>
   </nav>
   <div class="hero">
@@ -390,40 +410,40 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <button class="btn blg" onclick="goAuth('login')" style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)">Sign In</button>
       </div>
       <div class="hst">
-        <div><div class="hsv">500+</div><div class="hsl">Patients Served</div></div>
-        <div><div class="hsv">50+</div><div class="hsl">Providers</div></div>
-        <div><div class="hsv">99.9%</div><div class="hsl">Uptime</div></div>
+        <div><div class="hsv">500+</div><div class="hsl hs-lbl" id="hs-l1">Patients Served</div></div>
+        <div><div class="hsv">50+</div><div class="hsl hs-lbl" id="hs-l2">Providers</div></div>
+        <div><div class="hsv">99.9%</div><div class="hsl hs-lbl" id="hs-l3">Uptime</div></div>
       </div>
     </div>
     <div class="pg">
       <div class="pc2" onclick="goAuth('register','doctor')">
         <div class="pi" style="background:rgba(10,107,80,.2)"><svg width="22" height="22" fill="none" stroke="#6ddbb8" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-        <h3>Doctor Portal</h3><p>Manage patients, consultations &amp; records</p>
+        <h3 id="lnd-doc-t">Doctor Portal</h3><p id="lnd-doc-p">Manage patients, consultations &amp; records</p>
         <div class="pa">Access Portal →</div>
       </div>
       <div class="pc2" onclick="goAuth('register','nurse')">
         <div class="pi" style="background:rgba(26,111,163,.2)"><svg width="22" height="22" fill="none" stroke="#7ec9ed" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-        <h3>Nurse Portal</h3><p>Patient care &amp; coordination tools</p>
+        <h3 id="lnd-nur-t">Nurse Portal</h3><p id="lnd-nur-p">Patient care &amp; coordination tools</p>
         <div class="pa">Access Portal →</div>
       </div>
       <div class="pc2" onclick="goAuth('register','patient')">
         <div class="pi" style="background:rgba(138,155,176,.15)"><svg width="22" height="22" fill="none" stroke="#c0d0e0" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-        <h3>Patient Portal</h3><p>Book consultations &amp; view health records</p>
+        <h3 id="lnd-pat-t">Patient Portal</h3><p id="lnd-pat-p">Book consultations &amp; view health records</p>
         <div class="pa">Access Portal →</div>
       </div>
       <div class="pc2" onclick="goAuth('login')">
         <div class="pi" style="background:rgba(196,144,42,.15)"><svg width="22" height="22" fill="none" stroke="#e8c06a" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <h3>Admin Panel</h3><p>Audit, manage &amp; oversee all users</p>
+        <h3 id="lnd-adm-t">Admin Panel</h3><p id="lnd-adm-p">Audit, manage &amp; oversee all users</p>
         <div class="pa">Access Panel →</div>
       </div>
     </div>
   </div>
   <div class="lft">
-    <div class="lf"><span class="lfd">●</span> HIPAA-Grade Security</div>
-    <div class="lf"><span class="lfd">●</span> Encrypted Video Calls</div>
-    <div class="lf"><span class="lfd">●</span> Role-Based Access</div>
-    <div class="lf"><span class="lfd">●</span> Full Audit Trail</div>
-    <div class="lf"><span class="lfd">●</span> Admin User Control</div>
+    <div class="lf" id="lf1"><span class="lfd">●</span> HIPAA-Grade Security</div>
+    <div class="lf" id="lf2"><span class="lfd">●</span> Encrypted Video Calls</div>
+    <div class="lf" id="lf3"><span class="lfd">●</span> Role-Based Access</div>
+    <div class="lf" id="lf4"><span class="lfd">●</span> Full Audit Trail</div>
+    <div class="lf" id="lf5"><span class="lfd">●</span> Admin User Control</div>
   </div>
 </div>
 
@@ -431,7 +451,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 <div id="auth-wrap" class="hid">
   <div class="al">
     <div class="abr">
-      <img class="logo-mark auth-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--em-l),var(--em-d));display:flex;align-items:center;justify-content:center;margin:0 auto 12px"><svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
       <h1>HFA<br><span class="go">SilverStrong</span></h1>
       <p>Healthcare Telehealth Platform</p>
     </div>
@@ -442,9 +462,16 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Full admin audit trail &amp; control</div>
       <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Add, suspend, or remove any user</div>
     </div>
+    <div class="dmb">
+      <strong id="demo-lbl">Demo Credentials</strong>
+      <div class="dr"><span>Admin:</span><code>admin@hfa-silverstrong.org</code><code>Admin@2024</code></div>
+      <div class="dr"><span>Doctor:</span><code>anwosu@hfa.org</code><code>Doctor@123</code></div>
+      <div class="dr"><span>Nurse:</span><code>fdiallo@hfa.org</code><code>Nurse@123</code></div>
+      <div class="dr"><span>Patient:</span><code>etabe@gmail.com</code><code>Patient@123</code></div>
+    </div>
   </div>
   <div class="ar">
-    <button class="btn bgh bsm" style="width:fit-content;margin-bottom:20px" onclick="goLand()">← Back to Home</button>
+    <button class="btn bgh bsm" style="width:fit-content;margin-bottom:20px" onclick="goLand()" id="back-home-btn">← Back to Home</button>
     <h2 id="atitle">Welcome Back</h2>
     <p class="asb" id="asub">Sign in to your HFA SilverStrong account</p>
     <div class="atbs">
@@ -454,47 +481,46 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
     <div id="amsg"></div>
     <!-- LOGIN -->
     <div id="fl">
-      <div class="fg"><label class="fl">Email Address</label><input class="fc" type="email" id="le" placeholder="your@email.com"></div>
-      <div class="fg"><label class="fl">Password</label>
+      <div class="fg"><label class="fl" id="lbl-email">Email Address</label><input class="fc" type="email" id="le" placeholder="your@email.com"></div>
+      <div class="fg"><label class="fl" id="lbl-pass">Password</label>
         <div class="iw"><input class="fc" type="password" id="lp" placeholder="Enter password"><button class="eb" onclick="tpw('lp')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
       <button class="btn bp w100 mt8" onclick="doLogin()">Sign In</button>
-      <div class="afo">No account? <span class="alk" onclick="swtTab('register')">Register here</span></div>
+      <div class="afo" id="afo-login">No account? <span class="alk" onclick="swtTab('register')">Register here</span></div>
     </div>
     <!-- REGISTER -->
     <div id="fr" class="hid">
       <div class="fg">
-        <label class="fl">I am a</label>
+        <label class="fl" id="lbl-iama">I am a</label>
         <div class="rbs">
           <button class="rb" id="rb-d" onclick="setRole('doctor')">Doctor</button>
           <button class="rb" id="rb-n" onclick="setRole('nurse')">Nurse</button>
           <button class="rb active" id="rb-p" onclick="setRole('patient')">Patient</button>
         </div>
       </div>
-      <div class="fg"><label class="fl">Full Name</label><input class="fc" id="rn" placeholder="Full legal name"></div>
+      <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="rn" placeholder="Full legal name"></div>
       <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="re" placeholder="your@email.com"></div>
       <div class="fg"><label class="fl">Phone</label><input class="fc" id="rph" placeholder="+237 6XX XXX XXX"></div>
       <div class="fg"><label class="fl">Password</label>
         <div class="iw"><input class="fc" type="password" id="rpa" placeholder="Min. 6 characters"><button class="eb" onclick="tpw('rpa')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
       <div id="df">
-        <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
+        <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp"><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Cardiology</option><option>Pediatrics</option><option>Obstetrics</option><option>Oncology</option><option>Orthopedics</option><option>Neurology</option><option>Dermatology</option><option>Psychiatry</option><option>Surgery</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
         <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" id="rhd" placeholder="Institution name"></div>
       </div>
       <div id="nf" class="hid">
-        <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="rns" required><option value="">Select...</option><option>General Nursing</option><option>Critical Care Nursing</option><option>Emergency Nursing</option><option>Pediatric Nursing</option><option>Neonatal Nursing</option><option>Oncology Nursing</option><option>Surgical and Perioperative Nursing</option><option>Maternal and Midwifery Care</option><option>Psychiatric and Mental Health Nursing</option><option>Community and Public Health Nursing</option><option>Geriatric Nursing</option><option>Renal Nursing</option><option>Cardiac Nursing</option><option>Infection Prevention and Control</option><option>Nurse Anesthesia</option><option>Rehabilitation Nursing</option><option>Occupational Health Nursing</option></select></div></div>
-        <div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div>
+        <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="" id="rde-def">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div></div>
         <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" id="rhn" placeholder="Institution name"></div>
         <div class="fg"><label class="fl">Qualifications</label><input class="fc" id="rqu" placeholder="e.g. BSN, ICU Certified"></div>
       </div>
       <div id="pf">
-        <div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="rdb"></div><div class="fg"><label class="fl">Gender</label><select class="fc" id="rge"><option value="">Select...</option><option>Male</option><option>Female</option><option>Other</option></select></div></div>
+        <div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="rdb"></div><div class="fg"><label class="fl">Gender</label><select class="fc" id="rge"><option value="" id="rge-def">Select...</option><option>Male</option><option>Female</option><option>Other</option></select></div></div>
         <div class="fr"><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="rbl"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div><div class="fg"><label class="fl">Allergies</label><input class="fc" id="ral" placeholder="None, or list them"></div></div>
         <div class="fg"><label class="fl">Address</label><input class="fc" id="rad" placeholder="City, Country"></div>
         <div class="fg"><label class="fl">Emergency Contact</label><input class="fc" id="rec" placeholder="Name — Phone number"></div>
       </div>
       <button class="btn bp w100 mt8" onclick="doReg()">Create Account</button>
-      <div class="afo">Have an account? <span class="alk" onclick="swtTab('login')">Sign in</span></div>
+      <div class="afo" id="afo-reg">Have an account? <span class="alk" onclick="swtTab('login')">Sign in</span></div>
     </div>
   </div>
 </div>
@@ -504,7 +530,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
   <div id="sidebar">
     <div class="sb-logo">
       <div class="sb-li">
-        <div class="sb-ic"><img class="logo-mark sidebar-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"></div>
+        <div class="sb-ic"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
         <div><div class="sb-br">HFA SilverStrong</div><div class="sb-tg">Healthy Future Africa</div></div>
       </div>
       <span id="srb" class="sb-rb"></span>
@@ -515,7 +541,14 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <div class="av" id="sav"></div>
         <div><div class="un" id="snm"></div><div class="ue" id="sem"></div></div>
       </div>
-      <button class="btn-lo" onclick="doLogout()">
+      <div class="sb-lang">
+      <button class="sb-lang-btn active" id="slb-en" onclick="setLang('en')">EN</button>
+      <button class="sb-lang-btn" id="slb-fr" onclick="setLang('fr')">FR</button>
+    </div>
+    <a href="index.html" id="sb-site-link" style="display:flex;align-items:center;gap:7px;padding:9px 18px;margin:4px 0;color:rgba(255,255,255,.38);font-size:.74rem;text-decoration:none;border-top:1px solid rgba(255,255,255,.07);transition:.2s" onmouseover="this.style.color='rgba(255,255,255,.72)'" onmouseout="this.style.color='rgba(255,255,255,.38)'">
+      <span>🌐</span><span id="sb-site-lbl">Back to Website</span>
+    </a>
+    <button class="btn-lo" onclick="doLogout()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Sign Out
       </button>
@@ -535,7 +568,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 <!-- VIDEO CALL -->
 <div id="vc" class="hid">
   <div class="vch">
-    <div class="vcl"><div class="vcd"></div>LIVE</div>
+    <div class="vcl"><div class="vcd"></div><span id="vc-live-lbl">LIVE</span></div>
     <span style="color:#fff;font-family:var(--fd);font-size:.9rem;margin-left:10px" id="vc-type-label">Video Consultation — HFA SilverStrong</span>
     <div class="vce" style="margin-left:auto">🔒 End-to-End Encrypted</div>
   </div>
@@ -564,8 +597,8 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 <!-- VOICE CALL -->
 <div id="voc" class="hid">
   <div class="voh">
-    <div class="vol"><div class="vold"></div>LIVE</div>
-    <span style="color:#fff;font-family:var(--fd);font-size:.9rem;margin-left:10px">Voice Consultation — HFA SilverStrong</span>
+    <div class="vol"><div class="vold"></div><span id="vo-live-lbl">LIVE</span></div>
+    <span style="color:#fff;font-family:var(--fd);font-size:.9rem;margin-left:10px" id="vo-type-label">Voice Consultation — HFA SilverStrong</span>
     <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-left:auto">🔒 End-to-End Encrypted</div>
   </div>
   <div class="voa">
@@ -608,25 +641,479 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 <div id="movr" class="ov hid" onclick="cmbg(event)"><div class="mo" id="mbox"></div></div>
 
 <script>
+
+// ═══════════════════════ LANGUAGE SYSTEM (must be first) ═══════════════════════
+
+let LANG = 'en';
+
+const T = {
+  en: {
+    // Auth
+    welcome_back:'Welcome Back', create_account:'Create Account',
+    sign_in_sub:'Sign in to your HFA SilverStrong account',
+    register_sub:'Register for your healthcare portal',
+    sign_in:'Sign In', register:'Register',
+    email:'Email Address', password:'Password', enter_password:'Enter password',
+    min_password:'Min. 6 characters', full_name:'Full Name', full_name_ph:'Full legal name',
+    phone:'Phone Number', i_am_a:'I am a', doctor:'Doctor', nurse:'Nurse', patient:'Patient',
+    specialty:'Specialty', license_no:'License No.', hospital:'Hospital / Clinic',
+    department:'Department', nurse_id:'Nurse ID', qualifications:'Qualifications',
+    quals_ph:'e.g. BSN, ICU Certified', dob:'Date of Birth', gender:'Gender',
+    blood_type:'Blood Type', allergies:'Allergies', allergy_ph:'None, or list them',
+    address:'Address', address_ph:'City, Country', emergency:'Emergency Contact',
+    emergency_ph:'Name — Phone number', create_btn:'Create Account',
+    have_account:'Have an account?', no_account:'No account?',
+    sign_in_link:'Sign in', register_link:'Register here',
+    back_home:'← Back to Home', invalid_creds:'Invalid email or password.',
+    suspended_msg:'Your account has been suspended. Contact the administrator.',
+    fill_required:'Please fill in all required fields.',
+    password_short:'Password must be at least 6 characters.',
+    email_exists:'An account with this email already exists.',
+    reg_success:'Registration successful! You can now sign in.',
+    select:'Select...', gm:'General Medicine', cardiology:'Cardiology',
+    pediatrics:'Pediatrics', obstetrics:'Obstetrics', oncology:'Oncology',
+    orthopedics:'Orthopedics', neurology:'Neurology', dermatology:'Dermatology',
+    psychiatry:'Psychiatry', surgery:'Surgery',
+    emergency_care:'Emergency Care', icu:'ICU', general_ward:'General Ward',
+    operating_room:'Operating Room', outpatient:'Outpatient', maternity:'Maternity',
+    male:'Male', female:'Female', other:'Other',
+
+    // Nav & sidebar
+    dashboard:'Dashboard', audit_logs:'Audit Logs',
+    doctors:'Doctors', nurses:'Nurses', patients:'Patients',
+    all_appointments:'All Appointments', communications:'Communications',
+    my_patients:'My Patients', appointments:'Appointments',
+    messages:'Messages', consultations:'Consultations',
+    medical_records:'Medical Records', care_notes:'Care Notes',
+    my_appointments:'My Appointments', health_records:'Health Records',
+    consult_now:'Consult Now', sign_out:'Sign Out',
+
+    // Topbar page titles
+    admin_dashboard:'Admin Dashboard', platform_overview:'Platform Overview',
+    audit_title:'Audit & Security Logs', manage_doctors:'Manage Doctors',
+    manage_nurses:'Manage Nurses', manage_patients:'Manage Patients',
+    all_apts_title:'All Appointments', doctor_dashboard:'Doctor Dashboard',
+    nurse_dashboard:'Nurse Dashboard', patient_dashboard:'Patient Dashboard',
+    patient_list:'Patient List', apt_schedule:'Appointment Schedule',
+    comm_title:'Communications', consult_title:'Consultation Centre',
+
+    // Dashboard labels
+    welcome:'Welcome', specialty_lbl:'Specialty', hospital_lbl:'Hospital',
+    dept_lbl:'Department', upcoming:'Upcoming', completed:'Completed',
+    my_patients_lbl:'My Patients', assigned_patients:'Assigned Patients',
+    upcoming_tasks:'Upcoming Tasks', upcoming_apts:'upcoming apts',
+    completed_consults:'Completed Consultations',
+    no_upcoming:'no upcoming', no_patients:'no patients',
+    no_notes:'No care notes yet',no_patients_yet:'No patients assigned yet',
+    add_first_note:'No care notes yet. Add your first note.',
+    no_records:'No patient records available', no_apts:'No appointments found',
+    no_contacts:'No contacts', start_conv:'start conv',
+    encrypted_note:'encrypted note',
+    book_now:'Book Now', message_team:'message team',
+    allergy_alert:'allergy alert',
+    ensure_informed:'ensure informed',
+    care_team:'care team', no_team:'no team',
+
+    // Stats
+    total_doctors:'Doctors', total_nurses:'Nurses', total_patients:'Patients',
+    suspended:'Suspended', failed_logins:'Failed Logins',
+    recent_activity:'Recent Activity',
+
+    // Table headers
+    user:'User', action:'Action', resource:'Resource', timestamp:'Timestamp',
+    status:'Status', date_time:'Date & Time', type:'Type', mode:'Mode',
+    phone_lbl:'Phone', joined:'Joined', actions:'Actions',
+
+    // Buttons
+    add_doctor:'Add Doctor', add_nurse:'Add Nurse', add_patient:'Add Patient',
+    new_appointment:'New Appointment', book_consultation:'Book Consultation',
+    add_note:'Add Care Note', add_user:'Add User', view_audit:'View Audit Log',
+    refresh:'Refresh', edit:'Edit', suspend:'Suspend', activate:'Activate',
+    delete:'Delete', done:'Done', cancel:'Cancel', save:'Save',
+    save_changes:'Save Changes', confirm:'Confirm', send:'Send',
+    join_video:'Join Video', join_call:'Join Call', open_chat:'Open Chat',
+
+    // Appointment statuses
+    scheduled:'Scheduled', cancelled:'Cancelled',
+
+    // Consultation page
+    start_consultation:'Start a Consultation',
+    choose_mode:'Choose your preferred consultation mode',
+    text_consult:'Text Consultation',
+    text_desc:'Secure text-based messaging with your care team. Ideal for non-urgent queries and follow-ups.',
+    text_feat1:'End-to-end encrypted', text_feat2:'File sharing',
+    start_text:'Start Text Chat',
+    voice_consult:'Voice Consultation',
+    voice_desc:'Crystal-clear audio call optimised for low-bandwidth rural connections. Ideal when video is unavailable.',
+    voice_feat1:'Low bandwidth', voice_feat2:'Encrypted',
+    start_voice:'Start Voice Call',
+    video_consult:'Video Consultation',
+    video_desc:'Face-to-face video call with your doctor or nurse. Ideal for detailed health assessments.',
+    video_feat1:'HD Video & Audio', video_feat2:'Secure & Private',
+    start_video:'Start Video Call',
+    scheduled_consults:'Scheduled Consultations',
+
+    // Video/Voice call
+    live:'LIVE', encrypted_call:'🔒 End-to-End Encrypted',
+    video_call_title:'Video Consultation — HFA SilverStrong',
+    voice_call_title:'Voice Consultation — HFA SilverStrong',
+    connected:'Connected', muted_lbl:'Muted',
+    mute:'Mute', speaker:'Speaker', end_call:'End Call',
+
+    // Modals
+    add_care_note:'Add Care Note', patient_lbl:'Patient', note_lbl:'Note',
+    note_ph:'Observations, vital signs, medications given...',
+    new_apt:'New Appointment', book_apt:'Book Consultation',
+    date_lbl:'Date', time_lbl:'Time', notes_lbl:'Notes',
+    apt_notes_ph:'Appointment notes...', apt_mode:'Mode',
+    video_call:'📹 Video Call', voice_call:'📞 Voice Call', text_chat:'💬 Text',
+    apt_type:'Type', consultation:'Consultation', follow_up:'Follow-up',
+    emergency:'Emergency', book_btn:'Book Appointment', confirm_booking:'Confirm Booking',
+    reason_ph:'Describe your symptoms or concern...',
+    preferred_date:'Preferred Date', preferred_time:'Preferred Time',
+    reason_lbl:'Reason for Consultation',
+    start_video_call:'Start Video Call', start_voice_call:'Start Voice Call',
+    select_video_contact:'Select who you want to video call:',
+    select_voice_contact:'Select who you want to call:',
+    call_lbl:'Call',
+
+    // Admin modals
+    add_new:'Add New', full_name_lbl:'Full Name', email_lbl:'Email',
+    temp_password:'Temporary password', assign_doctor:'Assign Doctor',
+    assign_nurse:'Assign Nurse', none_lbl:'None',
+    suspend_confirm:'They will be unable to log in.',
+    suspend_q:'Suspend', yes_suspend:'Yes, Suspend',
+    delete_q:'Permanently delete', delete_warn:'This action cannot be undone.',
+    yes_delete:'Yes, Delete',
+
+    // Patient records
+    personal_info:'personal info', medical_info:'medical info',
+    medical_history:'Medical History', none_recorded:'None recorded',
+    no_record:'—', blood_type_lbl:'Blood Type', gender_lbl:'Gender',
+    dob_lbl:'Date of Birth', address_lbl:'Address',
+    emergency_contact:'Emergency Contact',
+
+    // Badges & misc
+    active:'Active', video:'video', voice:'voice', text:'text',
+    success:'OK', failed:'Failed',
+    demo_creds:'Demo Credentials',
+  },
+
+  fr: {
+    // Auth
+    welcome_back:'Bon Retour', create_account:'Créer un Compte',
+    sign_in_sub:'Connectez-vous à HFA SilverStrong',
+    register_sub:'Créez votre compte sur le portail de santé',
+    sign_in:'Se Connecter', register:'S\'inscrire',
+    email:'Adresse Email', password:'Mot de Passe', enter_password:'Entrer le mot de passe',
+    min_password:'Min. 6 caractères', full_name:'Nom Complet', full_name_ph:'Nom légal complet',
+    phone:'Numéro de Téléphone', i_am_a:'Je suis', doctor:'Médecin', nurse:'Infirmier(e)', patient:'Patient(e)',
+    specialty:'Spécialité', license_no:'N° de Licence', hospital:'Hôpital / Clinique',
+    department:'Département', nurse_id:'ID Infirmier(e)', qualifications:'Qualifications',
+    quals_ph:'ex. BSN, Soins Intensifs Certifié', dob:'Date de Naissance', gender:'Genre',
+    blood_type:'Groupe Sanguin', allergies:'Allergies', allergy_ph:'Aucune, ou les lister',
+    address:'Adresse', address_ph:'Ville, Pays', emergency:'Contact d\'Urgence',
+    emergency_ph:'Nom — Numéro de téléphone', create_btn:'Créer le Compte',
+    have_account:'Vous avez un compte ?', no_account:'Pas de compte ?',
+    sign_in_link:'Se connecter', register_link:'S\'inscrire ici',
+    back_home:'← Retour à l\'Accueil', invalid_creds:'Email ou mot de passe invalide.',
+    suspended_msg:'Votre compte a été suspendu. Contactez l\'administrateur.',
+    fill_required:'Veuillez remplir tous les champs obligatoires.',
+    password_short:'Le mot de passe doit contenir au moins 6 caractères.',
+    email_exists:'Un compte avec cet email existe déjà.',
+    reg_success:'Inscription réussie ! Vous pouvez maintenant vous connecter.',
+    select:'Sélectionner...', gm:'Médecine Générale', cardiology:'Cardiologie',
+    pediatrics:'Pédiatrie', obstetrics:'Obstétrique', oncology:'Oncologie',
+    orthopedics:'Orthopédie', neurology:'Neurologie', dermatology:'Dermatologie',
+    psychiatry:'Psychiatrie', surgery:'Chirurgie',
+    emergency_care:'Soins d\'Urgence', icu:'Réanimation', general_ward:'Salle Générale',
+    operating_room:'Bloc Opératoire', outpatient:'Consultation Externe', maternity:'Maternité',
+    male:'Masculin', female:'Féminin', other:'Autre',
+
+    // Nav & sidebar
+    dashboard:'Tableau de Bord', audit_logs:'Journaux d\'Audit',
+    doctors:'Médecins', nurses:'Infirmiers', patients:'Patients',
+    all_appointments:'Tous les Rendez-vous', communications:'Communications',
+    my_patients:'Mes Patients', appointments:'Rendez-vous',
+    messages:'Messages', consultations:'Consultations',
+    medical_records:'Dossiers Médicaux', care_notes:'Notes de Soins',
+    my_appointments:'Mes Rendez-vous', health_records:'Dossiers de Santé',
+    consult_now:'Consulter Maintenant', sign_out:'Se Déconnecter',
+
+    // Topbar page titles
+    admin_dashboard:'Tableau de Bord Admin', platform_overview:'Vue d\'Ensemble',
+    audit_title:'Journaux de Sécurité & d\'Audit', manage_doctors:'Gérer les Médecins',
+    manage_nurses:'Gérer les Infirmiers', manage_patients:'Gérer les Patients',
+    all_apts_title:'Tous les Rendez-vous', doctor_dashboard:'Tableau de Bord Médecin',
+    nurse_dashboard:'Tableau de Bord Infirmier', patient_dashboard:'Tableau de Bord Patient',
+    patient_list:'Liste des Patients', apt_schedule:'Planning des Rendez-vous',
+    comm_title:'Communications', consult_title:'Centre de Consultation',
+
+    // Dashboard labels
+    welcome:'Bienvenue', specialty_lbl:'Spécialité', hospital_lbl:'Hôpital',
+    dept_lbl:'Département', upcoming:'À Venir', completed:'Terminés',
+    my_patients_lbl:'Mes Patients', assigned_patients:'Patients Assignés',
+    upcoming_tasks:'Tâches à Venir', upcoming_apts:'Rendez-vous à Venir',
+    completed_consults:'Consultations Terminées',
+    no_upcoming:'Aucun rendez-vous à venir', no_patients:'Aucun patient assigné',
+    no_notes:'Aucune note de soins', no_patients_yet:'Aucun patient assigné pour l\'instant',
+    add_first_note:'Aucune note de soins. Ajoutez votre première note.',
+    no_records:'Aucun dossier patient disponible', no_apts:'Aucun rendez-vous trouvé',
+    no_contacts:'Aucun contact', start_conv:'Sélectionnez un contact pour commencer',
+    encrypted_note:'Toutes les communications sont chiffrées',
+    book_now:'Réserver', message_team:'Contacter Équipe Soignante',
+    allergy_alert:'⚠ Alerte Allergie',
+    ensure_informed:'Assurez-vous que tous les soignants sont informés.',
+    care_team:'Mon Équipe Soignante', no_team:'Aucune équipe soignante assignée',
+
+    // Stats
+    total_doctors:'Médecins', total_nurses:'Infirmiers', total_patients:'Patients',
+    suspended:'Suspendus', failed_logins:'Connexions Échouées',
+    recent_activity:'Activité Récente',
+
+    // Table headers
+    user:'Utilisateur', action:'Action', resource:'Ressource', timestamp:'Horodatage',
+    status:'Statut', date_time:'Date & Heure', type:'Type', mode:'Mode',
+    phone_lbl:'Téléphone', joined:'Inscrit le', actions:'Actions',
+
+    // Buttons
+    add_doctor:'Ajouter Médecin', add_nurse:'Ajouter Infirmier',
+    add_patient:'Ajouter Patient', new_appointment:'Nouveau Rendez-vous',
+    book_consultation:'Réserver une Consultation',
+    add_note:'Ajouter une Note', add_user:'Ajouter Utilisateur',
+    view_audit:'Voir Journal d\'Audit', refresh:'Actualiser',
+    edit:'Modifier', suspend:'Suspendre', activate:'Activer',
+    delete:'Supprimer', done:'Terminé', cancel:'Annuler', save:'Sauvegarder',
+    save_changes:'Enregistrer les Modifications', confirm:'Confirmer', send:'Envoyer',
+    join_video:'Rejoindre Vidéo', join_call:'Rejoindre l\'Appel', open_chat:'Ouvrir le Chat',
+
+    // Appointment statuses
+    scheduled:'Planifié', cancelled:'Annulé',
+
+    // Consultation page
+    start_consultation:'Démarrer une Consultation',
+    choose_mode:'Choisissez votre mode de consultation préféré',
+    text_consult:'Consultation par Texte',
+    text_desc:'Messagerie sécurisée avec votre équipe soignante. Idéal pour les questions non urgentes.',
+    text_feat1:'Chiffrement bout en bout', text_feat2:'Partage de fichiers',
+    start_text:'Démarrer le Chat',
+    voice_consult:'Consultation Vocale',
+    voice_desc:'Appel audio clair optimisé pour les connexions rurales à faible bande passante.',
+    voice_feat1:'Faible bande passante', voice_feat2:'Chiffré',
+    start_voice:'Démarrer l\'Appel Vocal',
+    video_consult:'Consultation Vidéo',
+    video_desc:'Appel vidéo face à face avec votre médecin ou infirmier. Idéal pour les bilans de santé.',
+    video_feat1:'Vidéo & Audio HD', video_feat2:'Sécurisé & Privé',
+    start_video:'Démarrer la Vidéo',
+    scheduled_consults:'Consultations Planifiées',
+
+    // Video/Voice call
+    live:'EN DIRECT', encrypted_call:'🔒 Chiffrement de Bout en Bout',
+    video_call_title:'Consultation Vidéo — HFA SilverStrong',
+    voice_call_title:'Consultation Vocale — HFA SilverStrong',
+    connected:'Connecté', muted_lbl:'En sourdine',
+    mute:'Sourdine', speaker:'Haut-parleur', end_call:'Raccrocher',
+
+    // Modals
+    add_care_note:'Ajouter une Note de Soins', patient_lbl:'Patient', note_lbl:'Note',
+    note_ph:'Observations, constantes, médicaments administrés...',
+    new_apt:'Nouveau Rendez-vous', book_apt:'Réserver une Consultation',
+    date_lbl:'Date', time_lbl:'Heure', notes_lbl:'Notes',
+    apt_notes_ph:'Notes sur le rendez-vous...', apt_mode:'Mode',
+    video_call:'📹 Appel Vidéo', voice_call:'📞 Appel Vocal', text_chat:'💬 Texte',
+    apt_type:'Type', consultation:'Consultation', follow_up:'Suivi',
+    emergency:'Urgence', book_btn:'Réserver le Rendez-vous', confirm_booking:'Confirmer la Réservation',
+    reason_ph:'Décrivez vos symptômes ou votre préoccupation...',
+    preferred_date:'Date Préférée', preferred_time:'Heure Préférée',
+    reason_lbl:'Motif de la Consultation',
+    start_video_call:'Démarrer un Appel Vidéo', start_voice_call:'Démarrer un Appel Vocal',
+    select_video_contact:'Sélectionnez le destinataire de l\'appel vidéo :',
+    select_voice_contact:'Sélectionnez le destinataire de l\'appel :',
+    call_lbl:'Appeler',
+
+    // Admin modals
+    add_new:'Ajouter un(e)', full_name_lbl:'Nom Complet', email_lbl:'Email',
+    temp_password:'Mot de passe temporaire', assign_doctor:'Attribuer un Médecin',
+    assign_nurse:'Attribuer un(e) Infirmier(e)', none_lbl:'Aucun',
+    suspend_confirm:'Cet utilisateur ne pourra plus se connecter.',
+    suspend_q:'Suspendre', yes_suspend:'Oui, Suspendre',
+    delete_q:'Supprimer définitivement', delete_warn:'Cette action est irréversible.',
+    yes_delete:'Oui, Supprimer',
+
+    // Patient records
+    personal_info:'Informations Personnelles', medical_info:'Informations Médicales',
+    medical_history:'Antécédents Médicaux', none_recorded:'Aucun enregistré',
+    no_record:'—', blood_type_lbl:'Groupe Sanguin', gender_lbl:'Genre',
+    dob_lbl:'Date de Naissance', address_lbl:'Adresse',
+    emergency_contact:'Contact d\'Urgence',
+
+    // Badges & misc
+    active:'Actif', video:'vidéo', voice:'vocal', text:'texte',
+    success:'OK', failed:'Échoué',
+    demo_creds:'Identifiants de Démonstration',
+  }
+};
+
+function t(key) { return (T[LANG] && T[LANG][key]) || T.en[key] || key; }
+
+function chooseLang(lang) {
+  LANG = lang;
+  localStorage.setItem('hfa-lang', lang);
+  document.documentElement.setAttribute('data-lang', lang);
+  updateLangButtons();
+  updateStaticHTML();
+  hide('lang-pick');
+  show('land');
+}
+
+function setLang(lang) {
+  LANG = lang;
+  localStorage.setItem('hfa-lang', lang);
+  document.documentElement.setAttribute('data-lang', lang);
+  updateLangButtons();
+  updateStaticHTML();
+  // Re-render current page if app is open
+  if (!$('app-wrap').classList.contains('hid')) {
+    buildSidebar();
+    renderPage(CP);
+  }
+}
+
+function updateLangButtons() {
+  ['en','fr'].forEach(l => {
+    const sb = $('slb-'+l);
+    if (sb) sb.classList.toggle('active', l === LANG);
+  });
+}
+
+function updateAuthStrings() {
+  const isLogin = !$('fr').classList.contains('hid') === false;
+  // update placeholders dynamically
+  const le = $('le'); if(le) le.placeholder = 'your@email.com';
+}
+
+
+// ── Update static HTML strings when lang changes ─────────────────────────────
+
+function updateStaticHTML() {
+  const ids = {
+    'lnd-doc-t': LANG==='fr'?'Portail Médecin':'Doctor Portal',
+    'lnd-nur-t': LANG==='fr'?'Portail Infirmier':'Nurse Portal',
+    'lnd-pat-t': LANG==='fr'?'Portail Patient':'Patient Portal',
+    'lnd-adm-t': LANG==='fr'?'Panneau Admin':'Admin Panel',
+    'lbl-name':  t('full_name'),
+    'lbl-email': t('email'),
+    'lbl-phone': t('phone'),
+    'lbl-pass':  t('password'),
+    'lbl-iama':  t('i_am_a'),
+    'demo-lbl':  t('demo_creds'),
+    'back-home-btn': LANG==='fr'?'← Retour':'← Back to Home',
+  };
+  Object.entries(ids).forEach(([id, val]) => {
+    const el = $(id); if(el) el.textContent = val;
+  });
+  // Auth footer lines
+  const afoLogin = $('afo-login');
+  if(afoLogin) afoLogin.innerHTML = LANG==='fr'
+    ? "Pas de compte ? <span class=\"alk\" onclick=\"swtTab('register')\">S'inscrire ici</span>"
+    : "No account? <span class=\"alk\" onclick=\"swtTab('register')\">Register here</span>";
+  const afoReg = $('afo-reg');
+  if(afoReg) afoReg.innerHTML = LANG==='fr'
+    ? "Vous avez un compte ? <span class=\"alk\" onclick=\"swtTab('login')\">Se connecter</span>"
+    : "Have an account? <span class=\"alk\" onclick=\"swtTab('login')\">Sign in</span>";
+  // Role buttons
+  const rbd = $('rb-d'); if(rbd) rbd.textContent = t('doctor');
+  const rbn = $('rb-n'); if(rbn) rbn.textContent = t('nurse');
+  const rbp = $('rb-p'); if(rbp) rbp.textContent = t('patient');
+  // Select defaults
+  const rspd=$('rsp-def'); if(rspd) rspd.textContent=t('select');
+  const rded=$('rde-def'); if(rded) rded.textContent=t('select');
+  const rged=$('rge-def'); if(rged) rged.textContent=t('select');
+  // Blood type / gender labels in register
+  const lbph=$('lbl-phone'); if(lbph) lbph.textContent=t('phone');
+  // Specialty/Dept/Gender options - update first option only (select stays bilingual enough)
+  const rgeOpts=$('rge'); if(rgeOpts&&rgeOpts.options.length>1){
+    rgeOpts.options[1].text=t('male');
+    rgeOpts.options[2].text=t('female');
+    rgeOpts.options[3].text=t('other');
+  }
+  // Auth tab buttons
+  const tl = $('tl'); if(tl) tl.textContent = t('sign_in');
+  const tr = $('tr'); if(tr) tr.textContent = t('register');
+  // Landing portal descriptions
+  const desc = {
+    'lnd-doc-p': LANG==='fr'?'Gérez patients, consultations & dossiers':'Manage patients, consultations & records',
+    'lnd-nur-p': LANG==='fr'?'Coordination des soins & outils infirmiers':'Patient care & coordination tools',
+    'lnd-pat-p': LANG==='fr'?'Réservez des consultations & dossiers de santé':'Book consultations & view health records',
+    'lnd-adm-p': LANG==='fr'?'Audit, gestion & supervision':'Audit, manage & oversee all users',
+  };
+  Object.entries(desc).forEach(([id, val]) => {
+    const el = $(id); if(el) el.textContent = val;
+  });
+  // Landing hero
+  const lhd = $('land-hero-title');
+  if(lhd) lhd.innerHTML = LANG==='fr'
+    ? 'Télésanté <span style="color:var(--go)">SilverStrong</span>'
+    : 'HFA <span style="color:var(--go)">SilverStrong</span>';
+  // Landing nav buttons
+  const lsi = $('lnd-signin'); if(lsi) lsi.textContent = LANG==='fr'?'Se Connecter':'Sign In';
+  const lbk = $('lnd-back-btn'); if(lbk) lbk.textContent = LANG==='fr'?'← Site Web':'← Website';
+  const sbs = $('sb-site-lbl');  if(sbs) sbs.textContent  = LANG==='fr'?'Retour au Site':'Back to Website';
+  const lrg = $('lnd-register'); if(lrg) lrg.textContent = LANG==='fr'?'Inscription':'Register';
+  // Landing footer features
+  const lfmap = {
+    'lf1': LANG==='fr'?'Sécurité HIPAA':'HIPAA-Grade Security',
+    'lf2': LANG==='fr'?'Appels Vidéo Chiffrés':'Encrypted Video Calls',
+    'lf3': LANG==='fr'?'Accès par les Rôles':'Role-Based Access',
+    'lf4': LANG==='fr'?'Piste d\'Audit Complète':'Full Audit Trail',
+    'lf5': LANG==='fr'?'Contrôle Admin':'Admin User Control',
+  };
+  Object.entries(lfmap).forEach(([id,val])=>{ const el=$(id); if(el) el.innerHTML='<span class="lfd">●</span> '+val; });
+  // Landing hero stat labels
+  const hs1=$('hs-l1'); if(hs1) hs1.textContent=LANG==='fr'?'Patients Servis':'Patients Served';
+  const hs2=$('hs-l2'); if(hs2) hs2.textContent=LANG==='fr'?'Prestataires':'Providers';
+  const hs3=$('hs-l3'); if(hs3) hs3.textContent=LANG==='fr'?'Disponibilité':'Uptime';
+  // Voice/video call overlay labels
+  const vcl = $('vc-live-lbl'); if(vcl) vcl.textContent = t('live');
+  const vctl = $('vc-type-label'); if(vctl) vctl.textContent = t('video_call_title');
+  const vol2 = $('vo-live-lbl'); if(vol2) vol2.textContent = t('live');
+  const votl2 = $('vo-type-label'); if(votl2) votl2.textContent = t('voice_call_title');
+  const vows2 = $('vo-status'); if(vows2) vows2.textContent = t('connected');
+  // Landing page stat labels
+  const lstats = document.querySelectorAll('.hs-lbl');
+  if(lstats.length>=3){
+    lstats[0].textContent = LANG==='fr'?'Patients à servir':'Patients Served';
+    lstats[1].textContent = LANG==='fr'?'Prestataires':'Providers';
+    lstats[2].textContent = LANG==='fr'?'Disponibilité':'Uptime';
+  }
+  // Landing nav buttons
+  const lnr = document.querySelectorAll('.land-nav-btn');
+  // Auth screen title
+  const isReg = !$('fr').classList.contains('hid');
+  const at = $('atitle'); if(at) at.textContent = isReg ? t('create_account') : t('welcome_back');
+  const as = $('asub'); if(as) as.textContent = isReg ? t('register_sub') : t('sign_in_sub');
+}
+
+// ═══════════════════════ UTILITIES & APP CODE ════════════════════════════════
+
 // ═══════════════════════ DATA STORE ═══════════════════════
 const DB = {
   users: [
-    {id:'adm1',role:'admin',name:'Chinjie Sylvester',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
-    {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
+    {id:'adm1',role:'admin',name:'Chinjie Sylvester',email:'admin@hfa-silverstrong.org',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01'},
     {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10'},
     {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15'},
-    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',status:'active',createdAt:'2024-02-20'},
-    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',password:'Nurse@123',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',status:'active',createdAt:'2024-04-01'},
-    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',password:'Patient@123',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
-    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',password:'Patient@123',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.',conditions:[{system:'ICD-10-CM',code:'E11.9',display:'Type 2 diabetes mellitus without complications'}],medications:[{system:'RxNorm',code:'860975',display:'Metformin 500 MG Oral Tablet'}],observations:[{system:'LOINC',code:'2339-0',display:'Glucose [Mass/volume] in Blood',value:'8.4',unit:'mmol/L',effectiveDate:'2025-01-27'}]},
-    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',password:'Patient@123',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.',conditions:[{system:'ICD-10-CM',code:'I25.10',display:'Atherosclerotic heart disease of native coronary artery without angina pectoris'}],medications:[],observations:[]},
+    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',status:'active',createdAt:'2024-02-20'},
+    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',password:'Nurse@123',department:'Pediatrics',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',status:'active',createdAt:'2024-04-01'},
+    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',password:'Patient@123',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.'},
+    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',password:'Patient@123',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.'},
+    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',password:'Patient@123',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.'},
   ],
   appointments: [
-    {id:'apt1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',date:'2025-02-04',time:'09:30',type:'consultation',serviceCode:'PC-VIRTUAL',serviceName:'Virtual primary care',encounterClass:'VR',status:'scheduled',notes:'Follow-up blood pressure check',mode:'video'},
-    {id:'apt2',patientId:'pat2',doctorId:'doc1',nurseId:'nur1',date:'2025-01-29',time:'11:00',type:'consultation',serviceCode:'MED-REVIEW',serviceName:'Medication review',encounterClass:'VR',status:'completed',notes:'Diabetes management review',mode:'text'},
-    {id:'apt3',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-06',time:'14:00',type:'consultation',serviceCode:'CARD-VIRTUAL',serviceName:'Virtual cardiology',encounterClass:'VR',status:'scheduled',notes:'Cardiology post-op check',mode:'video'},
-    {id:'apt4',patientId:'pat1',doctorId:'doc1',date:'2025-02-10',time:'10:00',type:'follow-up',serviceCode:'MED-REVIEW',serviceName:'Medication review',encounterClass:'VR',status:'scheduled',notes:'Medication review',mode:'text'},
-    {id:'apt5',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-08',time:'08:00',type:'consultation',serviceCode:'CARD-VIRTUAL',serviceName:'Virtual cardiology',encounterClass:'VR',status:'scheduled',notes:'Weekly cardiac check-in',mode:'voice'},
+    {id:'apt1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',date:'2025-02-04',time:'09:30',type:'consultation',status:'scheduled',notes:'Follow-up blood pressure check',mode:'video'},
+    {id:'apt2',patientId:'pat2',doctorId:'doc1',nurseId:'nur1',date:'2025-01-29',time:'11:00',type:'consultation',status:'completed',notes:'Diabetes management review',mode:'text'},
+    {id:'apt3',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-06',time:'14:00',type:'consultation',status:'scheduled',notes:'Cardiology post-op check',mode:'video'},
+    {id:'apt4',patientId:'pat1',doctorId:'doc1',date:'2025-02-10',time:'10:00',type:'follow-up',status:'scheduled',notes:'Medication review',mode:'text'},
+    {id:'apt5',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-08',time:'08:00',type:'consultation',status:'scheduled',notes:'Weekly cardiac check-in',mode:'voice'},
   ],
   messages: [
     {id:'m1',from:'doc1',to:'pat1',text:'Hello Emmanuel, how are you feeling today?',time:'10:02 AM',date:'2025-01-27'},
@@ -650,53 +1137,7 @@ const DB = {
     {id:'cn2',nurseId:'nur1',patientId:'pat2',text:'Blood glucose: 8.4 mmol/L. Diet review completed. Patient doing well.',date:'2025-01-27',time:'10:30 AM'},
     {id:'cn3',nurseId:'nur1',patientId:'pat3',text:'Post-op incision site checked. Healing well. No signs of infection.',date:'2025-01-28',time:'08:45 AM'},
   ],
-  carePlans: [
-    {id:'cp1',patientId:'pat1',title:'Blood pressure control',ownerId:'doc1',status:'active',nextReview:'2025-02-04',goals:[{label:'Take prescribed medicine as directed',progress:80},{label:'Record blood pressure three times weekly',progress:60}]},
-    {id:'cp2',patientId:'pat2',title:'Diabetes self-management',ownerId:'doc1',status:'active',nextReview:'2025-02-12',goals:[{label:'Track glucose readings',progress:70},{label:'Follow nutrition plan',progress:50}]},
-  ],
-  triageCases: [],
-  reviews: [],
-  clinicianVerifications: [
-    {id:'ver1',providerId:'doc1',status:'verified',verifiedBy:'adm1',verifiedAt:'2024-02-12',licenseExpiry:'2027-02-12'},
-    {id:'ver2',providerId:'doc2',status:'verified',verifiedBy:'adm1',verifiedAt:'2024-03-20',licenseExpiry:'2027-03-20'},
-    {id:'ver3',providerId:'nur1',status:'verified',verifiedBy:'adm2',verifiedAt:'2024-02-25',licenseExpiry:'2027-02-25'},
-  ],
-  consents: [{id:'con1',patientId:'pat1',type:'Telehealth and data sharing',status:'active',version:'2025.1',recordedAt:'2025-01-27'}],
-  medicationSafetyAlerts: [{id:'msa1',patientId:'pat1',severity:'review',message:'Penicillin allergy recorded; verify medication allergies before prescribing.',status:'open'}],
-  integrations: [
-    {id:'int1',name:'FHIR R4 API',purpose:'Clinical data exchange',status:'configuration required',environment:'demo'},
-    {id:'int2',name:'Terminology service',purpose:'ICD-10-CM, SNOMED CT, LOINC, RxNorm validation',status:'configuration required',environment:'demo'},
-    {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'demo'},
-  ],
 };
-
-const SPECIALTIES = [
-  'General Medicine','Family Medicine','Internal Medicine','Emergency Medicine','Cardiology',
-  'Endocrinology','Gastroenterology','Nephrology','Neurology','Oncology','Pediatrics','Geriatrics',
-  'Obstetrics and Gynecology','Dermatology','Ophthalmology','Otolaryngology (ENT)','Orthopedics',
-  'Urology','General Surgery','Anesthesiology','Radiology','Pathology','Infectious Disease',
-  'Pulmonology','Rheumatology','Physiotherapy','Physical Medicine and Rehabilitation','Psychiatry','Mental Health',
-  'Clinical Psychology','Counseling Psychology','Behavioral Health','Psychotherapy','Public Health'
-];
-
-const NURSE_SPECIALTIES = [
-  'General Nursing','Critical Care Nursing','Emergency Nursing','Pediatric Nursing','Neonatal Nursing',
-  'Oncology Nursing','Surgical and Perioperative Nursing','Maternal and Midwifery Care',
-  'Psychiatric and Mental Health Nursing','Community and Public Health Nursing','Geriatric Nursing',
-  'Renal Nursing','Cardiac Nursing','Infection Prevention and Control','Nurse Anesthesia',
-  'Rehabilitation Nursing','Occupational Health Nursing'
-];
-
-const VIRTUAL_SERVICES = [
-  {code:'PC-VIRTUAL',name:'Virtual primary care',description:'General consultations, follow-ups, and preventive care.',roles:'Doctor or Nurse'},
-  {code:'MENTAL-VIRTUAL',name:'Virtual mental health',description:'Confidential support with a mental health specialist.',roles:'Mental health specialist'},
-  {code:'PHYSIO-VIRTUAL',name:'Virtual physiotherapy',description:'Guided rehabilitation, mobility, and exercise planning.',roles:'Physiotherapist'},
-  {code:'CARD-VIRTUAL',name:'Virtual cardiology',description:'Remote heart-health review and care planning.',roles:'Cardiologist'},
-  {code:'MED-REVIEW',name:'Medication review',description:'Review medicines, adherence, and possible concerns.',roles:'Doctor or Nurse'},
-  {code:'NUTRITION-VIRTUAL',name:'Virtual nutrition',description:'Personalized nutrition guidance for ongoing care.',roles:'Care specialist'},
-  {code:'LAB-REVIEW',name:'Lab result review',description:'Discuss results and agree on next clinical steps.',roles:'Doctor or Nurse'},
-  {code:'URGENT-TRIAGE',name:'Urgent virtual triage',description:'Prompt assessment to direct non-life-threatening concerns.',roles:'Doctor or Nurse'}
-];
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
@@ -707,7 +1148,6 @@ let VCS = 0; // video call seconds
 let MUT = false, VIDOFF = false;
 let RROLE = 'patient';
 let APTMODE = 'video';
-let APTSERVICE = 'PC-VIRTUAL';
 let VOICE_MUT = false;
 let VOICE_SPK = true;
 let VCI2 = null;
@@ -718,8 +1158,8 @@ const $= id => document.getElementById(id);
 const show = id => $(id).classList.remove('hid');
 const hide = id => $(id).classList.add('hid');
 const G = id => DB.users.find(u => u.id === id);
-const ini = n => n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
-const fmtD = d => { if(!d) return {day:'--',mon:'---'}; const [,m,dd]=d.split('-'); const ms=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return {day:dd,mon:ms[+m-1]}; };
+const ini = n => ((n||'?').split(' ').filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?');
+const fmtD = d => { try{if(!d)return{day:'--',mon:'---'};const p=d.split('-'),m=p[1],dd=p[2];const ms=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return{day:dd||'--',mon:ms[+m-1]||'---'};}catch(e){return{day:'--',mon:'---'};} };
 const nowT = () => new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 const todayD = () => new Date().toISOString().slice(0,10);
 const tsNow = () => new Date().toISOString().replace('T',' ').slice(0,19);
@@ -766,24 +1206,23 @@ const IC = {
 
 const NAV = {
   admin:[
-    {s:'Overview',items:[{id:'dashboard',l:'Dashboard',i:'grid'},{id:'admin-control',l:'Control Center',i:'grid'},{id:'audit',l:'Audit Logs',i:'shield'}]},
-    {s:'Users',items:[{id:'mgr-d',l:'Doctors',i:'pulse'},{id:'mgr-n',l:'Nurses',i:'heart'},{id:'mgr-p',l:'Patients',i:'user'}]},
-    {s:'Administration',items:[{id:'mgr-a',l:'Administrators',i:'user'},{id:'integrations',l:'Integrations',i:'clip'},{id:'triage-queue',l:'Triage Queue',i:'pulse'},{id:'safety',l:'Safety & Consent',i:'shield'}]},
-    {s:'Platform',items:[{id:'appointments',l:'All Appointments',i:'cal'},{id:'messages',l:'Communications',i:'msg'}]},
+    {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
+    {s:()=>t('user'),items:[{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'}]},
+    {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
   ],
   doctor:[
-    {s:'Main',items:[{id:'dashboard',l:'Dashboard',i:'grid'},{id:'patients',l:'My Patients',i:'user'},{id:'appointments',l:'Appointments',i:'cal'}]},
-    {s:'Communicate',items:[{id:'messages',l:'Messages',i:'msg'},{id:'consult',l:'Consultations',i:'vid'}]},
-    {s:'Records',items:[{id:'records',l:'Medical Records',i:'file'}]},
+    {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
+    {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consultations'),i:'vid'}]},
+    {s:()=>t('medical_records'),items:[{id:'records',l:()=>t('medical_records'),i:'file'}]},
   ],
   nurse:[
-    {s:'Main',items:[{id:'dashboard',l:'Dashboard',i:'grid'},{id:'patients',l:'My Patients',i:'user'},{id:'appointments',l:'Appointments',i:'cal'}]},
-    {s:'Communicate',items:[{id:'messages',l:'Messages',i:'msg'},{id:'consult',l:'Consultations',i:'vid'}]},
-    {s:'Care',items:[{id:'carenotes',l:'Care Notes',i:'clip'}]},
+    {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
+    {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consultations'),i:'vid'}]},
+    {s:()=>t('care_notes'),items:[{id:'carenotes',l:()=>t('care_notes'),i:'clip'}]},
   ],
   patient:[
-    {s:'My Health',items:[{id:'dashboard',l:'Dashboard',i:'grid'},{id:'appointments',l:'My Appointments',i:'cal'},{id:'records',l:'Health Records',i:'file'},{id:'careplan',l:'Care Plan',i:'clip'}]},
-    {s:'Communicate',items:[{id:'messages',l:'Messages',i:'msg'},{id:'consult',l:'Consult Now',i:'vid'}]},
+    {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'}]},
+    {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'}]},
   ],
 };
 
@@ -793,12 +1232,9 @@ function goAuth(tab, role) {
   hide('land'); show('auth-wrap'); hide('app-wrap');
   swtTab(tab || 'login');
   if (role) setRole(role);
-}
-function startDemo(role='patient') {
-  if(!['patient','doctor','nurse'].includes(role)) return goAuth('login');
-  const demo=DB.users.find(user=>user.role===role&&user.status==='active');
-  if(!demo) return goAuth('login');
-  CU=demo; SC=null; log('START_DEMO','System'); goApp();
+  // Update back button text
+  const bh = $('back-home-btn');
+  if(bh) bh.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
 }
 function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
@@ -811,8 +1247,10 @@ function swtTab(t) {
   $('tl').classList.toggle('active', t==='login');
   $('tr').classList.toggle('active', t==='register');
   t==='login' ? (show('fl'), hide('fr')) : (hide('fl'), show('fr'));
-  $('atitle').textContent = t==='login' ? 'Welcome Back' : 'Create Account';
-  $('asub').textContent = t==='login' ? 'Sign in to your HFA SilverStrong account' : 'Register for your healthcare portal';
+  $('atitle').textContent = t==='login' ? t('welcome_back') : t('create_account');
+  $('asub').textContent = t==='login' ? t('sign_in_sub') : t('register_sub');
+  $('tl').textContent = t('sign_in');
+  $('tr').textContent = t('register');
   $('amsg').innerHTML = '';
 }
 
@@ -831,25 +1269,23 @@ function amsg(txt, type='e') { $('amsg').innerHTML=`<div class="alt ${type==='e'
 function doLogin() {
   const email = $('le').value.trim(), pass = $('lp').value;
   const u = DB.users.find(u => u.email===email && u.password===pass);
-  if (!u) { log('LOGIN_FAILED','System','failed'); return amsg('Invalid email or password.'); }
-  if (u.status==='suspended') return amsg('Your account has been suspended. Contact the administrator.');
+  if (!u) { log('LOGIN_FAILED','System','failed'); return amsg(t('invalid_creds')); }
+  if (u.status==='suspended') return amsg(t('suspended_msg'));
   CU = u; log('LOGIN','System'); goApp();
 }
 
 function doReg() {
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
-  if (!name||!email||!pass) return amsg('Please fill in all required fields.');
-  if (pass.length<6) return amsg('Password must be at least 6 characters.');
-  if (RROLE==='doctor'&&!$('rsp').value) return amsg('Please select your medical specialty.');
-  if (RROLE==='nurse'&&!$('rns').value) return amsg('Please select your nursing specialty.');
-  if (DB.users.find(u=>u.email===email)) return amsg('An account with this email already exists.');
+  if (!name||!email||!pass) return amsg(t('fill_required'));
+  if (pass.length<6) return amsg(t('password_short'));
+  if (DB.users.find(u=>u.email===email)) return amsg(t('email_exists'));
   const id = RROLE.slice(0,3)+Date.now();
   const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:'active',createdAt:todayD()};
   const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value}
-    : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
+    : RROLE==='nurse' ? {department:$('rde').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   DB.users.push({...base,...extra});
-  amsg('Registration successful! You can now sign in.','o');
+  amsg(t('reg_success'),'o');
   swtTab('login');
   $('le').value = email;
 }
@@ -865,11 +1301,18 @@ function buildSidebar() {
   $('snm').textContent = CU.name;
   $('sem').textContent = CU.email;
   $('snav').innerHTML = (NAV[r]||[]).map(sec =>
-    `<div class="nl">${sec.s}</div>` +
+    `<div class="nl">${typeof sec.s==='function'?sec.s():sec.s}</div>` +
     sec.items.map(item =>
-      `<div class="ni ${CP===item.id?'active':''}" id="ni-${item.id}" onclick="navigate('${item.id}')">${IC[item.i]||''}${item.l}</div>`
+      `<div class="ni ${CP===item.id?'active':''}" id="ni-${item.id}" onclick="navigate('${item.id}')">${IC[item.i]||''}${typeof item.l==='function'?item.l():item.l}</div>`
     ).join('')
   ).join('');
+  // update sign out button
+  const loBtn = document.querySelector('.btn-lo');
+  if (loBtn) {
+    loBtn.innerHTML = IC.x + ' ' + t('sign_out');
+    loBtn.setAttribute('onclick','doLogout()');
+  }
+  updateLangButtons();
 }
 
 function navigate(page) {
@@ -888,16 +1331,11 @@ function renderPage(page) {
   if (page==='consult')  return renderConsult(pc);
   if (r==='admin') {
     if (page==='dashboard') renderAdminDash(pc);
-    else if (page==='admin-control') renderAdminControl(pc);
     else if (page==='audit') renderAudit(pc);
     else if (page==='mgr-d') renderManage(pc,'doctor','Doctors');
     else if (page==='mgr-n') renderManage(pc,'nurse','Nurses');
     else if (page==='mgr-p') renderManage(pc,'patient','Patients');
-    else if (page==='mgr-a') renderManage(pc,'admin','Administrators');
     else if (page==='appointments') renderAllApts(pc);
-    else if (page==='integrations') renderIntegrations(pc);
-    else if (page==='triage-queue') renderTriageQueue(pc);
-    else if (page==='safety') renderSafety(pc);
   } else if (r==='doctor') {
     if (page==='dashboard') renderDrDash(pc);
     else if (page==='patients') renderPatients(pc);
@@ -912,7 +1350,6 @@ function renderPage(page) {
     if (page==='dashboard') renderPatDash(pc);
     else if (page==='appointments') renderApts(pc);
     else if (page==='records') renderPatRecords(pc);
-    else if (page==='careplan') renderCarePlan(pc);
   }
 }
 
@@ -920,9 +1357,9 @@ function topBtn(html) { $('tbr').insertAdjacentHTML('afterbegin', html+' '); }
 
 // ═══════════════════════ BADGE HELPERS ═══════════════════════
 function aptBadge(s) {
-  return s==='scheduled' ? `<span class="badge bin">${IC.chk}Scheduled</span>`
-    : s==='completed' ? `<span class="badge bsu">${IC.chk}Completed</span>`
-    : s==='cancelled' ? `<span class="badge bda">${IC.x}Cancelled</span>`
+  return s==='scheduled' ? `<span class="badge bin">${IC.chk}${t('scheduled')}</span>`
+    : s==='completed' ? `<span class="badge bsu">${IC.chk}${t('completed')}</span>`
+    : s==='cancelled' ? `<span class="badge bda">${IC.x}${t('cancelled')}</span>`
     : `<span class="badge bse">${s}</span>`;
 }
 function aptCard(a) {
@@ -932,11 +1369,11 @@ function aptCard(a) {
     <div class="adb"><div class="add">${fd.day}</div><div class="adm">${fd.mon}</div></div>
     <div class="adi" style="flex:1">
       <div class="ain">${who}</div>
-      <div class="ame">${a.time} · ${a.serviceName||a.type} · ${a.mode==='video'?'📹 Video':a.mode==='voice'?'📞 Voice':'💬 Text'} · Virtual</div>
+      <div class="ame">${a.time} · ${a.type} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
       ${a.notes ? `<div class="ame">${a.notes}</div>` : ''}
     </div>
     <div class="aac">
-      ${a.status==='scheduled' ? `<button class="btn bp bsm" onclick="completeApt('${a.id}')">${IC.chk} Done</button>` : ''}
+      ${a.status==='scheduled' ? `<button class="btn bp bsm" onclick="completeApt('${a.id}')">${IC.chk} 'done'</button>` : ''}
       ${aptBadge(a.status)}
     </div>
   </div>`;
@@ -944,79 +1381,40 @@ function aptCard(a) {
 function completeApt(id) { const a=DB.appointments.find(x=>x.id===id); if(a){a.status='completed'; log('COMPLETE_APPOINTMENT','Appointments');} navigate(CP); }
 
 // ═══════════════════════ ADMIN ═══════════════════════
-function renderDemoCredentials() {
-  return `<div class="card mt18"><div class="ch"><div><div class="ct">Testing Access</div><div class="rating-note">Admin-only demo credentials. Share them only with approved testers.</div></div><span class="badge bwa">Restricted</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>Temporary testing password: ${user.password}</span></div></div>`).join('')}</div></div>`;
-}
-
 function renderAdminDash(pc) {
-  $('tbt').textContent='Admin Dashboard';
-  topBtn(`<button class="btn bp bsm" onclick="navigate('admin-control')">${IC.shield} Control Center</button>`);
+  $('tbt').textContent=t('admin_dashboard');
+  topBtn(`<button class="btn bp bsm" onclick="navigate('audit')">${IC.shield} 'view audit'</button>`);
   const docs=DB.users.filter(u=>u.role==='doctor'), nurs=DB.users.filter(u=>u.role==='nurse'), pats=DB.users.filter(u=>u.role==='patient');
   const susp=DB.users.filter(u=>u.status==='suspended'), fails=DB.auditLogs.filter(l=>l.status==='failed');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Platform Overview</h2><p>Monitor system activity and manage platform health</p></div>
+    <div class="ph"><h2>${t('platform_overview')}</h2><p>${LANG==='fr'?'Surveiller l activité et gérer la plateforme':'Monitor system activity and manage platform health'}</p></div>
     <div class="stats">
-      <div class="sc ce"><div class="sv">${docs.length}</div><div class="sl">Doctors</div></div>
-      <div class="sc cb"><div class="sv">${nurs.length}</div><div class="sl">Nurses</div></div>
-      <div class="sc cg"><div class="sv">${pats.length}</div><div class="sl">Patients</div></div>
-      <div class="sc cr"><div class="sv">${susp.length}</div><div class="sl">Suspended</div></div>
-      <div class="sc cp"><div class="sv">${fails.length}</div><div class="sl">Failed Logins</div></div>
+      <div class="sc ce"><div class="sv">${docs.length}</div><div class="sl">${t('total_doctors')}</div></div>
+      <div class="sc cb"><div class="sv">${nurs.length}</div><div class="sl">${t('total_nurses')}</div></div>
+      <div class="sc cg"><div class="sv">${pats.length}</div><div class="sl">${t('total_patients')}</div></div>
+      <div class="sc cr"><div class="sv">${susp.length}</div><div class="sl">${t('suspended')}</div></div>
+      <div class="sc cp"><div class="sv">${fails.length}</div><div class="sl">'failed logins'</div></div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">Recent Activity</div></div>
+      <div class="ch"><div class="ct">${t('recent_activity')}</div></div>
       <div class="tw"><table><thead><tr><th>User</th><th>Action</th><th>Resource</th><th>Timestamp</th><th>Status</th></tr></thead>
       <tbody>${DB.auditLogs.slice(0,10).map(l=>`<tr style="${l.status==='failed'?'background:#fff8f8':''}">
         <td class="bo" style="font-size:.82rem">${l.userName}</td>
         <td><code class="tg" style="${l.status==='failed'?'background:#fce8e8;color:#6e1a13':''}">${l.action}</code></td>
         <td class="mu sm">${l.resource}</td>
         <td class="mu sm">${l.timestamp}</td>
-        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}OK</span>`:`<span class="badge bda">${IC.x}Failed</span>`}</td>
+        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}'success'</span>`:`<span class="badge bda">${IC.x}'failed'</span>`}</td>
       </tr>`).join('')}</tbody></table></div>
     </div>
-    ${renderDemoCredentials()}
   </div>`;
 }
-
-function renderAdminControl(pc) {
-  $('tbt').textContent='Admin Control Center';
-  const verified=DB.clinicianVerifications.filter(v=>v.status==='verified').length;
-  const openAlerts=DB.medicationSafetyAlerts.filter(a=>a.status==='open').length;
-  const activeConsents=DB.consents.filter(c=>c.status==='active').length;
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>Clinical Governance</h2><p>Operate the virtual hospital with visible controls and accountable workflows</p></div>
-    <div class="stats"><div class="sc ce"><div class="sv">${DB.users.filter(u=>u.role==='admin'&&u.status==='active').length}</div><div class="sl">Active Administrators</div></div><div class="sc cb"><div class="sv">${verified}</div><div class="sl">Verified Clinicians</div></div><div class="sc cr"><div class="sv">${openAlerts}</div><div class="sl">Open Safety Alerts</div></div><div class="sc cg"><div class="sv">${activeConsents}</div><div class="sl">Active Consents</div></div></div>
-    <div class="g2"><div class="card"><div class="ch"><div class="ct">Access & Governance</div></div><div class="code-list"><div class="code-item"><code class="code-chip">RBAC</code><div><strong>Role-based admin permissions</strong><span>Every administrator has an auditable role and permission set.</span></div></div><div class="code-item"><code class="code-chip">CONSENT</code><div><strong>Patient consent registry</strong><span>${activeConsents} active telehealth consent record(s).</span></div></div><div class="code-item"><code class="code-chip">VERIFY</code><div><strong>Clinician verification</strong><span>${verified} verified provider credential record(s).</span></div></div></div><button class="btn bp bsm w100 mt8" onclick="navigate('mgr-a')">Manage Administrators</button></div>
-      <div class="card"><div class="ch"><div class="ct">Safety & Integrations</div></div><div class="code-list"><div class="code-item"><code class="code-chip">FHIR R4</code><div><strong>Clinical exchange</strong><span>Configuration status: ${DB.integrations[0].status}.</span></div></div><div class="code-item"><code class="code-chip">MED SAFE</code><div><strong>Medication safety</strong><span>${openAlerts} open allergy or medication review alert(s).</span></div></div><div class="code-item"><code class="code-chip">TRIAGE</code><div><strong>Urgent-care queue</strong><span>${DB.triageCases.filter(c=>c.status!=='closed').length} active triage request(s).</span></div></div></div><button class="btn bgh bsm w100 mt8" onclick="navigate('integrations')">Review Integrations</button></div></div>
-    ${renderDemoCredentials()}
-  </div>`;
-}
-
-function renderIntegrations(pc) {
-  $('tbt').textContent='Integrations & Readiness';
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>Platform Integrations</h2><p>Connection readiness for production clinical services</p></div><div class="card"><div class="code-list">${DB.integrations.map(item=>`<div class="code-item"><code class="code-chip">${item.name}</code><div style="flex:1"><strong>${item.purpose}</strong><span>Environment: ${item.environment} · Status: ${item.status}</span></div><span class="badge ${item.status==='connected'?'bsu':'bwa'}">${item.status}</span></div>`).join('')}</div><div class="safety-banner mt18"><div>i</div><div><strong>Demo configuration</strong><p>These records document the required integration boundaries. No real FHIR server, terminology server, encryption key store, identity provider, or emergency dispatcher is connected by this static build.</p></div></div></div></div>`;
-}
-
-function renderTriageQueue(pc) {
-  $('tbt').textContent='Triage Queue';
-  const cases=DB.triageCases.filter(item=>item.status!=='closed');
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>Urgent Care Queue</h2><p>Review patient-submitted triage requests and document escalation</p></div><div class="card">${cases.length?cases.map(item=>{const patient=G(item.patientId);return`<div class="code-item"><span class="badge ${item.priority==='emergency'?'bda':item.priority==='urgent'?'bwa':'bin'}">${item.priority}</span><div style="flex:1"><strong>${patient?.name||'Patient'} · ${item.location}</strong><span>${item.symptoms} · ${item.createdAt}</span></div><button class="btn bs bsm" onclick="closeTriage('${item.id}')">Close</button></div>`}).join(''):'<div class="rating-empty">No open triage requests.</div>'}</div></div>`;
-}
-function closeTriage(id) { const item=DB.triageCases.find(item=>item.id===id); if(item){item.status='closed';log('CLOSE_TRIAGE','Urgent Care');} navigate('triage-queue'); }
-
-function renderSafety(pc) {
-  $('tbt').textContent='Safety & Consent';
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>Safety, Consent & Verification</h2><p>Review clinical safety signals and patient permissions</p></div>
-    <div class="card mb18"><div class="ch"><div class="ct">Medication Safety Alerts</div></div>${DB.medicationSafetyAlerts.length?DB.medicationSafetyAlerts.map(alert=>{const patient=G(alert.patientId);return`<div class="code-item"><span class="badge ${alert.severity==='critical'?'bda':'bwa'}">${alert.severity}</span><div style="flex:1"><strong>${patient?.name||'Patient'}</strong><span>${alert.message}</span></div><button class="btn bs bsm" onclick="resolveSafetyAlert('${alert.id}')">Resolve</button></div>`}).join(''):'<div class="rating-empty">No medication safety alerts.</div>'}</div>
-    <div class="card"><div class="ch"><div class="ct">Consent Registry</div></div>${DB.consents.map(consent=>{const patient=G(consent.patientId);return`<div class="code-item"><code class="code-chip">v${consent.version}</code><div><strong>${patient?.name||'Patient'} · ${consent.type}</strong><span>Status: ${consent.status} · Recorded ${consent.recordedAt}</span></div><span class="badge ${consent.status==='active'?'bsu':'bse'}">${consent.status}</span></div>`}).join('')}</div>
-  </div>`;
-}
-function resolveSafetyAlert(id) { const alert=DB.medicationSafetyAlerts.find(item=>item.id===id); if(alert){alert.status='resolved';log('RESOLVE_MEDICATION_ALERT','Clinical Safety');} navigate('safety'); }
 
 function renderAudit(pc) {
-  $('tbt').textContent='Audit & Security Logs';
+  $('tbt').textContent=t('audit_title');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Security & Audit Trail</h2><p>Complete log of all platform actions for compliance and monitoring</p></div>
+    <div class="ph"><h2>${t('audit_title')}</h2><p>${LANG==='fr'?'Journal complet pour la conformité et le suivi':'Complete log of all platform actions for compliance and monitoring'}</p></div>
     <div class="card"><div class="tw"><table>
-      <thead><tr><th>#</th><th>User</th><th>Action</th><th>Resource</th><th>Timestamp</th><th>IP Address</th><th>Status</th></tr></thead>
+      <thead><tr><th>#</th><th>'user'</th><th>'action'</th><th>'resource'</th><th>'timestamp'</th><th>IP</th><th>'status'</th></tr></thead>
       <tbody>${DB.auditLogs.map((l,i)=>`<tr style="${l.status==='failed'?'background:#fff8f8':''}">
         <td class="mu sm">${DB.auditLogs.length-i}</td>
         <td><div class="bo" style="font-size:.82rem">${l.userName}</div><div class="mu sm">${l.userId}</div></td>
@@ -1024,34 +1422,34 @@ function renderAudit(pc) {
         <td class="sm">${l.resource}</td>
         <td class="mu sm" style="white-space:nowrap">${l.timestamp}</td>
         <td><code style="font-family:var(--fm);font-size:.72rem;color:var(--t3)">${l.ip}</code></td>
-        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}OK</span>`:`<span class="badge bda">${IC.x}Failed</span>`}</td>
+        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}'success'</span>`:`<span class="badge bda">${IC.x}'failed'</span>`}</td>
       </tr>`).join('')}</tbody>
     </table></div></div>
   </div>`;
 }
 
 function renderManage(pc, roleFilter, title) {
-  $('tbt').textContent = `Manage ${title}`;
-  topBtn(`<button class="btn bp bsm" onclick="showAddUser('${roleFilter}')">${IC.plus} Add ${title.slice(0,-1)}</button>`);
+  $('tbt').textContent = t('manage_'+roleFilter+'s') || `Manage ${title}`;
+  topBtn(`<button class="btn bp bsm" onclick="showAddUser('${roleFilter}')">${IC.plus} ${roleFilter==='doctor'?t('add_doctor'):roleFilter==='nurse'?t('add_nurse'):t('add_patient')}</button>`);
   const users = DB.users.filter(u=>u.role===roleFilter);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${title}</h2><p>Manage all ${title.toLowerCase()} on the platform</p></div>
+    <div class="ph"><h2>${title}</h2><p>${LANG==='fr'?'Gérer sur la plateforme':'Manage all '+title.toLowerCase()+' on the platform'}</p></div>
     <div class="card"><div class="tw"><table>
-      <thead><tr><th>User</th><th>${roleFilter==='doctor'?'Specialty':roleFilter==='nurse'?'Nursing Specialty':roleFilter==='admin'?'Administrator Role':'Date of Birth'}</th><th>Phone</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+      <thead><tr><th>'user'</th><th>${roleFilter==='doctor'?t('specialty'):roleFilter==='nurse'?t('department'):t('dob_lbl')}</th><th>'phone lbl'</th><th>'status'</th><th>'joined'</th><th>'actions'</th></tr></thead>
       <tbody>${users.map(u=>`<tr>
         <td><div style="display:flex;align-items:center;gap:10px">
           <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
           <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email}</div></div>
         </div></td>
-        <td class="sm">${roleFilter==='admin'?(u.adminRole||'Administrator'):(u.specialty||u.department||u.dateOfBirth||'—')}</td>
+        <td class="sm">${u.specialty||u.department||u.dateOfBirth||'—'}</td>
         <td class="mu sm">${u.phone||'—'}</td>
-        <td>${u.status==='active'?`<span class="badge bsu">${IC.chk}Active</span>`:`<span class="badge bda">${IC.x}Suspended</span>`}</td>
+        <td>${u.status==='active'?`<span class="badge bsu">${IC.chk}${t('active')}</span>`:`<span class="badge bda">${IC.x}${t('suspended')}</span>`}</td>
         <td class="mu sm">${u.createdAt}</td>
         <td><div style="display:flex;gap:4px">
           <button class="btn bgh bsm" onclick="showEditUser('${u.id}')">${IC.edit}</button>
           ${u.status==='active'
-            ?`<button class="btn bsm" style="background:#fff3cd;color:#856404;border:none" onclick="doSuspend('${u.id}')">${IC.x} Suspend</button>`
-            :`<button class="btn bsm" style="background:#d5f0e0;color:#145a32;border:none" onclick="doActivate('${u.id}')">${IC.chk} Activate</button>`}
+            ?`<button class="btn bsm" style="background:#fff3cd;color:#856404;border:none" onclick="doSuspend('${u.id}')">${IC.x} 'suspend'</button>`
+            :`<button class="btn bsm" style="background:#d5f0e0;color:#145a32;border:none" onclick="doActivate('${u.id}')">${IC.chk} 'activate'</button>`}
           <button class="btn bd2 bsm" onclick="askDelete('${u.id}','${u.name.replace(/'/g,"&#39;")}')">${IC.trash}</button>
         </div></td>
       </tr>`).join('')}</tbody>
@@ -1060,17 +1458,17 @@ function renderManage(pc, roleFilter, title) {
 }
 
 function renderAllApts(pc) {
-  $('tbt').textContent='All Appointments';
+  $('tbt').textContent=t('all_apts_title');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>All Appointments</h2><p>Platform-wide appointment schedule</p></div>
+    <div class="ph"><h2>${t('all_apts_title')}</h2><p>${LANG==='fr'?'Planning global des rendez-vous':'Platform-wide appointment schedule'}</p></div>
     <div class="card"><div class="tw"><table>
-      <thead><tr><th>Patient</th><th>Doctor</th><th>Date & Time</th><th>Type</th><th>Mode</th><th>Status</th></tr></thead>
+      <thead><tr><th>${t('patient_lbl')}</th><th>${t('doctor')}</th><th>'date time'</th><th>'type'</th><th>'mode'</th><th>'status'</th></tr></thead>
       <tbody>${DB.appointments.map(a=>{const pat=G(a.patientId),doc=G(a.doctorId);return`<tr>
         <td class="bo sm">${pat?.name||'—'}</td>
         <td class="sm">${doc?.name||'—'}</td>
         <td class="mu sm">${a.date} @ ${a.time}</td>
         <td><span class="badge bse">${a.type}</span></td>
-        <td><span class="badge ${a.mode==='video'?'bwa':'bin'}">${a.mode==='video'?'📹 Video':a.mode==='voice'?'📞 Voice':'💬 Text'}</span></td>
+        <td><span class="badge ${a.mode==='video'?'bwa':'bin'}">${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</span></td>
         <td>${aptBadge(a.status)}</td>
       </tr>`;}).join('')}</tbody>
     </table></div></div>
@@ -1079,24 +1477,24 @@ function renderAllApts(pc) {
 
 // ═══════════════════════ DOCTOR ═══════════════════════
 function renderDrDash(pc) {
-  $('tbt').textContent='Doctor Dashboard';
-  topBtn(`<button class="btn bp bsm" onclick="showNewApt()">${IC.plus} New Appointment</button>`);
+  $('tbt').textContent=t('doctor_dashboard');
+  topBtn(`<button class="btn bp bsm" onclick="showNewApt()">${IC.plus} 'new appointment'</button>`);
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id);
   const myA=DB.appointments.filter(a=>a.doctorId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Welcome, ${CU.name}</h2><p>${CU.specialty||''} · ${CU.hospital||''}</p></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${CU.specialty||''} · ${CU.hospital||''}</p></div>
     <div class="stats">
-      <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">My Patients</div></div>
-      <div class="sc cg"><div class="sv">${up.length}</div><div class="sl">Upcoming</div></div>
-      <div class="sc cb"><div class="sv">${myA.filter(a=>a.status==='completed').length}</div><div class="sl">Completed</div></div>
+      <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">${t('my_patients_lbl')}</div></div>
+      <div class="sc cg"><div class="sv">${up.length}</div><div class="sl">${t('upcoming')}</div></div>
+      <div class="sc cb"><div class="sv">${myA.filter(a=>a.status==='completed').length}</div><div class="sl">${t('completed')}</div></div>
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Upcoming Appointments</div></div>
-        ${up.length===0 ? `<div class="emp"><p>No upcoming appointments</p></div>` : up.map(a=>aptCard(a)).join('')}
+      <div class="card"><div class="ch"><div class="ct">${t('upcoming_apts')}</div></div>
+        ${up.length===0 ? `<div class="emp"><p>${t('no_upcoming')}</p></div>` : up.map(a=>aptCard(a)).join('')}
       </div>
       <div class="card"><div class="ch"><div class="ct">My Patients</div></div>
-        ${myP.length===0 ? `<div class="emp"><p>No assigned patients</p></div>` : myP.map(p=>`
+        ${myP.length===0 ? `<div class="emp"><p>${t('no_patients')}</p></div>` : myP.map(p=>`
           <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
             <div class="pca">${ini(p.name)}</div>
             <div style="flex:1"><div class="bo sm">${p.name}</div><div class="mu sm">${p.bloodType||'—'} · ${p.gender||'—'}</div></div>
@@ -1108,13 +1506,13 @@ function renderDrDash(pc) {
 }
 
 function renderPatients(pc) {
-  $('tbt').textContent='My Patients';
+  $('tbt').textContent=t('my_patients');
   const myP = CU.role==='doctor'
     ? DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id)
     : DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Patient List</h2><p>Patients assigned to you</p></div>
-    ${myP.length===0 ? `<div class="card"><div class="emp"><p>No assigned patients</p></div></div>` : myP.map(p=>`
+    <div class="ph"><h2>${t('patient_list')}</h2><p>${LANG==='fr'?'Patients assignés à vous':'Patients assigned to you'}</p></div>
+    ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_patients')}</p></div></div>` : myP.map(p=>`
     <div class="ptc mb12">
       <div class="pch">
         <div class="pca">${ini(p.name)}</div>
@@ -1122,43 +1520,38 @@ function renderPatients(pc) {
         <span class="badge bsu">Active</span>
       </div>
       <div class="pcg">
-        <div class="pf"><label>Date of Birth</label><span>${p.dateOfBirth||'—'}</span></div>
-        <div class="pf"><label>Gender</label><span>${p.gender||'—'}</span></div>
-        <div class="pf"><label>Blood Type</label><span class="badge bin">${p.bloodType||'—'}</span></div>
-        <div class="pf"><label>Allergies</label><span class="${p.allergies&&p.allergies!=='None'?'aw':''}">${p.allergies||'None'}</span></div>
-        <div class="pf" style="grid-column:span 2"><label>Medical History</label><span>${p.medicalHistory||'None recorded'}</span></div>
-        <div class="pf"><label>Address</label><span>${p.address||'—'}</span></div>
-        <div class="pf"><label>Emergency Contact</label><span>${p.emergencyContact||'—'}</span></div>
+        <div class="pf"><label>${t('dob_lbl')}</label><span>${p.dateOfBirth||'—'}</span></div>
+        <div class="pf"><label>${t('gender_lbl')}</label><span>${p.gender||'—'}</span></div>
+        <div class="pf"><label>${t('blood_type_lbl')}</label><span class="badge bin">${p.bloodType||'—'}</span></div>
+        <div class="pf"><label>'allergies'</label><span class="${p.allergies&&p.allergies!=='None'?'aw':''}">${p.allergies||'None'}</span></div>
+        <div class="pf" style="grid-column:span 2"><label>${t('medical_history')}</label><span>${p.medicalHistory||t('none_recorded')}</span></div>
+        <div class="pf"><label>'address'</label><span>${p.address||'—'}</span></div>
+        <div class="pf"><label>${t('emergency_contact')}</label><span>${p.emergencyContact||'—'}</span></div>
       </div>
     </div>`).join('')}
   </div>`;
 }
 
 function renderRecords(pc) {
-  $('tbt').textContent='Medical Records';
+  $('tbt').textContent=t('medical_records');
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Medical Records</h2><p>Complete records for your patients</p></div>
-    ${myP.length===0 ? `<div class="card"><div class="emp"><p>No patient records available</p></div></div>` : myP.map(p=>`
+    <div class="ph"><h2>${t('medical_records')}</h2><p>${LANG==='fr'?'Dossiers complets pour vos patients':'Complete records for your patients'}</p></div>
+    ${myP.length===0 ? `<div class="card"><div class="emp"><p>'no records'</p></div></div>` : myP.map(p=>`
     <div class="card mb18">
       <div class="ch"><div><div class="ct">${p.name}</div><div class="mu sm">DOB: ${p.dateOfBirth||'—'} · ${p.gender||'—'} · ${p.bloodType||'—'}</div></div><span class="badge bsu">Active</span></div>
       <div class="g2">
-        <div><div class="fl">Medical History</div><p style="font-size:.85rem;margin-top:4px">${p.medicalHistory||'None recorded'}</p></div>
-        <div><div class="fl">Allergies</div><p style="font-size:.85rem;margin-top:4px;color:${p.allergies&&p.allergies!=='None'?'var(--dg)':'inherit'}">${p.allergies||'None'}</p></div>
-        <div><div class="fl">Emergency Contact</div><p style="font-size:.85rem;margin-top:4px">${p.emergencyContact||'—'}</p></div>
-        <div><div class="fl">Address</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
-      </div>
-      <div class="code-list mt18">
-        ${(p.conditions||[]).map(item=>`<div class="code-item"><code class="code-chip">${item.system} ${item.code}</code><div><strong>${item.display}</strong><span>Condition</span></div></div>`).join('')}
-        ${(p.medications||[]).map(item=>`<div class="code-item"><code class="code-chip">${item.system} ${item.code}</code><div><strong>${item.display}</strong><span>Medication</span></div></div>`).join('')}
-        ${(p.observations||[]).map(item=>`<div class="code-item"><code class="code-chip">${item.system} ${item.code}</code><div><strong>${item.display}: ${item.value} ${item.unit}</strong><span>Observation · ${item.effectiveDate}</span></div></div>`).join('')}
+        <div><div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin-top:4px">${p.medicalHistory||t('none_recorded')}</p></div>
+        <div><div class="fl">'allergies'</div><p style="font-size:.85rem;margin-top:4px;color:${p.allergies&&p.allergies!=='None'?'var(--dg)':'inherit'}">${p.allergies||'None'}</p></div>
+        <div><div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${p.emergencyContact||'—'}</p></div>
+        <div><div class="fl">'address'</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
       </div>
     </div>`).join('')}
   </div>`;
 }
 
 function renderApts(pc) {
-  $('tbt').textContent='Appointments';
+  $('tbt').textContent=t('appointments');
   const isPatient = CU.role==='patient';
   topBtn(isPatient
     ? `<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} Book Consultation</button>`
@@ -1167,28 +1560,28 @@ function renderApts(pc) {
     : CU.role==='nurse' ? DB.appointments.filter(a=>a.nurseId===CU.id)
     : DB.appointments.filter(a=>a.patientId===CU.id);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Appointment Schedule</h2></div>
-    ${apts.length===0 ? `<div class="card"><div class="emp"><p>No appointments found</p></div></div>` : apts.map(a=>aptCard(a)).join('')}
+    <div class="ph"><h2>${t('apt_schedule')}</h2></div>
+    ${apts.length===0 ? `<div class="card"><div class="emp"><p>'no apts'</p></div></div>` : apts.map(a=>aptCard(a)).join('')}
   </div>`;
 }
 
 // ═══════════════════════ NURSE ═══════════════════════
 function renderNsDash(pc) {
-  $('tbt').textContent='Nurse Dashboard';
-  topBtn(`<button class="btn bp bsm" onclick="navigate('carenotes')">${IC.plus} Add Care Note</button>`);
+  $('tbt').textContent=t('nurse_dashboard');
+  topBtn(`<button class="btn bp bsm" onclick="navigate('carenotes')">${IC.plus} 'add note'</button>`);
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id);
   const myA=DB.appointments.filter(a=>a.nurseId===CU.id&&a.status==='scheduled');
   const notes=DB.careNotes.filter(n=>n.nurseId===CU.id);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Welcome, ${CU.name}</h2><p>${CU.specialty||'Nursing'} · ${CU.department||''} · ${CU.hospital||''}</p></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${CU.department||''} · ${CU.hospital||''}</p></div>
     <div class="stats">
-      <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">Assigned Patients</div></div>
-      <div class="sc cg"><div class="sv">${myA.length}</div><div class="sl">Upcoming Tasks</div></div>
-      <div class="sc cb"><div class="sv">${notes.length}</div><div class="sl">Care Notes</div></div>
+      <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">${t('assigned_patients')}</div></div>
+      <div class="sc cg"><div class="sv">${myA.length}</div><div class="sl">${t('upcoming_tasks')}</div></div>
+      <div class="sc cb"><div class="sv">${notes.length}</div><div class="sl">${t('care_notes')}</div></div>
     </div>
     <div class="g2">
       <div class="card"><div class="ch"><div class="ct">My Patients</div></div>
-        ${myP.length===0 ? `<div class="emp"><p>No patients assigned</p></div>` : myP.map(p=>`
+        ${myP.length===0 ? `<div class="emp"><p>${t('no_patients')}</p></div>` : myP.map(p=>`
           <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
             <div class="pca">${ini(p.name)}</div>
             <div style="flex:1"><div class="bo sm">${p.name}</div><div class="mu sm">${(p.medicalHistory||'').slice(0,50)}</div></div>
@@ -1207,12 +1600,12 @@ function renderNsDash(pc) {
 }
 
 function renderCareNotes(pc) {
-  $('tbt').textContent='Care Notes';
-  topBtn(`<button class="btn bp bsm" onclick="showAddNote()">${IC.plus} New Note</button>`);
+  $('tbt').textContent=t('care_notes');
+  topBtn(`<button class="btn bp bsm" onclick="showAddNote()">${IC.plus} 'add note'</button>`);
   const notes=DB.careNotes.filter(n=>n.nurseId===CU.id);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Patient Care Notes</h2><p>Document and track patient care observations</p></div>
-    ${notes.length===0 ? `<div class="card"><div class="emp"><p>No care notes yet. Add your first note.</p></div></div>` : notes.map(n=>{const p=G(n.patientId);return`<div class="cn3 mb12">
+    <div class="ph"><h2>${t('care_notes')}</h2><p>${LANG==='fr'?'Documenter et suivre les observations de soins patients':'Document and track patient care observations'}</p></div>
+    ${notes.length===0 ? `<div class="card"><div class="emp"><p>'add first note'</p></div></div>` : notes.map(n=>{const p=G(n.patientId);return`<div class="cn3 mb12">
       <div class="cnh"><div class="cnp">${p?.name||'Unknown Patient'}</div><div class="cnt2">${n.date} · ${n.time}</div></div>
       <div class="cnb">${n.text}</div>
     </div>`;}).join('')}
@@ -1221,122 +1614,54 @@ function renderCareNotes(pc) {
 
 // ═══════════════════════ PATIENT ═══════════════════════
 function renderPatDash(pc) {
-  $('tbt').textContent='Patient Dashboard';
-  topBtn(`<button class="btn bd2 bsm" onclick="showTriage()">Urgent Help</button>`);
-  topBtn(`<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} Book Consultation</button>`);
+  $('tbt').textContent=t('patient_dashboard');
+  topBtn(`<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} 'book consultation'</button>`);
   const myDoc=G(CU.assignedDoctor), myNur=G(CU.assignedNurse);
   const myA=DB.appointments.filter(a=>a.patientId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Hello, ${CU.name.split(' ')[0]}</h2><p>Manage your health and communicate with your care team</p></div>
-    <div class="safety-banner"><div>!</div><div><strong>Virtual care safety</strong><p>For severe chest pain, difficulty breathing, stroke symptoms, severe bleeding, or immediate danger, call local emergency services now. Do not wait for a virtual response.</p></div></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bonjour,':'Hello,'} ${CU.name.split(' ')[0]}</h2><p>${LANG==='fr'?'Gérez votre santé et contactez votre équipe soignante':'Manage your health and communicate with your care team'}</p></div>
     <div class="stats">
-      <div class="sc ce"><div class="sv">${up.length}</div><div class="sl">Upcoming Appointments</div></div>
-      <div class="sc cg"><div class="sv">${myA.filter(a=>a.status==='completed').length}</div><div class="sl">Completed Consultations</div></div>
-      <div class="sc cb"><div class="sv">${CU.bloodType||'—'}</div><div class="sl">Blood Type</div></div>
+      <div class="sc ce"><div class="sv">${up.length}</div><div class="sl">${t('upcoming_apts')}</div></div>
+      <div class="sc cg"><div class="sv">${myA.filter(a=>a.status==='completed').length}</div><div class="sl">${t('completed_consults')}</div></div>
+      <div class="sc cb"><div class="sv">${CU.bloodType||'—'}</div><div class="sl">${t('blood_type_lbl')}</div></div>
     </div>
-    <div class="card mb18"><div class="ch"><div><div class="ct">Virtual Hospital Services</div><div class="rating-note">Choose a service and connect with the right care professional remotely.</div></div></div>
-      <div class="service-grid">${VIRTUAL_SERVICES.map(service=>`<div class="service-item"><h4>${service.name}</h4><p>${service.description}<br><strong>${service.roles}</strong></p><button class="btn bp bsm w100" onclick="showBookApt('${service.code}')">Book Service</button></div>`).join('')}</div>
-    </div>
-    ${CU.allergies&&CU.allergies!=='None'?`<div class="alt ae mb12">⚠ Allergy Alert: <strong>${CU.allergies}</strong> — Ensure all care providers are informed.</div>`:''}
+    ${CU.allergies&&CU.allergies!=='None'?`<div class="alt ae mb12">'allergy alert': <strong>${CU.allergies}</strong> — 'ensure informed'</div>`:''}
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">My Care Team</div></div>
+      <div class="card"><div class="ch"><div class="ct">${t('care_team')}</div></div>
         ${myDoc?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--em-p);border-radius:var(--rs);margin-bottom:8px">
           <div class="av">${ini(myDoc.name)}</div>
           <div style="flex:1"><div class="bo sm">${myDoc.name}</div><div class="mu sm">${myDoc.specialty||''} · ${myDoc.hospital||''}</div></div>
-          <span class="badge bdo">Doctor</span></div>`:''}
+          <span class="badge bdo">${t('doctor')}</span></div>`:''}
         ${myNur?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:#eaf3fb;border-radius:var(--rs)">
           <div class="av" style="background:linear-gradient(135deg,#2e8bc0,#1a5f8f)">${ini(myNur.name)}</div>
-          <div style="flex:1"><div class="bo sm">${myNur.name}</div><div class="mu sm">${myNur.specialty||'Nursing'} · ${myNur.department||''} · ${myNur.hospital||''}</div></div>
-          <span class="badge bnu">Nurse</span></div>`:''}
-        ${!myDoc&&!myNur?`<div class="emp"><p>No care team assigned yet</p></div>`:''}
-        <button class="btn bgh bsm w100 mt8" onclick="navigate('messages')">Message Care Team</button>
+          <div style="flex:1"><div class="bo sm">${myNur.name}</div><div class="mu sm">${myNur.department||''} · ${myNur.hospital||''}</div></div>
+          <span class="badge bnu">${t('nurse')}</span></div>`:''}
+        ${!myDoc&&!myNur?`<div class="emp"><p>${t('no_team')}</p></div>`:''}
+        <button class="btn bgh bsm w100 mt8" onclick="navigate('messages')">${t('message_team')}</button>
       </div>
-      <div class="card"><div class="ch"><div class="ct">Upcoming Appointments</div></div>
-        ${up.length===0?`<div class="emp"><p>No upcoming appointments</p><button class="btn bp bsm mt8" onclick="showBookApt()">Book Now</button></div>`
+      <div class="card"><div class="ch"><div class="ct">${t('upcoming_apts')}</div></div>
+        ${up.length===0?`<div class="emp"><p>${t('no_upcoming')}</p><button class="btn bp bsm mt8" onclick="showBookApt()">${t('book_now')}</button></div>`
           : up.map(a=>aptCard(a)).join('')}
       </div>
     </div>
-    <div class="card mt18"><div class="ch"><div><div class="ct">Rate Your Care Team</div><div class="rating-note">Your feedback helps us improve the care experience.</div></div></div>
-      ${renderProviderRatings([myDoc,myNur].filter(Boolean))}
-    </div>
   </div>`;
-}
-
-function renderCarePlan(pc) {
-  $('tbt').textContent='My Care Plan';
-  const plans=DB.carePlans.filter(plan=>plan.patientId===CU.id);
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>My Care Plan</h2><p>Shared goals and follow-up actions from your care team</p></div>
-    <div class="safety-banner"><div>i</div><div><strong>Keep your care team informed</strong><p>Use secure messaging to report changes, missed medicines, or concerns before your next review.</p></div></div>
-    ${plans.length?plans.map(plan=>{const owner=G(plan.ownerId);return`<div class="card mb18"><div class="ch"><div><div class="ct">${plan.title}</div><div class="mu sm">Led by ${owner?.name||'Care team'} · Next review ${plan.nextReview}</div></div><span class="badge bsu">${plan.status}</span></div>
-      ${plan.goals.map(goal=>`<div class="goal-row"><div style="flex:1"><div class="bo sm">${goal.label}</div><div class="goal-progress"><span style="width:${goal.progress}%"></span></div></div><span class="mu sm">${goal.progress}%</span></div>`).join('')}
-    </div>`}).join(''):`<div class="card"><div class="emp"><p>No care plan has been shared yet.</p><button class="btn bp bsm mt8" onclick="navigate('messages')">Message Care Team</button></div></div>`}
-  </div>`;
-}
-
-function renderProviderRatings(providers) {
-  if (!providers.length) return `<div class="rating-empty">You can rate your care team after a provider is assigned.</div>`;
-  return `<div class="rating-list">${providers.map(provider=>{
-    const review=DB.reviews.find(r=>r.patientId===CU.id&&r.providerId===provider.id);
-    const role=provider.role==='doctor'?'Doctor':'Nurse';
-    const color=provider.role==='doctor'?'var(--em)':'#1a6fa3';
-    const stars=review ? '★'.repeat(review.rating)+'☆'.repeat(5-review.rating) : '☆☆☆☆☆';
-    return `<div class="rating-row">
-      <div class="av" style="background:${color}">${ini(provider.name)}</div>
-      <div class="rating-info"><div class="bo sm">${provider.name}</div><div class="mu sm">${role} · ${provider.specialty||provider.department||''}</div></div>
-      <div class="rating-stars" aria-label="${review?`Rated ${review.rating} out of 5 stars`:'Not yet rated'}">${stars}</div>
-      <button class="btn ${review?'bs':'bp'} bsm" onclick="showRating('${provider.id}')">${review?'Edit Rating':'Rate'}</button>
-    </div>`;
-  }).join('')}</div>`;
-}
-
-function showRating(providerId) {
-  const provider=G(providerId); if(!provider) return;
-  const review=DB.reviews.find(r=>r.patientId===CU.id&&r.providerId===providerId);
-  const selected=review?.rating||0;
-  openMo(`<div class="mh"><div class="mt2">Rate ${provider.name}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <p class="mu sm">How was your experience with this ${provider.role}?</p>
-    <div class="fg" style="margin-top:16px"><span class="fl" id="rating-label">Rating</span>
-      <div class="star-picker" role="radiogroup" aria-labelledby="rating-label">
-        ${[5,4,3,2,1].map(value=>`<input type="radio" id="rating-${value}" name="provider-rating" value="${value}" ${selected===value?'checked':''}><label for="rating-${value}" aria-label="${value} star${value===1?'':'s'}">★</label>`).join('')}
-      </div>
-    </div>
-    <div class="fg"><label class="fl" for="rating-comment">Comment (optional)</label><textarea class="fc" id="rating-comment" maxlength="500" placeholder="Tell us about your experience...">${review?.comment||''}</textarea></div>
-    <div class="mf"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bp" onclick="saveRating('${providerId}')">${review?'Update Rating':'Submit Rating'}</button></div>`);
-}
-
-function saveRating(providerId) {
-  const selected=document.querySelector('input[name="provider-rating"]:checked');
-  if(!selected) return;
-  const existing=DB.reviews.find(r=>r.patientId===CU.id&&r.providerId===providerId);
-  const review={patientId:CU.id,providerId,rating:Number(selected.value),comment:$('rating-comment').value.trim(),date:todayD()};
-  if(existing) Object.assign(existing,review);
-  else DB.reviews.push({id:'rv'+Date.now(),...review});
-  log('SUBMIT_PROVIDER_RATING','Care Team'); closeMo(); navigate('dashboard');
 }
 
 function renderPatRecords(pc) {
-  $('tbt').textContent='My Health Records';
+  $('tbt').textContent=t('health_records');
   const u=CU;
-  const conditions=u.conditions||[], medications=u.medications||[], observations=u.observations||[];
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Personal Health Records</h2></div>
+    <div class="ph"><h2>${t('health_records')}</h2></div>
     <div class="g2">
-      <div class="card"><div class="ct mb18">Personal Information</div>
+      <div class="card"><div class="ct mb18">${t('personal_info')}</div>
         ${[['Full Name',u.name],['Date of Birth',u.dateOfBirth||'—'],['Gender',u.gender||'—'],['Blood Type',u.bloodType||'—'],['Phone',u.phone||'—'],['Address',u.address||'—']]
           .map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.85rem"><span class="mu bo" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em">${l}</span><span class="bo">${v}</span></div>`).join('')}
       </div>
-      <div class="card"><div class="ct mb18">Medical Information</div>
-        <div class="fl">Medical History</div><p style="font-size:.85rem;margin:4px 0 16px">${u.medicalHistory||'None recorded'}</p>
-        <div class="fl">Allergies</div><p style="font-size:.85rem;margin:4px 0 16px;color:${u.allergies&&u.allergies!=='None'?'var(--dg)':'inherit'};font-weight:${u.allergies&&u.allergies!=='None'?600:400}">${u.allergies||'None'}</p>
-        <div class="fl">Emergency Contact</div><p style="font-size:.85rem;margin-top:4px">${u.emergencyContact||'—'}</p>
-      </div>
-    </div>
-    <div class="card mt18"><div class="ch"><div class="ct">Structured Clinical Summary</div><span class="badge bin">FHIR-compatible fields</span></div>
-      <div class="g2">
-        <div><div class="fl">Conditions · ICD-10-CM</div><div class="code-list">${conditions.length?conditions.map(item=>`<div class="code-item"><code class="code-chip">${item.code}</code><div><strong>${item.display}</strong><span>${item.system}</span></div></div>`).join(''):'<div class="rating-empty">No coded conditions recorded.</div>'}</div></div>
-        <div><div class="fl">Medications · RxNorm</div><div class="code-list">${medications.length?medications.map(item=>`<div class="code-item"><code class="code-chip">${item.code}</code><div><strong>${item.display}</strong><span>${item.system}</span></div></div>`).join(''):'<div class="rating-empty">No coded medications recorded.</div>'}</div></div>
-        <div><div class="fl">Observations · LOINC</div><div class="code-list">${observations.length?observations.map(item=>`<div class="code-item"><code class="code-chip">${item.code}</code><div><strong>${item.display}: ${item.value} ${item.unit}</strong><span>${item.system} · ${item.effectiveDate}</span></div></div>`).join(''):'<div class="rating-empty">No coded observations recorded.</div>'}</div></div>
+      <div class="card"><div class="ct mb18">${t('medical_info')}</div>
+        <div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin:4px 0 16px">${u.medicalHistory||t('none_recorded')}</p>
+        <div class="fl">'allergies'</div><p style="font-size:.85rem;margin:4px 0 16px;color:${u.allergies&&u.allergies!=='None'?'var(--dg)':'inherit'};font-weight:${u.allergies&&u.allergies!=='None'?600:400}">${u.allergies||'None'}</p>
+        <div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${u.emergencyContact||'—'}</p>
       </div>
     </div>
   </div>`;
@@ -1345,15 +1670,15 @@ function renderPatRecords(pc) {
 // ═══════════════════════ MESSAGES ═══════════════════════
 const RCOL = {admin:'#c4902a',doctor:'#12a07a',nurse:'#2e8bc0',patient:'#8a9bb0'};
 function renderMessages(pc) {
-  $('tbt').textContent='Communications';
+  $('tbt').textContent=t('comm_title');
   pc.style.padding='0';
   const contacts=myContacts(), selId=SC?.id;
   pc.innerHTML=`<div class="cw">
     <div class="cl">
       <div class="clh"><h3>Conversations</h3>
-        <input class="fc" placeholder="Search contacts..." oninput="filterCts(this.value)" style="font-size:.78rem;padding:7px 11px">
+        <input class="fc" placeholder="${LANG==='fr'?'Rechercher des contacts...':'Search contacts...'}" oninput="filterCts(this.value)" style="font-size:.78rem;padding:7px 11px">
       </div>
-      <div id="ctlist">${contacts.map(c=>ctItem(c,selId)).join('')}${contacts.length===0?`<div class="emp"><p>No contacts</p></div>`:''}</div>
+      <div id="ctlist">${contacts.map(c=>ctItem(c,selId)).join('')}${contacts.length===0?`<div class="emp"><p>'no contacts'</p></div>`:''}</div>
     </div>
     <div class="ca" id="chatarea">${SC ? chatView() : chatEmpty()}</div>
   </div>`;
@@ -1367,7 +1692,7 @@ function ctItem(c,selId) {
     </div>
   </div>`;
 }
-function chatEmpty() { return `<div class="cemp"><svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Select a contact to start messaging</p><p class="sm" style="margin-top:4px">All communications are encrypted</p></div>`; }
+function chatEmpty() { return `<div class="cemp"><svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>${t('start_conv')}</p><p class="sm" style="margin-top:4px">${t('encrypted_note')}</p></div>`; }
 function chatView() {
   if (!SC) return chatEmpty();
   const c=SC, conv=convBetween(CU.id,c.id), col=RCOL[c.role]||'#8a9bb0';
@@ -1377,20 +1702,20 @@ function chatView() {
       <div><div class="canm">${c.name}</div><div class="carl">${c.specialty||c.department||c.role}${c.hospital?' · '+c.hospital:''}</div></div>
     </div>
     <div style="display:flex;gap:6px">
-      <button class="btn bgh bsm" onclick="startVoiceCall('${c.id}')">${IC.phone} Voice</button>
-      <button class="btn bp bsm" onclick="startVC('${c.id}')">${IC.vid} Video</button>
+      <button class="btn bgh bsm" onclick="startVoiceCall('${c.id}')">${IC.phone} ${t('voice_call').replace('📞 ','')}</button>
+      <button class="btn bp bsm" onclick="startVC('${c.id}')">${IC.vid} ${t('video_call').replace('📹 ','')}</button>
     </div>
   </div>
   <div class="cam" id="chatmsgs">
-    ${conv.length===0?`<div class="cemp" style="flex:none;padding:24px"><p>Start the conversation!</p></div>`
+    ${conv.length===0?`<div class="cemp" style="flex:none;padding:24px"><p>${LANG==='fr'?'Commencez !':'Start the conversation!'}</p></div>`
       :conv.map(m=>{const sent=m.from===CU.id,sender=G(m.from);return`<div class="msg2 ${sent?'snt':'rcv'}">
         ${!sent?`<div style="width:26px;height:26px;border-radius:50%;background:var(--si-p);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:var(--t2);flex-shrink:0">${ini(sender?.name||'?')}</div>`:''}
         <div><div class="mb2">${m.text}</div><div class="mt3">${m.time}</div></div>
       </div>`;}).join('')}
   </div>
   <div class="cai">
-    <input id="mgin" placeholder="Message ${c.name}..." onkeydown="if(event.key==='Enter')sendMsg()">
-    <button class="btn bp bsm" onclick="sendMsg()">${IC.send}</button>
+    <input id="mgin" placeholder='send'... ${c.name}" onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="btn bp bsm" onclick="sendMsg()" title='send'>${IC.send}</button>
   </div>`;
 }
 function selCt(id) { SC=DB.users.find(u=>u.id===id)||null; renderMessages($('pgc')); setTimeout(()=>{const el=$('chatmsgs');if(el)el.scrollTop=el.scrollHeight;},50); }
@@ -1407,49 +1732,50 @@ function sendMsg() {
 
 // ═══════════════════════ CONSULT ═══════════════════════
 function renderConsult(pc) {
-  $('tbt').textContent='Consultation Centre';
+  $('tbt').textContent=t('consult_title');
   pc.style.padding='0';
   const myA=DB.appointments.filter(a=>(a.patientId===CU.id||a.doctorId===CU.id||a.nurseId===CU.id)&&a.status==='scheduled');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>Start a Consultation</h2><p>Choose your preferred consultation mode</p></div>
+    <div class="ph"><h2>${t('start_consultation')}</h2><p>${t('choose_mode')}</p></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px">
       <div class="ccd" onclick="navigate('messages')">
         <div class="cci" style="background:var(--em-p)"><svg width="28" height="28" fill="none" stroke="var(--em)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <h3>Text Consultation</h3>
-        <p>Secure text-based messaging with your care team. Ideal for non-urgent queries and follow-ups.</p>
-        <div class="cdf"><span>✓ Encrypted</span><span>✓ File sharing</span></div>
-        <button class="btn bp w100">Start Text Chat</button>
+        <h3>${t('text_consult')}</h3>
+        <p>${t('text_desc')}</p>
+        <div class="cdf"><span>✓ ${t('text_feat1')}</span><span>✓ ${t('text_feat2')}</span></div>
+        <button class="btn bp w100">${t('start_text')}</button>
       </div>
       <div class="ccd" onclick="showVoicePicker()">
         <div class="cci" style="background:#eaf3fb"><svg width="28" height="28" fill="none" stroke="#1a6fa3" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.26 9.91 2 2 0 0 1 5.26 8.5l3-.79a2 2 0 0 1 2 .56l1.68 2.79a2 2 0 0 1-.45 2.11l-.27.27a16 16 0 0 0 6.29 6.29l.27-.27a2 2 0 0 1 2.11-.45l2.79 1.68a2 2 0 0 1 .56 2z"/></svg></div>
-        <h3>Voice Consultation</h3>
-        <p>Crystal-clear audio-only call with your care team. Ideal when video is unavailable or bandwidth is limited.</p>
-        <div class="cdf"><span>✓ Low bandwidth</span><span>✓ Encrypted</span></div>
-        <button class="btn w100" style="background:#1a6fa3;color:#fff">Start Voice Call</button>
+        <h3>${t('voice_consult')}</h3>
+        <p>${t('voice_desc')}</p>
+        <div class="cdf"><span>✓ ${t('voice_feat1')}</span><span>✓ ${t('voice_feat2')}</span></div>
+        <button class="btn w100" style="background:#1a6fa3;color:#fff">${t('start_voice')}</button>
       </div>
       <div class="ccd gc" onclick="showVCPicker()">
         <div class="cci" style="background:var(--go-p)"><svg width="28" height="28" fill="none" stroke="var(--go)" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
-        <h3>Video Consultation</h3>
-        <p>Face-to-face video call with your doctor or nurse. Ideal for detailed health assessments.</p>
-        <div class="cdf"><span>✓ HD Video & Audio</span><span>✓ Secure & Private</span></div>
-        <button class="btn bg2 w100">Start Video Call</button>
+        <h3>${t('video_consult')}</h3>
+        <p>${t('video_desc')}</p>
+        <div class="cdf"><span>✓ ${t('video_feat1')}</span><span>✓ ${t('video_feat2')}</span></div>
+        <button class="btn bg2 w100">${t('start_video')}</button>
       </div>
     </div>
-    ${myA.length>0?`<div class="card"><div class="ch"><div class="ct">Scheduled Consultations</div></div>
+    ${myA.length>0?`<div class="card"><div class="ch"><div class="ct">${t('scheduled_consults')}</div></div>
       ${myA.map(a=>{const other=CU.role==='patient'?G(a.doctorId):G(a.patientId);const fd=fmtD(a.date);return`
         <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)">
           <div class="av" style="width:38px;height:38px;font-size:.75rem">${ini(other?.name||'?')}</div>
           <div style="flex:1"><div class="bo sm">${other?.name||'Unknown'}</div><div class="mu sm">${a.date} at ${a.time} · ${a.notes||''}</div></div>
-          <span class="badge ${a.mode==='video'?'bwa':'bin'}">${a.mode}</span>
-          <button class="btn bp bsm" onclick="${a.mode==='video'?`startVC('${other?.id||''}')`:a.mode==='voice'?`startVoiceCall('${other?.id||''}')`:``}navigate('messages')">${a.mode==='video'?'Join Video':a.mode==='voice'?'Join Call':'Open Chat'}</button>
+          <span class="badge ${a.mode==='video'?'bwa':a.mode==='voice'?'bin':'bse'}">${a.mode}</span>
+          <button class="btn bp bsm" onclick="${a.mode==='video'?`startVC('${other?.id||''}')`:a.mode==='voice'?`startVoiceCall('${other?.id||''}')`:``}navigate('messages')">${a.mode==='video'?t('join_video'):a.mode==='voice'?t('join_call'):t('open_chat')}</button>
         </div>`}).join('')}
     </div>`:''}
   </div>`;
 }
+
 function showVCPicker() {
   const contacts=myContacts();
-  openMo(`<div class="mh"><div class="mt2">Start Video Call</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <p class="mu sm mb12">Select who you want to video call:</p>
+  openMo(`<div class="mh"><div class="mt2">${t('start_video_call')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <p class="mu sm mb12">${t('select_video_contact')}</p>
     ${contacts.map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:8px;cursor:pointer" onclick="closeMo();startVC('${c.id}')">
       <div class="av" style="width:36px;height:36px">${ini(c.name)}</div>
       <div style="flex:1"><div class="bo sm">${c.name}</div><div class="mu sm">${c.specialty||c.department||c.role}</div></div>
@@ -1459,8 +1785,8 @@ function showVCPicker() {
 }
 function showVoicePicker() {
   const contacts=myContacts();
-  openMo(`<div class="mh"><div class="mt2">Start Voice Call</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <p class="mu sm mb12">Select who you want to call:</p>
+  openMo(`<div class="mh"><div class="mt2">${t('start_voice_call')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <p class="mu sm mb12">${t('select_voice_contact')}</p>
     ${contacts.map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:8px;cursor:pointer" onclick="closeMo();startVoiceCall('${c.id}')">
       <div class="av" style="width:36px;height:36px;background:linear-gradient(135deg,#1a6fa3,#0d3d63)">${ini(c.name)}</div>
       <div style="flex:1"><div class="bo sm">${c.name}</div><div class="mu sm">${c.specialty||c.department||c.role}</div></div>
@@ -1476,6 +1802,9 @@ function startVC(contactId) {
   VCS=0; MUT=false; VIDOFF=false;
   $('vcmb').className='vcb vcm'; $('mico').outerHTML=`<span id="mico">${IC.micOn}</span>`;
   $('vcvb').className='vcb vcv'; $('vico').outerHTML=`<span id="vico">${IC.vidOn}</span>`;
+  // Set translated labels
+  const vcl = $('vc-live-lbl'); if(vcl) vcl.textContent = t('live');
+  const vctl = $('vc-type-label'); if(vctl) vctl.textContent = t('video_call_title');
   show('vc');
   if(VCI) clearInterval(VCI);
   VCI=setInterval(()=>{VCS++;const m=Math.floor(VCS/60),s=VCS%60;$('vctm').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000);
@@ -1497,6 +1826,10 @@ function startVoiceCall(contactId) {
   $('vosp').innerHTML=IC.spkOn;
   const bars=$('vo-bars');
   if(bars) bars.style.display='flex';
+  // Set translated labels
+  const vol = $('vo-live-lbl'); if(vol) vol.textContent = t('live');
+  const votl = $('vo-type-label'); if(votl) votl.textContent = t('voice_call_title');
+  const vows = $('vo-status'); if(vows) vows.textContent = t('connected');
   show('voc');
   if(VCI2) clearInterval(VCI2);
   VCI2=setInterval(()=>{VCS2++;const m=Math.floor(VCS2/60),s=VCS2%60;$('votm').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000);
@@ -1509,7 +1842,7 @@ function togVoiceMute() {
   $('vomic').innerHTML=VOICE_MUT?IC.micOff:IC.micOn;
   const bars=$('vo-bars');
   if(bars) bars.style.display=VOICE_MUT?'none':'flex';
-  $('vo-status').textContent=VOICE_MUT?'Muted':'Connected';
+  $('vo-status').textContent=VOICE_MUT?t('muted_lbl'):t('connected');
 }
 function togSpeaker() {
   VOICE_SPK=!VOICE_SPK;
@@ -1532,10 +1865,10 @@ function cmbg(e) { if(e.target===$('movr')) closeMo(); }
 
 function showAddNote() {
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id);
-  openMo(`<div class="mh"><div class="mt2">Add Care Note</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl">Patient</label><select class="fc" id="cn-p"><option value="">Select patient...</option>${myP.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">Note</label><textarea class="fc" id="cn-t" placeholder="Observations, vital signs, medications given..."></textarea></div>
-    <div class="mf"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bp" onclick="saveNote()">Save Note</button></div>`);
+  openMo(`<div class="mh"><div class="mt2">${t('add_care_note')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="cn-p"><option value="">'select'</option>${myP.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('note_lbl')}</label><textarea class="fc" id="cn-t" placeholder='note ph'></textarea></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveNote()">${t('add_note')}</button></div>`);
 }
 function saveNote() {
   const p=$('cn-p').value, t=$('cn-t').value.trim(); if(!p||!t) return;
@@ -1546,29 +1879,27 @@ function saveNote() {
 function showNewApt() {
   const pats=CU.role==='doctor'?DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id):DB.users.filter(u=>u.role==='patient');
   const docs=DB.users.filter(u=>u.role==='doctor');
-  openMo(`<div class="mh"><div class="mt2">New Appointment</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  openMo(`<div class="mh"><div class="mt2">${t('new_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="fg"><label class="fl">Patient</label><select class="fc" id="ap-p"><option value="">Select patient...</option>${pats.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
     ${CU.role!=='doctor'?`<div class="fg"><label class="fl">Doctor</label><select class="fc" id="ap-d"><option value="">Select doctor...</option>${docs.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>`:''}
     <div class="fr"><div class="fg"><label class="fl">Date</label><input type="date" class="fc" id="ap-dt"></div><div class="fg"><label class="fl">Time</label><input type="time" class="fc" id="ap-tm"></div></div>
-    <div class="fr"><div class="fg"><label class="fl">Mode</label><select class="fc" id="ap-md"><option value="video">📹 Video Call</option><option value="voice">📞 Voice Call</option><option value="text">💬 Text</option></select></div>
-    <div class="fg"><label class="fl">Type</label><select class="fc" id="ap-ty"><option value="consultation">Consultation</option><option value="follow-up">Follow-up</option><option value="emergency">Emergency</option></select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Mode</label><select class="fc" id="ap-md"><option value="video">'video call'</option><option value="voice">'voice call'</option><option value="text">'text chat'</option></select></div>
+    <div class="fg"><label class="fl">Type</label><select class="fc" id="ap-ty"><option value="consultation">'consultation'</option><option value="follow-up">'follow up'</option><option value="emergency">'emergency'</option></select></div></div>
     <div class="fg"><label class="fl">Notes</label><textarea class="fc" id="ap-nt" placeholder="Appointment notes..."></textarea></div>
-    <div class="mf"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bp" onclick="saveApt()">Book Appointment</button></div>`);
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveApt()">${t('book_btn')}</button></div>`);
 }
 function saveApt() {
   const patId=$('ap-p').value, docId=CU.role==='doctor'?CU.id:($('ap-d')?$('ap-d').value:''), date=$('ap-dt').value, time=$('ap-tm').value;
   if(!patId||!date||!time) return;
   const pat=G(patId);
-  DB.appointments.push({id:'apt'+Date.now(),patientId:patId,doctorId:docId,nurseId:pat?.assignedNurse||'',date,time,mode:$('ap-md').value,type:$('ap-ty').value,serviceCode:'PC-VIRTUAL',serviceName:'Virtual primary care',encounterClass:'VR',notes:$('ap-nt').value,status:'scheduled'});
+  DB.appointments.push({id:'apt'+Date.now(),patientId:patId,doctorId:docId,nurseId:pat?.assignedNurse||'',date,time,mode:$('ap-md').value,type:$('ap-ty').value,notes:$('ap-nt').value,status:'scheduled'});
   log('CREATE_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
 
-function showBookApt(serviceCode='PC-VIRTUAL') {
+function showBookApt() {
   const myDoc=G(CU.assignedDoctor);
-  APTSERVICE=VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-VIRTUAL';
-  openMo(`<div class="mh"><div class="mt2">Book Consultation</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  openMo(`<div class="mh"><div class="mt2">${t('book_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     ${myDoc?`<div style="background:var(--em-p);padding:10px 14px;border-radius:var(--rs);margin-bottom:16px;font-size:.83rem"><strong>${myDoc.name}</strong> — ${myDoc.specialty||''}</div>`:''}
-    <div class="fg"><label class="fl" for="bk-sv">Virtual Service</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${service.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Consultation Mode</label>
       <div style="display:flex;gap:6px">
         <button id="bk-v" class="btn bp" style="flex:1" onclick="setAptMode('video')">📹 Video</button>
@@ -1578,7 +1909,7 @@ function showBookApt(serviceCode='PC-VIRTUAL') {
     </div>
     <div class="fr"><div class="fg"><label class="fl">Preferred Date</label><input type="date" class="fc" id="bk-d"></div><div class="fg"><label class="fl">Preferred Time</label><input type="time" class="fc" id="bk-t2"></div></div>
     <div class="fg"><label class="fl">Reason for Consultation</label><textarea class="fc" id="bk-n" placeholder="Describe your symptoms or concern..."></textarea></div>
-    <div class="mf"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bp" onclick="saveBooking()">Confirm Booking</button></div>`);
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveBooking()">${t('confirm_booking')}</button></div>`);
 }
 function setAptMode(m) {
   APTMODE=m;
@@ -1588,44 +1919,23 @@ function setAptMode(m) {
 }
 function saveBooking() {
   const date=$('bk-d').value, time=$('bk-t2').value; if(!date||!time) return;
-  const service=VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
-  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:CU.assignedDoctor||'',nurseId:CU.assignedNurse||'',date,time,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
+  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:CU.assignedDoctor||'',nurseId:CU.assignedNurse||'',date,time,mode:APTMODE,type:'consultation',notes:$('bk-n').value,status:'scheduled'});
   log('BOOK_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
-}
-
-function showTriage() {
-  openMo(`<div class="mh"><div class="mt2">Urgent Care Triage</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="triage-alert"><strong>Emergency warning:</strong> Call your local emergency number immediately for severe chest pain, difficulty breathing, stroke symptoms, severe bleeding, loss of consciousness, or immediate danger.</div>
-    <div class="fg" style="margin-top:16px"><label class="fl" for="triage-level">How urgent is your concern?</label><select class="fc" id="triage-level"><option value="emergency">Emergency or life-threatening</option><option value="urgent">Urgent, needs same-day review</option><option value="routine">Non-urgent guidance</option></select></div>
-    <div class="fg"><label class="fl" for="triage-symptoms">What is happening?</label><textarea class="fc" id="triage-symptoms" placeholder="Describe your symptoms, when they started, and what has changed..."></textarea></div>
-    <div class="fg"><label class="fl" for="triage-location">Your current location</label><input class="fc" id="triage-location" placeholder="City and country"></div>
-    <div class="mf"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bd2" onclick="submitTriage()">Submit Triage</button></div>`);
-}
-
-function submitTriage() {
-  const level=$('triage-level').value, symptoms=$('triage-symptoms').value.trim(), location=$('triage-location').value.trim();
-  if(!symptoms||!location) return;
-  DB.triageCases.push({id:'tr'+Date.now(),patientId:CU.id,priority:level,symptoms,location,status:'received',createdAt:tsNow()});
-  log('SUBMIT_TRIAGE','Urgent Care');
-  closeMo();
-  if(level==='emergency') alert('Call your local emergency number now. Your triage request has been recorded for the care team.');
-  else alert('Your triage request has been received. A care team member will review it.');
 }
 
 // ═══════════════════════ ADMIN MODALS ═══════════════════════
 function showAddUser(role) {
-  openMo(`<div class="mh"><div class="mt2">Add ${role.charAt(0).toUpperCase()+role.slice(1)}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl">Full Name</label><input class="fc" id="au-n" placeholder="Full legal name"></div>
+  openMo(`<div class="mh"><div class="mt2">'add new' ${role==='doctor'?t('doctor'):role==='nurse'?t('nurse'):t('patient')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="au-n" placeholder="Full legal name"></div>
     <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="au-e" placeholder="email@example.com"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="au-ph" placeholder="+237 6XX XXX XXX"></div>
     <div class="fg"><label class="fl">Password</label><input class="fc" type="password" id="au-pw" placeholder="Temporary password"></div>
-    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div>`:''}
-    ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="au-ns"><option value="">Select...</option>${NURSE_SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div></div>`:''}
-    ${role==='admin'?`<div class="fg"><label class="fl">Administrator Role</label><select class="fc" id="au-ar"><option>Platform Owner</option><option>Clinical Operations</option><option>Compliance Officer</option><option>Support Administrator</option></select></div>`:''}
+    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><input class="fc" id="au-sp" placeholder="e.g. Cardiology"></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div>`:''}
+    ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div>`:''}
     ${role==='patient'?`<div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="au-bt"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
-    <div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="au-dc"><option value="">None</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="au-nr"><option value="">None</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${n.name}</option>`).join('')}</select></div>`:''}
-    <div class="mf"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bp" onclick="saveAddUser('${role}')">Add User</button></div>`);
+    <div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="au-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="au-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${n.name}</option>`).join('')}</select></div>`:''}
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveAddUser('${role}')">${t('add_user')}</button></div>`);
 }
 function saveAddUser(role) {
   const n=$('au-n').value.trim(),e=$('au-e').value.trim(),pw=$('au-pw').value;
@@ -1633,9 +1943,8 @@ function saveAddUser(role) {
   if(DB.users.find(u=>u.email===e)){alert('Email already in use.');return;}
   const id=role.slice(0,3)+Date.now();
   const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:'active',createdAt:todayD()};
-  const extra=role==='admin'?{adminRole:$('au-ar')?.value||'Support Administrator',permissions:['users','audit'],createdAt:todayD()}
-    :role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||''}
-    :role==='nurse'?{department:$('au-de')?.value||'',specialty:$('au-ns')?.value||'',nurseId:$('au-ni')?.value||'',hospital:$('au-ho')?.value||'',qualifications:''}
+  const extra=role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||''}
+    :role==='nurse'?{department:$('au-de')?.value||'',nurseId:$('au-ni')?.value||'',hospital:$('au-ho')?.value||'',qualifications:''}
     :{dateOfBirth:$('au-db')?.value||'',bloodType:$('au-bt')?.value||'',assignedDoctor:$('au-dc')?.value||null,assignedNurse:$('au-nr')?.value||null,allergies:'None',address:'',emergencyContact:'',medicalHistory:''};
   DB.users.push({...base,...extra});
   log('ADMIN_ADD_USER','User Management'); closeMo(); navigate(CP);
@@ -1643,20 +1952,18 @@ function saveAddUser(role) {
 
 function showEditUser(id) {
   const u=G(id); if(!u) return;
-  openMo(`<div class="mh"><div class="mt2">Edit User</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl">Full Name</label><input class="fc" id="eu-n" value="${u.name}"></div>
+  openMo(`<div class="mh"><div class="mt2">'edit' 'user'</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="eu-n" value="${u.name}"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="eu-ph" value="${u.phone||''}"></div>
-    <div class="fg"><label class="fl">Status</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>Active</option><option value="suspended" ${u.status==='suspended'?'selected':''}>Suspended</option></select></div>
-    ${u.role==='admin'?`<div class="fg"><label class="fl">Administrator Role</label><select class="fc" id="eu-ar"><option ${u.adminRole==='Platform Owner'?'selected':''}>Platform Owner</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>Clinical Operations</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>Compliance Officer</option><option ${u.adminRole==='Support Administrator'?'selected':''}>Support Administrator</option></select></div>`:''}
-    ${u.role==='patient'?`<div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="eu-dc"><option value="">None</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="eu-nr"><option value="">None</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
-    <div class="mf"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bp" onclick="saveEditUser('${id}')">Save Changes</button></div>`);
+    <div class="fg"><label class="fl">Status</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option><option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
+    ${u.role==='patient'?`<div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveEditUser('${id}')">${t('save_changes')}</button></div>`);
 }
 function saveEditUser(id) {
   const u=G(id); if(!u) return;
   u.name=$('eu-n').value.trim()||u.name;
   u.phone=$('eu-ph').value.trim(); u.status=$('eu-st').value;
-  if($('eu-ar')) u.adminRole=$('eu-ar').value;
   if($('eu-dc')) u.assignedDoctor=$('eu-dc').value||null;
   if($('eu-nr')) u.assignedNurse=$('eu-nr').value||null;
   log('EDIT_USER','User Management'); closeMo(); navigate(CP);
@@ -1665,20 +1972,65 @@ function saveEditUser(id) {
 function doSuspend(id) {
   const u=G(id); if(!u) return;
   openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">Suspend <strong>${u.name}</strong>?<br>They will be unable to log in.</p>
-    <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bd2" onclick="confirmSuspend('${id}')">Yes, Suspend</button></div></div>`);
+    <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmSuspend('${id}')">${t('yes_suspend')}</button></div></div>`);
 }
 function confirmSuspend(id) { const u=G(id);if(u){u.status='suspended';log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
 function doActivate(id) { const u=G(id);if(u){u.status='active';log('ACTIVATE_USER','User Management');} navigate(CP); }
 
 function askDelete(id, name) {
   openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">Permanently delete <strong>${name}</strong>?<br>This action cannot be undone.</p>
-    <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">Cancel</button><button class="btn bd2" onclick="confirmDel('${id}')">Yes, Delete</button></div></div>`);
+    <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmDel('${id}')">${t('yes_delete')}</button></div></div>`);
 }
 function confirmDel(id) { DB.users=DB.users.filter(u=>u.id!==id); log('DELETE_USER','User Management'); closeMo(); navigate(CP); }
 
+
+// ═══════════════════════ TRANSLATIONS ═══════════════════════
+
+// ═══════════════════════ LANGUAGE ENGINE ═══════════════════════
+
+
+
+
+
+
+// ── Contact form (landing page) ──────────────────────────────────────────────
+function submitForm(btn) {
+  btn.textContent = LANG==='fr'?'Envoi...':'Sending...';
+  btn.disabled = true;
+  setTimeout(()=>{
+    btn.style.display='none';
+    const ok=document.getElementById('cf-ok');
+    if(ok) ok.style.display='block';
+  }, 900);
+}
+
+// ── Global error boundary ─────────────────────────────────────────────────────
+window.addEventListener('error', function(e){
+  console.warn('[HFA]', e.message, 'at', e.filename, e.lineno);
+  return true;
+});
+window.addEventListener('unhandledrejection', function(e){
+  console.warn('[HFA] Promise rejection:', e.reason);
+  e.preventDefault();
+});
 // ═══════════════════════ INIT ═══════════════════════
 setRole('patient');
-show('land');
+// Check for saved language preference
+const savedLang = localStorage.getItem('hfa-lang');
+if (savedLang) {
+  LANG = savedLang;
+  document.documentElement.setAttribute('data-lang', savedLang);
+  updateLangButtons();
+  updateStaticHTML();
+  hide('lang-pick');
+  show('land');
+} else {
+  // Show language picker — hide everything else
+  hide('land');
+  hide('auth-wrap');
+  hide('app-wrap');
+  show('lang-pick');
+}
 </script>
 </body>
 </html>
