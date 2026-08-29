@@ -158,8 +158,12 @@ tbody tr:hover{background:#fcfdfe}
 
 #land{min-height:100vh;background:var(--na);color:#fff}
 .lnav{display:flex;align-items:center;justify-content:space-between;padding:18px 56px;border-bottom:1px solid rgba(255,255,255,.07)}
-.llogo{font-family:var(--fd);font-size:1.5rem;color:#fff}
+.llogo{font-family:var(--fd);font-size:1.5rem;color:#fff;display:flex;align-items:center;gap:10px}
 .llogo span{color:var(--go)}
+.logo-mark{display:block;object-fit:contain}
+.landing-mark{width:58px;height:38px}
+.auth-mark{width:96px;height:72px;margin:0 auto 8px}
+.sidebar-mark{width:38px;height:32px}
 .lnr{display:flex;align-items:center;gap:8px}
 .hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:56px;padding:72px 56px;max-width:1200px;margin:0 auto}
 .ht h2{font-family:var(--fd);font-size:3rem;line-height:1.08;color:#fff}
@@ -247,6 +251,37 @@ tbody tr:hover{background:#fcfdfe}
 .cdf{display:flex;justify-content:center;gap:14px;font-size:.72rem;color:var(--t3);margin-bottom:18px}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.service-item{padding:12px;border:1px solid var(--bd);border-radius:var(--rs);background:var(--ow)}
+.service-item h4{font-family:var(--fd);font-size:.84rem;color:var(--na);margin-bottom:3px}
+.service-item p{font-size:.72rem;color:var(--t3);line-height:1.45;margin-bottom:9px}
+.code-list{display:grid;gap:9px}
+.code-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.code-item:last-child{border-bottom:none}
+.code-chip{font-family:var(--fm);font-size:.67rem;background:var(--si-p);color:var(--na);border:1px solid var(--bd);border-radius:3px;padding:3px 5px;white-space:nowrap}
+.code-item strong{display:block;font-size:.8rem}
+.code-item span{display:block;color:var(--t3);font-size:.72rem;margin-top:2px}
+.safety-banner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:#fff6e6;border:1px solid #f1d39b;border-left:3px solid var(--go);border-radius:var(--rs);margin-bottom:18px}
+.safety-banner strong{display:block;color:#7d5800;font-size:.8rem}
+.safety-banner p{color:#856404;font-size:.74rem;margin-top:2px}
+.goal-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.goal-row:last-child{border-bottom:none}
+.goal-progress{height:6px;background:var(--si-l);border-radius:4px;overflow:hidden;margin-top:5px}
+.goal-progress span{display:block;height:100%;background:var(--em-l);border-radius:4px}
+.triage-alert{background:#fff1f1;border:1px solid #efb7b3;color:#6e1a13;border-radius:var(--rs);padding:12px 14px;font-size:.8rem;line-height:1.5}
+.rating-list{display:grid;gap:12px}
+.rating-row{display:flex;align-items:center;gap:12px;padding:12px;background:var(--ow);border:1px solid var(--bd);border-radius:var(--rs)}
+.rating-row .av{width:38px;height:38px;font-size:.7rem}
+.rating-info{flex:1;min-width:0}
+.rating-stars{display:flex;gap:2px;align-items:center;color:var(--go);font-size:1.05rem;white-space:nowrap}
+.rating-stars .muted{color:var(--bd2)}
+.rating-note{font-size:.72rem;color:var(--t3);margin-top:2px}
+.star-picker{display:flex;gap:3px;margin-top:6px}
+.star-picker input{position:absolute;opacity:0;pointer-events:none}
+.star-picker label{color:var(--bd2);font-size:1.75rem;line-height:1;cursor:pointer;transition:var(--tr)}
+.star-picker label:hover,.star-picker input:checked~label,.star-picker label:has(~ input:checked){color:var(--go)}
+.star-picker input:focus-visible+label{outline:2px solid var(--em-l);outline-offset:3px;border-radius:2px}
+.rating-empty{color:var(--t3);font-size:.84rem;padding:8px 0}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .mb12{margin-bottom:12px}
 .mb18{margin-bottom:18px}
@@ -311,6 +346,21 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .vo-bar:nth-child(5){animation-delay:0s}
 @keyframes vobar{0%,100%{height:6px}50%{height:24px}}
 
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;padding:48px 28px}
+  .service-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  #sidebar{width:210px}
+  #main{margin-left:210px}
+  .page{padding:20px 16px}
+  .topbar{padding:10px 16px}
+  .g2,.fr{grid-template-columns:1fr}
+  .rating-row{align-items:flex-start;flex-wrap:wrap}
+  .rating-stars{margin-left:50px;margin-top:-6px}
+  .rating-row .btn{margin-left:auto}
+  .service-grid{grid-template-columns:1fr}
+}
 
 /* ═══ BILINGUAL ═══════════════════════════════════════════════════════════════ */
 :root[data-lang="fr"] .t-en { display: none !important; }
@@ -390,9 +440,9 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 <!-- LANDING -->
 <div id="land" class="hid">
   <nav class="lnav">
-    <div class="llogo" id="land-hero-title">HFA <span>SilverStrong</span></div>
+    <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span id="land-hero-title">HFA <span>SilverStrong</span></span></div>
     <div class="lnr">
-      <a href="index.html" id="lnd-back-btn" style="color:rgba(255,255,255,.42);font-size:.78rem;padding:8px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.12);text-decoration:none;margin-right:4px;transition:.2s" onmouseover="this.style.color='rgba(255,255,255,.8)'" onmouseout="this.style.color='rgba(255,255,255,.42)'">← Website</a>
+      <button class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="startDemo('patient')" id="lnd-demo">Try Demo</button>
       <button class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
       <button class="btn bg2 land-nav-btn" onclick="goAuth('register')" id="lnd-register">Register</button>
     </div>
@@ -451,7 +501,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 <div id="auth-wrap" class="hid">
   <div class="al">
     <div class="abr">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--em-l),var(--em-d));display:flex;align-items:center;justify-content:center;margin:0 auto 12px"><svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <img class="logo-mark auth-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo">
       <h1>HFA<br><span class="go">SilverStrong</span></h1>
       <p>Healthcare Telehealth Platform</p>
     </div>
@@ -461,13 +511,6 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Real-time patient-doctor communication</div>
       <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Full admin audit trail &amp; control</div>
       <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Add, suspend, or remove any user</div>
-    </div>
-    <div class="dmb">
-      <strong id="demo-lbl">Demo Credentials</strong>
-      <div class="dr"><span>Admin:</span><code>admin@hfa-silverstrong.org</code><code>Admin@2024</code></div>
-      <div class="dr"><span>Doctor:</span><code>anwosu@hfa.org</code><code>Doctor@123</code></div>
-      <div class="dr"><span>Nurse:</span><code>fdiallo@hfa.org</code><code>Nurse@123</code></div>
-      <div class="dr"><span>Patient:</span><code>etabe@gmail.com</code><code>Patient@123</code></div>
     </div>
   </div>
   <div class="ar">
@@ -505,11 +548,12 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <div class="iw"><input class="fc" type="password" id="rpa" placeholder="Min. 6 characters"><button class="eb" onclick="tpw('rpa')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
       <div id="df">
-        <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp"><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Cardiology</option><option>Pediatrics</option><option>Obstetrics</option><option>Oncology</option><option>Orthopedics</option><option>Neurology</option><option>Dermatology</option><option>Psychiatry</option><option>Surgery</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
+        <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
         <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" id="rhd" placeholder="Institution name"></div>
       </div>
       <div id="nf" class="hid">
-        <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="" id="rde-def">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div></div>
+        <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="" id="rde-def">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="rns" required><option value="" id="rns-def">Select...</option><option>General Nursing</option><option>Critical Care Nursing</option><option>Emergency Nursing</option><option>Pediatric Nursing</option><option>Neonatal Nursing</option><option>Oncology Nursing</option><option>Surgical and Perioperative Nursing</option><option>Maternal and Midwifery Care</option><option>Psychiatric and Mental Health Nursing</option><option>Community and Public Health Nursing</option><option>Geriatric Nursing</option><option>Renal Nursing</option><option>Cardiac Nursing</option><option>Infection Prevention and Control</option><option>Nurse Anesthesia</option><option>Rehabilitation Nursing</option><option>Occupational Health Nursing</option></select></div></div>
+        <div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div>
         <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" id="rhn" placeholder="Institution name"></div>
         <div class="fg"><label class="fl">Qualifications</label><input class="fc" id="rqu" placeholder="e.g. BSN, ICU Certified"></div>
       </div>
@@ -530,7 +574,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
   <div id="sidebar">
     <div class="sb-logo">
       <div class="sb-li">
-        <div class="sb-ic"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="sb-ic"><img class="logo-mark sidebar-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"></div>
         <div><div class="sb-br">HFA SilverStrong</div><div class="sb-tg">Healthy Future Africa</div></div>
       </div>
       <span id="srb" class="sb-rb"></span>
@@ -701,18 +745,19 @@ const T = {
     welcome:'Welcome', specialty_lbl:'Specialty', hospital_lbl:'Hospital',
     dept_lbl:'Department', upcoming:'Upcoming', completed:'Completed',
     my_patients_lbl:'My Patients', assigned_patients:'Assigned Patients',
-    upcoming_tasks:'Upcoming Tasks', upcoming_apts:'upcoming apts',
+    upcoming_tasks:'Upcoming Tasks', upcoming_apts:'Upcoming Appointments',
     completed_consults:'Completed Consultations',
-    no_upcoming:'no upcoming', no_patients:'no patients',
+    no_upcoming:'No upcoming appointments', no_patients:'No assigned patients',
     no_notes:'No care notes yet',no_patients_yet:'No patients assigned yet',
     add_first_note:'No care notes yet. Add your first note.',
     no_records:'No patient records available', no_apts:'No appointments found',
-    no_contacts:'No contacts', start_conv:'start conv',
-    encrypted_note:'encrypted note',
-    book_now:'Book Now', message_team:'message team',
-    allergy_alert:'allergy alert',
-    ensure_informed:'ensure informed',
-    care_team:'care team', no_team:'no team',
+    no_contacts:'No contacts', start_conv:'Select a contact to start messaging',
+    encrypted_note:'All communications are encrypted',
+    book_now:'Book Now', message_team:'Message Care Team',
+    allergy_alert:'⚠ Allergy Alert:',
+    ensure_informed:'Ensure all care providers are informed.',
+    care_team:'My Care Team', no_team:'No care team assigned yet',
+    allergies:'Allergies', address:'Address',
 
     // Stats
     total_doctors:'Doctors', total_nurses:'Nurses', total_patients:'Patients',
@@ -787,7 +832,7 @@ const T = {
     yes_delete:'Yes, Delete',
 
     // Patient records
-    personal_info:'personal info', medical_info:'medical info',
+    personal_info:'Personal Information', medical_info:'Medical Information',
     medical_history:'Medical History', none_recorded:'None recorded',
     no_record:'—', blood_type_lbl:'Blood Type', gender_lbl:'Gender',
     dob_lbl:'Date of Birth', address_lbl:'Address',
@@ -797,6 +842,38 @@ const T = {
     active:'Active', video:'video', voice:'voice', text:'text',
     success:'OK', failed:'Failed',
     demo_creds:'Demo Credentials',
+
+    // Admin governance / integrations / triage / safety / care plan / ratings
+    control_center:'Control Center', administration:'Administration', administrators:'Administrators',
+    integrations_nav:'Integrations', triage_queue_nav:'Triage Queue', safety_nav:'Safety & Consent', care_plan_nav:'Care Plan',
+    admin_control_title:'Clinical Governance', admin_control_sub:'Operate the virtual hospital with visible controls and accountable workflows',
+    active_admins:'Active Administrators', verified_clinicians:'Verified Clinicians', open_safety_alerts:'Open Safety Alerts', active_consents:'Active Consents',
+    access_governance:'Access & Governance', rbac_title:'Role-based admin permissions', rbac_desc:'Every administrator has an auditable role and permission set.',
+    consent_registry_title:'Patient consent registry', verify_title:'Clinician verification', manage_admins_btn:'Manage Administrators',
+    safety_integrations:'Safety & Integrations', fhir_title:'Clinical exchange', med_safety_title:'Medication safety', triage_title:'Urgent-care queue', review_integrations_btn:'Review Integrations',
+    integrations_title:'Platform Integrations', integrations_sub:'Connection readiness for production clinical services',
+    demo_config_title:'Demo configuration', demo_config_desc:'These records document the required integration boundaries. No real FHIR server, terminology server, encryption key store, identity provider, or emergency dispatcher is connected by this static build.',
+    triage_queue_title:'Urgent Care Queue', triage_queue_sub:'Review patient-submitted triage requests and document escalation', no_open_triage:'No open triage requests.', close_btn:'Close',
+    safety_title:'Safety, Consent & Verification', safety_sub:'Review clinical safety signals and patient permissions',
+    med_alerts_title:'Medication Safety Alerts', no_med_alerts:'No medication safety alerts.', resolve_btn:'Resolve', consent_registry:'Consent Registry',
+    care_plan_title:'My Care Plan', care_plan_sub:'Shared goals and follow-up actions from your care team',
+    keep_team_informed:'Keep your care team informed', keep_team_informed_desc:'Use secure messaging to report changes, missed medicines, or concerns before your next review.',
+    led_by:'Led by', next_review:'Next review', no_care_plan:'No care plan has been shared yet.',
+    rate_care_team:'Rate Your Care Team', rate_care_team_sub:'Your feedback helps us improve the care experience.',
+    rating_can_rate:'You can rate your care team after a provider is assigned.', edit_rating:'Edit Rating', rate_btn:'Rate',
+    how_experience:'How was your experience with this', rating_label:'Rating', comment_optional:'Comment (optional)', comment_ph:'Tell us about your experience...',
+    update_rating:'Update Rating', submit_rating:'Submit Rating',
+    virtual_services_title:'Virtual Hospital Services', virtual_services_sub:'Choose a service and connect with the right care professional remotely.', book_service:'Book Service',
+    virtual_care_safety:'Virtual care safety', virtual_care_safety_desc:'For severe chest pain, difficulty breathing, stroke symptoms, severe bleeding, or immediate danger, call local emergency services now. Do not wait for a virtual response.',
+    urgent_help:'Urgent Help', urgent_care_triage:'Urgent Care Triage', emergency_warning:'Emergency warning:',
+    emergency_warning_desc:'Call your local emergency number immediately for severe chest pain, difficulty breathing, stroke symptoms, severe bleeding, loss of consciousness, or immediate danger.',
+    triage_urgency_q:'How urgent is your concern?', triage_emergency_opt:'Emergency or life-threatening', triage_urgent_opt:'Urgent, needs same-day review', triage_routine_opt:'Non-urgent guidance',
+    triage_what_happening:'What is happening?', triage_symptoms_ph:'Describe your symptoms, when they started, and what has changed...',
+    triage_location:'Your current location', triage_location_ph:'City and country', submit_triage:'Submit Triage',
+    testing_access:'Testing Access', demo_admin_only:'Admin-only demo credentials. Share them only with approved testers.', restricted:'Restricted', temp_test_pw:'Temporary testing password:',
+    admin_role_lbl:'Administrator Role', add_admin:'Add Admin', platform_owner:'Platform Owner', clinical_operations:'Clinical Operations', compliance_officer:'Compliance Officer', support_admin:'Support Administrator',
+    spec_required:'Please select your medical specialty.', nurse_spec_required:'Please select your nursing specialty.',
+    try_demo:'Try Demo', lang_prompt_lbl:'Language',
   },
 
   fr: {
@@ -865,6 +942,7 @@ const T = {
     allergy_alert:'⚠ Alerte Allergie',
     ensure_informed:'Assurez-vous que tous les soignants sont informés.',
     care_team:'Mon Équipe Soignante', no_team:'Aucune équipe soignante assignée',
+    allergies:'Allergies', address:'Adresse',
 
     // Stats
     total_doctors:'Médecins', total_nurses:'Infirmiers', total_patients:'Patients',
@@ -951,6 +1029,38 @@ const T = {
     active:'Actif', video:'vidéo', voice:'vocal', text:'texte',
     success:'OK', failed:'Échoué',
     demo_creds:'Identifiants de Démonstration',
+
+    // Admin governance / integrations / triage / safety / care plan / ratings
+    control_center:'Centre de Contrôle', administration:'Administration', administrators:'Administrateurs',
+    integrations_nav:'Intégrations', triage_queue_nav:'File de Triage', safety_nav:'Sécurité & Consentement', care_plan_nav:'Plan de Soins',
+    admin_control_title:'Gouvernance Clinique', admin_control_sub:'Gérer l\'hôpital virtuel avec des contrôles visibles et des processus responsables',
+    active_admins:'Administrateurs Actifs', verified_clinicians:'Cliniciens Vérifiés', open_safety_alerts:'Alertes de Sécurité Ouvertes', active_consents:'Consentements Actifs',
+    access_governance:'Accès & Gouvernance', rbac_title:'Permissions administratives basées sur les rôles', rbac_desc:'Chaque administrateur a un rôle et un ensemble de permissions auditables.',
+    consent_registry_title:'Registre de consentement des patients', verify_title:'Vérification des cliniciens', manage_admins_btn:'Gérer les Administrateurs',
+    safety_integrations:'Sécurité & Intégrations', fhir_title:'Échange clinique', med_safety_title:'Sécurité des médicaments', triage_title:'File d\'attente urgente', review_integrations_btn:'Vérifier les Intégrations',
+    integrations_title:'Intégrations de la Plateforme', integrations_sub:'État de préparation des connexions pour les services cliniques en production',
+    demo_config_title:'Configuration de démonstration', demo_config_desc:'Ces enregistrements documentent les limites d\'intégration requises. Aucun serveur FHIR réel, serveur de terminologie, coffre-fort de clés de chiffrement, fournisseur d\'identité ou service d\'urgence n\'est connecté par cette version statique.',
+    triage_queue_title:'File d\'Attente Urgente', triage_queue_sub:'Examiner les demandes de triage soumises par les patients et documenter l\'escalade', no_open_triage:'Aucune demande de triage ouverte.', close_btn:'Fermer',
+    safety_title:'Sécurité, Consentement & Vérification', safety_sub:'Examiner les signaux de sécurité clinique et les autorisations des patients',
+    med_alerts_title:'Alertes de Sécurité des Médicaments', no_med_alerts:'Aucune alerte de sécurité des médicaments.', resolve_btn:'Résoudre', consent_registry:'Registre de Consentement',
+    care_plan_title:'Mon Plan de Soins', care_plan_sub:'Objectifs partagés et actions de suivi de votre équipe soignante',
+    keep_team_informed:'Informez votre équipe soignante', keep_team_informed_desc:'Utilisez la messagerie sécurisée pour signaler des changements, des médicaments manqués ou des préoccupations avant votre prochaine révision.',
+    led_by:'Dirigé par', next_review:'Prochaine révision', no_care_plan:'Aucun plan de soins n\'a encore été partagé.',
+    rate_care_team:'Évaluez Votre Équipe Soignante', rate_care_team_sub:'Vos commentaires nous aident à améliorer l\'expérience de soins.',
+    rating_can_rate:'Vous pouvez évaluer votre équipe soignante une fois qu\'un prestataire est assigné.', edit_rating:'Modifier l\'Évaluation', rate_btn:'Évaluer',
+    how_experience:'Comment était votre expérience avec ce', rating_label:'Évaluation', comment_optional:'Commentaire (facultatif)', comment_ph:'Parlez-nous de votre expérience...',
+    update_rating:'Mettre à Jour', submit_rating:'Soumettre l\'Évaluation',
+    virtual_services_title:'Services de l\'Hôpital Virtuel', virtual_services_sub:'Choisissez un service et connectez-vous à distance avec le bon professionnel de santé.', book_service:'Réserver le Service',
+    virtual_care_safety:'Sécurité des soins virtuels', virtual_care_safety_desc:'Pour une douleur thoracique sévère, une difficulté à respirer, des symptômes d\'AVC, un saignement grave ou un danger immédiat, appelez immédiatement les services d\'urgence locaux. N\'attendez pas de réponse virtuelle.',
+    urgent_help:'Aide Urgente', urgent_care_triage:'Triage de Soins Urgents', emergency_warning:'Avertissement d\'urgence :',
+    emergency_warning_desc:'Appelez immédiatement votre numéro d\'urgence local en cas de douleur thoracique sévère, difficulté à respirer, symptômes d\'AVC, saignement grave, perte de conscience ou danger immédiat.',
+    triage_urgency_q:'Quelle est l\'urgence de votre préoccupation ?', triage_emergency_opt:'Urgence ou danger vital', triage_urgent_opt:'Urgent, nécessite une révision le jour même', triage_routine_opt:'Conseils non urgents',
+    triage_what_happening:'Que se passe-t-il ?', triage_symptoms_ph:'Décrivez vos symptômes, quand ils ont commencé et ce qui a changé...',
+    triage_location:'Votre emplacement actuel', triage_location_ph:'Ville et pays', submit_triage:'Soumettre le Triage',
+    testing_access:'Accès de Test', demo_admin_only:'Identifiants de démonstration réservés aux administrateurs. Ne les partagez qu\'avec des testeurs approuvés.', restricted:'Restreint', temp_test_pw:'Mot de passe de test temporaire :',
+    admin_role_lbl:'Rôle Administrateur', add_admin:'Ajouter Admin', platform_owner:'Propriétaire de la Plateforme', clinical_operations:'Opérations Cliniques', compliance_officer:'Responsable de la Conformité', support_admin:'Administrateur de Support',
+    spec_required:'Veuillez sélectionner votre spécialité médicale.', nurse_spec_required:'Veuillez sélectionner votre spécialité infirmière.',
+    try_demo:'Essayer la Démo', lang_prompt_lbl:'Langue',
   }
 };
 
@@ -1028,6 +1138,7 @@ function updateStaticHTML() {
   // Select defaults
   const rspd=$('rsp-def'); if(rspd) rspd.textContent=t('select');
   const rded=$('rde-def'); if(rded) rded.textContent=t('select');
+  const rnsd=$('rns-def'); if(rnsd) rnsd.textContent=t('select');
   const rged=$('rge-def'); if(rged) rged.textContent=t('select');
   // Blood type / gender labels in register
   const lbph=$('lbl-phone'); if(lbph) lbph.textContent=t('phone');
@@ -1057,7 +1168,7 @@ function updateStaticHTML() {
     : 'HFA <span style="color:var(--go)">SilverStrong</span>';
   // Landing nav buttons
   const lsi = $('lnd-signin'); if(lsi) lsi.textContent = LANG==='fr'?'Se Connecter':'Sign In';
-  const lbk = $('lnd-back-btn'); if(lbk) lbk.textContent = LANG==='fr'?'← Site Web':'← Website';
+  const lbk = $('lnd-demo'); if(lbk) lbk.textContent = t('try_demo');
   const sbs = $('sb-site-lbl');  if(sbs) sbs.textContent  = LANG==='fr'?'Retour au Site':'Back to Website';
   const lrg = $('lnd-register'); if(lrg) lrg.textContent = LANG==='fr'?'Inscription':'Register';
   // Landing footer features
@@ -1099,21 +1210,22 @@ function updateStaticHTML() {
 // ═══════════════════════ DATA STORE ═══════════════════════
 const DB = {
   users: [
-    {id:'adm1',role:'admin',name:'Chinjie Sylvester',email:'admin@hfa-silverstrong.org',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01'},
+    {id:'adm1',role:'admin',name:'Chinjie Sylvester',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
+    {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
     {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10'},
     {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15'},
-    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',status:'active',createdAt:'2024-02-20'},
-    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',password:'Nurse@123',department:'Pediatrics',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',status:'active',createdAt:'2024-04-01'},
-    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',password:'Patient@123',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.'},
-    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',password:'Patient@123',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.'},
-    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',password:'Patient@123',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.'},
+    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',status:'active',createdAt:'2024-02-20'},
+    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',password:'Nurse@123',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',status:'active',createdAt:'2024-04-01'},
+    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',password:'Patient@123',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
+    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',password:'Patient@123',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.',conditions:[{system:'ICD-10-CM',code:'E11.9',display:'Type 2 diabetes mellitus without complications'}],medications:[{system:'RxNorm',code:'860975',display:'Metformin 500 MG Oral Tablet'}],observations:[{system:'LOINC',code:'2339-0',display:'Glucose [Mass/volume] in Blood',value:'8.4',unit:'mmol/L',effectiveDate:'2025-01-27'}]},
+    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',password:'Patient@123',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.',conditions:[{system:'ICD-10-CM',code:'I25.10',display:'Atherosclerotic heart disease of native coronary artery without angina pectoris'}],medications:[],observations:[]},
   ],
   appointments: [
-    {id:'apt1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',date:'2025-02-04',time:'09:30',type:'consultation',status:'scheduled',notes:'Follow-up blood pressure check',mode:'video'},
-    {id:'apt2',patientId:'pat2',doctorId:'doc1',nurseId:'nur1',date:'2025-01-29',time:'11:00',type:'consultation',status:'completed',notes:'Diabetes management review',mode:'text'},
-    {id:'apt3',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-06',time:'14:00',type:'consultation',status:'scheduled',notes:'Cardiology post-op check',mode:'video'},
-    {id:'apt4',patientId:'pat1',doctorId:'doc1',date:'2025-02-10',time:'10:00',type:'follow-up',status:'scheduled',notes:'Medication review',mode:'text'},
-    {id:'apt5',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-08',time:'08:00',type:'consultation',status:'scheduled',notes:'Weekly cardiac check-in',mode:'voice'},
+    {id:'apt1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',date:'2025-02-04',time:'09:30',type:'consultation',serviceCode:'PC-VIRTUAL',serviceName:'Virtual primary care',encounterClass:'VR',status:'scheduled',notes:'Follow-up blood pressure check',mode:'video'},
+    {id:'apt2',patientId:'pat2',doctorId:'doc1',nurseId:'nur1',date:'2025-01-29',time:'11:00',type:'consultation',serviceCode:'MED-REVIEW',serviceName:'Medication review',encounterClass:'VR',status:'completed',notes:'Diabetes management review',mode:'text'},
+    {id:'apt3',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-06',time:'14:00',type:'consultation',serviceCode:'CARD-VIRTUAL',serviceName:'Virtual cardiology',encounterClass:'VR',status:'scheduled',notes:'Cardiology post-op check',mode:'video'},
+    {id:'apt4',patientId:'pat1',doctorId:'doc1',date:'2025-02-10',time:'10:00',type:'follow-up',serviceCode:'MED-REVIEW',serviceName:'Medication review',encounterClass:'VR',status:'scheduled',notes:'Medication review',mode:'text'},
+    {id:'apt5',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-08',time:'08:00',type:'consultation',serviceCode:'CARD-VIRTUAL',serviceName:'Virtual cardiology',encounterClass:'VR',status:'scheduled',notes:'Weekly cardiac check-in',mode:'voice'},
   ],
   messages: [
     {id:'m1',from:'doc1',to:'pat1',text:'Hello Emmanuel, how are you feeling today?',time:'10:02 AM',date:'2025-01-27'},
@@ -1137,7 +1249,53 @@ const DB = {
     {id:'cn2',nurseId:'nur1',patientId:'pat2',text:'Blood glucose: 8.4 mmol/L. Diet review completed. Patient doing well.',date:'2025-01-27',time:'10:30 AM'},
     {id:'cn3',nurseId:'nur1',patientId:'pat3',text:'Post-op incision site checked. Healing well. No signs of infection.',date:'2025-01-28',time:'08:45 AM'},
   ],
+  carePlans: [
+    {id:'cp1',patientId:'pat1',title:'Blood pressure control',ownerId:'doc1',status:'active',nextReview:'2025-02-04',goals:[{label:'Take prescribed medicine as directed',progress:80},{label:'Record blood pressure three times weekly',progress:60}]},
+    {id:'cp2',patientId:'pat2',title:'Diabetes self-management',ownerId:'doc1',status:'active',nextReview:'2025-02-12',goals:[{label:'Track glucose readings',progress:70},{label:'Follow nutrition plan',progress:50}]},
+  ],
+  triageCases: [],
+  reviews: [],
+  clinicianVerifications: [
+    {id:'ver1',providerId:'doc1',status:'verified',verifiedBy:'adm1',verifiedAt:'2024-02-12',licenseExpiry:'2027-02-12'},
+    {id:'ver2',providerId:'doc2',status:'verified',verifiedBy:'adm1',verifiedAt:'2024-03-20',licenseExpiry:'2027-03-20'},
+    {id:'ver3',providerId:'nur1',status:'verified',verifiedBy:'adm2',verifiedAt:'2024-02-25',licenseExpiry:'2027-02-25'},
+  ],
+  consents: [{id:'con1',patientId:'pat1',type:'Telehealth and data sharing',status:'active',version:'2025.1',recordedAt:'2025-01-27'}],
+  medicationSafetyAlerts: [{id:'msa1',patientId:'pat1',severity:'review',message:'Penicillin allergy recorded; verify medication allergies before prescribing.',status:'open'}],
+  integrations: [
+    {id:'int1',name:'FHIR R4 API',purpose:'Clinical data exchange',status:'configuration required',environment:'demo'},
+    {id:'int2',name:'Terminology service',purpose:'ICD-10-CM, SNOMED CT, LOINC, RxNorm validation',status:'configuration required',environment:'demo'},
+    {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'demo'},
+  ],
 };
+
+const SPECIALTIES = [
+  'General Medicine','Family Medicine','Internal Medicine','Emergency Medicine','Cardiology',
+  'Endocrinology','Gastroenterology','Nephrology','Neurology','Oncology','Pediatrics','Geriatrics',
+  'Obstetrics and Gynecology','Dermatology','Ophthalmology','Otolaryngology (ENT)','Orthopedics',
+  'Urology','General Surgery','Anesthesiology','Radiology','Pathology','Infectious Disease',
+  'Pulmonology','Rheumatology','Physiotherapy','Physical Medicine and Rehabilitation','Psychiatry','Mental Health',
+  'Clinical Psychology','Counseling Psychology','Behavioral Health','Psychotherapy','Public Health'
+];
+
+const NURSE_SPECIALTIES = [
+  'General Nursing','Critical Care Nursing','Emergency Nursing','Pediatric Nursing','Neonatal Nursing',
+  'Oncology Nursing','Surgical and Perioperative Nursing','Maternal and Midwifery Care',
+  'Psychiatric and Mental Health Nursing','Community and Public Health Nursing','Geriatric Nursing',
+  'Renal Nursing','Cardiac Nursing','Infection Prevention and Control','Nurse Anesthesia',
+  'Rehabilitation Nursing','Occupational Health Nursing'
+];
+
+const VIRTUAL_SERVICES = [
+  {code:'PC-VIRTUAL',name:'Virtual primary care',description:'General consultations, follow-ups, and preventive care.',roles:'Doctor or Nurse'},
+  {code:'MENTAL-VIRTUAL',name:'Virtual mental health',description:'Confidential support with a mental health specialist.',roles:'Mental health specialist'},
+  {code:'PHYSIO-VIRTUAL',name:'Virtual physiotherapy',description:'Guided rehabilitation, mobility, and exercise planning.',roles:'Physiotherapist'},
+  {code:'CARD-VIRTUAL',name:'Virtual cardiology',description:'Remote heart-health review and care planning.',roles:'Cardiologist'},
+  {code:'MED-REVIEW',name:'Medication review',description:'Review medicines, adherence, and possible concerns.',roles:'Doctor or Nurse'},
+  {code:'NUTRITION-VIRTUAL',name:'Virtual nutrition',description:'Personalized nutrition guidance for ongoing care.',roles:'Care specialist'},
+  {code:'LAB-REVIEW',name:'Lab result review',description:'Discuss results and agree on next clinical steps.',roles:'Doctor or Nurse'},
+  {code:'URGENT-TRIAGE',name:'Urgent virtual triage',description:'Prompt assessment to direct non-life-threatening concerns.',roles:'Doctor or Nurse'}
+];
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
@@ -1148,6 +1306,7 @@ let VCS = 0; // video call seconds
 let MUT = false, VIDOFF = false;
 let RROLE = 'patient';
 let APTMODE = 'video';
+let APTSERVICE = 'PC-VIRTUAL';
 let VOICE_MUT = false;
 let VOICE_SPK = true;
 let VCI2 = null;
@@ -1206,8 +1365,9 @@ const IC = {
 
 const NAV = {
   admin:[
-    {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
+    {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'admin-control',l:()=>t('control_center'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
     {s:()=>t('user'),items:[{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'}]},
+    {s:()=>t('administration'),items:[{id:'mgr-a',l:'Administrators',i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
     {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
   ],
   doctor:[
@@ -1221,7 +1381,7 @@ const NAV = {
     {s:()=>t('care_notes'),items:[{id:'carenotes',l:()=>t('care_notes'),i:'clip'}]},
   ],
   patient:[
-    {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'}]},
+    {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'}]},
   ],
 };
@@ -1235,6 +1395,12 @@ function goAuth(tab, role) {
   // Update back button text
   const bh = $('back-home-btn');
   if(bh) bh.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
+}
+function startDemo(role='patient') {
+  if(!['patient','doctor','nurse'].includes(role)) return goAuth('login');
+  const demo=DB.users.find(user=>user.role===role&&user.status==='active');
+  if(!demo) return goAuth('login');
+  CU=demo; SC=null; log('START_DEMO','System'); goApp();
 }
 function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
@@ -1278,11 +1444,13 @@ function doReg() {
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
   if (!name||!email||!pass) return amsg(t('fill_required'));
   if (pass.length<6) return amsg(t('password_short'));
+  if (RROLE==='doctor'&&!$('rsp').value) return amsg(t('spec_required'));
+  if (RROLE==='nurse'&&!$('rns').value) return amsg(t('nurse_spec_required'));
   if (DB.users.find(u=>u.email===email)) return amsg(t('email_exists'));
   const id = RROLE.slice(0,3)+Date.now();
   const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:'active',createdAt:todayD()};
   const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value}
-    : RROLE==='nurse' ? {department:$('rde').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
+    : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   DB.users.push({...base,...extra});
   amsg(t('reg_success'),'o');
@@ -1331,11 +1499,16 @@ function renderPage(page) {
   if (page==='consult')  return renderConsult(pc);
   if (r==='admin') {
     if (page==='dashboard') renderAdminDash(pc);
+    else if (page==='admin-control') renderAdminControl(pc);
     else if (page==='audit') renderAudit(pc);
     else if (page==='mgr-d') renderManage(pc,'doctor','Doctors');
     else if (page==='mgr-n') renderManage(pc,'nurse','Nurses');
     else if (page==='mgr-p') renderManage(pc,'patient','Patients');
+    else if (page==='mgr-a') renderManage(pc,'admin','Administrators');
     else if (page==='appointments') renderAllApts(pc);
+    else if (page==='integrations') renderIntegrations(pc);
+    else if (page==='triage-queue') renderTriageQueue(pc);
+    else if (page==='safety') renderSafety(pc);
   } else if (r==='doctor') {
     if (page==='dashboard') renderDrDash(pc);
     else if (page==='patients') renderPatients(pc);
@@ -1350,6 +1523,7 @@ function renderPage(page) {
     if (page==='dashboard') renderPatDash(pc);
     else if (page==='appointments') renderApts(pc);
     else if (page==='records') renderPatRecords(pc);
+    else if (page==='careplan') renderCarePlan(pc);
   }
 }
 
@@ -1369,11 +1543,11 @@ function aptCard(a) {
     <div class="adb"><div class="add">${fd.day}</div><div class="adm">${fd.mon}</div></div>
     <div class="adi" style="flex:1">
       <div class="ain">${who}</div>
-      <div class="ame">${a.time} · ${a.type} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
+      <div class="ame">${a.time} · ${a.serviceName||a.type} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
       ${a.notes ? `<div class="ame">${a.notes}</div>` : ''}
     </div>
     <div class="aac">
-      ${a.status==='scheduled' ? `<button class="btn bp bsm" onclick="completeApt('${a.id}')">${IC.chk} 'done'</button>` : ''}
+      ${a.status==='scheduled' ? `<button class="btn bp bsm" onclick="completeApt('${a.id}')">${IC.chk} ${t('done')}</button>` : ''}
       ${aptBadge(a.status)}
     </div>
   </div>`;
@@ -1381,40 +1555,79 @@ function aptCard(a) {
 function completeApt(id) { const a=DB.appointments.find(x=>x.id===id); if(a){a.status='completed'; log('COMPLETE_APPOINTMENT','Appointments');} navigate(CP); }
 
 // ═══════════════════════ ADMIN ═══════════════════════
+function renderDemoCredentials() {
+  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
+}
+
 function renderAdminDash(pc) {
   $('tbt').textContent=t('admin_dashboard');
-  topBtn(`<button class="btn bp bsm" onclick="navigate('audit')">${IC.shield} 'view audit'</button>`);
+  topBtn(`<button class="btn bp bsm" onclick="navigate('admin-control')">${IC.shield} ${t('control_center')}</button>`);
   const docs=DB.users.filter(u=>u.role==='doctor'), nurs=DB.users.filter(u=>u.role==='nurse'), pats=DB.users.filter(u=>u.role==='patient');
   const susp=DB.users.filter(u=>u.status==='suspended'), fails=DB.auditLogs.filter(l=>l.status==='failed');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${t('platform_overview')}</h2><p>${LANG==='fr'?'Surveiller l activité et gérer la plateforme':'Monitor system activity and manage platform health'}</p></div>
+    <div class="ph"><h2>${t('platform_overview')}</h2><p>${LANG==='fr'?'Surveiller l\'activité et gérer la plateforme':'Monitor system activity and manage platform health'}</p></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${docs.length}</div><div class="sl">${t('total_doctors')}</div></div>
       <div class="sc cb"><div class="sv">${nurs.length}</div><div class="sl">${t('total_nurses')}</div></div>
       <div class="sc cg"><div class="sv">${pats.length}</div><div class="sl">${t('total_patients')}</div></div>
       <div class="sc cr"><div class="sv">${susp.length}</div><div class="sl">${t('suspended')}</div></div>
-      <div class="sc cp"><div class="sv">${fails.length}</div><div class="sl">'failed logins'</div></div>
+      <div class="sc cp"><div class="sv">${fails.length}</div><div class="sl">${t('failed_logins')}</div></div>
     </div>
     <div class="card">
       <div class="ch"><div class="ct">${t('recent_activity')}</div></div>
-      <div class="tw"><table><thead><tr><th>User</th><th>Action</th><th>Resource</th><th>Timestamp</th><th>Status</th></tr></thead>
+      <div class="tw"><table><thead><tr><th>${t('user')}</th><th>${t('action')}</th><th>${t('resource')}</th><th>${t('timestamp')}</th><th>${t('status')}</th></tr></thead>
       <tbody>${DB.auditLogs.slice(0,10).map(l=>`<tr style="${l.status==='failed'?'background:#fff8f8':''}">
         <td class="bo" style="font-size:.82rem">${l.userName}</td>
         <td><code class="tg" style="${l.status==='failed'?'background:#fce8e8;color:#6e1a13':''}">${l.action}</code></td>
         <td class="mu sm">${l.resource}</td>
         <td class="mu sm">${l.timestamp}</td>
-        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}'success'</span>`:`<span class="badge bda">${IC.x}'failed'</span>`}</td>
+        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}${t('success')}</span>`:`<span class="badge bda">${IC.x}${t('failed')}</span>`}</td>
       </tr>`).join('')}</tbody></table></div>
     </div>
+    ${renderDemoCredentials()}
   </div>`;
 }
+
+function renderAdminControl(pc) {
+  $('tbt').textContent=t('control_center');
+  const verified=DB.clinicianVerifications.filter(v=>v.status==='verified').length;
+  const openAlerts=DB.medicationSafetyAlerts.filter(a=>a.status==='open').length;
+  const activeConsents=DB.consents.filter(c=>c.status==='active').length;
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('admin_control_title')}</h2><p>${t('admin_control_sub')}</p></div>
+    <div class="stats"><div class="sc ce"><div class="sv">${DB.users.filter(u=>u.role==='admin'&&u.status==='active').length}</div><div class="sl">${t('active_admins')}</div></div><div class="sc cb"><div class="sv">${verified}</div><div class="sl">${t('verified_clinicians')}</div></div><div class="sc cr"><div class="sv">${openAlerts}</div><div class="sl">${t('open_safety_alerts')}</div></div><div class="sc cg"><div class="sv">${activeConsents}</div><div class="sl">${t('active_consents')}</div></div></div>
+    <div class="g2"><div class="card"><div class="ch"><div class="ct">${t('access_governance')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">RBAC</code><div><strong>${t('rbac_title')}</strong><span>${t('rbac_desc')}</span></div></div><div class="code-item"><code class="code-chip">CONSENT</code><div><strong>${t('consent_registry_title')}</strong><span>${activeConsents} active telehealth consent record(s).</span></div></div><div class="code-item"><code class="code-chip">VERIFY</code><div><strong>${t('verify_title')}</strong><span>${verified} verified provider credential record(s).</span></div></div></div><button class="btn bp bsm w100 mt8" onclick="navigate('mgr-a')">${t('manage_admins_btn')}</button></div>
+      <div class="card"><div class="ch"><div class="ct">${t('safety_integrations')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">FHIR R4</code><div><strong>${t('fhir_title')}</strong><span>Configuration status: ${DB.integrations[0].status}.</span></div></div><div class="code-item"><code class="code-chip">MED SAFE</code><div><strong>${t('med_safety_title')}</strong><span>${openAlerts} open allergy or medication review alert(s).</span></div></div><div class="code-item"><code class="code-chip">TRIAGE</code><div><strong>${t('triage_title')}</strong><span>${DB.triageCases.filter(c=>c.status!=='closed').length} active triage request(s).</span></div></div></div><button class="btn bgh bsm w100 mt8" onclick="navigate('integrations')">${t('review_integrations_btn')}</button></div></div>
+    ${renderDemoCredentials()}
+  </div>`;
+}
+
+function renderIntegrations(pc) {
+  $('tbt').textContent=t('integrations_title');
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('integrations_title')}</h2><p>${t('integrations_sub')}</p></div><div class="card"><div class="code-list">${DB.integrations.map(item=>`<div class="code-item"><code class="code-chip">${item.name}</code><div style="flex:1"><strong>${item.purpose}</strong><span>Environment: ${item.environment} · Status: ${item.status}</span></div><span class="badge ${item.status==='connected'?'bsu':'bwa'}">${item.status}</span></div>`).join('')}</div><div class="safety-banner mt18"><div>i</div><div><strong>${t('demo_config_title')}</strong><p>${t('demo_config_desc')}</p></div></div></div></div>`;
+}
+
+function renderTriageQueue(pc) {
+  $('tbt').textContent=t('triage_queue_nav');
+  const cases=DB.triageCases.filter(item=>item.status!=='closed');
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('triage_queue_title')}</h2><p>${t('triage_queue_sub')}</p></div><div class="card">${cases.length?cases.map(item=>{const patient=G(item.patientId);return`<div class="code-item"><span class="badge ${item.priority==='emergency'?'bda':item.priority==='urgent'?'bwa':'bin'}">${item.priority}</span><div style="flex:1"><strong>${patient?.name||'Patient'} · ${item.location}</strong><span>${item.symptoms} · ${item.createdAt}</span></div><button class="btn bs bsm" onclick="closeTriage('${item.id}')">${t('close_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_open_triage')}</div>`}</div></div>`;
+}
+function closeTriage(id) { const item=DB.triageCases.find(item=>item.id===id); if(item){item.status='closed';log('CLOSE_TRIAGE','Urgent Care');} navigate('triage-queue'); }
+
+function renderSafety(pc) {
+  $('tbt').textContent=t('safety_nav');
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('safety_title')}</h2><p>${t('safety_sub')}</p></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${t('med_alerts_title')}</div></div>${DB.medicationSafetyAlerts.length?DB.medicationSafetyAlerts.map(alert=>{const patient=G(alert.patientId);return`<div class="code-item"><span class="badge ${alert.severity==='critical'?'bda':'bwa'}">${alert.severity}</span><div style="flex:1"><strong>${patient?.name||'Patient'}</strong><span>${alert.message}</span></div><button class="btn bs bsm" onclick="resolveSafetyAlert('${alert.id}')">${t('resolve_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_med_alerts')}</div>`}</div>
+    <div class="card"><div class="ch"><div class="ct">${t('consent_registry')}</div></div>${DB.consents.map(consent=>{const patient=G(consent.patientId);return`<div class="code-item"><code class="code-chip">v${consent.version}</code><div><strong>${patient?.name||'Patient'} · ${consent.type}</strong><span>Status: ${consent.status} · Recorded ${consent.recordedAt}</span></div><span class="badge ${consent.status==='active'?'bsu':'bse'}">${consent.status}</span></div>`}).join('')}</div>
+  </div>`;
+}
+function resolveSafetyAlert(id) { const alert=DB.medicationSafetyAlerts.find(item=>item.id===id); if(alert){alert.status='resolved';log('RESOLVE_MEDICATION_ALERT','Clinical Safety');} navigate('safety'); }
 
 function renderAudit(pc) {
   $('tbt').textContent=t('audit_title');
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('audit_title')}</h2><p>${LANG==='fr'?'Journal complet pour la conformité et le suivi':'Complete log of all platform actions for compliance and monitoring'}</p></div>
     <div class="card"><div class="tw"><table>
-      <thead><tr><th>#</th><th>'user'</th><th>'action'</th><th>'resource'</th><th>'timestamp'</th><th>IP</th><th>'status'</th></tr></thead>
+      <thead><tr><th>#</th><th>${t('user')}</th><th>${t('action')}</th><th>${t('resource')}</th><th>${t('timestamp')}</th><th>IP</th><th>${t('status')}</th></tr></thead>
       <tbody>${DB.auditLogs.map((l,i)=>`<tr style="${l.status==='failed'?'background:#fff8f8':''}">
         <td class="mu sm">${DB.auditLogs.length-i}</td>
         <td><div class="bo" style="font-size:.82rem">${l.userName}</div><div class="mu sm">${l.userId}</div></td>
@@ -1422,34 +1635,34 @@ function renderAudit(pc) {
         <td class="sm">${l.resource}</td>
         <td class="mu sm" style="white-space:nowrap">${l.timestamp}</td>
         <td><code style="font-family:var(--fm);font-size:.72rem;color:var(--t3)">${l.ip}</code></td>
-        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}'success'</span>`:`<span class="badge bda">${IC.x}'failed'</span>`}</td>
+        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}${t('success')}</span>`:`<span class="badge bda">${IC.x}${t('failed')}</span>`}</td>
       </tr>`).join('')}</tbody>
     </table></div></div>
   </div>`;
 }
 
 function renderManage(pc, roleFilter, title) {
-  $('tbt').textContent = t('manage_'+roleFilter+'s') || `Manage ${title}`;
-  topBtn(`<button class="btn bp bsm" onclick="showAddUser('${roleFilter}')">${IC.plus} ${roleFilter==='doctor'?t('add_doctor'):roleFilter==='nurse'?t('add_nurse'):t('add_patient')}</button>`);
+  $('tbt').textContent = roleFilter==='admin'?t('administrators'):t('manage_'+roleFilter+'s');
+  topBtn(`<button class="btn bp bsm" onclick="showAddUser('${roleFilter}')">${IC.plus} ${roleFilter==='doctor'?t('add_doctor'):roleFilter==='nurse'?t('add_nurse'):roleFilter==='admin'?t('add_admin'):t('add_patient')}</button>`);
   const users = DB.users.filter(u=>u.role===roleFilter);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${title}</h2><p>${LANG==='fr'?'Gérer sur la plateforme':'Manage all '+title.toLowerCase()+' on the platform'}</p></div>
     <div class="card"><div class="tw"><table>
-      <thead><tr><th>'user'</th><th>${roleFilter==='doctor'?t('specialty'):roleFilter==='nurse'?t('department'):t('dob_lbl')}</th><th>'phone lbl'</th><th>'status'</th><th>'joined'</th><th>'actions'</th></tr></thead>
+      <thead><tr><th>${t('user')}</th><th>${roleFilter==='doctor'?t('specialty'):roleFilter==='nurse'?t('department'):roleFilter==='admin'?t('admin_role_lbl'):t('dob_lbl')}</th><th>${t('phone_lbl')}</th><th>${t('status')}</th><th>${t('joined')}</th><th>${t('actions')}</th></tr></thead>
       <tbody>${users.map(u=>`<tr>
         <td><div style="display:flex;align-items:center;gap:10px">
           <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
           <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email}</div></div>
         </div></td>
-        <td class="sm">${u.specialty||u.department||u.dateOfBirth||'—'}</td>
+        <td class="sm">${roleFilter==='admin'?(u.adminRole||'Administrator'):(u.specialty||u.department||u.dateOfBirth||'—')}</td>
         <td class="mu sm">${u.phone||'—'}</td>
         <td>${u.status==='active'?`<span class="badge bsu">${IC.chk}${t('active')}</span>`:`<span class="badge bda">${IC.x}${t('suspended')}</span>`}</td>
         <td class="mu sm">${u.createdAt}</td>
         <td><div style="display:flex;gap:4px">
           <button class="btn bgh bsm" onclick="showEditUser('${u.id}')">${IC.edit}</button>
           ${u.status==='active'
-            ?`<button class="btn bsm" style="background:#fff3cd;color:#856404;border:none" onclick="doSuspend('${u.id}')">${IC.x} 'suspend'</button>`
-            :`<button class="btn bsm" style="background:#d5f0e0;color:#145a32;border:none" onclick="doActivate('${u.id}')">${IC.chk} 'activate'</button>`}
+            ?`<button class="btn bsm" style="background:#fff3cd;color:#856404;border:none" onclick="doSuspend('${u.id}')">${IC.x} ${t('suspend')}</button>`
+            :`<button class="btn bsm" style="background:#d5f0e0;color:#145a32;border:none" onclick="doActivate('${u.id}')">${IC.chk} ${t('activate')}</button>`}
           <button class="btn bd2 bsm" onclick="askDelete('${u.id}','${u.name.replace(/'/g,"&#39;")}')">${IC.trash}</button>
         </div></td>
       </tr>`).join('')}</tbody>
@@ -1462,7 +1675,7 @@ function renderAllApts(pc) {
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('all_apts_title')}</h2><p>${LANG==='fr'?'Planning global des rendez-vous':'Platform-wide appointment schedule'}</p></div>
     <div class="card"><div class="tw"><table>
-      <thead><tr><th>${t('patient_lbl')}</th><th>${t('doctor')}</th><th>'date time'</th><th>'type'</th><th>'mode'</th><th>'status'</th></tr></thead>
+      <thead><tr><th>${t('patient_lbl')}</th><th>${t('doctor')}</th><th>${t('date_time')}</th><th>${t('type')}</th><th>${t('mode')}</th><th>${t('status')}</th></tr></thead>
       <tbody>${DB.appointments.map(a=>{const pat=G(a.patientId),doc=G(a.doctorId);return`<tr>
         <td class="bo sm">${pat?.name||'—'}</td>
         <td class="sm">${doc?.name||'—'}</td>
@@ -1478,7 +1691,7 @@ function renderAllApts(pc) {
 // ═══════════════════════ DOCTOR ═══════════════════════
 function renderDrDash(pc) {
   $('tbt').textContent=t('doctor_dashboard');
-  topBtn(`<button class="btn bp bsm" onclick="showNewApt()">${IC.plus} 'new appointment'</button>`);
+  topBtn(`<button class="btn bp bsm" onclick="showNewApt()">${IC.plus} ${t('new_appointment')}</button>`);
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id);
   const myA=DB.appointments.filter(a=>a.doctorId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
@@ -1523,9 +1736,9 @@ function renderPatients(pc) {
         <div class="pf"><label>${t('dob_lbl')}</label><span>${p.dateOfBirth||'—'}</span></div>
         <div class="pf"><label>${t('gender_lbl')}</label><span>${p.gender||'—'}</span></div>
         <div class="pf"><label>${t('blood_type_lbl')}</label><span class="badge bin">${p.bloodType||'—'}</span></div>
-        <div class="pf"><label>'allergies'</label><span class="${p.allergies&&p.allergies!=='None'?'aw':''}">${p.allergies||'None'}</span></div>
+        <div class="pf"><label>${t('allergies')}</label><span class="${p.allergies&&p.allergies!=='None'?'aw':''}">${p.allergies||'None'}</span></div>
         <div class="pf" style="grid-column:span 2"><label>${t('medical_history')}</label><span>${p.medicalHistory||t('none_recorded')}</span></div>
-        <div class="pf"><label>'address'</label><span>${p.address||'—'}</span></div>
+        <div class="pf"><label>${t('address')}</label><span>${p.address||'—'}</span></div>
         <div class="pf"><label>${t('emergency_contact')}</label><span>${p.emergencyContact||'—'}</span></div>
       </div>
     </div>`).join('')}
@@ -1537,14 +1750,14 @@ function renderRecords(pc) {
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('medical_records')}</h2><p>${LANG==='fr'?'Dossiers complets pour vos patients':'Complete records for your patients'}</p></div>
-    ${myP.length===0 ? `<div class="card"><div class="emp"><p>'no records'</p></div></div>` : myP.map(p=>`
+    ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_records')}</p></div></div>` : myP.map(p=>`
     <div class="card mb18">
       <div class="ch"><div><div class="ct">${p.name}</div><div class="mu sm">DOB: ${p.dateOfBirth||'—'} · ${p.gender||'—'} · ${p.bloodType||'—'}</div></div><span class="badge bsu">Active</span></div>
       <div class="g2">
         <div><div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin-top:4px">${p.medicalHistory||t('none_recorded')}</p></div>
-        <div><div class="fl">'allergies'</div><p style="font-size:.85rem;margin-top:4px;color:${p.allergies&&p.allergies!=='None'?'var(--dg)':'inherit'}">${p.allergies||'None'}</p></div>
+        <div><div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin-top:4px;color:${p.allergies&&p.allergies!=='None'?'var(--dg)':'inherit'}">${p.allergies||'None'}</p></div>
         <div><div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${p.emergencyContact||'—'}</p></div>
-        <div><div class="fl">'address'</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
+        <div><div class="fl">${t('address')}</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
       </div>
     </div>`).join('')}
   </div>`;
@@ -1554,21 +1767,21 @@ function renderApts(pc) {
   $('tbt').textContent=t('appointments');
   const isPatient = CU.role==='patient';
   topBtn(isPatient
-    ? `<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} Book Consultation</button>`
-    : `<button class="btn bp bsm" onclick="showNewApt()">${IC.plus} New Appointment</button>`);
+    ? `<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} ${t('book_consultation')}</button>`
+    : `<button class="btn bp bsm" onclick="showNewApt()">${IC.plus} ${t('new_appointment')}</button>`);
   const apts = CU.role==='doctor' ? DB.appointments.filter(a=>a.doctorId===CU.id)
     : CU.role==='nurse' ? DB.appointments.filter(a=>a.nurseId===CU.id)
     : DB.appointments.filter(a=>a.patientId===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('apt_schedule')}</h2></div>
-    ${apts.length===0 ? `<div class="card"><div class="emp"><p>'no apts'</p></div></div>` : apts.map(a=>aptCard(a)).join('')}
+    ${apts.length===0 ? `<div class="card"><div class="emp"><p>${t('no_apts')}</p></div></div>` : apts.map(a=>aptCard(a)).join('')}
   </div>`;
 }
 
 // ═══════════════════════ NURSE ═══════════════════════
 function renderNsDash(pc) {
   $('tbt').textContent=t('nurse_dashboard');
-  topBtn(`<button class="btn bp bsm" onclick="navigate('carenotes')">${IC.plus} 'add note'</button>`);
+  topBtn(`<button class="btn bp bsm" onclick="navigate('carenotes')">${IC.plus} ${t('add_note')}</button>`);
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id);
   const myA=DB.appointments.filter(a=>a.nurseId===CU.id&&a.status==='scheduled');
   const notes=DB.careNotes.filter(n=>n.nurseId===CU.id);
@@ -1601,11 +1814,11 @@ function renderNsDash(pc) {
 
 function renderCareNotes(pc) {
   $('tbt').textContent=t('care_notes');
-  topBtn(`<button class="btn bp bsm" onclick="showAddNote()">${IC.plus} 'add note'</button>`);
+  topBtn(`<button class="btn bp bsm" onclick="showAddNote()">${IC.plus} ${t('add_note')}</button>`);
   const notes=DB.careNotes.filter(n=>n.nurseId===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('care_notes')}</h2><p>${LANG==='fr'?'Documenter et suivre les observations de soins patients':'Document and track patient care observations'}</p></div>
-    ${notes.length===0 ? `<div class="card"><div class="emp"><p>'add first note'</p></div></div>` : notes.map(n=>{const p=G(n.patientId);return`<div class="cn3 mb12">
+    ${notes.length===0 ? `<div class="card"><div class="emp"><p>${t('add_first_note')}</p></div></div>` : notes.map(n=>{const p=G(n.patientId);return`<div class="cn3 mb12">
       <div class="cnh"><div class="cnp">${p?.name||'Unknown Patient'}</div><div class="cnt2">${n.date} · ${n.time}</div></div>
       <div class="cnb">${n.text}</div>
     </div>`;}).join('')}
@@ -1615,18 +1828,23 @@ function renderCareNotes(pc) {
 // ═══════════════════════ PATIENT ═══════════════════════
 function renderPatDash(pc) {
   $('tbt').textContent=t('patient_dashboard');
-  topBtn(`<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} 'book consultation'</button>`);
+  topBtn(`<button class="btn bd2 bsm" onclick="showTriage()">${t('urgent_help')}</button>`);
+  topBtn(`<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} ${t('book_consultation')}</button>`);
   const myDoc=G(CU.assignedDoctor), myNur=G(CU.assignedNurse);
   const myA=DB.appointments.filter(a=>a.patientId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${LANG==='fr'?'Bonjour,':'Hello,'} ${CU.name.split(' ')[0]}</h2><p>${LANG==='fr'?'Gérez votre santé et contactez votre équipe soignante':'Manage your health and communicate with your care team'}</p></div>
+    <div class="safety-banner"><div>!</div><div><strong>${t('virtual_care_safety')}</strong><p>${t('virtual_care_safety_desc')}</p></div></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${up.length}</div><div class="sl">${t('upcoming_apts')}</div></div>
       <div class="sc cg"><div class="sv">${myA.filter(a=>a.status==='completed').length}</div><div class="sl">${t('completed_consults')}</div></div>
       <div class="sc cb"><div class="sv">${CU.bloodType||'—'}</div><div class="sl">${t('blood_type_lbl')}</div></div>
     </div>
-    ${CU.allergies&&CU.allergies!=='None'?`<div class="alt ae mb12">'allergy alert': <strong>${CU.allergies}</strong> — 'ensure informed'</div>`:''}
+    <div class="card mb18"><div class="ch"><div><div class="ct">${t('virtual_services_title')}</div><div class="rating-note">${t('virtual_services_sub')}</div></div></div>
+      <div class="service-grid">${VIRTUAL_SERVICES.map(service=>`<div class="service-item"><h4>${service.name}</h4><p>${service.description}<br><strong>${service.roles}</strong></p><button class="btn bp bsm w100" onclick="showBookApt('${service.code}')">${t('book_service')}</button></div>`).join('')}</div>
+    </div>
+    ${CU.allergies&&CU.allergies!=='None'?`<div class="alt ae mb12">${t('allergy_alert')} <strong>${CU.allergies}</strong> — ${t('ensure_informed')}</div>`:''}
     <div class="g2">
       <div class="card"><div class="ch"><div class="ct">${t('care_team')}</div></div>
         ${myDoc?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--em-p);border-radius:var(--rs);margin-bottom:8px">
@@ -1645,7 +1863,62 @@ function renderPatDash(pc) {
           : up.map(a=>aptCard(a)).join('')}
       </div>
     </div>
+    <div class="card mt18"><div class="ch"><div><div class="ct">${t('rate_care_team')}</div><div class="rating-note">${t('rate_care_team_sub')}</div></div></div>
+      ${renderProviderRatings([myDoc,myNur].filter(Boolean))}
+    </div>
   </div>`;
+}
+
+function renderCarePlan(pc) {
+  $('tbt').textContent=t('care_plan_title');
+  const plans=DB.carePlans.filter(plan=>plan.patientId===CU.id);
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('care_plan_title')}</h2><p>${t('care_plan_sub')}</p></div>
+    <div class="safety-banner"><div>i</div><div><strong>${t('keep_team_informed')}</strong><p>${t('keep_team_informed_desc')}</p></div></div>
+    ${plans.length?plans.map(plan=>{const owner=G(plan.ownerId);return`<div class="card mb18"><div class="ch"><div><div class="ct">${plan.title}</div><div class="mu sm">${t('led_by')} ${owner?.name||'Care team'} · ${t('next_review')} ${plan.nextReview}</div></div><span class="badge bsu">${plan.status}</span></div>
+      ${plan.goals.map(goal=>`<div class="goal-row"><div style="flex:1"><div class="bo sm">${goal.label}</div><div class="goal-progress"><span style="width:${goal.progress}%"></span></div></div><span class="mu sm">${goal.progress}%</span></div>`).join('')}
+    </div>`}).join(''):`<div class="card"><div class="emp"><p>${t('no_care_plan')}</p><button class="btn bp bsm mt8" onclick="navigate('messages')">${t('message_team')}</button></div></div>`}
+  </div>`;
+}
+
+function renderProviderRatings(providers) {
+  if (!providers.length) return `<div class="rating-empty">${t('rating_can_rate')}</div>`;
+  return `<div class="rating-list">${providers.map(provider=>{
+    const review=DB.reviews.find(r=>r.patientId===CU.id&&r.providerId===provider.id);
+    const role=provider.role==='doctor'?t('doctor'):t('nurse');
+    const color=provider.role==='doctor'?'var(--em)':'#1a6fa3';
+    const stars=review ? '★'.repeat(review.rating)+'☆'.repeat(5-review.rating) : '☆☆☆☆☆';
+    return `<div class="rating-row">
+      <div class="av" style="background:${color}">${ini(provider.name)}</div>
+      <div class="rating-info"><div class="bo sm">${provider.name}</div><div class="mu sm">${role} · ${provider.specialty||provider.department||''}</div></div>
+      <div class="rating-stars" aria-label="${review?`Rated ${review.rating} out of 5 stars`:'Not yet rated'}">${stars}</div>
+      <button class="btn ${review?'bs':'bp'} bsm" onclick="showRating('${provider.id}')">${review?t('edit_rating'):t('rate_btn')}</button>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function showRating(providerId) {
+  const provider=G(providerId); if(!provider) return;
+  const review=DB.reviews.find(r=>r.patientId===CU.id&&r.providerId===providerId);
+  const selected=review?.rating||0;
+  openMo(`<div class="mh"><div class="mt2">${t('rate_btn')} ${provider.name}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <p class="mu sm">${t('how_experience')} ${provider.role}?</p>
+    <div class="fg" style="margin-top:16px"><span class="fl" id="rating-label">${t('rating_label')}</span>
+      <div class="star-picker" role="radiogroup" aria-labelledby="rating-label">
+        ${[5,4,3,2,1].map(value=>`<input type="radio" id="rating-${value}" name="provider-rating" value="${value}" ${selected===value?'checked':''}><label for="rating-${value}" aria-label="${value} star${value===1?'':'s'}">★</label>`).join('')}
+      </div>
+    </div>
+    <div class="fg"><label class="fl" for="rating-comment">${t('comment_optional')}</label><textarea class="fc" id="rating-comment" maxlength="500" placeholder="${t('comment_ph')}">${review?.comment||''}</textarea></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveRating('${providerId}')">${review?t('update_rating'):t('submit_rating')}</button></div>`);
+}
+
+function saveRating(providerId) {
+  const selected=document.querySelector('input[name="provider-rating"]:checked');
+  if(!selected) return;
+  const existing=DB.reviews.find(r=>r.patientId===CU.id&&r.providerId===providerId);
+  const review={patientId:CU.id,providerId,rating:Number(selected.value),comment:$('rating-comment').value.trim(),date:todayD()};
+  if(existing) Object.assign(existing,review);
+  else DB.reviews.push({id:'rv'+Date.now(),...review});
+  log('SUBMIT_PROVIDER_RATING','Care Team'); closeMo(); navigate('dashboard');
 }
 
 function renderPatRecords(pc) {
@@ -1660,7 +1933,7 @@ function renderPatRecords(pc) {
       </div>
       <div class="card"><div class="ct mb18">${t('medical_info')}</div>
         <div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin:4px 0 16px">${u.medicalHistory||t('none_recorded')}</p>
-        <div class="fl">'allergies'</div><p style="font-size:.85rem;margin:4px 0 16px;color:${u.allergies&&u.allergies!=='None'?'var(--dg)':'inherit'};font-weight:${u.allergies&&u.allergies!=='None'?600:400}">${u.allergies||'None'}</p>
+        <div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin:4px 0 16px;color:${u.allergies&&u.allergies!=='None'?'var(--dg)':'inherit'};font-weight:${u.allergies&&u.allergies!=='None'?600:400}">${u.allergies||'None'}</p>
         <div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${u.emergencyContact||'—'}</p>
       </div>
     </div>
@@ -1678,7 +1951,7 @@ function renderMessages(pc) {
       <div class="clh"><h3>Conversations</h3>
         <input class="fc" placeholder="${LANG==='fr'?'Rechercher des contacts...':'Search contacts...'}" oninput="filterCts(this.value)" style="font-size:.78rem;padding:7px 11px">
       </div>
-      <div id="ctlist">${contacts.map(c=>ctItem(c,selId)).join('')}${contacts.length===0?`<div class="emp"><p>'no contacts'</p></div>`:''}</div>
+      <div id="ctlist">${contacts.map(c=>ctItem(c,selId)).join('')}${contacts.length===0?`<div class="emp"><p>${t('no_contacts')}</p></div>`:''}</div>
     </div>
     <div class="ca" id="chatarea">${SC ? chatView() : chatEmpty()}</div>
   </div>`;
@@ -1714,8 +1987,8 @@ function chatView() {
       </div>`;}).join('')}
   </div>
   <div class="cai">
-    <input id="mgin" placeholder='send'... ${c.name}" onkeydown="if(event.key==='Enter')sendMsg()">
-    <button class="btn bp bsm" onclick="sendMsg()" title='send'>${IC.send}</button>
+    <input id="mgin" placeholder="${(LANG==='fr'?'Message ':'Message ')+c.name+'...'}" onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="btn bp bsm" onclick="sendMsg()" title="${t('send')}">${IC.send}</button>
   </div>`;
 }
 function selCt(id) { SC=DB.users.find(u=>u.id===id)||null; renderMessages($('pgc')); setTimeout(()=>{const el=$('chatmsgs');if(el)el.scrollTop=el.scrollHeight;},50); }
@@ -1866,8 +2139,8 @@ function cmbg(e) { if(e.target===$('movr')) closeMo(); }
 function showAddNote() {
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id);
   openMo(`<div class="mh"><div class="mt2">${t('add_care_note')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="cn-p"><option value="">'select'</option>${myP.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">${t('note_lbl')}</label><textarea class="fc" id="cn-t" placeholder='note ph'></textarea></div>
+    <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="cn-p"><option value="">${t('select')}</option>${myP.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('note_lbl')}</label><textarea class="fc" id="cn-t" placeholder="${t('note_ph')}"></textarea></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveNote()">${t('add_note')}</button></div>`);
 }
 function saveNote() {
@@ -1883,8 +2156,8 @@ function showNewApt() {
     <div class="fg"><label class="fl">Patient</label><select class="fc" id="ap-p"><option value="">Select patient...</option>${pats.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
     ${CU.role!=='doctor'?`<div class="fg"><label class="fl">Doctor</label><select class="fc" id="ap-d"><option value="">Select doctor...</option>${docs.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>`:''}
     <div class="fr"><div class="fg"><label class="fl">Date</label><input type="date" class="fc" id="ap-dt"></div><div class="fg"><label class="fl">Time</label><input type="time" class="fc" id="ap-tm"></div></div>
-    <div class="fr"><div class="fg"><label class="fl">Mode</label><select class="fc" id="ap-md"><option value="video">'video call'</option><option value="voice">'voice call'</option><option value="text">'text chat'</option></select></div>
-    <div class="fg"><label class="fl">Type</label><select class="fc" id="ap-ty"><option value="consultation">'consultation'</option><option value="follow-up">'follow up'</option><option value="emergency">'emergency'</option></select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Mode</label><select class="fc" id="ap-md"><option value="video">${t('video_call')}</option><option value="voice">${t('voice_call')}</option><option value="text">${t('text_chat')}</option></select></div>
+    <div class="fg"><label class="fl">Type</label><select class="fc" id="ap-ty"><option value="consultation">${t('consultation')}</option><option value="follow-up">${t('follow_up')}</option><option value="emergency">${t('emergency')}</option></select></div></div>
     <div class="fg"><label class="fl">Notes</label><textarea class="fc" id="ap-nt" placeholder="Appointment notes..."></textarea></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveApt()">${t('book_btn')}</button></div>`);
 }
@@ -1896,10 +2169,12 @@ function saveApt() {
   log('CREATE_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
 
-function showBookApt() {
+function showBookApt(serviceCode='PC-VIRTUAL') {
   const myDoc=G(CU.assignedDoctor);
+  APTSERVICE=VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-VIRTUAL';
   openMo(`<div class="mh"><div class="mt2">${t('book_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     ${myDoc?`<div style="background:var(--em-p);padding:10px 14px;border-radius:var(--rs);margin-bottom:16px;font-size:.83rem"><strong>${myDoc.name}</strong> — ${myDoc.specialty||''}</div>`:''}
+    <div class="fg"><label class="fl" for="bk-sv">${t('virtual_services_title')}</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${service.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Consultation Mode</label>
       <div style="display:flex;gap:6px">
         <button id="bk-v" class="btn bp" style="flex:1" onclick="setAptMode('video')">📹 Video</button>
@@ -1919,19 +2194,40 @@ function setAptMode(m) {
 }
 function saveBooking() {
   const date=$('bk-d').value, time=$('bk-t2').value; if(!date||!time) return;
-  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:CU.assignedDoctor||'',nurseId:CU.assignedNurse||'',date,time,mode:APTMODE,type:'consultation',notes:$('bk-n').value,status:'scheduled'});
+  const service=VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
+  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:CU.assignedDoctor||'',nurseId:CU.assignedNurse||'',date,time,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
   log('BOOK_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
+}
+
+function showTriage() {
+  openMo(`<div class="mh"><div class="mt2">${t('urgent_care_triage')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="triage-alert"><strong>${t('emergency_warning')}</strong> ${t('emergency_warning_desc')}</div>
+    <div class="fg" style="margin-top:16px"><label class="fl" for="triage-level">${t('triage_urgency_q')}</label><select class="fc" id="triage-level"><option value="emergency">${t('triage_emergency_opt')}</option><option value="urgent">${t('triage_urgent_opt')}</option><option value="routine">${t('triage_routine_opt')}</option></select></div>
+    <div class="fg"><label class="fl" for="triage-symptoms">${t('triage_what_happening')}</label><textarea class="fc" id="triage-symptoms" placeholder="${t('triage_symptoms_ph')}"></textarea></div>
+    <div class="fg"><label class="fl" for="triage-location">${t('triage_location')}</label><input class="fc" id="triage-location" placeholder="${t('triage_location_ph')}"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="submitTriage()">${t('submit_triage')}</button></div>`);
+}
+
+function submitTriage() {
+  const level=$('triage-level').value, symptoms=$('triage-symptoms').value.trim(), location=$('triage-location').value.trim();
+  if(!symptoms||!location) return;
+  DB.triageCases.push({id:'tr'+Date.now(),patientId:CU.id,priority:level,symptoms,location,status:'received',createdAt:tsNow()});
+  log('SUBMIT_TRIAGE','Urgent Care');
+  closeMo();
+  if(level==='emergency') alert('Call your local emergency number now. Your triage request has been recorded for the care team.');
+  else alert('Your triage request has been received. A care team member will review it.');
 }
 
 // ═══════════════════════ ADMIN MODALS ═══════════════════════
 function showAddUser(role) {
-  openMo(`<div class="mh"><div class="mt2">'add new' ${role==='doctor'?t('doctor'):role==='nurse'?t('nurse'):t('patient')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  openMo(`<div class="mh"><div class="mt2">${t('add_new')} ${role==='doctor'?t('doctor'):role==='nurse'?t('nurse'):role==='admin'?t('add_admin'):t('patient')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="au-n" placeholder="Full legal name"></div>
     <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="au-e" placeholder="email@example.com"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="au-ph" placeholder="+237 6XX XXX XXX"></div>
     <div class="fg"><label class="fl">Password</label><input class="fc" type="password" id="au-pw" placeholder="Temporary password"></div>
-    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><input class="fc" id="au-sp" placeholder="e.g. Cardiology"></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div>`:''}
-    ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div>`:''}
+    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div>`:''}
+    ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="au-ns"><option value="">Select...</option>${NURSE_SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div></div>`:''}
+    ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar"><option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
     ${role==='patient'?`<div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="au-bt"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
     <div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="au-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="au-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${n.name}</option>`).join('')}</select></div>`:''}
@@ -1943,8 +2239,9 @@ function saveAddUser(role) {
   if(DB.users.find(u=>u.email===e)){alert('Email already in use.');return;}
   const id=role.slice(0,3)+Date.now();
   const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:'active',createdAt:todayD()};
-  const extra=role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||''}
-    :role==='nurse'?{department:$('au-de')?.value||'',nurseId:$('au-ni')?.value||'',hospital:$('au-ho')?.value||'',qualifications:''}
+  const extra=role==='admin'?{adminRole:$('au-ar')?.value||'Support Administrator',permissions:['users','audit'],createdAt:todayD()}
+    :role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||''}
+    :role==='nurse'?{department:$('au-de')?.value||'',specialty:$('au-ns')?.value||'',nurseId:$('au-ni')?.value||'',hospital:$('au-ho')?.value||'',qualifications:''}
     :{dateOfBirth:$('au-db')?.value||'',bloodType:$('au-bt')?.value||'',assignedDoctor:$('au-dc')?.value||null,assignedNurse:$('au-nr')?.value||null,allergies:'None',address:'',emergencyContact:'',medicalHistory:''};
   DB.users.push({...base,...extra});
   log('ADMIN_ADD_USER','User Management'); closeMo(); navigate(CP);
@@ -1952,10 +2249,11 @@ function saveAddUser(role) {
 
 function showEditUser(id) {
   const u=G(id); if(!u) return;
-  openMo(`<div class="mh"><div class="mt2">'edit' 'user'</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  openMo(`<div class="mh"><div class="mt2">${t('edit')} ${t('user')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="eu-n" value="${u.name}"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="eu-ph" value="${u.phone||''}"></div>
     <div class="fg"><label class="fl">Status</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option><option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
+    ${u.role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="eu-ar"><option ${u.adminRole==='Platform Owner'?'selected':''}>${t('platform_owner')}</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>${t('clinical_operations')}</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>${t('compliance_officer')}</option><option ${u.adminRole==='Support Administrator'?'selected':''}>${t('support_admin')}</option></select></div>`:''}
     ${u.role==='patient'?`<div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveEditUser('${id}')">${t('save_changes')}</button></div>`);
@@ -1964,6 +2262,7 @@ function saveEditUser(id) {
   const u=G(id); if(!u) return;
   u.name=$('eu-n').value.trim()||u.name;
   u.phone=$('eu-ph').value.trim(); u.status=$('eu-st').value;
+  if($('eu-ar')) u.adminRole=$('eu-ar').value;
   if($('eu-dc')) u.assignedDoctor=$('eu-dc').value||null;
   if($('eu-nr')) u.assignedNurse=$('eu-nr').value||null;
   log('EDIT_USER','User Management'); closeMo(); navigate(CP);
@@ -1982,16 +2281,6 @@ function askDelete(id, name) {
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmDel('${id}')">${t('yes_delete')}</button></div></div>`);
 }
 function confirmDel(id) { DB.users=DB.users.filter(u=>u.id!==id); log('DELETE_USER','User Management'); closeMo(); navigate(CP); }
-
-
-// ═══════════════════════ TRANSLATIONS ═══════════════════════
-
-// ═══════════════════════ LANGUAGE ENGINE ═══════════════════════
-
-
-
-
-
 
 // ── Contact form (landing page) ──────────────────────────────────────────────
 function submitForm(btn) {
