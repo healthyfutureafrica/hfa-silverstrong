@@ -95,7 +95,7 @@ describe('index.html sanity checks', () => {
 
   test('uses the HFA logo asset across the app', () => {
     expect(fs.existsSync(path.join(__dirname, '..', 'assets', 'hfa-logo.svg'))).toBe(true);
-    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(3);
+    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(4);
     expect(content).toContain('alt="HFA SilverStrong logo"');
   });
 

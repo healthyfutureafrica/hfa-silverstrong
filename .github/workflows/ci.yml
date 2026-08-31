@@ -1,76 +1,71 @@
-  docker-build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write       # needed to push to GHCR
+name: CI
 
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ── Build the image locally (no push yet) ──────────────────────────────
-      - name: Build Docker image
-        run: |
-          docker build \
-            --tag ghcr.io/healthyfutureafrica/hfa-silverstrong:smoke \
-            .
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
 
-      # ── Smoke test ─────────────────────────────────────────────────────────
-      - name: Start smoke-test container
-        run: |
-          docker run \
-            --detach \
-            --name hfa-smoke \
-            --publish 8080:8080 \
-            ghcr.io/healthyfutureafrica/hfa-silverstrong:smoke
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Wait for container to respond (up to 10 s)
+      - name: Lint (html-validate)
+        run: npm run lint
+
+      - name: Run tests (jest)
+        run: npm test
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image for smoke test
         run: |
+          docker build -t ghcr.io/${{ github.repository }}:ci-smoke .
+
+      - name: Smoke test the built image
+        run: |
+          docker run -d --rm --name hfa-smoke -p 8080:80 ghcr.io/${{ github.repository }}:ci-smoke
           echo "Polling http://localhost:8080/ ..."
-          for i in $(seq 1 10); do
-            if curl --silent --fail --max-time 2 http://localhost:8080/; then
-              echo "✓ Container responded on attempt $i"
-              exit 0
+          for i in $(seq 1 15); do
+            if curl --silent --fail --max-time 2 http://localhost:8080/ >/tmp/hfa-home.html; then
+              echo "Container responded on attempt $i"
+              break
             fi
-            echo "  attempt $i failed — waiting 1 s"
+            echo "Attempt $i failed; waiting 1s..."
             sleep 1
           done
-          echo "✗ Container did not respond within 10 s — dumping logs:"
-          docker logs hfa-smoke
-          exit 1
 
-      # Always tears down — even if the smoke test step above failed
+          if ! curl --silent --fail --max-time 2 http://localhost:8080/ >/tmp/hfa-home.html; then
+            echo "Container did not respond in time"
+            docker logs hfa-smoke
+            exit 1
+          fi
+
+          echo "Smoke test passed"
+
       - name: Tear down smoke-test container
         if: always()
         run: |
-          docker stop hfa-smoke  || true
-          docker rm   hfa-smoke  || true
-
-      # ── Publish — only on pushes to main, never on PRs ────────────────────
-      - name: Log in to GitHub Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image as :latest and :<commit-sha>
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          SHA=${{ github.sha }}
-
-          # Re-tag with both final names
-          docker tag \
-            ghcr.io/healthyfutureafrica/hfa-silverstrong:smoke \
-            ghcr.io/healthyfutureafrica/hfa-silverstrong:latest
-
-          docker tag \
-            ghcr.io/healthyfutureafrica/hfa-silverstrong:smoke \
-            ghcr.io/healthyfutureafrica/hfa-silverstrong:${SHA}
-
-          # Push both tags
-          docker push ghcr.io/healthyfutureafrica/hfa-silverstrong:latest
-          docker push ghcr.io/healthyfutureafrica/hfa-silverstrong:${SHA}
-
-          echo "Published :latest and :${SHA}"
+          docker stop hfa-smoke || true
+          docker rm hfa-smoke || true

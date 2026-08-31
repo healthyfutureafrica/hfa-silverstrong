@@ -283,10 +283,12 @@ tbody tr:hover{background:#fcfdfe}
 .star-picker input:focus-visible+label{outline:2px solid var(--em-l);outline-offset:3px;border-radius:2px}
 .rating-empty{color:var(--t3);font-size:.84rem;padding:8px 0}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.mb8{margin-bottom:8px}
 .mb12{margin-bottom:12px}
 .mb18{margin-bottom:18px}
 .mb24{margin-bottom:24px}
 .mt8{margin-top:8px}
+.mt18{margin-top:18px}
 .flex{display:flex}
 .ic{align-items:center}
 .g8{gap:8px}
@@ -346,9 +348,36 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .vo-bar:nth-child(5){animation-delay:0s}
 @keyframes vobar{0%,100%{height:6px}50%{height:24px}}
 
+/* ═══ FREE HEALTH HUB ═══ */
+#free-hub{min-height:100vh;background:var(--ow)}
+.fh-nav{background:var(--na)}
+.fh-disclaimer{display:flex;gap:14px;align-items:flex-start;background:var(--go-p);border:1px solid #f0dca8;border-radius:var(--r);padding:16px 18px;margin-bottom:20px}
+.fh-disclaimer svg{flex-shrink:0}
+.fh-disclaimer strong{color:var(--na);font-size:.88rem}
+.fh-disclaimer p{font-size:.8rem;color:var(--t2);margin-top:4px;line-height:1.55}
+.fh-chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.fh-chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bd);background:#fff;color:var(--t2);font-size:.78rem;cursor:pointer;transition:var(--tr)}
+.fh-chip:hover{border-color:var(--em-l);color:var(--em-d);background:var(--em-p)}
+.fh-remedy-card{background:var(--em-p);border:1px solid #bfe3d4;border-radius:var(--r);padding:18px;margin-top:14px}
+.fh-remedy-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fh-remedy-head h3{font-family:var(--fd);font-size:1.05rem;color:var(--na)}
+.fh-remedy-sec ul,.fh-redflag ul{margin:8px 0 12px 18px;font-size:.83rem;color:var(--t2);line-height:1.6}
+.fh-redflag{background:#fcdcd9;border-radius:var(--rs);padding:10px 14px}
+.fh-redflag strong{color:var(--dg);font-size:.82rem}
+.fh-redflag ul{margin-bottom:0;color:#6e1a13}
+.fh-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.fh-tip{padding:10px 0;border-bottom:1px solid var(--bd)}
+.fh-tip:last-child{border-bottom:none}
+.fh-tip strong{font-size:.85rem;color:var(--na);display:block;margin-bottom:3px}
+.fh-tip p{font-size:.8rem;color:var(--t2);line-height:1.55}
+.fh-cta{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--na);color:#fff}
+.fh-cta strong{color:#fff}
+.fh-cta p{color:rgba(255,255,255,.6)}
+
 @media(max-width:900px){
   .hero{grid-template-columns:1fr;padding:48px 28px}
   .service-grid{grid-template-columns:repeat(2,1fr)}
+  .fh-grid{grid-template-columns:1fr}
 }
 @media(max-width:700px){
   #sidebar{width:210px}
@@ -393,10 +422,10 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 }
 .lp-btn:hover { background: rgba(255,255,255,.12); border-color: var(--go);
   transform: translateY(-2px); }
-.lp-btn-flag { font-size: 2.4rem; margin-bottom: 10px; }
-.lp-btn-lang { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.lp-btn-flag { font-size: 2.4rem; margin-bottom: 10px; display: block; }
+.lp-btn-lang { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; display: block; }
 .lp-btn-name { font-size: .72rem; color: rgba(255,255,255,.5);
-  font-family: var(--fb); }
+  font-family: var(--fb); display: block; }
 
 /* Language toggle in sidebar */
 .sb-lang { display: flex; gap: 5px; padding: 10px 16px; margin-top: 2px; }
@@ -424,27 +453,28 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
   <div class="lp-sub">Healthy Future Africa</div>
   <div class="lp-prompt">Please choose your language<br>Choisissez votre langue</div>
   <div class="lp-btns">
-    <button class="lp-btn" onclick="chooseLang('en')">
-      <div class="lp-btn-flag">🇬🇧</div>
-      <div class="lp-btn-lang">English</div>
-      <div class="lp-btn-name">Continue in English</div>
+    <button type="button" class="lp-btn" onclick="chooseLang('en')">
+      <span class="lp-btn-flag">🇬🇧</span>
+      <span class="lp-btn-lang">English</span>
+      <span class="lp-btn-name">Continue in English</span>
     </button>
-    <button class="lp-btn" onclick="chooseLang('fr')">
-      <div class="lp-btn-flag">🇫🇷</div>
-      <div class="lp-btn-lang">Français</div>
-      <div class="lp-btn-name">Continuer en Français</div>
+    <button type="button" class="lp-btn" onclick="chooseLang('fr')">
+      <span class="lp-btn-flag">🇫🇷</span>
+      <span class="lp-btn-lang">Français</span>
+      <span class="lp-btn-name">Continuer en Français</span>
     </button>
   </div>
 </div>
 
 <!-- LANDING -->
 <div id="land" class="hid">
-  <nav class="lnav">
+  <nav class="lnav" aria-label="Public site navigation">
     <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span id="land-hero-title">HFA <span>SilverStrong</span></span></div>
     <div class="lnr">
-      <button class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="startDemo('patient')" id="lnd-demo">Try Demo</button>
-      <button class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
-      <button class="btn bg2 land-nav-btn" onclick="goAuth('register')" id="lnd-register">Register</button>
+      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goFreeHub()" id="lnd-freehub">Free Health Hub</button>
+      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="startDemo('patient')" id="lnd-demo">Try Demo</button>
+      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
+      <button type="button" class="btn bg2 land-nav-btn" onclick="goAuth('register')" id="lnd-register">Register</button>
     </div>
   </nav>
   <div class="hero">
@@ -456,8 +486,8 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       <h2>Advanced <span>Telehealth</span><br>for Every Patient</h2>
       <p>Connecting patients, nurses, and doctors across Africa with encrypted video consultations, real-time messaging, and comprehensive care management — all in one secure platform.</p>
       <div class="hcta">
-        <button class="btn bg2 blg" onclick="goAuth('register')">Get Started →</button>
-        <button class="btn blg" onclick="goAuth('login')" style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)">Sign In</button>
+        <button type="button" class="btn bg2 blg" onclick="goAuth('register')">Get Started →</button>
+        <button type="button" class="btn blg" onclick="goAuth('login')" style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)">Sign In</button>
       </div>
       <div class="hst">
         <div><div class="hsv">500+</div><div class="hsl hs-lbl" id="hs-l1">Patients Served</div></div>
@@ -497,6 +527,17 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
   </div>
 </div>
 
+<!-- FREE HEALTH HUB (public, no login required) -->
+<div id="free-hub" class="hid">
+  <nav class="lnav fh-nav" aria-label="Free Health Hub navigation">
+    <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span>HFA <span>SilverStrong</span></span></div>
+    <div class="lnr">
+      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goLand()" id="fh-back">← Back to Home</button>
+    </div>
+  </nav>
+  <div id="free-hub-content"></div>
+</div>
+
 <!-- AUTH -->
 <div id="auth-wrap" class="hid">
   <div class="al">
@@ -514,21 +555,21 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
     </div>
   </div>
   <div class="ar">
-    <button class="btn bgh bsm" style="width:fit-content;margin-bottom:20px" onclick="goLand()" id="back-home-btn">← Back to Home</button>
+    <button type="button" class="btn bgh bsm" style="width:fit-content;margin-bottom:20px" onclick="goLand()" id="back-home-btn">← Back to Home</button>
     <h2 id="atitle">Welcome Back</h2>
     <p class="asb" id="asub">Sign in to your HFA SilverStrong account</p>
     <div class="atbs">
-      <button class="atb active" id="tl" onclick="swtTab('login')">Sign In</button>
-      <button class="atb" id="tr" onclick="swtTab('register')">Register</button>
+      <button type="button" class="atb active" id="tl" onclick="swtTab('login')">Sign In</button>
+      <button type="button" class="atb" id="tr" onclick="swtTab('register')">Register</button>
     </div>
     <div id="amsg"></div>
     <!-- LOGIN -->
     <div id="fl">
       <div class="fg"><label class="fl" id="lbl-email">Email Address</label><input class="fc" type="email" id="le" placeholder="your@email.com"></div>
       <div class="fg"><label class="fl" id="lbl-pass">Password</label>
-        <div class="iw"><input class="fc" type="password" id="lp" placeholder="Enter password"><button class="eb" onclick="tpw('lp')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <div class="iw"><input class="fc" type="password" id="lp" placeholder="Enter password"><button type="button" class="eb" onclick="tpw('lp')" aria-label="Toggle password visibility"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
-      <button class="btn bp w100 mt8" onclick="doLogin()">Sign In</button>
+      <button type="button" class="btn bp w100 mt8" onclick="doLogin()">Sign In</button>
       <div class="afo" id="afo-login">No account? <span class="alk" onclick="swtTab('register')">Register here</span></div>
     </div>
     <!-- REGISTER -->
@@ -536,34 +577,34 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       <div class="fg">
         <label class="fl" id="lbl-iama">I am a</label>
         <div class="rbs">
-          <button class="rb" id="rb-d" onclick="setRole('doctor')">Doctor</button>
-          <button class="rb" id="rb-n" onclick="setRole('nurse')">Nurse</button>
-          <button class="rb active" id="rb-p" onclick="setRole('patient')">Patient</button>
+          <button type="button" class="rb" id="rb-d" onclick="setRole('doctor')">Doctor</button>
+          <button type="button" class="rb" id="rb-n" onclick="setRole('nurse')">Nurse</button>
+          <button type="button" class="rb active" id="rb-p" onclick="setRole('patient')">Patient</button>
         </div>
       </div>
-      <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="rn" placeholder="Full legal name"></div>
+      <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" type="text" id="rn" placeholder="Full legal name"></div>
       <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="re" placeholder="your@email.com"></div>
-      <div class="fg"><label class="fl">Phone</label><input class="fc" id="rph" placeholder="+237 6XX XXX XXX"></div>
+      <div class="fg"><label class="fl">Phone</label><input class="fc" type="tel" id="rph" placeholder="+237 6XX XXX XXX"></div>
       <div class="fg"><label class="fl">Password</label>
-        <div class="iw"><input class="fc" type="password" id="rpa" placeholder="Min. 6 characters"><button class="eb" onclick="tpw('rpa')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <div class="iw"><input class="fc" type="password" id="rpa" placeholder="Min. 6 characters"><button type="button" class="eb" onclick="tpw('rpa')" aria-label="Toggle password visibility"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
       <div id="df">
-        <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
-        <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" id="rhd" placeholder="Institution name"></div>
+        <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
+        <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name"></div>
       </div>
       <div id="nf" class="hid">
         <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="" id="rde-def">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="rns" required><option value="" id="rns-def">Select...</option><option>General Nursing</option><option>Critical Care Nursing</option><option>Emergency Nursing</option><option>Pediatric Nursing</option><option>Neonatal Nursing</option><option>Oncology Nursing</option><option>Surgical and Perioperative Nursing</option><option>Maternal and Midwifery Care</option><option>Psychiatric and Mental Health Nursing</option><option>Community and Public Health Nursing</option><option>Geriatric Nursing</option><option>Renal Nursing</option><option>Cardiac Nursing</option><option>Infection Prevention and Control</option><option>Nurse Anesthesia</option><option>Rehabilitation Nursing</option><option>Occupational Health Nursing</option></select></div></div>
-        <div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div>
-        <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" id="rhn" placeholder="Institution name"></div>
-        <div class="fg"><label class="fl">Qualifications</label><input class="fc" id="rqu" placeholder="e.g. BSN, ICU Certified"></div>
+        <div class="fg"><label class="fl">Nurse ID</label><input class="fc" type="text" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div>
+        <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhn" placeholder="Institution name"></div>
+        <div class="fg"><label class="fl">Qualifications</label><input class="fc" type="text" id="rqu" placeholder="e.g. BSN, ICU Certified"></div>
       </div>
       <div id="pf">
         <div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="rdb"></div><div class="fg"><label class="fl">Gender</label><select class="fc" id="rge"><option value="" id="rge-def">Select...</option><option>Male</option><option>Female</option><option>Other</option></select></div></div>
-        <div class="fr"><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="rbl"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div><div class="fg"><label class="fl">Allergies</label><input class="fc" id="ral" placeholder="None, or list them"></div></div>
-        <div class="fg"><label class="fl">Address</label><input class="fc" id="rad" placeholder="City, Country"></div>
-        <div class="fg"><label class="fl">Emergency Contact</label><input class="fc" id="rec" placeholder="Name — Phone number"></div>
+        <div class="fr"><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="rbl"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div><div class="fg"><label class="fl">Allergies</label><input class="fc" type="text" id="ral" placeholder="None, or list them"></div></div>
+        <div class="fg"><label class="fl">Address</label><input class="fc" type="text" id="rad" placeholder="City, Country"></div>
+        <div class="fg"><label class="fl">Emergency Contact</label><input class="fc" type="text" id="rec" placeholder="Name — Phone number"></div>
       </div>
-      <button class="btn bp w100 mt8" onclick="doReg()">Create Account</button>
+      <button type="button" class="btn bp w100 mt8" onclick="doReg()">Create Account</button>
       <div class="afo" id="afo-reg">Have an account? <span class="alk" onclick="swtTab('login')">Sign in</span></div>
     </div>
   </div>
@@ -579,20 +620,20 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       </div>
       <span id="srb" class="sb-rb"></span>
     </div>
-    <nav class="sb-nav" id="snav"></nav>
+    <nav class="sb-nav" id="snav" aria-label="Application sidebar navigation"></nav>
     <div class="sb-ft">
       <div class="sb-us">
         <div class="av" id="sav"></div>
         <div><div class="un" id="snm"></div><div class="ue" id="sem"></div></div>
       </div>
       <div class="sb-lang">
-      <button class="sb-lang-btn active" id="slb-en" onclick="setLang('en')">EN</button>
-      <button class="sb-lang-btn" id="slb-fr" onclick="setLang('fr')">FR</button>
+      <button type="button" class="sb-lang-btn active" id="slb-en" onclick="setLang('en')">EN</button>
+      <button type="button" class="sb-lang-btn" id="slb-fr" onclick="setLang('fr')">FR</button>
     </div>
     <a href="index.html" id="sb-site-link" style="display:flex;align-items:center;gap:7px;padding:9px 18px;margin:4px 0;color:rgba(255,255,255,.38);font-size:.74rem;text-decoration:none;border-top:1px solid rgba(255,255,255,.07);transition:.2s" onmouseover="this.style.color='rgba(255,255,255,.72)'" onmouseout="this.style.color='rgba(255,255,255,.38)'">
       <span>🌐</span><span id="sb-site-lbl">Back to Website</span>
     </a>
-    <button class="btn-lo" onclick="doLogout()">
+    <button type="button" class="btn-lo" onclick="doLogout()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Sign Out
       </button>
@@ -626,13 +667,13 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
     <div class="vcs"><div style="text-align:center"><div style="width:8px;height:8px;border-radius:50%;background:#5bc07a;margin:0 auto 4px"></div><div>You</div></div></div>
   </div>
   <div class="vcc">
-    <button class="vcb vcm" id="vcmb" onclick="togMute()">
+    <button type="button" class="vcb vcm" id="vcmb" onclick="togMute()" aria-label="Toggle microphone">
       <svg id="mico" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
     </button>
-    <button class="vcb vcv" id="vcvb" onclick="togVid()">
+    <button type="button" class="vcb vcv" id="vcvb" onclick="togVid()" aria-label="Toggle camera">
       <svg id="vico" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
     </button>
-    <button class="vcb vce2" onclick="endCall()">
+    <button type="button" class="vcb vce2" onclick="endCall()" aria-label="End call">
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.42 19.42 0 0 1 4.26 9.91 2 2 0 0 1 5.26 8.5l3-.79a2 2 0 0 1 2 .56 12.84 12.84 0 0 0 .74 2.8 2 2 0 0 1-.43 2.11L9.9 14.31z" transform="rotate(135 12 12)"/></svg>
     </button>
   </div>
@@ -661,19 +702,19 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
   </div>
   <div class="voc2">
     <div style="text-align:center">
-      <button class="vob vob-mu" id="vomb" onclick="togVoiceMute()">
+      <button type="button" class="vob vob-mu" id="vomb" onclick="togVoiceMute()" aria-label="Toggle voice microphone">
         <svg id="vomic" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
       </button>
       <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px">Mute</div>
     </div>
     <div style="text-align:center">
-      <button class="vob vob-sp" id="vospb" onclick="togSpeaker()">
+      <button type="button" class="vob vob-sp" id="vospb" onclick="togSpeaker()" aria-label="Toggle speaker">
         <svg id="vosp" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </button>
       <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px">Speaker</div>
     </div>
     <div style="text-align:center">
-      <button class="vob vob-en" onclick="endVoiceCall()">
+      <button type="button" class="vob vob-en" onclick="endVoiceCall()" aria-label="End voice call">
         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.42 19.42 0 0 1 4.26 9.91 2 2 0 0 1 5.26 8.5l3-.79a2 2 0 0 1 2 .56 12.84 12.84 0 0 0 .74 2.8 2 2 0 0 1-.43 2.11L9.9 14.31z" transform="rotate(135 12 12)"/></svg>
       </button>
       <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px">End Call</div>
@@ -874,6 +915,26 @@ const T = {
     admin_role_lbl:'Administrator Role', add_admin:'Add Admin', platform_owner:'Platform Owner', clinical_operations:'Clinical Operations', compliance_officer:'Compliance Officer', support_admin:'Support Administrator',
     spec_required:'Please select your medical specialty.', nurse_spec_required:'Please select your nursing specialty.',
     try_demo:'Try Demo', lang_prompt_lbl:'Language',
+
+    // Free Health Hub
+    free_hub_nav:'Free Health Hub', free_hub_title:'Free Health Hub',
+    free_hub_sub:'Evidence-informed nutrition, exercise, and self-care guidance — free for everyone, patient or not.',
+    fh_disclaimer_title:'Educational information, not a diagnosis',
+    fh_disclaimer_body:'This section shares general wellness guidance aligned with widely accepted public-health practice. It does not replace an individual medical assessment. For emergencies, contact local emergency services immediately.',
+    fh_ask_title:'What kind of remedy are you looking for?',
+    fh_ask_sub:'Search a symptom or condition, or choose one below, for general self-care guidance.',
+    fh_search_ph:'e.g. headache, sore throat, trouble sleeping...',
+    fh_no_match:'No matching topic yet. Try another word, or talk to a professional.',
+    fh_selfcare:'General self-care guidance', fh_seek_care:'Seek professional care if:',
+    fh_talk_pro:'Talk to a Professional',
+    fh_nutrition_title:'Nutrition Essentials', fh_exercise_title:'Exercise Essentials',
+    fh_cta_title:'Need more than general guidance?',
+    fh_cta_sub:'Register for free and connect with a licensed doctor or nurse for a personal assessment.',
+    fh_cta_btn:'Talk to a Professional',
+    fh_analytics_nav:'Hub Analytics', fh_analytics_title:'Free Health Hub Analytics',
+    fh_analytics_sub:'Usage insights from the public Free Health Hub — searches, topics viewed, and consultation hand-offs.',
+    fh_total_views:'Topic Views', fh_total_searches:'Searches', fh_total_cta:'Consultation Hand-offs',
+    fh_top_topics:'Most Viewed Topics', fh_no_activity:'No Free Health Hub activity yet.',
   },
 
   fr: {
@@ -1061,6 +1122,26 @@ const T = {
     admin_role_lbl:'Rôle Administrateur', add_admin:'Ajouter Admin', platform_owner:'Propriétaire de la Plateforme', clinical_operations:'Opérations Cliniques', compliance_officer:'Responsable de la Conformité', support_admin:'Administrateur de Support',
     spec_required:'Veuillez sélectionner votre spécialité médicale.', nurse_spec_required:'Veuillez sélectionner votre spécialité infirmière.',
     try_demo:'Essayer la Démo', lang_prompt_lbl:'Langue',
+
+    // Free Health Hub
+    free_hub_nav:'Espace Santé Gratuit', free_hub_title:'Espace Santé Gratuit',
+    free_hub_sub:'Conseils gratuits fondés sur des données probantes en nutrition, exercice et bien-être — pour tous, patient ou non.',
+    fh_disclaimer_title:'Information éducative, pas un diagnostic',
+    fh_disclaimer_body:'Cette section propose des conseils de bien-être généraux conformes aux pratiques de santé publique reconnues. Elle ne remplace pas une évaluation médicale individuelle. En cas d\'urgence, contactez immédiatement les services d\'urgence locaux.',
+    fh_ask_title:'Quel type de remède recherchez-vous ?',
+    fh_ask_sub:'Recherchez un symptôme ou une condition, ou choisissez-en un ci-dessous, pour des conseils généraux.',
+    fh_search_ph:'ex. mal de tête, mal de gorge, troubles du sommeil...',
+    fh_no_match:'Aucun sujet correspondant. Essayez un autre mot, ou parlez à un professionnel.',
+    fh_selfcare:'Conseils généraux d\'auto-soins', fh_seek_care:'Consultez un professionnel si :',
+    fh_talk_pro:'Parler à un Professionnel',
+    fh_nutrition_title:'L\'Essentiel de la Nutrition', fh_exercise_title:'L\'Essentiel de l\'Exercice',
+    fh_cta_title:'Besoin de plus que des conseils généraux ?',
+    fh_cta_sub:'Inscrivez-vous gratuitement et échangez avec un médecin ou infirmier(ère) agréé(e) pour une évaluation personnelle.',
+    fh_cta_btn:'Parler à un Professionnel',
+    fh_analytics_nav:'Analytique de l\'Espace', fh_analytics_title:'Analytique de l\'Espace Santé Gratuit',
+    fh_analytics_sub:'Statistiques d\'utilisation de l\'Espace Santé Gratuit public — recherches, sujets consultés et transferts vers une consultation.',
+    fh_total_views:'Sujets Consultés', fh_total_searches:'Recherches', fh_total_cta:'Transferts vers Consultation',
+    fh_top_topics:'Sujets les Plus Consultés', fh_no_activity:'Aucune activité sur l\'Espace Santé Gratuit pour le moment.',
   }
 };
 
@@ -1255,6 +1336,7 @@ const DB = {
   ],
   triageCases: [],
   reviews: [],
+  fhAnalytics: [],
   clinicianVerifications: [
     {id:'ver1',providerId:'doc1',status:'verified',verifiedBy:'adm1',verifiedAt:'2024-02-12',licenseExpiry:'2027-02-12'},
     {id:'ver2',providerId:'doc2',status:'verified',verifiedBy:'adm1',verifiedAt:'2024-03-20',licenseExpiry:'2027-03-20'},
@@ -1295,6 +1377,232 @@ const VIRTUAL_SERVICES = [
   {code:'NUTRITION-VIRTUAL',name:'Virtual nutrition',description:'Personalized nutrition guidance for ongoing care.',roles:'Care specialist'},
   {code:'LAB-REVIEW',name:'Lab result review',description:'Discuss results and agree on next clinical steps.',roles:'Doctor or Nurse'},
   {code:'URGENT-TRIAGE',name:'Urgent virtual triage',description:'Prompt assessment to direct non-life-threatening concerns.',roles:'Doctor or Nurse'}
+];
+
+// ═══════════════════════ FREE HEALTH HUB DATA ═══════════════════════
+// General, non-diagnostic wellness guidance aligned with widely accepted public-health
+// practice (e.g. WHO/CDC-style consensus). Always paired with red-flag guidance directing
+// users to a professional consultation — this is educational content, not a diagnosis.
+// Bilingual (en/fr); fhL() below resolves the active-language value with an English fallback.
+const FREE_HEALTH_TOPICS = [
+  {id:'cold-flu', cat:'general',
+    name:{en:'Common Cold & Flu', fr:'Rhume et Grippe'},
+    keywords:{en:['cold','flu','cough','congestion','runny nose'], fr:['rhume','grippe','toux','congestion','nez qui coule']},
+    guidance:{en:['Rest and get extra sleep so your body can recover.','Drink plenty of fluids — water, herbal tea, or clear broth — to stay hydrated.','Use a humidifier or steam inhalation to ease congestion.','Gargle warm salt water to soothe a sore throat.','Over-the-counter fever or pain relief may help; always follow the product label.'],
+      fr:['Reposez-vous et dormez davantage pour aider votre corps à récupérer.','Buvez beaucoup de liquides — eau, tisane ou bouillon clair — pour rester hydraté(e).','Utilisez un humidificateur ou des inhalations de vapeur pour dégager les voies nasales.','Gargarisez-vous à l\'eau salée tiède pour soulager un mal de gorge.','Un antidouleur ou antipyrétique en vente libre peut aider ; suivez toujours les instructions du produit.']},
+    redFlags:{en:['Difficulty breathing or shortness of breath','A high fever that will not come down with care','Symptoms lasting more than 10 days, or that improve then suddenly worsen','Chest pain or severe weakness'],
+      fr:['Difficulté à respirer ou essoufflement','Une fièvre élevée qui ne baisse pas malgré les soins','Symptômes durant plus de 10 jours, ou qui s\'améliorent puis s\'aggravent brusquement','Douleur thoracique ou faiblesse sévère']}},
+  {id:'headache', cat:'general',
+    name:{en:'Tension Headache', fr:'Mal de Tête de Tension'},
+    keywords:{en:['headache','head pain','migraine'], fr:['mal de tête','céphalée','migraine']},
+    guidance:{en:['Rest in a quiet, dimly lit room.','Drink water — mild dehydration is a common trigger.','Apply a cool or warm compress to your head or neck.','Gentle neck and shoulder stretches can ease tension.','Limit screen time and take regular breaks if you work at a computer.'],
+      fr:['Reposez-vous dans une pièce calme et faiblement éclairée.','Buvez de l\'eau — une légère déshydratation est une cause fréquente.','Appliquez une compresse froide ou chaude sur la tête ou la nuque.','Des étirements doux du cou et des épaules peuvent soulager la tension.','Limitez le temps d\'écran et faites des pauses régulières si vous travaillez sur ordinateur.']},
+    redFlags:{en:['The worst headache of your life, or one that starts suddenly and severely','Headache with fever, stiff neck, confusion, or a rash','Headache after a head injury','Vision changes, slurred speech, or weakness on one side of the body'],
+      fr:['Le pire mal de tête de votre vie, ou qui débute soudainement et intensément','Mal de tête avec fièvre, raideur de la nuque, confusion ou éruption cutanée','Mal de tête après un traumatisme crânien','Troubles de la vision, difficulté à parler, ou faiblesse d\'un côté du corps']}},
+  {id:'fever', cat:'general',
+    name:{en:'Mild Fever', fr:'Fièvre Légère'},
+    keywords:{en:['fever','temperature','chills'], fr:['fièvre','température','frissons']},
+    guidance:{en:['Rest and drink extra fluids to prevent dehydration.','Dress lightly and keep the room at a comfortable temperature.','Over-the-counter fever reducers may help; follow label dosing carefully.','Monitor your temperature every few hours.'],
+      fr:['Reposez-vous et buvez davantage de liquides pour éviter la déshydratation.','Habillez-vous légèrement et maintenez une température ambiante confortable.','Les antipyrétiques en vente libre peuvent aider ; respectez la posologie indiquée.','Surveillez votre température toutes les quelques heures.']},
+    redFlags:{en:['Fever above 39.5°C (103°F) in an adult','Fever lasting more than 3 days','Fever in an infant, a pregnant person, or someone with a chronic condition','Fever with severe headache, rash, difficulty breathing, or confusion'],
+      fr:['Fièvre supérieure à 39,5°C chez un adulte','Fièvre durant plus de 3 jours','Fièvre chez un nourrisson, une personne enceinte ou une personne avec une maladie chronique','Fièvre accompagnée de maux de tête sévères, éruption cutanée, difficulté à respirer ou confusion']}},
+  {id:'stomach', cat:'general',
+    name:{en:'Upset Stomach & Mild Diarrhea', fr:'Troubles Digestifs et Diarrhée Légère'},
+    keywords:{en:['stomach','diarrhea','nausea','indigestion'], fr:['estomac','diarrhée','nausée','indigestion']},
+    guidance:{en:['Sip clear fluids or oral rehydration solution frequently, in small amounts.','Eat plain, easy-to-digest foods (rice, bananas, toast) as tolerated.','Avoid caffeine, alcohol, and very fatty or spicy foods until you feel better.','Rest and wash your hands often to avoid spreading illness.'],
+      fr:['Buvez fréquemment de petites quantités de liquides clairs ou de solution de réhydratation orale.','Mangez des aliments simples et faciles à digérer (riz, bananes, pain grillé) selon votre tolérance.','Évitez la caféine, l\'alcool et les aliments gras ou épicés jusqu\'à l\'amélioration.','Reposez-vous et lavez-vous souvent les mains pour éviter de propager la maladie.']},
+    redFlags:{en:['Signs of dehydration (very dark urine, dizziness, dry mouth)','Blood in stool or vomit','Severe abdominal pain','Symptoms lasting more than 2 days, or a high fever'],
+      fr:['Signes de déshydratation (urine très foncée, vertiges, bouche sèche)','Sang dans les selles ou les vomissements','Douleur abdominale sévère','Symptômes durant plus de 2 jours, ou fièvre élevée']}},
+  {id:'sore-throat', cat:'general',
+    name:{en:'Sore Throat', fr:'Mal de Gorge'},
+    keywords:{en:['sore throat','throat pain'], fr:['mal de gorge','gorge irritée']},
+    guidance:{en:['Gargle warm salt water several times a day.','Drink warm liquids like tea with honey (not for children under 1 year).','Use throat lozenges to ease discomfort.','Rest your voice and stay hydrated.'],
+      fr:['Gargarisez-vous à l\'eau salée tiède plusieurs fois par jour.','Buvez des boissons chaudes comme du thé au miel (à éviter chez les enfants de moins d\'un an).','Utilisez des pastilles pour la gorge afin de soulager l\'inconfort.','Reposez votre voix et restez hydraté(e).']},
+    redFlags:{en:['Difficulty swallowing or breathing','Severe pain, drooling, or a muffled voice','A high fever with swollen glands or a rash','Symptoms lasting more than a week'],
+      fr:['Difficulté à avaler ou à respirer','Douleur sévère, salivation excessive ou voix étouffée','Fièvre élevée avec ganglions gonflés ou éruption cutanée','Symptômes durant plus d\'une semaine']}},
+  {id:'sleep', cat:'general',
+    name:{en:'Trouble Sleeping', fr:'Troubles du Sommeil'},
+    keywords:{en:['insomnia','sleep','trouble sleeping','tired'], fr:['insomnie','sommeil','fatigue']},
+    guidance:{en:['Keep a consistent sleep and wake time, even on weekends.','Avoid caffeine and heavy meals late in the day.','Limit screens for at least 30–60 minutes before bed.','Keep your bedroom cool, dark, and quiet.','Gentle daytime activity can improve sleep quality.'],
+      fr:['Gardez des horaires de sommeil réguliers, même le week-end.','Évitez la caféine et les repas copieux en fin de journée.','Limitez les écrans au moins 30 à 60 minutes avant le coucher.','Gardez votre chambre fraîche, sombre et calme.','Une activité physique modérée en journée peut améliorer la qualité du sommeil.']},
+    redFlags:{en:['Sleep problems lasting more than a month and affecting daily life','Loud snoring with pauses in breathing','Persistent low mood alongside sleep difficulty'],
+      fr:['Troubles du sommeil durant plus d\'un mois et affectant la vie quotidienne','Ronflements bruyants avec pauses respiratoires','Humeur dépressive persistante associée aux troubles du sommeil']}},
+  {id:'stress', cat:'general',
+    name:{en:'Everyday Stress & Mild Anxiety', fr:'Stress Quotidien et Anxiété Légère'},
+    keywords:{en:['stress','anxiety','worry','overwhelmed'], fr:['stress','anxiété','inquiétude','débordé']},
+    guidance:{en:['Practice slow, deep breathing for a few minutes at a time.','Stay physically active — even a short walk can help.','Keep in touch with people you trust and talk about how you feel.','Break large tasks into smaller, manageable steps.','Limit news and social media if it increases your worry.'],
+      fr:['Pratiquez une respiration lente et profonde pendant quelques minutes.','Restez physiquement actif(ve) — même une courte marche peut aider.','Restez en contact avec des personnes de confiance et parlez de ce que vous ressentez.','Divisez les grandes tâches en étapes plus petites et gérables.','Limitez l\'actualité et les réseaux sociaux s\'ils augmentent votre inquiétude.']},
+    redFlags:{en:['Thoughts of harming yourself or others — seek help immediately','Anxiety that stops you from daily activities','Panic attacks, or physical symptoms like chest pain'],
+      fr:['Pensées de vous faire du mal ou de faire du mal à autrui — cherchez de l\'aide immédiatement','Anxiété qui empêche les activités quotidiennes','Crises de panique, ou symptômes physiques comme des douleurs thoraciques']}},
+  {id:'allergies', cat:'general',
+    name:{en:'Seasonal Allergies', fr:'Allergies Saisonnières'},
+    keywords:{en:['allergy','allergies','hay fever','sneezing'], fr:['allergie','allergies','rhume des foins','éternuements']},
+    guidance:{en:['Keep windows closed and shower after being outdoors during high-pollen days.','Rinse your nasal passages with a saline rinse.','Antihistamines may help; follow the product label.','Track local pollen forecasts to plan outdoor time.'],
+      fr:['Gardez les fenêtres fermées et douchez-vous après être sorti(e) lors des pics de pollen.','Rincez vos fosses nasales avec une solution saline.','Les antihistaminiques peuvent aider ; suivez les instructions du produit.','Consultez les prévisions polliniques locales pour planifier vos sorties.']},
+    redFlags:{en:['Swelling of the face, lips, or throat','Wheezing or difficulty breathing','Symptoms that do not improve with usual self-care'],
+      fr:['Gonflement du visage, des lèvres ou de la gorge','Respiration sifflante ou difficulté à respirer','Symptômes qui ne s\'améliorent pas avec les soins habituels']}},
+  {id:'cuts', cat:'general',
+    name:{en:'Minor Cuts, Scrapes & Bruises', fr:'Coupures, Éraflures et Ecchymoses Légères'},
+    keywords:{en:['cut','scrape','bruise','wound'], fr:['coupure','éraflure','ecchymose','plaie','bleu']},
+    guidance:{en:['Wash your hands, then clean the wound gently with water.','Apply gentle pressure with clean cloth to stop minor bleeding.','Cover with a clean bandage and change it daily.','Apply a cold pack to a bruise for the first 24 hours to reduce swelling.'],
+      fr:['Lavez-vous les mains, puis nettoyez délicatement la plaie à l\'eau.','Appliquez une légère pression avec un linge propre pour arrêter un saignement léger.','Couvrez d\'un pansement propre et changez-le quotidiennement.','Appliquez une compresse froide sur une ecchymose pendant les premières 24 heures pour réduire l\'enflure.']},
+    redFlags:{en:['Bleeding that will not stop after 10 minutes of pressure','A deep or gaping wound, or one from a dirty or rusty object','Signs of infection: increasing redness, warmth, pus, or fever','A bruise with severe pain or swelling out of proportion to the injury'],
+      fr:['Saignement qui ne s\'arrête pas après 10 minutes de pression','Plaie profonde ou béante, ou causée par un objet sale ou rouillé','Signes d\'infection : rougeur croissante, chaleur, pus ou fièvre','Ecchymose avec douleur ou gonflement disproportionnés par rapport à la blessure']}},
+  {id:'hydration', cat:'nutrition',
+    name:{en:'Dehydration & Fluid Balance', fr:'Déshydratation et Équilibre Hydrique'},
+    keywords:{en:['dehydration','fluids','water','thirst'], fr:['déshydratation','liquides','eau','soif']},
+    guidance:{en:['Sip water regularly through the day rather than large amounts at once.','Increase fluids in hot weather, during illness, or with exercise.','Pale-yellow urine is a simple sign of good hydration.','Oral rehydration solutions can help after vomiting, diarrhea, or heavy sweating.'],
+      fr:['Buvez de l\'eau régulièrement tout au long de la journée plutôt qu\'en grande quantité d\'un coup.','Augmentez les liquides par temps chaud, en cas de maladie ou après un effort physique.','Une urine jaune pâle est un bon indicateur d\'hydratation.','Les solutions de réhydratation orale peuvent aider après des vomissements, une diarrhée ou une transpiration abondante.']},
+    redFlags:{en:['Confusion, severe dizziness, or fainting','Little or no urination for 8+ hours','Rapid heartbeat with dehydration symptoms'],
+      fr:['Confusion, vertiges sévères ou évanouissement','Peu ou pas d\'urine pendant plus de 8 heures','Rythme cardiaque rapide avec symptômes de déshydratation']}},
+  {id:'weight', cat:'nutrition',
+    name:{en:'Healthy Weight Management', fr:'Gestion Saine du Poids'},
+    keywords:{en:['weight','diet','lose weight'], fr:['poids','régime','perdre du poids']},
+    guidance:{en:['Build meals around vegetables, whole grains, and lean protein.','Aim for gradual, sustainable change rather than restrictive dieting.','Pair nutrition changes with regular physical activity.','Track progress with how you feel and function, not only the scale.'],
+      fr:['Construisez vos repas autour de légumes, de céréales complètes et de protéines maigres.','Visez un changement progressif et durable plutôt qu\'un régime restrictif.','Associez les changements alimentaires à une activité physique régulière.','Suivez vos progrès selon votre forme et votre énergie, pas seulement le poids affiché.']},
+    redFlags:{en:['Unintentional, rapid weight loss or gain','Weight changes alongside fatigue, pain, or other new symptoms'],
+      fr:['Perte ou prise de poids rapide et involontaire','Changements de poids accompagnés de fatigue, de douleur ou d\'autres nouveaux symptômes']}},
+  {id:'bp', cat:'nutrition',
+    name:{en:'Supporting Healthy Blood Pressure', fr:'Soutenir une Tension Artérielle Saine'},
+    keywords:{en:['blood pressure','hypertension'], fr:['tension artérielle','hypertension']},
+    guidance:{en:['Reduce added salt — choose fresh foods and check labels on packaged items.','Include potassium-rich foods like vegetables, fruit, and legumes.','Stay physically active most days of the week.','Limit alcohol and manage stress with regular relaxation habits.','Continue any prescribed medication — these tips support, not replace, treatment.'],
+      fr:['Réduisez le sel ajouté — privilégiez les aliments frais et vérifiez les étiquettes des produits emballés.','Consommez des aliments riches en potassium comme les légumes, les fruits et les légumineuses.','Restez physiquement actif(ve) la plupart des jours de la semaine.','Limitez l\'alcool et gérez le stress avec des habitudes de relaxation régulières.','Poursuivez tout traitement prescrit — ces conseils accompagnent le traitement, ils ne le remplacent pas.']},
+    redFlags:{en:['A blood pressure reading with severe headache, chest pain, or vision changes','Blood pressure readings consistently above your care team\'s target range'],
+      fr:['Une mesure de tension artérielle associée à des maux de tête sévères, des douleurs thoraciques ou des troubles visuels','Mesures de tension artérielle constamment supérieures à l\'objectif fixé par votre équipe soignante']}},
+  {id:'joint', cat:'exercise',
+    name:{en:'Joint Stiffness & Mild Discomfort', fr:'Raideur Articulaire et Gêne Légère'},
+    keywords:{en:['joint pain','arthritis','stiffness'], fr:['douleur articulaire','arthrite','raideur']},
+    guidance:{en:['Keep joints moving with gentle, low-impact activity like walking or swimming.','Apply heat before activity and cold after, if helpful for your discomfort.','Maintain a healthy weight to reduce joint load.','Warm up gently before exercise and stretch afterward.'],
+      fr:['Maintenez vos articulations en mouvement avec une activité douce et à faible impact comme la marche ou la natation.','Appliquez de la chaleur avant l\'activité et du froid après, si cela soulage votre gêne.','Maintenez un poids santé pour réduire la charge sur les articulations.','Échauffez-vous doucement avant l\'exercice et étirez-vous après.']},
+    redFlags:{en:['A joint that is hot, red, swollen, or you cannot bear weight on','Joint pain following an injury','Fever alongside joint pain'],
+      fr:['Une articulation chaude, rouge, gonflée, ou sur laquelle vous ne pouvez pas prendre appui','Douleur articulaire suite à une blessure','Fièvre associée à une douleur articulaire']}},
+  {id:'soreness', cat:'exercise',
+    name:{en:'Muscle Soreness After Exercise', fr:'Courbatures Après l\'Exercice'},
+    keywords:{en:['muscle soreness','sore muscles','workout pain'], fr:['courbatures','muscles endoloris','douleur musculaire']},
+    guidance:{en:['Light movement and gentle stretching can ease post-exercise soreness.','Stay hydrated and allow adequate rest between hard sessions.','A warm bath or gentle massage may help with recovery.','Soreness usually peaks 24–48 hours after activity and improves within a few days.'],
+      fr:['Un mouvement léger et des étirements doux peuvent soulager les courbatures post-exercice.','Restez hydraté(e) et accordez-vous un repos suffisant entre les séances intenses.','Un bain chaud ou un massage léger peut aider à la récupération.','Les courbatures atteignent généralement leur pic 24 à 48 heures après l\'effort et s\'améliorent en quelques jours.']},
+    redFlags:{en:['Severe swelling, dark urine, or inability to move a limb','Pain that worsens instead of improving after a few days'],
+      fr:['Gonflement sévère, urine foncée, ou incapacité à bouger un membre','Douleur qui s\'aggrave au lieu de s\'améliorer après quelques jours']}},
+  {id:'backpain', cat:'exercise',
+    name:{en:'Non-Severe Lower Back Pain', fr:'Douleur Lombaire Non Sévère'},
+    keywords:{en:['back pain','lower back'], fr:['mal de dos','lombalgie','dos']},
+    guidance:{en:['Stay as active as you comfortably can — prolonged bed rest can slow recovery.','Apply heat to ease muscle tension.','Practice gentle stretching and core-strengthening exercises.','Maintain good posture when sitting or lifting.'],
+      fr:['Restez aussi actif(ve) que possible confortablement — un repos prolongé au lit peut ralentir la guérison.','Appliquez de la chaleur pour soulager la tension musculaire.','Pratiquez des étirements doux et des exercices de renforcement du tronc.','Maintenez une bonne posture assis(e) ou en soulevant des objets.']},
+    redFlags:{en:['Numbness, tingling, or weakness in the legs','Loss of bladder or bowel control','Back pain after a fall or injury, or with fever'],
+      fr:['Engourdissement, picotements ou faiblesse dans les jambes','Perte de contrôle de la vessie ou des intestins','Mal de dos suite à une chute ou une blessure, ou avec fièvre']}},
+  {id:'fatigue', cat:'general',
+    name:{en:'Low Energy & Fatigue', fr:'Manque d\'Énergie et Fatigue'},
+    keywords:{en:['fatigue','tired','low energy','exhausted'], fr:['fatigue','épuisé','manque d\'énergie']},
+    guidance:{en:['Prioritize consistent, sufficient sleep.','Eat regular, balanced meals to maintain steady energy.','Stay physically active — light activity often improves energy over time.','Manage stress and build in short breaks during the day.'],
+      fr:['Priorisez un sommeil suffisant et régulier.','Mangez des repas réguliers et équilibrés pour maintenir une énergie stable.','Restez physiquement actif(ve) — une activité légère améliore souvent l\'énergie avec le temps.','Gérez le stress et intégrez de courtes pauses dans votre journée.']},
+    redFlags:{en:['Fatigue lasting more than 2 weeks despite rest','Fatigue with unexplained weight loss, fever, or shortness of breath'],
+      fr:['Fatigue durant plus de 2 semaines malgré le repos','Fatigue accompagnée d\'une perte de poids inexpliquée, de fièvre ou d\'essoufflement']}},
+  {id:'toothache', cat:'general',
+    name:{en:'Toothache & Dental Discomfort', fr:'Mal de Dents et Gêne Dentaire'},
+    keywords:{en:['toothache','tooth pain','dental'], fr:['mal de dents','douleur dentaire','dent']},
+    guidance:{en:['Rinse your mouth with warm salt water.','Use a cold compress on your cheek to ease swelling or pain.','Over-the-counter pain relief may help temporarily; follow the product label.','Avoid very hot, cold, or sugary foods until you can see a dentist.','Floss gently around the painful area in case food is trapped.'],
+      fr:['Rincez-vous la bouche à l\'eau salée tiède.','Appliquez une compresse froide sur la joue pour soulager le gonflement ou la douleur.','Un antidouleur en vente libre peut aider temporairement ; suivez les instructions du produit.','Évitez les aliments très chauds, froids ou sucrés jusqu\'à la consultation dentaire.','Passez délicatement le fil dentaire autour de la zone douloureuse au cas où un aliment serait coincé.']},
+    redFlags:{en:['Severe swelling of the face or jaw','Fever alongside dental pain','Difficulty swallowing or breathing','Pain lasting more than 1–2 days'],
+      fr:['Gonflement important du visage ou de la mâchoire','Fièvre associée à une douleur dentaire','Difficulté à avaler ou à respirer','Douleur durant plus d\'un à deux jours']}},
+  {id:'menstrual', cat:'general',
+    name:{en:'Menstrual Cramps', fr:'Crampes Menstruelles'},
+    keywords:{en:['menstrual','period','cramps'], fr:['règles','menstruations','crampes']},
+    guidance:{en:['Apply a heating pad or warm compress to your lower abdomen or back.','Gentle stretching or light exercise, like walking, may ease discomfort.','Over-the-counter pain relief may help; follow the product label.','Stay hydrated and consider reducing caffeine and salty foods.','Rest when needed and use relaxation techniques for cramping discomfort.'],
+      fr:['Appliquez une bouillotte ou une compresse chaude sur le bas-ventre ou le dos.','Des étirements doux ou une activité légère comme la marche peuvent soulager l\'inconfort.','Un antidouleur en vente libre peut aider ; suivez les instructions du produit.','Restez hydraté(e) et réduisez la caféine et les aliments salés.','Reposez-vous si besoin et utilisez des techniques de relaxation pour les crampes.']},
+    redFlags:{en:['Pain so severe it prevents daily activities','Heavy bleeding soaking a pad or tampon every hour','Fever or unusual discharge','Sudden change in your usual cycle pattern'],
+      fr:['Douleur si intense qu\'elle empêche les activités quotidiennes','Saignements abondants nécessitant de changer de protection toutes les heures','Fièvre ou pertes inhabituelles','Changement soudain de votre cycle habituel']}},
+  {id:'sinus', cat:'general',
+    name:{en:'Nasal Congestion & Sinus Pressure', fr:'Congestion Nasale et Pression Sinusale'},
+    keywords:{en:['sinus','congestion','stuffy nose','sinusitis'], fr:['sinus','congestion nasale','nez bouché','sinusite']},
+    guidance:{en:['Use a saline nasal rinse or spray to clear passages.','Apply a warm compress to your face to ease sinus pressure.','Stay hydrated to help thin mucus.','Sleep with your head slightly elevated.','Steam inhalation may provide temporary relief.'],
+      fr:['Utilisez un rinçage ou spray nasal salin pour dégager les voies nasales.','Appliquez une compresse chaude sur le visage pour soulager la pression sinusale.','Restez hydraté(e) pour fluidifier le mucus.','Dormez la tête légèrement surélevée.','Les inhalations de vapeur peuvent apporter un soulagement temporaire.']},
+    redFlags:{en:['Symptoms lasting more than 10 days without improvement','Severe facial pain or swelling around the eyes','High fever','Green or bloody discharge with worsening symptoms'],
+      fr:['Symptômes durant plus de 10 jours sans amélioration','Douleur faciale sévère ou gonflement autour des yeux','Fièvre élevée','Écoulement verdâtre ou sanguinolent avec aggravation des symptômes']}},
+  {id:'constipation', cat:'nutrition',
+    name:{en:'Constipation', fr:'Constipation'},
+    keywords:{en:['constipation','bowel'], fr:['constipation','transit']},
+    guidance:{en:['Increase fiber intake gradually with fruits, vegetables, and whole grains.','Drink more water throughout the day.','Stay physically active — even short walks can help.','Respond promptly to the urge to have a bowel movement.','Consider a gentle over-the-counter remedy if needed; follow the product label.'],
+      fr:['Augmentez progressivement votre apport en fibres avec des fruits, légumes et céréales complètes.','Buvez plus d\'eau tout au long de la journée.','Restez physiquement actif(ve) — même de courtes marches peuvent aider.','Répondez rapidement à l\'envie d\'aller à la selle.','Envisagez un laxatif doux en vente libre si nécessaire ; suivez les instructions du produit.']},
+    redFlags:{en:['No bowel movement for more than a week','Severe abdominal pain or bloating','Blood in stool','Unexplained weight loss alongside constipation'],
+      fr:['Aucune selle depuis plus d\'une semaine','Douleur abdominale sévère ou ballonnements','Sang dans les selles','Perte de poids inexpliquée associée à la constipation']}},
+  {id:'heartburn', cat:'nutrition',
+    name:{en:'Heartburn & Acid Reflux', fr:'Brûlures d\'Estomac et Reflux Acide'},
+    keywords:{en:['heartburn','acid reflux','indigestion'], fr:['brûlures d\'estomac','reflux','indigestion']},
+    guidance:{en:['Eat smaller, more frequent meals rather than large ones.','Avoid lying down for 2–3 hours after eating.','Limit spicy, fatty, or acidic foods, caffeine, and alcohol if they trigger symptoms.','Elevate your head while sleeping if nighttime symptoms occur.','Over-the-counter antacids may provide relief; follow the product label.'],
+      fr:['Prenez des repas plus petits et plus fréquents plutôt que des repas copieux.','Évitez de vous allonger pendant 2 à 3 heures après avoir mangé.','Limitez les aliments épicés, gras ou acides, la caféine et l\'alcool s\'ils déclenchent des symptômes.','Surélevez votre tête pendant le sommeil en cas de symptômes nocturnes.','Les antiacides en vente libre peuvent soulager ; suivez les instructions du produit.']},
+    redFlags:{en:['Chest pain, especially with shortness of breath or arm pain — seek emergency care','Difficulty or pain swallowing','Symptoms occurring more than twice a week','Unexplained weight loss or vomiting blood'],
+      fr:['Douleur thoracique, surtout avec essoufflement ou douleur au bras — urgence médicale','Difficulté ou douleur en avalant','Symptômes survenant plus de deux fois par semaine','Perte de poids inexpliquée ou vomissements de sang']}},
+  {id:'motion-sickness', cat:'general',
+    name:{en:'Motion Sickness', fr:'Mal des Transports'},
+    keywords:{en:['motion sickness','car sick','travel sickness'], fr:['mal des transports','mal en voiture']},
+    guidance:{en:['Look at a fixed point on the horizon rather than reading or using a screen.','Sit where movement is felt least (e.g., front seat of a car, over the wing of a plane).','Get fresh air and avoid heavy meals before travel.','Ginger (tea, candies) is a commonly used comfort measure.','Rest and hydrate before and during travel.'],
+      fr:['Regardez un point fixe à l\'horizon plutôt que de lire ou d\'utiliser un écran.','Asseyez-vous là où le mouvement est le moins ressenti (siège avant d\'une voiture, aile d\'un avion).','Prenez l\'air frais et évitez les repas copieux avant le voyage.','Le gingembre (thé, bonbons) est souvent utilisé comme mesure de confort.','Reposez-vous et hydratez-vous avant et pendant le trajet.']},
+    redFlags:{en:['Severe, persistent vomiting preventing fluid intake','Symptoms that continue long after travel ends','Signs of dehydration'],
+      fr:['Vomissements sévères et persistants empêchant de boire','Symptômes qui persistent longtemps après le voyage','Signes de déshydratation']}},
+  {id:'sunburn', cat:'general',
+    name:{en:'Sunburn', fr:'Coup de Soleil'},
+    keywords:{en:['sunburn','sun burn'], fr:['coup de soleil','brûlure solaire']},
+    guidance:{en:['Get out of the sun and cool the skin with a cool (not ice-cold) compress or shower.','Apply a fragrance-free moisturizer or aloe vera gel.','Stay hydrated — sunburn draws fluid to the skin\'s surface.','Avoid further sun exposure until healed and wear protective clothing.','Do not pop any blisters that form.'],
+      fr:['Éloignez-vous du soleil et rafraîchissez la peau avec une compresse ou une douche fraîche (pas glacée).','Appliquez une crème hydratante sans parfum ou du gel d\'aloe vera.','Restez hydraté(e) — le coup de soleil attire les liquides vers la surface de la peau.','Évitez toute exposition solaire supplémentaire jusqu\'à guérison et portez des vêtements protecteurs.','Ne percez pas les cloques qui apparaissent.']},
+    redFlags:{en:['Fever, chills, or severe pain','Large blisters covering a wide area','Signs of infection (increasing pain, pus, warmth)','Signs of heat exhaustion (dizziness, nausea, rapid heartbeat)'],
+      fr:['Fièvre, frissons ou douleur sévère','Grandes cloques couvrant une large surface','Signes d\'infection (douleur croissante, pus, chaleur)','Signes d\'épuisement par la chaleur (vertiges, nausées, rythme cardiaque rapide)']}},
+  {id:'insect-bites', cat:'general',
+    name:{en:'Insect Bites & Stings', fr:'Piqûres et Morsures d\'Insectes'},
+    keywords:{en:['insect bite','sting','mosquito','bee sting'], fr:['piqûre d\'insecte','morsure','moustique','piqûre d\'abeille']},
+    guidance:{en:['Wash the area with soap and water.','Apply a cold compress to reduce swelling and itching.','Avoid scratching to prevent infection.','An over-the-counter antihistamine or anti-itch cream may help; follow the product label.','Remove a visible stinger by gently scraping it out sideways.'],
+      fr:['Lavez la zone avec de l\'eau et du savon.','Appliquez une compresse froide pour réduire le gonflement et les démangeaisons.','Évitez de gratter pour prévenir l\'infection.','Un antihistaminique ou une crème anti-démangeaison en vente libre peut aider ; suivez les instructions du produit.','Retirez un dard visible en le raclant doucement sur le côté.']},
+    redFlags:{en:['Difficulty breathing, swelling of the face or throat, or dizziness — seek emergency care immediately','Spreading redness, warmth, or pus (signs of infection)','Multiple stings at once, especially in a child','Known severe allergy to insect stings'],
+      fr:['Difficulté à respirer, gonflement du visage ou de la gorge, ou vertiges — urgence médicale immédiate','Rougeur qui s\'étend, chaleur ou pus (signes d\'infection)','Piqûres multiples simultanées, surtout chez un enfant','Allergie sévère connue aux piqûres d\'insectes']}},
+  {id:'leg-cramps', cat:'exercise',
+    name:{en:'Leg Cramps', fr:'Crampes aux Jambes'},
+    keywords:{en:['leg cramp','muscle cramp','charley horse'], fr:['crampe','crampe à la jambe','crampe musculaire']},
+    guidance:{en:['Gently stretch and massage the cramping muscle.','Apply a warm compress to relax the muscle, or a cold one to numb pain.','Stay well hydrated, especially around exercise.','Include potassium- and magnesium-rich foods, like bananas and leafy greens.','Wear supportive footwear during activity.'],
+      fr:['Étirez et massez doucement le muscle en crampe.','Appliquez une compresse chaude pour détendre le muscle, ou froide pour engourdir la douleur.','Restez bien hydraté(e), surtout autour de l\'exercice.','Consommez des aliments riches en potassium et magnésium, comme les bananes et légumes verts.','Portez des chaussures adaptées pendant l\'activité.']},
+    redFlags:{en:['Cramps that are frequent, severe, or disrupt sleep regularly','Swelling, redness, or skin changes in the leg','Cramping alongside muscle weakness'],
+      fr:['Crampes fréquentes, sévères ou perturbant régulièrement le sommeil','Gonflement, rougeur ou changements cutanés au niveau de la jambe','Crampes associées à une faiblesse musculaire']}},
+  {id:'dry-skin', cat:'general',
+    name:{en:'Dry Skin', fr:'Peau Sèche'},
+    keywords:{en:['dry skin','flaky skin'], fr:['peau sèche','peau qui pèle']},
+    guidance:{en:['Moisturize right after bathing while skin is still damp.','Use lukewarm (not hot) water for showers and baths.','Choose fragrance-free, gentle cleansers and moisturizers.','Stay hydrated and use a humidifier in dry environments.','Avoid scratching dry, itchy patches.'],
+      fr:['Hydratez la peau juste après le bain, pendant qu\'elle est encore humide.','Utilisez de l\'eau tiède (pas chaude) pour les douches et bains.','Choisissez des nettoyants et crèmes hydratantes doux et sans parfum.','Restez hydraté(e) et utilisez un humidificateur dans les environnements secs.','Évitez de gratter les zones sèches et qui démangent.']},
+    redFlags:{en:['Cracked, bleeding, or infected-looking skin','Widespread dryness with no clear cause','Dry skin accompanied by other new symptoms'],
+      fr:['Peau craquelée, qui saigne ou d\'apparence infectée','Sécheresse étendue sans cause apparente','Peau sèche accompagnée d\'autres nouveaux symptômes']}},
+];
+
+const NUTRITION_ESSENTIALS = [
+  {title:{en:'Build a Balanced Plate', fr:'Composez une Assiette Équilibrée'},
+    text:{en:'Fill about half your plate with vegetables and fruit, one quarter with whole grains (brown rice, oats, whole wheat), and one quarter with lean protein (beans, fish, poultry, or eggs).',
+      fr:'Remplissez environ la moitié de votre assiette de légumes et de fruits, un quart de céréales complètes (riz brun, avoine, blé complet) et un quart de protéines maigres (haricots, poisson, volaille ou œufs).'}},
+  {title:{en:'Stay Hydrated', fr:'Restez Hydraté(e)'},
+    text:{en:'Most healthy adults benefit from roughly 1.5–2 liters of water daily, more in hot climates or with exercise. Thirst and pale urine color are simple hydration checks.',
+      fr:'La plupart des adultes en bonne santé bénéficient d\'environ 1,5 à 2 litres d\'eau par jour, davantage sous climat chaud ou lors d\'exercice. La soif et la couleur claire de l\'urine sont de simples indicateurs d\'hydratation.'}},
+  {title:{en:'Limit Added Sugar & Salt', fr:'Limitez le Sucre et le Sel Ajoutés'},
+    text:{en:'Choose fresh or minimally processed foods where possible. Check labels and limit sugary drinks and heavily salted snacks.',
+      fr:'Privilégiez les aliments frais ou peu transformés autant que possible. Vérifiez les étiquettes et limitez les boissons sucrées et les collations très salées.'}},
+  {title:{en:'Prioritize Fiber-Rich Foods', fr:'Privilégiez les Aliments Riches en Fibres'},
+    text:{en:'Whole grains, legumes, vegetables, and fruit support digestion and help maintain stable energy and healthy cholesterol.',
+      fr:'Les céréales complètes, légumineuses, légumes et fruits favorisent la digestion et aident à maintenir une énergie stable et un cholestérol sain.'}},
+  {title:{en:'Eat Regularly', fr:'Mangez Régulièrement'},
+    text:{en:'Consistent meal timing helps regulate blood sugar and energy — avoid skipping meals for long stretches.',
+      fr:'Des horaires de repas réguliers aident à réguler la glycémie et l\'énergie — évitez de sauter des repas pendant de longues périodes.'}},
+];
+
+const EXERCISE_ESSENTIALS = [
+  {title:{en:'Weekly Activity Target', fr:'Objectif d\'Activité Hebdomadaire'},
+    text:{en:'Aim for at least 150 minutes of moderate-intensity aerobic activity per week (e.g., brisk walking, cycling), spread across most days — in line with general public-health guidance for healthy adults.',
+      fr:'Visez au moins 150 minutes d\'activité aérobique d\'intensité modérée par semaine (ex. marche rapide, vélo), réparties sur la plupart des jours — conformément aux recommandations générales de santé publique pour les adultes en bonne santé.'}},
+  {title:{en:'Strength Training', fr:'Renforcement Musculaire'},
+    text:{en:'Include muscle-strengthening activity (bodyweight exercises, resistance bands, or light weights) at least twice a week, covering major muscle groups.',
+      fr:'Intégrez des exercices de renforcement musculaire (poids du corps, bandes de résistance ou poids légers) au moins deux fois par semaine, en ciblant les principaux groupes musculaires.'}},
+  {title:{en:'Warm Up & Cool Down', fr:'Échauffement et Récupération'},
+    text:{en:'Spend 5–10 minutes warming up with light movement, and stretch afterward to reduce injury risk and support recovery.',
+      fr:'Consacrez 5 à 10 minutes à un échauffement léger, puis étirez-vous après l\'effort pour réduire le risque de blessure et favoriser la récupération.'}},
+  {title:{en:'Start Gradually', fr:'Commencez Progressivement'},
+    text:{en:'If you are new to exercise or returning after a break, begin with short, low-intensity sessions and increase duration gradually.',
+      fr:'Si vous débutez ou reprenez après une pause, commencez par des séances courtes et de faible intensité, puis augmentez progressivement la durée.'}},
+  {title:{en:'Know When to Stop', fr:'Sachez Quand Arrêter'},
+    text:{en:'Stop and rest if you feel chest pain, severe shortness of breath, dizziness, or joint pain that worsens with movement — and seek medical advice.',
+      fr:'Arrêtez-vous et reposez-vous en cas de douleur thoracique, d\'essoufflement sévère, de vertiges ou de douleur articulaire qui s\'aggrave avec le mouvement — et consultez un médecin.'}},
 ];
 
 // ═══════════════════════ STATE ═══════════════════════
@@ -1369,6 +1677,7 @@ const NAV = {
     {s:()=>t('user'),items:[{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'}]},
     {s:()=>t('administration'),items:[{id:'mgr-a',l:'Administrators',i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
     {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
+    {s:()=>t('free_hub_nav'),items:[{id:'fh-analytics',l:()=>t('fh_analytics_nav'),i:'heart'}]},
   ],
   doctor:[
     {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
@@ -1383,11 +1692,16 @@ const NAV = {
   patient:[
     {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'}]},
+    {s:()=>t('free_hub_nav'),items:[{id:'freehub',l:()=>t('free_hub_nav'),i:'heart'}]},
   ],
 };
 
 // ═══════════════════════ SCREEN NAVIGATION ═══════════════════════
-function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); }
+function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); }
+function goFreeHub() {
+  hide('land'); hide('auth-wrap'); hide('app-wrap'); show('free-hub');
+  renderFreeHub($('free-hub-content'), true);
+}
 function goAuth(tab, role) {
   hide('land'); show('auth-wrap'); hide('app-wrap');
   swtTab(tab || 'login');
@@ -1509,6 +1823,7 @@ function renderPage(page) {
     else if (page==='integrations') renderIntegrations(pc);
     else if (page==='triage-queue') renderTriageQueue(pc);
     else if (page==='safety') renderSafety(pc);
+    else if (page==='fh-analytics') { $('tbt').textContent=t('fh_analytics_nav'); renderFhAnalytics(pc); }
   } else if (r==='doctor') {
     if (page==='dashboard') renderDrDash(pc);
     else if (page==='patients') renderPatients(pc);
@@ -1524,6 +1839,7 @@ function renderPage(page) {
     else if (page==='appointments') renderApts(pc);
     else if (page==='records') renderPatRecords(pc);
     else if (page==='careplan') renderCarePlan(pc);
+    else if (page==='freehub') { $('tbt').textContent=t('free_hub_title'); renderFreeHub(pc); }
   }
 }
 
@@ -1877,6 +2193,126 @@ function renderCarePlan(pc) {
     ${plans.length?plans.map(plan=>{const owner=G(plan.ownerId);return`<div class="card mb18"><div class="ch"><div><div class="ct">${plan.title}</div><div class="mu sm">${t('led_by')} ${owner?.name||'Care team'} · ${t('next_review')} ${plan.nextReview}</div></div><span class="badge bsu">${plan.status}</span></div>
       ${plan.goals.map(goal=>`<div class="goal-row"><div style="flex:1"><div class="bo sm">${goal.label}</div><div class="goal-progress"><span style="width:${goal.progress}%"></span></div></div><span class="mu sm">${goal.progress}%</span></div>`).join('')}
     </div>`}).join(''):`<div class="card"><div class="emp"><p>${t('no_care_plan')}</p><button class="btn bp bsm mt8" onclick="navigate('messages')">${t('message_team')}</button></div></div>`}
+  </div>`;
+}
+
+// ═══════════════════════ FREE HEALTH HUB ═══════════════════════
+// Resolves a bilingual {en,fr} field to the active language, falling back to English.
+function fhL(field) { return (field && (field[LANG] || field.en)) ?? field; }
+
+function fhTrack(type, payload = {}) {
+  const last = DB.fhAnalytics[0];
+  if (type === 'search' && last && last.type === 'search' && last.query === payload.query) return;
+  DB.fhAnalytics.unshift({id:'fh'+Date.now()+Math.floor(Math.random()*1000), type, ts:tsNow(), lang:LANG, ...payload});
+}
+
+function freeHubMatches(q) {
+  q = (q||'').trim().toLowerCase();
+  if (!q) return FREE_HEALTH_TOPICS;
+  return FREE_HEALTH_TOPICS.filter(top => fhL(top.name).toLowerCase().includes(q) || fhL(top.keywords).some(k=>k.includes(q)));
+}
+
+function fhFilter(q) {
+  const list = $('fh-topic-list');
+  if (!list) return;
+  const query = (q||'').trim();
+  if (query.length >= 3) fhTrack('search', {query});
+  const matches = freeHubMatches(query);
+  list.innerHTML = matches.length
+    ? matches.map(top=>`<button class="fh-chip" onclick="fhShowRemedy('${top.id}')">${fhL(top.name)}</button>`).join('')
+    : `<div class="mu sm">${t('fh_no_match')}</div>`;
+}
+
+function fhShowRemedy(id) {
+  const top = FREE_HEALTH_TOPICS.find(x=>x.id===id);
+  const box = $('fh-remedy-result');
+  if (!top || !box) return;
+  fhTrack('view', {topicId:id});
+  const catBadge = top.cat==='nutrition' ? 'bnu' : top.cat==='exercise' ? 'bdo' : 'bpa';
+  box.innerHTML = `
+    <div class="fh-remedy-card">
+      <div class="fh-remedy-head"><span class="badge ${catBadge}">${top.cat}</span><h3>${fhL(top.name)}</h3></div>
+      <div class="fh-remedy-sec"><strong>${t('fh_selfcare')}</strong><ul>${fhL(top.guidance).map(g=>`<li>${g}</li>`).join('')}</ul></div>
+      <div class="fh-redflag"><strong>${t('fh_seek_care')}</strong><ul>${fhL(top.redFlags).map(g=>`<li>${g}</li>`).join('')}</ul></div>
+      <button class="btn bp bsm mt8" onclick="fhBookConsult('${top.id}')">${t('fh_talk_pro')}</button>
+    </div>`;
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function fhBookConsult(topicId) {
+  fhTrack('cta', {topicId: topicId||null});
+  if (CU) { navigate('consult'); return; }
+  goAuth('register','patient');
+}
+
+function renderFreeHub(container, standalone=false) {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="page" style="max-width:980px">
+      ${standalone?`<div class="ph"><h2>${t('free_hub_title')}</h2><p>${t('free_hub_sub')}</p></div>`:''}
+      <div class="fh-disclaimer">
+        <div>${IC.warn}</div>
+        <div><strong>${t('fh_disclaimer_title')}</strong><p>${t('fh_disclaimer_body')}</p></div>
+      </div>
+
+      <div class="card mb18">
+        <div class="ct mb8">${t('fh_ask_title')}</div>
+        <p class="mu sm mb8">${t('fh_ask_sub')}</p>
+        <input class="fc" id="fh-search" placeholder="${t('fh_search_ph')}" oninput="fhFilter(this.value)">
+        <div class="fh-chip-row mt8" id="fh-topic-list">${FREE_HEALTH_TOPICS.map(top=>`<button class="fh-chip" onclick="fhShowRemedy('${top.id}')">${fhL(top.name)}</button>`).join('')}</div>
+        <div id="fh-remedy-result"></div>
+      </div>
+
+      <div class="fh-grid">
+        <div class="card">
+          <div class="ct mb8">${t('fh_nutrition_title')}</div>
+          ${NUTRITION_ESSENTIALS.map(n=>`<div class="fh-tip"><strong>${fhL(n.title)}</strong><p>${fhL(n.text)}</p></div>`).join('')}
+        </div>
+        <div class="card">
+          <div class="ct mb8">${t('fh_exercise_title')}</div>
+          ${EXERCISE_ESSENTIALS.map(n=>`<div class="fh-tip"><strong>${fhL(n.title)}</strong><p>${fhL(n.text)}</p></div>`).join('')}
+        </div>
+      </div>
+
+      <div class="fh-cta card mt18">
+        <div><strong>${t('fh_cta_title')}</strong><p class="sm">${t('fh_cta_sub')}</p></div>
+        <button class="btn bg2" onclick="fhBookConsult()">${t('fh_cta_btn')}</button>
+      </div>
+    </div>`;
+}
+
+function renderFhAnalytics(pc) {
+  const views = DB.fhAnalytics.filter(e=>e.type==='view');
+  const searches = DB.fhAnalytics.filter(e=>e.type==='search');
+  const ctas = DB.fhAnalytics.filter(e=>e.type==='cta');
+  const counts = {};
+  views.forEach(e=>{ counts[e.topicId] = (counts[e.topicId]||0)+1; });
+  const topTopics = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxCount = topTopics.length ? topTopics[0][1] : 1;
+  pc.innerHTML = `<div class="page">
+    <div class="ph"><h2>${t('fh_analytics_title')}</h2><p>${t('fh_analytics_sub')}</p></div>
+    <div class="stats">
+      <div class="sc ce"><div class="sv">${views.length}</div><div class="sl">${t('fh_total_views')}</div></div>
+      <div class="sc cb"><div class="sv">${searches.length}</div><div class="sl">${t('fh_total_searches')}</div></div>
+      <div class="sc cg"><div class="sv">${ctas.length}</div><div class="sl">${t('fh_total_cta')}</div></div>
+    </div>
+    <div class="card mb18">
+      <div class="ch"><div class="ct">${t('fh_top_topics')}</div></div>
+      ${topTopics.length ? topTopics.map(([topicId,count])=>{
+        const top = FREE_HEALTH_TOPICS.find(x=>x.id===topicId);
+        const pct = Math.round((count/maxCount)*100);
+        return `<div class="goal-row"><div style="flex:1"><div class="bo sm">${top?fhL(top.name):topicId}</div><div class="goal-progress"><span style="width:${pct}%"></span></div></div><span class="mu sm">${count}</span></div>`;
+      }).join('') : `<div class="rating-empty">${t('fh_no_activity')}</div>`}
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">${t('recent_activity')}</div></div>
+      <div class="tw"><table><thead><tr><th>${t('type')}</th><th>${t('resource')}</th><th>${t('timestamp')}</th></tr></thead>
+      <tbody>${DB.fhAnalytics.slice(0,20).map(e=>{
+        const top = e.topicId ? FREE_HEALTH_TOPICS.find(x=>x.id===e.topicId) : null;
+        const detail = e.type==='search' ? `"${e.query}"` : (top ? fhL(top.name) : '—');
+        return `<tr><td><code class="tg">${e.type}</code></td><td class="mu sm">${detail}</td><td class="mu sm">${e.ts}</td></tr>`;
+      }).join('') || `<tr><td colspan="3" class="rating-empty">${t('fh_no_activity')}</td></tr>`}</tbody></table></div>
+    </div>
   </div>`;
 }
 
