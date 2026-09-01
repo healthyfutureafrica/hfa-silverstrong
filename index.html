@@ -641,6 +641,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <div class="fr"><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="rbl"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div><div class="fg"><label class="fl">Allergies</label><input class="fc" type="text" id="ral" placeholder="None, or list them"></div></div>
         <div class="fg"><label class="fl">Address</label><input class="fc" type="text" id="rad" placeholder="City, Country"></div>
         <div class="fg"><label class="fl">Emergency Contact</label><input class="fc" type="text" id="rec" placeholder="Name — Phone number"></div>
+        <div class="fg"><label class="fl" id="lbl-id-doc-p">Government ID Card, Passport, or Driver's License</label><input class="fc" type="file" id="rid-p" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-p" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
       </div>
       <div class="fg" style="display:flex;align-items:flex-start;gap:8px">
         <input type="checkbox" id="rtc" style="margin-top:3px">
@@ -907,8 +908,8 @@ const T = {
     processing_payment:'Processing payment...', payment_success:'Payment successful', payment_failed:'Payment failed. Please try again.',
     payment_method:'Payment Method', mobile_money:'Mobile Money', card_payment:'Card', bank_transfer:'Bank Transfer',
     id_verification_title:'Identity Verification', id_verification_desc:'Upload a legal, valid ID card or passport so patients and administrators can trust your verified professional identity.',
-    id_document_label:'Government ID Card or Passport', id_document_ph:'National ID card, passport, or driver\'s license (JPG, PNG, or PDF)',
-    id_required:'A valid ID card or passport upload is required to register as a doctor or nurse.',
+    id_document_label:'Government ID Card or Passport', id_document_label_patient:'Government ID Card, Passport, or Driver\'s License', id_document_ph:'National ID card, passport, or driver\'s license (JPG, PNG, or PDF)',
+    id_required:'A valid ID card, passport, or driver\'s license upload is required to register.',
     upload_id_document:'Upload ID Document', replace_id_document:'Replace ID Document',
     id_status_pending:'Pending Review', id_status_verified:'Verified', id_status_not_uploaded:'Not Uploaded',
     id_uploaded_on:'Uploaded on', id_document_saved:'ID document uploaded and pending administrator review.',
@@ -1173,8 +1174,8 @@ const T = {
     processing_payment:'Traitement du paiement...', payment_success:'Paiement réussi', payment_failed:'Échec du paiement. Veuillez réessayer.',
     payment_method:'Mode de Paiement', mobile_money:'Mobile Money', card_payment:'Carte', bank_transfer:'Virement Bancaire',
     id_verification_title:'Vérification d’Identité', id_verification_desc:'Téléchargez une carte d’identité ou un passeport valide afin que les patients et administrateurs puissent faire confiance a votre identité professionnelle vérifiée.',
-    id_document_label:'Carte d’Identité ou Passeport', id_document_ph:'Carte nationale d’identité, passeport ou permis de conduire (JPG, PNG ou PDF)',
-    id_required:'Le téléchargement d’une carte d’identité ou d’un passeport valide est requis pour s’inscrire en tant que médecin ou infirmier.',
+    id_document_label:'Carte d’Identité ou Passeport', id_document_label_patient:'Carte d’Identité, Passeport ou Permis de Conduire', id_document_ph:'Carte nationale d’identité, passeport ou permis de conduire (JPG, PNG ou PDF)',
+    id_required:'Le téléchargement d’une carte d’identité, d’un passeport ou d’un permis de conduire valide est requis pour s’inscrire.',
     upload_id_document:'Télécharger le Document d’Identité', replace_id_document:'Remplacer le Document d’Identité',
     id_status_pending:'En Attente de Vérification', id_status_verified:'Vérifié', id_status_not_uploaded:'Non Téléchargé',
     id_uploaded_on:'Téléchargé le', id_document_saved:'Document d’identité téléchargé et en attente de vérification par l’administrateur.',
@@ -1387,8 +1388,10 @@ function updateStaticHTML() {
     'lbl-read-terms': t('read_terms_link'),
     'lbl-id-doc-d': t('id_document_label'),
     'lbl-id-doc-n': t('id_document_label'),
+    'lbl-id-doc-p': t('id_document_label_patient'),
     'lbl-id-doc-ph-d': t('id_document_ph'),
     'lbl-id-doc-ph-n': t('id_document_ph'),
+    'lbl-id-doc-ph-p': t('id_document_ph'),
     'demo-lbl':  t('demo_creds'),
     'back-home-btn': LANG==='fr'?'← Retour':'← Back to Home',
     'auth-lang-btn': LANG==='fr'?'Langue':'Language',
@@ -2166,8 +2169,8 @@ function doReg() {
   if (RROLE==='doctor'&&!$('rsp').value) return amsg(t('spec_required'));
   if (RROLE==='doctor'&&!$('rcf').value) return amsg(t('fee_required'));
   if (RROLE==='nurse'&&!$('rns').value) return amsg(t('nurse_spec_required'));
-  const idInput = RROLE==='doctor' ? $('rid-d') : RROLE==='nurse' ? $('rid-n') : null;
-  if ((RROLE==='doctor'||RROLE==='nurse') && (!idInput || !idInput.files.length)) return amsg(t('id_required'));
+  const idInput = RROLE==='doctor' ? $('rid-d') : RROLE==='nurse' ? $('rid-n') : $('rid-p');
+  if (!idInput || !idInput.files.length) return amsg(t('id_required'));
   if (!$('rtc').checked) return amsg(t('terms_required'));
   if (DB.users.find(u=>u.email===email)) return amsg(t('email_exists'));
   finishReg(idInput);
@@ -2768,6 +2771,7 @@ function renderPatDash(pc) {
     <div class="card mt18"><div class="ch"><div><div class="ct">${t('rate_care_team')}</div><div class="rating-note">${t('rate_care_team_sub')}</div></div></div>
       ${renderProviderRatings([myDoc,myNur].filter(Boolean))}
     </div>
+    ${idVerificationCard()}
   </div>`;
 }
 
