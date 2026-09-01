@@ -8,6 +8,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,11 +25,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=tag
+            type=sha,format=long
+
       - name: Build and push image
-        run: |
-          IMAGE=ghcr.io/${{ github.repository_owner }}/hfa-silverstrong:${{ github.ref_name }}
-          docker build -t $IMAGE .
-          docker push $IMAGE
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Output image
-        run: echo "Published image: ghcr.io/${{ github.repository_owner }}/hfa-silverstrong:${{ github.ref_name }}"
+        run: |
+          echo "Published image tags:"
+          echo "${{ steps.meta.outputs.tags }}"

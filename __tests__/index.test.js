@@ -104,4 +104,37 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("function startDemo(role='patient')");
     expect(content).toContain("user.role===role&&user.status==='active'");
   });
+
+  test('includes bilingual legal privacy and confidentiality pages', () => {
+    expect(content).toContain('function renderCompliance');
+    expect(content).toContain('function renderPrivacy');
+    expect(content).toContain('function renderConfidentiality');
+    expect(content).toContain('Cameroon Law No. 2010/012');
+    expect(content).toContain('GDPR-Aligned Architecture');
+    expect(content).toContain('ANTIC Registration');
+    expect(content).toContain('Right to Rectification');
+    expect(content).toContain('Medical Records');
+    expect(content).toContain('10 yr');
+    expect(content).toContain('Medical secrecy is a professional and criminal obligation under Cameroon law');
+    expect(content).toContain("log('INCIDENT_REPORT'");
+    expect(content).toContain("log('CONFIDENTIALITY_PLEDGE'");
+    expect(content).toContain("incident_report_action:'Signalement d\\'incident'");
+    expect(content).toContain("confidentiality_pledge_action:'Engagement de confidentialité'");
+  });
+
+  test('keeps Compliance Centre out of patient navigation', () => {
+    expect(content).toContain("{s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]}");
+    expect(content).toContain("{id:'compliance',l:()=>t('compliance_nav'),i:'shield'}");
+  });
+
+  test('starts at language choice and lets users choose again', () => {
+    expect(content).toContain("LANG_RETURN_SCREEN = 'land'");
+    expect(content).toContain('function openLangPicker');
+    expect(content).toContain('function restoreAfterLanguageChoice');
+    expect(content).toContain("show('lang-pick')");
+    expect(content).toContain('id="lnd-lang"');
+    expect(content).toContain('id="auth-lang-btn"');
+    expect(content).toContain('id="fh-lang"');
+    expect(content).toContain('id="slb-pick"');
+  });
 });

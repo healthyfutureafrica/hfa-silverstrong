@@ -3,16 +3,17 @@ A three-in-one application that covers 1. healthcare, 2. fitness & health tips a
 
 ## Environment notes
 
-- In this repository, CI is configured to run on GitHub-hosted Windows runners (`windows-latest`) because the local sandbox environment in this extension lacks `C:\Windows\System32\cmd.exe`, which causes `npm run ci` to fail with `ENOENT`.
-- Local development on a real Windows machine (or GitHub-hosted runner) works correctly.
-- Docker workflow and Kubernetes manifests work independently of this limitation.
+- CI runs on GitHub-hosted Ubuntu runners and validates HTML linting, Jest tests, Docker image build, and a container smoke test.
+- Local development works with Node.js 24 or newer and Docker Desktop.
+- Docker, GitHub Pages, release publishing, Jenkins, and Kubernetes manifests all serve the current static frontend only.
 
 ## Additional CI/CD files
 
 - `.github/workflows/ci.yml`: lint + tests + docker build
-- `.github/workflows/release.yml`: build + push container image to GHCR on semantic version tags
-- `.github/workflows/pages.yml`: publish the static demo to GitHub Pages on every push to `main`
-- `docker-compose.yml`: local multi-service test environment
+- `.github/workflows/docker-publish.yml`: smoke-test and publish `latest` plus SHA-tagged images to GHCR on `main`
+- `.github/workflows/release.yml`: build and push tagged container images to GHCR on semantic version tags
+- `.github/workflows/pages.yml`: publish only `index.html` and `assets/` to GitHub Pages on every push to `main`
+- `docker-compose.yml`: local static web container on `http://localhost:8080`
 
 ## AWS deployment with Jenkins
 

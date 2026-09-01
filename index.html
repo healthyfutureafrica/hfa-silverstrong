@@ -138,6 +138,7 @@ tbody tr:hover{background:#fcfdfe}
 .dmb .dr{margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
 .dmb code{font-family:var(--fm);font-size:.7rem;background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,.8)}
 .ar{width:460px;background:#fff;display:flex;flex-direction:column;justify-content:center;padding:56px 44px;overflow-y:auto}
+.auth-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
 .ar h2{font-family:var(--fd);font-size:1.7rem;color:var(--na);margin-bottom:6px}
 .asb{color:var(--t3);font-size:.85rem;margin-bottom:24px}
 .atbs{display:flex;gap:3px;background:var(--si-p);border-radius:var(--rs);padding:3px;margin-bottom:22px}
@@ -165,6 +166,7 @@ tbody tr:hover{background:#fcfdfe}
 .auth-mark{width:96px;height:72px;margin:0 auto 8px}
 .sidebar-mark{width:38px;height:32px}
 .lnr{display:flex;align-items:center;gap:8px}
+.nav-ghost{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)}
 .hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:56px;padding:72px 56px;max-width:1200px;margin:0 auto}
 .ht h2{font-family:var(--fd);font-size:3rem;line-height:1.08;color:#fff}
 .ht h2 span{color:var(--go)}
@@ -374,6 +376,35 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .fh-cta strong{color:#fff}
 .fh-cta p{color:rgba(255,255,255,.6)}
 
+/* ═══ LEGAL & PRIVACY PAGES ═══ */
+.legal-hero{background:linear-gradient(135deg,var(--na) 0%,var(--em-d) 100%);color:#fff;border-radius:var(--r);padding:26px;margin-bottom:18px;position:relative;overflow:hidden}
+.legal-hero::after{content:'';position:absolute;right:-70px;top:-70px;width:190px;height:190px;border-radius:50%;background:rgba(196,144,42,.12)}
+.legal-hero h2{font-family:var(--fd);font-size:1.7rem;line-height:1.2;position:relative;z-index:1}
+.legal-hero p{max-width:720px;color:rgba(255,255,255,.72);font-size:.88rem;margin-top:8px;position:relative;z-index:1}
+.legal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:18px}
+.legal-card{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.legal-card h3{font-family:var(--fd);font-size:1rem;color:var(--na);margin:9px 0 5px}
+.legal-card p,.legal-card li{font-size:.8rem;color:var(--t2);line-height:1.55}
+.legal-badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:4px 9px;background:var(--em-p);color:var(--em-d);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.issue-list{display:grid;gap:12px;margin-bottom:18px}
+.issue-pair{border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;background:#fff;box-shadow:var(--sh)}
+.problem-block,.solution-block{padding:13px 15px}
+.problem-block{background:#fff4f3;border-bottom:1px solid #f5c6c6;color:#6e1a13}
+.solution-block{background:#eefaf3;color:#145a32}
+.problem-block strong,.solution-block strong{display:block;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.legal-numbered{counter-reset:duty;display:grid;gap:10px;margin-bottom:18px}
+.legal-duty{counter-increment:duty;background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px 13px 50px;position:relative;font-size:.82rem;color:var(--t2)}
+.legal-duty::before{content:counter(duty);position:absolute;left:15px;top:12px;width:24px;height:24px;border-radius:50%;background:var(--na);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;font-size:.82rem}
+.retention-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd);font-size:.82rem}
+.retention-row:last-child{border-bottom:none}
+.retention-row strong{color:var(--na)}
+.retention-row span{font-family:var(--fm);font-size:.75rem;color:var(--em-d);background:var(--em-p);padding:3px 8px;border-radius:20px;white-space:nowrap}
+.pledge-box{background:var(--go-p);border:1px solid #f0dca8;border-radius:var(--r);padding:18px;margin-bottom:18px}
+.pledge-box p{font-size:.83rem;color:var(--t2);margin:8px 0 14px;line-height:1.6}
+.contact-card{display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.contact-card h3{font-family:var(--fd);font-size:1rem;color:var(--na);margin-bottom:4px}
+.contact-card p{font-size:.8rem;color:var(--t2);line-height:1.55}
+
 @media(max-width:900px){
   .hero{grid-template-columns:1fr;padding:48px 28px}
   .service-grid{grid-template-columns:repeat(2,1fr)}
@@ -474,6 +505,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goFreeHub()" id="lnd-freehub">Free Health Hub</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="startDemo('patient')" id="lnd-demo">Try Demo</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
+      <button type="button" class="btn bgh land-nav-btn nav-ghost" onclick="openLangPicker()" id="lnd-lang">Language</button>
       <button type="button" class="btn bg2 land-nav-btn" onclick="goAuth('register')" id="lnd-register">Register</button>
     </div>
   </nav>
@@ -533,6 +565,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
     <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span>HFA <span>SilverStrong</span></span></div>
     <div class="lnr">
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goLand()" id="fh-back">← Back to Home</button>
+      <button type="button" class="btn bgh land-nav-btn nav-ghost" onclick="openLangPicker()" id="fh-lang">Language</button>
     </div>
   </nav>
   <div id="free-hub-content"></div>
@@ -555,7 +588,10 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
     </div>
   </div>
   <div class="ar">
-    <button type="button" class="btn bgh bsm" style="width:fit-content;margin-bottom:20px" onclick="goLand()" id="back-home-btn">← Back to Home</button>
+    <div class="auth-top-actions">
+      <button type="button" class="btn bgh bsm" onclick="goLand()" id="back-home-btn">← Back to Home</button>
+      <button type="button" class="btn bgh bsm" onclick="openLangPicker()" id="auth-lang-btn">Language</button>
+    </div>
     <h2 id="atitle">Welcome Back</h2>
     <p class="asb" id="asub">Sign in to your HFA SilverStrong account</p>
     <div class="atbs">
@@ -590,7 +626,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       </div>
       <div id="df">
         <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
-        <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name"></div>
+        <div class="fr"><div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><input class="fc" type="number" min="0" step="0.01" id="rcf" placeholder="e.g. 15"></div></div>
       </div>
       <div id="nf" class="hid">
         <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="" id="rde-def">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="rns" required><option value="" id="rns-def">Select...</option><option>General Nursing</option><option>Critical Care Nursing</option><option>Emergency Nursing</option><option>Pediatric Nursing</option><option>Neonatal Nursing</option><option>Oncology Nursing</option><option>Surgical and Perioperative Nursing</option><option>Maternal and Midwifery Care</option><option>Psychiatric and Mental Health Nursing</option><option>Community and Public Health Nursing</option><option>Geriatric Nursing</option><option>Renal Nursing</option><option>Cardiac Nursing</option><option>Infection Prevention and Control</option><option>Nurse Anesthesia</option><option>Rehabilitation Nursing</option><option>Occupational Health Nursing</option></select></div></div>
@@ -627,6 +663,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <div><div class="un" id="snm"></div><div class="ue" id="sem"></div></div>
       </div>
       <div class="sb-lang">
+      <button type="button" class="sb-lang-btn" id="slb-pick" onclick="openLangPicker()">Language</button>
       <button type="button" class="sb-lang-btn active" id="slb-en" onclick="setLang('en')">EN</button>
       <button type="button" class="sb-lang-btn" id="slb-fr" onclick="setLang('fr')">FR</button>
     </div>
@@ -756,6 +793,7 @@ const T = {
     email_exists:'An account with this email already exists.',
     reg_success:'Registration successful! You can now sign in.',
     select:'Select...', gm:'General Medicine', cardiology:'Cardiology',
+    choose_doctor:'Choose a Doctor', no_doctors_available:'No doctors are available right now.',
     pediatrics:'Pediatrics', obstetrics:'Obstetrics', oncology:'Oncology',
     orthopedics:'Orthopedics', neurology:'Neurology', dermatology:'Dermatology',
     psychiatry:'Psychiatry', surgery:'Surgery',
@@ -772,6 +810,8 @@ const T = {
     medical_records:'Medical Records', care_notes:'Care Notes',
     my_appointments:'My Appointments', health_records:'Health Records',
     consult_now:'Consult Now', sign_out:'Sign Out',
+    legal_privacy:'Legal & Privacy', compliance_nav:'Compliance Centre',
+    privacy_nav:'Privacy & Data Protection', confidentiality_nav:'Confidentiality & Medical Secrecy',
 
     // Topbar page titles
     admin_dashboard:'Admin Dashboard', platform_overview:'Platform Overview',
@@ -808,7 +848,7 @@ const T = {
     // Table headers
     user:'User', action:'Action', resource:'Resource', timestamp:'Timestamp',
     status:'Status', date_time:'Date & Time', type:'Type', mode:'Mode',
-    phone_lbl:'Phone', joined:'Joined', actions:'Actions',
+    phone_lbl:'Phone', joined:'Joined', actions:'Actions', month:'month', at:'at', free:'Free',
 
     // Buttons
     add_doctor:'Add Doctor', add_nurse:'Add Nurse', add_patient:'Add Patient',
@@ -850,6 +890,10 @@ const T = {
     add_care_note:'Add Care Note', patient_lbl:'Patient', note_lbl:'Note',
     note_ph:'Observations, vital signs, medications given...',
     new_apt:'New Appointment', book_apt:'Book Consultation',
+    consultation_fee:'Consultation Fee', fee_required:'Consultation fee is required for doctors',
+    payable_via_portal:'Payable via the app\'s payment portal', pay_now:'Pay Now',
+    processing_payment:'Processing payment...', payment_success:'Payment successful', payment_failed:'Payment failed. Please try again.',
+    payment_method:'Payment Method', mobile_money:'Mobile Money', card_payment:'Card', bank_transfer:'Bank Transfer',
     date_lbl:'Date', time_lbl:'Time', notes_lbl:'Notes',
     apt_notes_ph:'Appointment notes...', apt_mode:'Mode',
     video_call:'📹 Video Call', voice_call:'📞 Voice Call', text_chat:'💬 Text',
@@ -935,6 +979,39 @@ const T = {
     fh_analytics_sub:'Usage insights from the public Free Health Hub — searches, topics viewed, and consultation hand-offs.',
     fh_total_views:'Topic Views', fh_total_searches:'Searches', fh_total_cta:'Consultation Hand-offs',
     fh_top_topics:'Most Viewed Topics', fh_no_activity:'No Free Health Hub activity yet.',
+    incident_report_action:'Incident Report', confidentiality_pledge_action:'Confidentiality Pledge',
+    report_incident:'Report an Incident', submit_incident:'Submit Incident Report', incident_received:'Incident report received and recorded in the audit log.',
+    acknowledge_pledge:'Acknowledge Pledge', pledge_recorded:'Confidentiality pledge recorded in the immutable audit trail.',
+    
+    // Subscriptions & Billing
+    subscriptions:'Subscriptions', my_subscription:'My Subscription', subscription_plan:'Plan',
+    subscription_status:'Status', renewal_date:'Renewal Date', upgrade_subscription:'Upgrade Plan',
+    manage_subscriptions:'Manage Subscriptions', subscription_settings:'Subscription Settings',
+    current_plan:'Current Plan', billing_history:'Billing History', payment_methods:'Payment Methods',
+    add_payment:'Add Payment Method', update_payment:'Update Payment Method',
+    subscription_tier_free:'Free Tier', subscription_tier_basic:'Basic ($2/month)',
+    subscription_tier_premium:'Premium ($10/month or XAF equivalent)',
+    free_tier_desc:'Limited access to wellness content and free health hub',
+    basic_tier_desc:'Full app access - texting, calls, messaging with doctors and nurses',
+    premium_tier_desc:'All Basic features plus one monthly home visit by medical team',
+    feature_unlimited_chat:'Unlimited doctor & nurse chat', feature_video_calls:'Video consultations',
+    feature_voice_calls:'Voice calls', feature_messaging:'Secure messaging',
+    feature_medical_records:'Access to medical records', feature_home_visits:'One monthly home visit',
+    feature_appointment_booking:'Appointment booking', feature_health_hub:'Free health hub access',
+    upgrade_now:'Upgrade Now', downgrade_plan:'Downgrade Plan', cancel_subscription:'Cancel Subscription',
+    billing_currency_usd:'USD ($)', billing_currency_xaf:'XAF (FCFA)',
+    subscription_expires:'Expires', subscription_expires_soon:'Expires Soon',
+    subscribe_basic:'Subscribe to Basic', subscribe_premium:'Subscribe to Premium',
+    checkout:'Checkout', billing_address:'Billing Address', pay_now:'Pay Now',
+    trial_ends:'Trial ends', days_remaining:'days remaining',
+    renews_monthly:'Renews monthly', renews_on:'Renews on',
+    no_subscriptions:'No active subscriptions', expired:'Expired',
+    reactivate:'Reactivate', active_subscription:'Active Subscription',
+    home_visit_title:'Home Medical Visits', home_visit_desc:'Book a home visit from your medical team',
+    schedule_visit:'Schedule Visit', upcoming_visits:'Upcoming Visits',
+    visit_date:'Visit Date', visit_time:'Visit Time', visit_location:'Visit Location',
+    visit_notes:'Visit Notes', cancel_visit:'Cancel Visit',
+    no_upcoming_visits:'No upcoming home visits scheduled', visit_notes_default:'Scheduled health check and medication review',
   },
 
   fr: {
@@ -961,6 +1038,7 @@ const T = {
     email_exists:'Un compte avec cet email existe déjà.',
     reg_success:'Inscription réussie ! Vous pouvez maintenant vous connecter.',
     select:'Sélectionner...', gm:'Médecine Générale', cardiology:'Cardiologie',
+    choose_doctor:'Choisir un Médecin', no_doctors_available:'Aucun médecin n\'est disponible pour le moment.',
     pediatrics:'Pédiatrie', obstetrics:'Obstétrique', oncology:'Oncologie',
     orthopedics:'Orthopédie', neurology:'Neurologie', dermatology:'Dermatologie',
     psychiatry:'Psychiatrie', surgery:'Chirurgie',
@@ -977,6 +1055,8 @@ const T = {
     medical_records:'Dossiers Médicaux', care_notes:'Notes de Soins',
     my_appointments:'Mes Rendez-vous', health_records:'Dossiers de Santé',
     consult_now:'Consulter Maintenant', sign_out:'Se Déconnecter',
+    legal_privacy:'Juridique & Confidentialité', compliance_nav:'Centre de Conformité',
+    privacy_nav:'Confidentialité & Protection des Données', confidentiality_nav:'Secret Médical & Confidentialité',
 
     // Topbar page titles
     admin_dashboard:'Tableau de Bord Admin', platform_overview:'Vue d\'Ensemble',
@@ -1057,6 +1137,10 @@ const T = {
     add_care_note:'Ajouter une Note de Soins', patient_lbl:'Patient', note_lbl:'Note',
     note_ph:'Observations, constantes, médicaments administrés...',
     new_apt:'Nouveau Rendez-vous', book_apt:'Réserver une Consultation',
+    consultation_fee:'Frais de Consultation', fee_required:'Les frais de consultation sont requis pour les médecins',
+    payable_via_portal:'Payable via le portail de paiement de l\'application', pay_now:'Payer Maintenant',
+    processing_payment:'Traitement du paiement...', payment_success:'Paiement réussi', payment_failed:'Échec du paiement. Veuillez réessayer.',
+    payment_method:'Mode de Paiement', mobile_money:'Mobile Money', card_payment:'Carte', bank_transfer:'Virement Bancaire',
     date_lbl:'Date', time_lbl:'Heure', notes_lbl:'Notes',
     apt_notes_ph:'Notes sur le rendez-vous...', apt_mode:'Mode',
     video_call:'📹 Appel Vidéo', voice_call:'📞 Appel Vocal', text_chat:'💬 Texte',
@@ -1142,6 +1226,39 @@ const T = {
     fh_analytics_sub:'Statistiques d\'utilisation de l\'Espace Santé Gratuit public — recherches, sujets consultés et transferts vers une consultation.',
     fh_total_views:'Sujets Consultés', fh_total_searches:'Recherches', fh_total_cta:'Transferts vers Consultation',
     fh_top_topics:'Sujets les Plus Consultés', fh_no_activity:'Aucune activité sur l\'Espace Santé Gratuit pour le moment.',
+    incident_report_action:'Signalement d\'incident', confidentiality_pledge_action:'Engagement de confidentialité',
+    report_incident:'Signaler un Incident', submit_incident:'Soumettre le Signalement', incident_received:'Signalement reçu et enregistré dans le journal d\'audit.',
+    acknowledge_pledge:'Reconnaître l\'Engagement', pledge_recorded:'Engagement de confidentialité enregistré dans la piste d\'audit immuable.',
+    
+    // Subscriptions & Billing (French)
+    subscriptions:'Abonnements', my_subscription:'Mon Abonnement', subscription_plan:'Plan',
+    subscription_status:'Statut', renewal_date:'Date de Renouvellement', upgrade_subscription:'Mettre à Niveau',
+    manage_subscriptions:'Gérer les Abonnements', subscription_settings:'Paramètres d\'Abonnement',
+    current_plan:'Plan Actuel', billing_history:'Historique de Facturation', payment_methods:'Moyens de Paiement',
+    add_payment:'Ajouter un Moyen de Paiement', update_payment:'Mettre à Jour le Moyen de Paiement',
+    subscription_tier_free:'Accès Gratuit', subscription_tier_basic:'Basique (2 $/mois)',
+    subscription_tier_premium:'Premium (10 $/mois ou équivalent XAF)',
+    free_tier_desc:'Accès limité au contenu de bien-être et espace santé gratuit',
+    basic_tier_desc:'Accès complet - messages, appels, chat avec médecins et infirmiers',
+    premium_tier_desc:'Toutes les fonctionnalités Basique plus une visite à domicile mensuelle',
+    feature_unlimited_chat:'Chat illimité avec médecins et infirmiers', feature_video_calls:'Consultations vidéo',
+    feature_voice_calls:'Appels vocaux', feature_messaging:'Messagerie sécurisée',
+    feature_medical_records:'Accès aux dossiers médicaux', feature_home_visits:'Une visite mensuelle à domicile',
+    feature_appointment_booking:'Prise de rendez-vous', feature_health_hub:'Accès espace santé gratuit',
+    upgrade_now:'Mettre à Niveau Maintenant', downgrade_plan:'Réduire le Plan', cancel_subscription:'Annuler l\'Abonnement',
+    billing_currency_usd:'USD ($)', billing_currency_xaf:'XAF (FCFA)',
+    subscription_expires:'Expire', subscription_expires_soon:'Expire Bientôt',
+    subscribe_basic:'S\'Abonner à Basique', subscribe_premium:'S\'Abonner à Premium',
+    checkout:'Passer la Commande', billing_address:'Adresse de Facturation', pay_now:'Payer Maintenant',
+    trial_ends:'L\'essai se termine', days_remaining:'jours restants',
+    renews_monthly:'Renouvellement mensuel', renews_on:'Renouvellement le',
+    no_subscriptions:'Aucun abonnement actif', expired:'Expiré',
+    reactivate:'Réactiver', active_subscription:'Abonnement Actif',
+    home_visit_title:'Visites Médicales à Domicile', home_visit_desc:'Réservez une visite de votre équipe médicale',
+    schedule_visit:'Planifier une Visite', upcoming_visits:'Visites à Venir',
+    visit_date:'Date de la Visite', visit_time:'Heure de la Visite', visit_location:'Lieu de la Visite',
+    visit_notes:'Notes de Visite', cancel_visit:'Annuler la Visite',
+    no_upcoming_visits:'Aucune visite à domicile prévue', visit_notes_default:'Visite de santé programmée et examen des médicaments',
   }
 };
 
@@ -1154,7 +1271,30 @@ function chooseLang(lang) {
   updateLangButtons();
   updateStaticHTML();
   hide('lang-pick');
-  show('land');
+  restoreAfterLanguageChoice();
+}
+
+function openLangPicker(returnScreen) {
+  LANG_RETURN_SCREEN = returnScreen || (!$('app-wrap').classList.contains('hid') ? 'app' : !$('auth-wrap').classList.contains('hid') ? 'auth' : !$('free-hub').classList.contains('hid') ? 'free-hub' : 'land');
+  hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub');
+  show('lang-pick');
+}
+
+function restoreAfterLanguageChoice() {
+  hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub');
+  if (LANG_RETURN_SCREEN==='app' && CU) {
+    show('app-wrap');
+    buildSidebar();
+    renderPage(CP);
+  } else if (LANG_RETURN_SCREEN==='auth') {
+    show('auth-wrap');
+    swtTab($('fr').classList.contains('hid') ? 'login' : 'register');
+  } else if (LANG_RETURN_SCREEN==='free-hub') {
+    show('free-hub');
+    renderFreeHub($('free-hub-content'), true);
+  } else {
+    show('land');
+  }
 }
 
 function setLang(lang) {
@@ -1175,6 +1315,8 @@ function updateLangButtons() {
     const sb = $('slb-'+l);
     if (sb) sb.classList.toggle('active', l === LANG);
   });
+  const pick = $('slb-pick');
+  if (pick) pick.textContent = LANG==='fr'?'Choisir':'Choose';
 }
 
 function updateAuthStrings() {
@@ -1199,6 +1341,9 @@ function updateStaticHTML() {
     'lbl-iama':  t('i_am_a'),
     'demo-lbl':  t('demo_creds'),
     'back-home-btn': LANG==='fr'?'← Retour':'← Back to Home',
+    'auth-lang-btn': LANG==='fr'?'Langue':'Language',
+    'lnd-lang': LANG==='fr'?'Langue':'Language',
+    'fh-lang': LANG==='fr'?'Langue':'Language',
   };
   Object.entries(ids).forEach(([id, val]) => {
     const el = $(id); if(el) el.textContent = val;
@@ -1252,6 +1397,7 @@ function updateStaticHTML() {
   const lbk = $('lnd-demo'); if(lbk) lbk.textContent = t('try_demo');
   const sbs = $('sb-site-lbl');  if(sbs) sbs.textContent  = LANG==='fr'?'Retour au Site':'Back to Website';
   const lrg = $('lnd-register'); if(lrg) lrg.textContent = LANG==='fr'?'Inscription':'Register';
+  const fhb = $('fh-back'); if(fhb) fhb.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
   // Landing footer features
   const lfmap = {
     'lf1': LANG==='fr'?'Sécurité HIPAA':'HIPAA-Grade Security',
@@ -1293,8 +1439,8 @@ const DB = {
   users: [
     {id:'adm1',role:'admin',name:'Chinjie Sylvester',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
     {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
-    {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10'},
-    {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15'},
+    {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
+    {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
     {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',status:'active',createdAt:'2024-02-20'},
     {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',password:'Nurse@123',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',status:'active',createdAt:'2024-04-01'},
     {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',password:'Patient@123',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
@@ -1349,6 +1495,15 @@ const DB = {
     {id:'int2',name:'Terminology service',purpose:'ICD-10-CM, SNOMED CT, LOINC, RxNorm validation',status:'configuration required',environment:'demo'},
     {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'demo'},
   ],
+  subscriptions: [
+    {id:'sub1',patientId:'pat1',tier:'premium',status:'active',startDate:'2024-12-15',renewalDate:'2025-02-15',monthlyVisitsUsed:0,monthlyVisitsAllowed:1,currency:'USD',amount:10,paymentStatus:'completed'},
+    {id:'sub2',patientId:'pat2',tier:'basic',status:'active',startDate:'2025-01-15',renewalDate:'2025-02-15',currency:'USD',amount:2,paymentStatus:'completed'},
+    {id:'sub3',patientId:'pat3',tier:'free',status:'active',startDate:'2024-05-02',renewalDate:null,currency:null,amount:0,paymentStatus:'completed'},
+  ],
+  homeVisits: [
+    {id:'hv1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',visitDate:'2025-02-20',visitTime:'14:00',status:'scheduled',location:'Emmanuel\'s home - Douala',notes:'Monthly wellness check and medication review'},
+  ],
+  payments: [],
 };
 
 const SPECIALTIES = [
@@ -1615,10 +1770,12 @@ let MUT = false, VIDOFF = false;
 let RROLE = 'patient';
 let APTMODE = 'video';
 let APTSERVICE = 'PC-VIRTUAL';
+let BOOKDOC = null;
 let VOICE_MUT = false;
 let VOICE_SPK = true;
 let VCI2 = null;
 let VCS2 = 0;
+let LANG_RETURN_SCREEN = 'land';
 
 // ═══════════════════════ UTILS ═══════════════════════
 const $= id => document.getElementById(id);
@@ -1631,6 +1788,8 @@ const nowT = () => new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-di
 const todayD = () => new Date().toISOString().slice(0,10);
 const tsNow = () => new Date().toISOString().replace('T',' ').slice(0,19);
 const log = (action, resource, status='success') => { if(!CU) return; DB.auditLogs.unshift({id:'lg'+Date.now(),userId:CU.id,userName:CU.name,action,resource,timestamp:tsNow(),ip:'192.168.'+Math.floor(Math.random()*5+1)+'.'+Math.floor(Math.random()*200+10),status}); };
+const auditActionLabel = action => action==='INCIDENT_REPORT' ? t('incident_report_action') : action==='CONFIDENTIALITY_PLEDGE' ? t('confidentiality_pledge_action') : action;
+const lt = value => value[LANG] || value.en;
 const convBetween = (a,b) => DB.messages.filter(m=>(m.from===a&&m.to===b)||(m.from===b&&m.to===a));
 
 function myContacts() {
@@ -1641,6 +1800,146 @@ function myContacts() {
   if (r==='nurse')  return DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id).concat(DB.users.filter(u=>u.role==='doctor'||u.role==='admin'||(u.role==='nurse'&&u.id!==CU.id)));
   if (r==='patient') return DB.users.filter(u=>u.id===CU.assignedDoctor||u.id===CU.assignedNurse);
   return [];
+}
+
+// ═══════════════════════ PAYMENTS ═══════════════════════
+// Provider-agnostic payment gateway. Point this at a local provider by setting provider:'local' + apiBaseUrl/apiKey below.
+const PaymentConfig = { provider: 'mock', apiBaseUrl: '', apiKey: '' };
+
+class PaymentProvider {
+  async charge(request) { throw new Error(`${this.constructor.name} must implement charge()`); }
+}
+
+// Simulated provider used until a real local payment API is configured.
+class MockPaymentProvider extends PaymentProvider {
+  async charge(request) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { success: true, reference: 'MOCK-'+Date.now(), providerStatus: 'completed' };
+  }
+}
+
+// Drop-in adapter for a local provider's REST charge endpoint — no other code needs to change once wired up.
+class LocalPaymentProvider extends PaymentProvider {
+  async charge(request) {
+    const res = await fetch(`${PaymentConfig.apiBaseUrl}/charges`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PaymentConfig.apiKey}` },
+      body: JSON.stringify(request)
+    });
+    if (!res.ok) throw new Error(`Payment provider responded ${res.status}`);
+    const data = await res.json();
+    return { success: !!data.success, reference: data.reference||data.id, providerStatus: data.status };
+  }
+}
+
+const providerFor = () => PaymentConfig.provider === 'local' ? new LocalPaymentProvider() : new MockPaymentProvider();
+
+// Fluent builder: Payment.create().from(payerId).to(payeeId).amount(15).currency('USD').purpose('consultation_fee').method('mobile_money').process()
+class PaymentRequestBuilder {
+  constructor() {
+    this._payerId=null; this._payeeId=null; this._amount=0; this._currency='USD';
+    this._purpose='general'; this._description=''; this._method='mobile_money'; this._metadata={};
+  }
+  from(payerId) { this._payerId=payerId; return this; }
+  to(payeeId) { this._payeeId=payeeId; return this; }
+  amount(value) { this._amount=Number(value)||0; return this; }
+  currency(code) { this._currency=code; return this; }
+  purpose(p) { this._purpose=p; return this; }
+  describe(text) { this._description=text; return this; }
+  method(m) { this._method=m; return this; }
+  meta(obj) { this._metadata={...this._metadata,...obj}; return this; }
+
+  build() {
+    if (!this._payerId) throw new Error('Payment requires from(payerId)');
+    if (!(this._amount > 0)) throw new Error('Payment requires a positive amount(value)');
+    return {
+      id:'pay'+Date.now(), payerId:this._payerId, payeeId:this._payeeId, amount:this._amount,
+      currency:this._currency, purpose:this._purpose, description:this._description,
+      method:this._method, metadata:this._metadata, status:'pending', createdAt:tsNow()
+    };
+  }
+
+  async process() {
+    const request = this.build();
+    DB.payments.unshift(request);
+    try {
+      const result = await providerFor().charge(request);
+      request.status = result.success ? 'completed' : 'failed';
+      request.reference = result.reference || null;
+      request.completedAt = tsNow();
+      log(`PAYMENT_${request.status.toUpperCase()}`, 'Billing', {amount:request.amount, currency:request.currency, purpose:request.purpose});
+      return request;
+    } catch (err) {
+      request.status='failed'; request.error=err.message; request.completedAt=tsNow();
+      log('PAYMENT_FAILED', 'Billing', {amount:request.amount, purpose:request.purpose, error:err.message});
+      throw err;
+    }
+  }
+}
+
+const Payment = { create: () => new PaymentRequestBuilder() };
+
+function payConsultationFee(doctorId) {
+  const doc = G(doctorId); if (!doc || !doc.consultationFee) return;
+  openMo(`<div class="mh"><div class="mt2">${t('pay_now')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="fg"><div class="mu sm">${doc.name} — ${doc.specialty||''}</div>
+      <div style="font-size:24px;font-weight:600;margin-top:8px">USD ${doc.consultationFee.toFixed(2)}</div>
+    </div>
+    <div class="fg"><label class="fl">${t('payment_method')}</label><select class="fc" id="pay-md"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>
+    <div class="mu sm" id="pay-status"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" id="pay-btn" onclick="confirmFeePayment('${doctorId}')">${t('pay_now')}</button></div>`);
+}
+
+async function confirmFeePayment(doctorId) {
+  const doc = G(doctorId); if (!doc) return;
+  const btn = $('pay-btn'), status = $('pay-status');
+  btn.disabled = true; status.textContent = t('processing_payment');
+  try {
+    await Payment.create().from(CU.id).to(doctorId).amount(doc.consultationFee).currency('USD')
+      .purpose('consultation_fee').describe(`Consultation fee — ${doc.name}`).method($('pay-md').value)
+      .meta({doctorName:doc.name}).process();
+    status.textContent = t('payment_success');
+    setTimeout(() => { closeMo(); navigate(CP); }, 700);
+  } catch (err) {
+    status.textContent = t('payment_failed');
+    btn.disabled = false;
+  }
+}
+
+// ═══════════════════════ SUBSCRIPTIONS ═══════════════════════
+function getSubscription(patientId) {
+  return DB.subscriptions.find(s => s.patientId === patientId && s.status === 'active');
+}
+
+function getTierName(tier) {
+  return tier === 'free' ? t('subscription_tier_free')
+    : tier === 'basic' ? t('subscription_tier_basic')
+    : tier === 'premium' ? t('subscription_tier_premium') : tier;
+}
+
+function getTierDesc(tier) {
+  return tier === 'free' ? t('free_tier_desc')
+    : tier === 'basic' ? t('basic_tier_desc')
+    : tier === 'premium' ? t('premium_tier_desc') : '';
+}
+
+function canAccessFeature(patientId, feature) {
+  const sub = getSubscription(patientId);
+  const tier = sub ? sub.tier : 'free';
+  const accessMap = {
+    'messaging': ['basic', 'premium'],
+    'video_calls': ['basic', 'premium'],
+    'voice_calls': ['basic', 'premium'],
+    'medical_records': ['basic', 'premium'],
+    'home_visits': ['premium'],
+    'appointment_booking': ['basic', 'premium'],
+  };
+  return accessMap[feature] ? accessMap[feature].includes(tier) : false;
+}
+
+function hasActivePremiumSub(patientId) {
+  const sub = getSubscription(patientId);
+  return sub && sub.tier === 'premium';
 }
 
 // ═══════════════════════ ICONS ═══════════════════════
@@ -1676,6 +1975,7 @@ const NAV = {
     {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'admin-control',l:()=>t('control_center'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
     {s:()=>t('user'),items:[{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'}]},
     {s:()=>t('administration'),items:[{id:'mgr-a',l:'Administrators',i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'fh-analytics',l:()=>t('fh_analytics_nav'),i:'heart'}]},
   ],
@@ -1683,15 +1983,18 @@ const NAV = {
     {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consultations'),i:'vid'}]},
     {s:()=>t('medical_records'),items:[{id:'records',l:()=>t('medical_records'),i:'file'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
   ],
   nurse:[
     {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consultations'),i:'vid'}]},
     {s:()=>t('care_notes'),items:[{id:'carenotes',l:()=>t('care_notes'),i:'clip'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
   ],
   patient:[
-    {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'}]},
+    {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'},{id:'subscriptions',l:()=>t('subscriptions'),i:'go'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'freehub',l:()=>t('free_hub_nav'),i:'heart'}]},
   ],
 };
@@ -1723,12 +2026,12 @@ function goApp() {
 }
 
 // ═══════════════════════ AUTH ═══════════════════════
-function swtTab(t) {
-  $('tl').classList.toggle('active', t==='login');
-  $('tr').classList.toggle('active', t==='register');
-  t==='login' ? (show('fl'), hide('fr')) : (hide('fl'), show('fr'));
-  $('atitle').textContent = t==='login' ? t('welcome_back') : t('create_account');
-  $('asub').textContent = t==='login' ? t('sign_in_sub') : t('register_sub');
+function swtTab(tab) {
+  $('tl').classList.toggle('active', tab==='login');
+  $('tr').classList.toggle('active', tab==='register');
+  tab==='login' ? (show('fl'), hide('fr')) : (hide('fl'), show('fr'));
+  $('atitle').textContent = tab==='login' ? t('welcome_back') : t('create_account');
+  $('asub').textContent = tab==='login' ? t('sign_in_sub') : t('register_sub');
   $('tl').textContent = t('sign_in');
   $('tr').textContent = t('register');
   $('amsg').innerHTML = '';
@@ -1759,11 +2062,12 @@ function doReg() {
   if (!name||!email||!pass) return amsg(t('fill_required'));
   if (pass.length<6) return amsg(t('password_short'));
   if (RROLE==='doctor'&&!$('rsp').value) return amsg(t('spec_required'));
+  if (RROLE==='doctor'&&!$('rcf').value) return amsg(t('fee_required'));
   if (RROLE==='nurse'&&!$('rns').value) return amsg(t('nurse_spec_required'));
   if (DB.users.find(u=>u.email===email)) return amsg(t('email_exists'));
   const id = RROLE.slice(0,3)+Date.now();
   const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:'active',createdAt:todayD()};
-  const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value}
+  const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value,consultationFee:parseFloat($('rcf').value)||0}
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   DB.users.push({...base,...extra});
@@ -1811,6 +2115,9 @@ function renderPage(page) {
   $('tbr').innerHTML = `<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
   if (page==='messages') return renderMessages(pc);
   if (page==='consult')  return renderConsult(pc);
+  if (page==='privacy') return renderPrivacy(pc);
+  if (page==='confidentiality') return renderConfidentiality(pc);
+  if (page==='compliance' && r!=='patient') return renderCompliance(pc);
   if (r==='admin') {
     if (page==='dashboard') renderAdminDash(pc);
     else if (page==='admin-control') renderAdminControl(pc);
@@ -1839,6 +2146,7 @@ function renderPage(page) {
     else if (page==='appointments') renderApts(pc);
     else if (page==='records') renderPatRecords(pc);
     else if (page==='careplan') renderCarePlan(pc);
+    else if (page==='subscriptions') renderSubscriptions(pc);
     else if (page==='freehub') { $('tbt').textContent=t('free_hub_title'); renderFreeHub(pc); }
   }
 }
@@ -1894,7 +2202,7 @@ function renderAdminDash(pc) {
       <div class="tw"><table><thead><tr><th>${t('user')}</th><th>${t('action')}</th><th>${t('resource')}</th><th>${t('timestamp')}</th><th>${t('status')}</th></tr></thead>
       <tbody>${DB.auditLogs.slice(0,10).map(l=>`<tr style="${l.status==='failed'?'background:#fff8f8':''}">
         <td class="bo" style="font-size:.82rem">${l.userName}</td>
-        <td><code class="tg" style="${l.status==='failed'?'background:#fce8e8;color:#6e1a13':''}">${l.action}</code></td>
+        <td><code class="tg" style="${l.status==='failed'?'background:#fce8e8;color:#6e1a13':''}">${auditActionLabel(l.action)}</code></td>
         <td class="mu sm">${l.resource}</td>
         <td class="mu sm">${l.timestamp}</td>
         <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}${t('success')}</span>`:`<span class="badge bda">${IC.x}${t('failed')}</span>`}</td>
@@ -1955,6 +2263,119 @@ function renderAudit(pc) {
       </tr>`).join('')}</tbody>
     </table></div></div>
   </div>`;
+}
+
+function renderCompliance(pc) {
+  $('tbt').textContent=t('compliance_nav');
+  const frameworks = [
+    {badge:'CAM-2010/012',title:{en:'Cameroon Law No. 2010/012',fr:'Loi camerounaise n° 2010/012'},text:{en:'Sets rules for cybersecurity and electronic communications. HFA treats clinical accounts, access records, and incident handling as regulated digital health activity.',fr:'Fixe les règles de cybersécurité et de communications électroniques. HFA traite les comptes cliniques, les accès et les incidents comme une activité numérique de santé réglementée.'}},
+    {badge:'GDPR',title:{en:'GDPR-Aligned Architecture',fr:'Architecture Alignée sur le RGPD'},text:{en:'Uses privacy-by-design safeguards: minimum necessary data, role-based access, clear retention periods, and auditable data rights workflows.',fr:'Applique la protection des données dès la conception : données minimales, accès par rôle, durées de conservation claires et droits traçables.'}},
+    {badge:'ANTIC',title:{en:'ANTIC Registration',fr:'Enregistrement ANTIC'},text:{en:'Provider operations are prepared for national registration and audit expectations from Cameroon\'s ICT regulator.',fr:'Les opérations du prestataire sont préparées aux attentes d\'enregistrement et d\'audit du régulateur TIC camerounais.'}},
+  ];
+  const issues = [
+    {p:{en:'Credential sharing lets another person act under your identity and weakens the audit trail.',fr:'Le partage d\'identifiants permet à une autre personne d\'agir sous votre identité et affaiblit la piste d\'audit.'},s:{en:'Use only your own account. Ask an administrator to create separate access for every staff member.',fr:'Utilisez uniquement votre propre compte. Demandez à un administrateur de créer un accès distinct pour chaque membre du personnel.'}},
+    {p:{en:'Unauthorised record access exposes patient data without a care relationship or operational reason.',fr:'L\'accès non autorisé à un dossier expose des données patient sans relation de soins ni raison opérationnelle.'},s:{en:'Open only assigned or legitimately required records; report accidental access immediately.',fr:'Ouvrez uniquement les dossiers assignés ou légitimement nécessaires ; signalez immédiatement tout accès accidentel.'}},
+    {p:{en:'Off-platform consultations can bypass consent, encryption, and audit controls.',fr:'Les consultations hors plateforme peuvent contourner le consentement, le chiffrement et les contrôles d\'audit.'},s:{en:'Move clinical advice back into HFA messaging, voice, video, or documented appointment channels.',fr:'Ramenez les conseils cliniques vers la messagerie, l\'appel, la vidéo ou les rendez-vous documentés de HFA.'}},
+    {p:{en:'Failing to log out leaves clinical data visible to the next person using the device.',fr:'Ne pas se déconnecter laisse les données cliniques visibles pour la prochaine personne utilisant l\'appareil.'},s:{en:'Sign out after each session and lock shared devices whenever you step away.',fr:'Déconnectez-vous après chaque session et verrouillez les appareils partagés dès que vous vous éloignez.'}},
+    {p:{en:'False care notes can mislead treatment decisions and create legal exposure.',fr:'De fausses notes de soins peuvent tromper les décisions thérapeutiques et créer un risque juridique.'},s:{en:'Record only accurate, time-bound observations; correct mistakes through an auditable addendum.',fr:'Consignez uniquement des observations exactes et datées ; corrigez les erreurs par un addendum traçable.'}},
+  ];
+  const obligations = [
+    {en:'Protect your login details and never allow another person to use your account.',fr:'Protégez vos identifiants et ne laissez jamais une autre personne utiliser votre compte.'},
+    {en:'Access patient information only when it is necessary for care, administration, or authorised support.',fr:'Accédez aux informations patient uniquement lorsque cela est nécessaire aux soins, à l\'administration ou au support autorisé.'},
+    {en:'Document consultations, decisions, and care notes honestly and promptly.',fr:'Documentez honnêtement et rapidement les consultations, décisions et notes de soins.'},
+    {en:'Report privacy, security, or safety incidents as soon as you become aware of them.',fr:'Signalez tout incident de confidentialité, de sécurité ou de sûreté dès que vous en avez connaissance.'},
+    {en:'Respect patient confidentiality during and after your work with HFA SilverStrong.',fr:'Respectez la confidentialité des patients pendant et après votre travail avec HFA SilverStrong.'},
+  ];
+  pc.innerHTML=`<div class="page">
+    <div class="legal-hero"><h2>${t('compliance_nav')}</h2><p>${LANG==='fr'?'HFA SilverStrong applique un cadre combinant la loi camerounaise sur la cybersécurité, une architecture alignée sur le RGPD et une préparation aux exigences ANTIC pour les services de télésanté.':'HFA SilverStrong applies a combined framework of Cameroon cybersecurity law, GDPR-aligned privacy architecture, and ANTIC readiness for telehealth service operations.'}</p></div>
+    <div class="legal-grid">${frameworks.map(item=>`<div class="legal-card"><span class="legal-badge">${item.badge}</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Problèmes de conformité et solutions':'Compliance issues and solutions'}</div></div><div class="issue-list">${issues.map(item=>`<div class="issue-pair"><div class="problem-block"><strong>${LANG==='fr'?'Problème':'Problem'}</strong>${lt(item.p)}</div><div class="solution-block"><strong>${LANG==='fr'?'Solution':'Solution'}</strong>${lt(item.s)}</div></div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Vos obligations légales':'Your legal obligations'}</div></div><div class="legal-numbered">${obligations.map(item=>`<div class="legal-duty">${lt(item)}</div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${t('report_incident')}</div></div><form onsubmit="submitIncidentReport();return false;"><div class="fr"><div class="fg"><label class="fl">${LANG==='fr'?'Type d\'incident':'Incident Type'}</label><select class="fc" id="ir-type" required><option value="Credential sharing">${LANG==='fr'?'Partage d\'identifiants':'Credential sharing'}</option><option value="Unauthorised access">${LANG==='fr'?'Accès non autorisé':'Unauthorised access'}</option><option value="Off-platform consultation">${LANG==='fr'?'Consultation hors plateforme':'Off-platform consultation'}</option><option value="False care note">${LANG==='fr'?'Fausse note de soins':'False care note'}</option><option value="Other">${LANG==='fr'?'Autre':'Other'}</option></select></div><div class="fg"><label class="fl">${LANG==='fr'?'Urgence':'Urgency'}</label><select class="fc" id="ir-urgency" required><option>${LANG==='fr'?'Routine':'Routine'}</option><option>${LANG==='fr'?'Urgent':'Urgent'}</option><option>${LANG==='fr'?'Critique':'Critical'}</option></select></div></div><div class="fg"><label class="fl">${LANG==='fr'?'Détails':'Details'}</label><textarea class="fc" id="ir-details" required placeholder="${LANG==='fr'?'Décrivez ce qui s\'est passé...':'Describe what happened...'}"></textarea></div><button class="btn bp" type="submit">${IC.shield}${t('submit_incident')}</button><div id="incident-confirm" style="margin-top:12px"></div></form></div>
+    <div class="contact-card"><div class="legal-badge">HFA</div><div><h3>${LANG==='fr'?'Contact conformité':'Compliance Contact'}</h3><p>${LANG==='fr'?'Responsable conformité HFA SilverStrong<br>Email : compliance@hfa.org<br>Téléphone : +237 677 000 119':'HFA SilverStrong Compliance Officer<br>Email: compliance@hfa.org<br>Phone: +237 677 000 119'}</p></div></div>
+  </div>`;
+}
+
+function renderPrivacy(pc) {
+  $('tbt').textContent=t('privacy_nav');
+  const collected = [
+    {title:{en:'Identity',fr:'Identité'},text:{en:'Name, contact details, role, date of birth, and account identifiers.',fr:'Nom, coordonnées, rôle, date de naissance et identifiants de compte.'}},
+    {title:{en:'Health',fr:'Santé'},text:{en:'Symptoms, allergies, diagnoses, appointments, care plans, and medical notes.',fr:'Symptômes, allergies, diagnostics, rendez-vous, plans de soins et notes médicales.'}},
+    {title:{en:'Communication',fr:'Communication'},text:{en:'Secure messages, consultation notes, call metadata, and care-team exchanges.',fr:'Messages sécurisés, notes de consultation, métadonnées d\'appel et échanges avec l\'équipe de soins.'}},
+    {title:{en:'Technical',fr:'Technique'},text:{en:'Login events, IP address, device context, security status, and audit events.',fr:'Connexions, adresse IP, contexte appareil, état de sécurité et événements d\'audit.'}},
+  ];
+  const protectedBy = [
+    {title:{en:'Encryption at Rest',fr:'Chiffrement au Repos'},text:{en:'Stored clinical and account records are protected with strong encryption controls.',fr:'Les dossiers cliniques et comptes stockés sont protégés par des contrôles de chiffrement forts.'}},
+    {title:{en:'Encryption in Transit',fr:'Chiffrement en Transit'},text:{en:'Messages and consultations use secure transport channels while data moves.',fr:'Les messages et consultations utilisent des canaux de transport sécurisés pendant les échanges.'}},
+    {title:{en:'Access Control',fr:'Contrôle d\'Accès'},text:{en:'Role-based access limits what admins, clinicians, nurses, and patients can see.',fr:'L\'accès par rôle limite ce que les administrateurs, cliniciens, infirmiers et patients peuvent voir.'}},
+    {title:{en:'Audit Logging',fr:'Journalisation d\'Audit'},text:{en:'Important actions are recorded with user, time, resource, status, and network context.',fr:'Les actions importantes sont enregistrées avec utilisateur, heure, ressource, statut et contexte réseau.'}},
+  ];
+  const rights = [
+    {title:{en:'Right of Access',fr:'Droit d\'Accès'},text:{en:'You can ask what personal or health data HFA holds about you.',fr:'Vous pouvez demander quelles données personnelles ou de santé HFA détient sur vous.'}},
+    {title:{en:'Right to Rectification',fr:'Droit de Rectification'},text:{en:'You can request correction of inaccurate or incomplete information.',fr:'Vous pouvez demander la correction d\'informations inexactes ou incomplètes.'}},
+    {title:{en:'Right to Erasure',fr:'Droit à l\'Effacement'},text:{en:'You can request deletion when retention law and clinical safety allow it.',fr:'Vous pouvez demander la suppression lorsque la loi de conservation et la sécurité clinique le permettent.'}},
+    {title:{en:'Right to Object',fr:'Droit d\'Opposition'},text:{en:'You can object to certain processing activities and ask for a review.',fr:'Vous pouvez vous opposer à certains traitements et demander une révision.'}},
+  ];
+  const retention = [
+    [{en:'Medical Records',fr:'Dossiers Médicaux'},'10 yr'],[{en:'Audit Logs',fr:'Journaux d\'Audit'},'7 yr'],[{en:'Communication Records',fr:'Enregistrements de Communication'},'5 yr'],[{en:'Account Data',fr:'Données de Compte'},{en:'deletion + 1 yr',fr:'suppression + 1 an'}],
+  ];
+  const issues = [
+    {p:{en:'A patient asks for a copy of all data held about them.',fr:'Un patient demande une copie de toutes les données détenues à son sujet.'},s:{en:'Verify identity, route the request to the Data Protection Officer, and log the response timeline.',fr:'Vérifiez l\'identité, transmettez la demande au délégué à la protection des données et journalisez le délai de réponse.'}},
+    {p:{en:'A clinician accidentally enters information into the wrong patient record.',fr:'Un clinicien saisit par erreur des informations dans le mauvais dossier patient.'},s:{en:'Do not overwrite silently. Add a correction note, notify the administrator, and preserve the audit trail.',fr:'Ne modifiez pas silencieusement. Ajoutez une note de correction, informez l\'administrateur et préservez la piste d\'audit.'}},
+    {p:{en:'A user requests deletion of their account and health data.',fr:'Un utilisateur demande la suppression de son compte et de ses données de santé.'},s:{en:'Assess clinical and legal retention duties, delete eligible account data, and explain any retained records.',fr:'Évaluez les obligations cliniques et légales de conservation, supprimez les données de compte admissibles et expliquez les dossiers conservés.'}},
+  ];
+  pc.innerHTML=`<div class="page">
+    <div class="legal-hero"><h2>${t('privacy_nav')}</h2><p>${LANG==='fr'?'Cette page explique quelles données HFA SilverStrong collecte, comment elles sont protégées, les droits des personnes concernées et les durées de conservation appliquées.':'This page explains what HFA SilverStrong collects, how data is protected, the rights available to data subjects, and the retention periods applied.'}</p></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Données collectées':'What data is collected'}</div></div><div class="legal-grid">${collected.map(item=>`<div class="legal-card"><span class="legal-badge">DATA</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Protection des données':'How it is protected'}</div></div><div class="legal-grid">${protectedBy.map(item=>`<div class="legal-card"><span class="legal-badge">SAFE</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Droits sur les données':'Data rights'}</div></div><div class="g2">${rights.map(item=>`<div class="legal-card"><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Durées de conservation':'Data retention periods'}</div></div>${retention.map(item=>`<div class="retention-row"><strong>${lt(item[0])}</strong><span>${typeof item[1]==='string'?item[1]:lt(item[1])}</span></div>`).join('')}</div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Problèmes de confidentialité et solutions':'Data privacy issues and solutions'}</div></div><div class="issue-list">${issues.map(item=>`<div class="issue-pair"><div class="problem-block"><strong>${LANG==='fr'?'Problème':'Problem'}</strong>${lt(item.p)}</div><div class="solution-block"><strong>${LANG==='fr'?'Solution':'Solution'}</strong>${lt(item.s)}</div></div>`).join('')}</div></div>
+    <div class="contact-card"><div class="legal-badge">DPO</div><div><h3>${LANG==='fr'?'Délégué à la Protection des Données':'Data Protection Officer'}</h3><p>${LANG==='fr'?'Email : dpo@hfa.org<br>Téléphone : +237 677 000 120<br>Délai cible de réponse : 30 jours':'Email: dpo@hfa.org<br>Phone: +237 677 000 120<br>Target response time: 30 days'}</p></div></div>
+  </div>`;
+}
+
+function renderConfidentiality(pc) {
+  $('tbt').textContent=t('confidentiality_nav');
+  const confidential = [
+    {en:'Patient identity',fr:'Identité du patient'}, {en:'Diagnoses',fr:'Diagnostics'}, {en:'Consultation content',fr:'Contenu des consultations'}, {en:'Care notes',fr:'Notes de soins'}, {en:'Referrals',fr:'Orientations et références'},
+  ];
+  const exceptions = [
+    {title:{en:'Public health reporting',fr:'Signalement de santé publique'},text:{en:'Mandatory reporting may apply for defined public health risks.',fr:'Un signalement obligatoire peut s\'appliquer pour certains risques de santé publique.'}},
+    {title:{en:'Court orders',fr:'Ordonnances judiciaires'},text:{en:'Valid legal orders must be reviewed and handled through authorised channels.',fr:'Les ordonnances valides doivent être vérifiées et traitées par des canaux autorisés.'}},
+    {title:{en:'Patient consent',fr:'Consentement du patient'},text:{en:'The patient may authorise specific disclosure to named people or organisations.',fr:'Le patient peut autoriser une divulgation précise à des personnes ou organisations nommées.'}},
+    {title:{en:'Care team sharing',fr:'Partage avec l\'équipe de soins'},text:{en:'Relevant information may be shared with assigned professionals for direct care.',fr:'Les informations pertinentes peuvent être partagées avec les professionnels assignés pour les soins directs.'}},
+  ];
+  const issues = [
+    {p:{en:'A clinician discusses a case in a personal messaging app.',fr:'Un clinicien discute d\'un cas dans une application de messagerie personnelle.'},s:{en:'Stop the off-platform discussion and move the care conversation to encrypted HFA channels.',fr:'Arrêtez l\'échange hors plateforme et transférez la conversation de soins vers les canaux chiffrés de HFA.'}},
+    {p:{en:'A family member asks for patient information by phone.',fr:'Un membre de la famille demande des informations patient par téléphone.'},s:{en:'Do not disclose unless consent is recorded or law requires it; advise them to ask the patient to authorise sharing.',fr:'Ne divulguez rien sauf consentement enregistré ou obligation légale ; conseillez-lui de demander au patient d\'autoriser le partage.'}},
+    {p:{en:'A colleague views records for a patient they are not assigned to.',fr:'Un collègue consulte les dossiers d\'un patient qui ne lui est pas assigné.'},s:{en:'Report the access, document the reason if any, and let administration review the audit trail.',fr:'Signalez l\'accès, documentez la raison éventuelle et laissez l\'administration examiner la piste d\'audit.'}},
+    {p:{en:'A government authority calls asking for clinical details.',fr:'Une autorité gouvernementale appelle pour demander des détails cliniques.'},s:{en:'Request formal written authority and route the request to compliance before any disclosure.',fr:'Demandez une autorisation écrite officielle et transmettez la demande à la conformité avant toute divulgation.'}},
+    {p:{en:'Third-party information is shared during a consultation.',fr:'Des informations concernant un tiers sont partagées pendant une consultation.'},s:{en:'Record only what is clinically necessary, avoid naming unrelated people where possible, and restrict onward sharing.',fr:'Notez uniquement ce qui est cliniquement nécessaire, évitez de nommer les personnes non concernées si possible et limitez tout partage ultérieur.'}},
+  ];
+  pc.innerHTML=`<div class="page">
+    <div class="legal-hero"><h2>${t('confidentiality_nav')}</h2><p>${LANG==='fr'?'Le secret médical est une obligation professionnelle et pénale au Cameroun. Chaque utilisateur doit protéger les informations apprises dans le cadre des soins, même après la fin de la relation de soins.':'Medical secrecy is a professional and criminal obligation under Cameroon law. Every user must protect information learned through care delivery, even after the care relationship ends.'}</p></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Éléments à garder confidentiels':'Items that must remain confidential'}</div></div><div class="legal-grid">${confidential.map(item=>`<div class="legal-card"><span class="legal-badge">${IC.shield}${LANG==='fr'?'Secret':'Secret'}</span><h3>${lt(item)}</h3><p>${LANG==='fr'?'Ne partagez cet élément que selon les exceptions autorisées ou avec l\'équipe de soins assignée.':'Share this only under permitted exceptions or with the assigned care team.'}</p></div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Exceptions permises':'Permitted exceptions'}</div></div><div class="legal-grid">${exceptions.map(item=>`<div class="legal-card"><span class="legal-badge">OK</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Problèmes de confidentialité et solutions':'Confidentiality issues and solutions'}</div></div><div class="issue-list">${issues.map(item=>`<div class="issue-pair"><div class="problem-block"><strong>${LANG==='fr'?'Problème':'Problem'}</strong>${lt(item.p)}</div><div class="solution-block"><strong>${LANG==='fr'?'Solution':'Solution'}</strong>${lt(item.s)}</div></div>`).join('')}</div></div>
+    <div class="pledge-box"><span class="legal-badge">${LANG==='fr'?'Engagement':'Pledge'}</span><p>${LANG==='fr'?'Je reconnais que je dois préserver le secret médical, utiliser HFA SilverStrong uniquement pour les soins autorisés, et accepter que mon engagement soit enregistré dans la piste d\'audit immuable avec mon identifiant utilisateur et l\'horodatage.':'I acknowledge that I must preserve medical secrecy, use HFA SilverStrong only for authorised care, and accept that my pledge will be recorded in the immutable audit trail with my user ID and timestamp.'}</p><button class="btn bp" onclick="acknowledgeConfidentialityPledge()">${IC.chk}${t('acknowledge_pledge')}</button><div id="pledge-confirm" style="margin-top:12px"></div></div>
+  </div>`;
+}
+
+function submitIncidentReport() {
+  const type = $('ir-type')?.value || 'Incident';
+  const urgency = $('ir-urgency')?.value || 'Routine';
+  const details = ($('ir-details')?.value || '').trim();
+  log('INCIDENT_REPORT', `${type} · ${urgency} · ${details.slice(0,90)}`);
+  const box = $('incident-confirm');
+  if (box) box.innerHTML = `<div class="alt ao">${t('incident_received')}</div>`;
+  if ($('ir-details')) $('ir-details').value = '';
+}
+
+function acknowledgeConfidentialityPledge() {
+  log('CONFIDENTIALITY_PLEDGE', `User ID ${CU.id} · Timestamp ${tsNow()}`);
+  const box = $('pledge-confirm');
+  if (box) box.innerHTML = `<div class="alt ao">${t('pledge_recorded')}</div>`;
 }
 
 function renderManage(pc, roleFilter, title) {
@@ -2165,7 +2586,7 @@ function renderPatDash(pc) {
       <div class="card"><div class="ch"><div class="ct">${t('care_team')}</div></div>
         ${myDoc?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--em-p);border-radius:var(--rs);margin-bottom:8px">
           <div class="av">${ini(myDoc.name)}</div>
-          <div style="flex:1"><div class="bo sm">${myDoc.name}</div><div class="mu sm">${myDoc.specialty||''} · ${myDoc.hospital||''}</div></div>
+          <div style="flex:1"><div class="bo sm">${myDoc.name}</div><div class="mu sm">${myDoc.specialty||''} · ${myDoc.hospital||''}</div>${myDoc.consultationFee?`<div class="mu sm">${t('consultation_fee')}: USD ${myDoc.consultationFee.toFixed(2)} <button class="btn bp bsm" style="margin-left:6px" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>
           <span class="badge bdo">${t('doctor')}</span></div>`:''}
         ${myNur?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:#eaf3fb;border-radius:var(--rs)">
           <div class="av" style="background:linear-gradient(135deg,#2e8bc0,#1a5f8f)">${ini(myNur.name)}</div>
@@ -2194,6 +2615,174 @@ function renderCarePlan(pc) {
       ${plan.goals.map(goal=>`<div class="goal-row"><div style="flex:1"><div class="bo sm">${goal.label}</div><div class="goal-progress"><span style="width:${goal.progress}%"></span></div></div><span class="mu sm">${goal.progress}%</span></div>`).join('')}
     </div>`}).join(''):`<div class="card"><div class="emp"><p>${t('no_care_plan')}</p><button class="btn bp bsm mt8" onclick="navigate('messages')">${t('message_team')}</button></div></div>`}
   </div>`;
+}
+
+function renderSubscriptions(pc) {
+  $('tbt').textContent=t('subscriptions');
+  const sub = getSubscription(CU.id);
+  const tier = sub ? sub.tier : 'free';
+  const tierName = getTierName(tier);
+  
+  const tiers = [
+    {
+      id: 'free',
+      name: t('subscription_tier_free'),
+      desc: t('free_tier_desc'),
+      price: 0,
+      features: [t('feature_medical_records'), t('feature_appointment_booking')],
+      current: tier === 'free',
+      upgrade: tier !== 'free',
+      button: tier === 'free' ? null : t('downgrade_plan')
+    },
+    {
+      id: 'basic',
+      name: t('subscription_tier_basic'),
+      desc: t('basic_tier_desc'),
+      price: 2,
+      currency: 'USD',
+      period: t('month'),
+      features: [t('feature_unlimited_chat'), t('feature_video_calls'), t('feature_voice_calls'), t('feature_messaging'), t('feature_medical_records'), t('feature_appointment_booking')],
+      current: tier === 'basic',
+      upgrade: tier === 'free',
+      button: tier === 'basic' ? null : (tier === 'free' ? t('subscribe_basic') : t('downgrade_plan'))
+    },
+    {
+      id: 'premium',
+      name: t('subscription_tier_premium'),
+      desc: t('premium_tier_desc'),
+      price: 10,
+      currency: 'USD',
+      period: t('month'),
+      features: [t('feature_unlimited_chat'), t('feature_video_calls'), t('feature_voice_calls'), t('feature_messaging'), t('feature_medical_records'), t('feature_home_visits'), t('feature_appointment_booking')],
+      current: tier === 'premium',
+      upgrade: tier !== 'premium',
+      button: tier === 'premium' ? null : t('subscribe_premium')
+    }
+  ];
+  
+  let html = `<div class="page"><div class="ph"><h2>${t('subscriptions')}</h2><p>${t('my_subscription')}</p></div>`;
+  
+  if (sub) {
+    const daysRemaining = Math.ceil((new Date(sub.renewalDate) - new Date()) / (1000 * 60 * 60 * 24));
+    html += `<div class="card" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:24px;border-radius:8px;margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;opacity:0.8">${t('current_plan')}</div>
+          <div style="font-size:28px;font-weight:600;margin-top:4px">${tierName}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:24px;font-weight:600">${sub.currency} ${sub.amount}</div>
+          <div style="font-size:12px;opacity:0.8">/${t('month')}</div>
+        </div>
+      </div>
+      <div style="font-size:13px;opacity:0.9">${t('subscription_status')}: <strong>${t('active_subscription')}</strong></div>
+      <div style="font-size:13px;opacity:0.9;margin-top:4px">${t('renewal_date')}: <strong>${sub.renewalDate}</strong></div>
+    </div>`;
+  } else {
+    html += `<div class="card" style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px">
+      <div style="text-align:center">
+        <div style="font-size:18px;font-weight:600;color:#333">${t('subscription_tier_free')}</div>
+        <div style="font-size:13px;color:#666;margin-top:8px">${t('free_tier_desc')}</div>
+      </div>
+    </div>`;
+  }
+  
+  html += `<div class="card"><div class="ch"><div class="ct">${t('upgrade_subscription')}</div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;padding:12px 0">`;
+  
+  tiers.forEach(t_item => {
+    const isCurrent = t_item.current;
+    const borderColor = isCurrent ? '#667eea' : '#ddd';
+    const bgColor = isCurrent ? '#f3f7ff' : '#fff';
+    html += `<div style="border:2px solid ${borderColor};border-radius:8px;padding:16px;background:${bgColor};position:relative">
+      ${isCurrent ? `<div style="position:absolute;top:-12px;left:16px;background:#667eea;color:white;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600">${t('current_plan')}</div>` : ''}
+      <div style="font-size:16px;font-weight:600;margin-top:${isCurrent?'8px':'0'}">${t_item.name}</div>
+      <div style="font-size:13px;color:#666;margin-top:4px">${t_item.desc}</div>
+      ${t_item.price > 0 ? `<div style="font-size:20px;font-weight:600;margin-top:12px">${t_item.currency} ${t_item.price}/${t_item.period}</div>` : `<div style="font-size:14px;color:#999;margin-top:12px">${t('free')}</div>`}
+      <ul style="list-style:none;padding:12px 0;margin:0;border-top:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0">
+        ${t_item.features.map(f => `<li style="padding:6px 0;font-size:13px;display:flex;align-items:center"><span style="margin-right:8px">${IC.chk}</span>${f}</li>`).join('')}
+      </ul>
+      ${t_item.button ? `<button class="btn ${isCurrent?'bse':'bp'} bsm w100 mt8" onclick="upgradeSubscription('${t_item.id}')">${t_item.button}</button>` : `<button class="btn bse bsm w100 mt8" disabled>${t('current_plan')}</button>`}
+    </div>`;
+  });
+  
+  html += `</div></div>`;
+  
+  if (sub && sub.tier === 'premium') {
+    const homeVisits = DB.homeVisits.filter(hv => hv.patientId === CU.id);
+    html += `<div class="card"><div class="ch"><div class="ct">${t('home_visit_title')}</div></div>
+      ${homeVisits.length ? homeVisits.map(hv => `
+        <div style="padding:12px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:start">
+          <div style="flex:1">
+            <div class="bo sm">${t('visit_date')}: ${hv.visitDate} ${t('at')} ${hv.visitTime}</div>
+            <div class="mu sm">${hv.location}</div>
+            ${hv.notes ? `<div class="mu sm" style="color:#666;margin-top:4px">${hv.notes}</div>` : ''}
+          </div>
+          <span class="badge ${hv.status==='scheduled'?'bsu':hv.status==='completed'?'bin':'bda'}">${hv.status}</span>
+        </div>
+      `).join('') : `<div class="emp"><p>${t('no_upcoming_visits')}</p></div>`}
+      <button class="btn bp bsm w100 mt8" onclick="scheduleHomeVisit()">${t('schedule_visit')}</button>
+    </div>`;
+  }
+  
+  html += `</div>`;
+  pc.innerHTML = html;
+}
+
+async function upgradeSubscription(tierId) {
+  const sub = getSubscription(CU.id) || {patientId: CU.id, startDate: tsNow().split(' ')[0]};
+  const tierPrices = {free: 0, basic: 2, premium: 10};
+  const amount = tierPrices[tierId];
+  sub.tier = tierId;
+  sub.status = 'active';
+  sub.currency = 'USD';
+  sub.amount = amount;
+  sub.renewalDate = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
+  sub.monthlyVisitsAllowed = tierId === 'premium' ? 1 : 0;
+  sub.monthlyVisitsUsed = 0;
+
+  if (amount > 0) {
+    try {
+      const receipt = await Payment.create().from(CU.id).amount(amount).currency('USD')
+        .purpose('subscription').describe(`${tierId} subscription`).method('mobile_money')
+        .meta({tier: tierId}).process();
+      sub.paymentStatus = receipt.status;
+    } catch (err) {
+      sub.paymentStatus = 'failed';
+    }
+  } else {
+    sub.paymentStatus = 'completed';
+  }
+  
+  if (!sub.id) {
+    sub.id = 'sub' + Date.now();
+    DB.subscriptions.push(sub);
+  } else {
+    const idx = DB.subscriptions.findIndex(s => s.id === sub.id);
+    if (idx >= 0) DB.subscriptions[idx] = sub;
+  }
+  
+  log('UPDATE_SUBSCRIPTION', 'Billing', {tier: tierId, status: 'upgraded'});
+  renderSubscriptions($('pc'));
+}
+
+function scheduleHomeVisit() {
+  const doctor = G(CU.assignedDoctor);
+  const nurse = G(CU.assignedNurse);
+  const newVisit = {
+    id: 'hv' + Date.now(),
+    patientId: CU.id,
+    doctorId: doctor?.id || 'doc1',
+    nurseId: nurse?.id || 'nur1',
+    visitDate: new Date(new Date().setDate(new Date().getDate() + 14)).toISOString().split('T')[0],
+    visitTime: '14:00',
+    status: 'scheduled',
+    location: `${CU.name}'s home`,
+    notes: t('visit_notes_default')
+  };
+  DB.homeVisits.push(newVisit);
+  log('SCHEDULE_HOME_VISIT', 'Healthcare');
+  renderSubscriptions($('pc'));
 }
 
 // ═══════════════════════ FREE HEALTH HUB ═══════════════════════
@@ -2607,9 +3196,14 @@ function saveApt() {
 
 function showBookApt(serviceCode='PC-VIRTUAL') {
   const myDoc=G(CU.assignedDoctor);
+  const docs=DB.users.filter(u=>u.role==='doctor'&&u.status==='active');
+  BOOKDOC = myDoc ? myDoc.id : (docs[0]?.id || null);
   APTSERVICE=VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-VIRTUAL';
   openMo(`<div class="mh"><div class="mt2">${t('book_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    ${myDoc?`<div style="background:var(--em-p);padding:10px 14px;border-radius:var(--rs);margin-bottom:16px;font-size:.83rem"><strong>${myDoc.name}</strong> — ${myDoc.specialty||''}</div>`:''}
+    ${myDoc?`<div style="background:var(--em-p);padding:10px 14px;border-radius:var(--rs);margin-bottom:16px;font-size:.83rem"><strong>${myDoc.name}</strong> — ${myDoc.specialty||''}${myDoc.consultationFee?`<div style="margin-top:6px;display:flex;align-items:center;gap:8px"><span><strong>${t('consultation_fee')}:</strong> USD ${myDoc.consultationFee.toFixed(2)} <span class="mu sm">(${t('payable_via_portal')})</span></span><button class="btn bp bsm" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>`
+      :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${d.name} — ${d.specialty||''}${d.consultationFee?` (USD ${d.consultationFee.toFixed(2)})`:''}</option>`).join('')}</select></div>
+        <div id="bk-doc-fee"></div>`
+      :`<div class="alt ae">${t('no_doctors_available')}</div>`}
     <div class="fg"><label class="fl" for="bk-sv">${t('virtual_services_title')}</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${service.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Consultation Mode</label>
       <div style="display:flex;gap:6px">
@@ -2620,7 +3214,13 @@ function showBookApt(serviceCode='PC-VIRTUAL') {
     </div>
     <div class="fr"><div class="fg"><label class="fl">Preferred Date</label><input type="date" class="fc" id="bk-d"></div><div class="fg"><label class="fl">Preferred Time</label><input type="time" class="fc" id="bk-t2"></div></div>
     <div class="fg"><label class="fl">Reason for Consultation</label><textarea class="fc" id="bk-n" placeholder="Describe your symptoms or concern..."></textarea></div>
-    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveBooking()">${t('confirm_booking')}</button></div>`);
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveBooking()" ${docs.length||myDoc?'':'disabled'}>${t('confirm_booking')}</button></div>`);
+  if (!myDoc) bkRenderDocFee();
+}
+function bkRenderDocFee() {
+  const box=$('bk-doc-fee'); if(!box) return;
+  const doc=G(BOOKDOC);
+  box.innerHTML = doc&&doc.consultationFee?`<div style="margin-top:8px;font-size:.83rem"><strong>${t('consultation_fee')}:</strong> USD ${doc.consultationFee.toFixed(2)} <span class="mu sm">(${t('payable_via_portal')})</span></div>`:'';
 }
 function setAptMode(m) {
   APTMODE=m;
@@ -2630,8 +3230,10 @@ function setAptMode(m) {
 }
 function saveBooking() {
   const date=$('bk-d').value, time=$('bk-t2').value; if(!date||!time) return;
+  const docId=CU.assignedDoctor||BOOKDOC; if(!docId) return;
+  if(!CU.assignedDoctor){ CU.assignedDoctor=docId; }
   const service=VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
-  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:CU.assignedDoctor||'',nurseId:CU.assignedNurse||'',date,time,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
+  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:docId,nurseId:CU.assignedNurse||'',date,time,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
   log('BOOK_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
 
@@ -2661,7 +3263,7 @@ function showAddUser(role) {
     <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="au-e" placeholder="email@example.com"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="au-ph" placeholder="+237 6XX XXX XXX"></div>
     <div class="fg"><label class="fl">Password</label><input class="fc" type="password" id="au-pw" placeholder="Temporary password"></div>
-    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div>`:''}
+    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><input class="fc" type="number" min="0" step="0.01" id="au-cf" placeholder="e.g. 15"></div></div>`:''}
     ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="au-ns"><option value="">Select...</option>${NURSE_SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div></div>`:''}
     ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar"><option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
     ${role==='patient'?`<div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="au-bt"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
@@ -2676,7 +3278,7 @@ function saveAddUser(role) {
   const id=role.slice(0,3)+Date.now();
   const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:'active',createdAt:todayD()};
   const extra=role==='admin'?{adminRole:$('au-ar')?.value||'Support Administrator',permissions:['users','audit'],createdAt:todayD()}
-    :role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||''}
+    :role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||'',consultationFee:parseFloat($('au-cf')?.value)||0}
     :role==='nurse'?{department:$('au-de')?.value||'',specialty:$('au-ns')?.value||'',nurseId:$('au-ni')?.value||'',hospital:$('au-ho')?.value||'',qualifications:''}
     :{dateOfBirth:$('au-db')?.value||'',bloodType:$('au-bt')?.value||'',assignedDoctor:$('au-dc')?.value||null,assignedNurse:$('au-nr')?.value||null,allergies:'None',address:'',emergencyContact:'',medicalHistory:''};
   DB.users.push({...base,...extra});
@@ -2689,6 +3291,7 @@ function showEditUser(id) {
     <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="eu-n" value="${u.name}"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="eu-ph" value="${u.phone||''}"></div>
     <div class="fg"><label class="fl">Status</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option><option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
+    ${u.role==='doctor'?`<div class="fg"><label class="fl">Consultation Fee (USD)</label><input class="fc" type="number" min="0" step="0.01" id="eu-cf" value="${u.consultationFee||0}"></div>`:''}
     ${u.role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="eu-ar"><option ${u.adminRole==='Platform Owner'?'selected':''}>${t('platform_owner')}</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>${t('clinical_operations')}</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>${t('compliance_officer')}</option><option ${u.adminRole==='Support Administrator'?'selected':''}>${t('support_admin')}</option></select></div>`:''}
     ${u.role==='patient'?`<div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
@@ -2698,6 +3301,7 @@ function saveEditUser(id) {
   const u=G(id); if(!u) return;
   u.name=$('eu-n').value.trim()||u.name;
   u.phone=$('eu-ph').value.trim(); u.status=$('eu-st').value;
+  if($('eu-cf')) u.consultationFee=parseFloat($('eu-cf').value)||0;
   if($('eu-ar')) u.adminRole=$('eu-ar').value;
   if($('eu-dc')) u.assignedDoctor=$('eu-dc').value||null;
   if($('eu-nr')) u.assignedNurse=$('eu-nr').value||null;
@@ -2740,22 +3344,20 @@ window.addEventListener('unhandledrejection', function(e){
 });
 // ═══════════════════════ INIT ═══════════════════════
 setRole('patient');
-// Check for saved language preference
+// Always start at language choice, but preselect any saved preference.
 const savedLang = localStorage.getItem('hfa-lang');
 if (savedLang) {
   LANG = savedLang;
   document.documentElement.setAttribute('data-lang', savedLang);
   updateLangButtons();
   updateStaticHTML();
-  hide('lang-pick');
-  show('land');
-} else {
-  // Show language picker — hide everything else
-  hide('land');
-  hide('auth-wrap');
-  hide('app-wrap');
-  show('lang-pick');
 }
+LANG_RETURN_SCREEN = 'land';
+hide('land');
+hide('auth-wrap');
+hide('app-wrap');
+hide('free-hub');
+show('lang-pick');
 </script>
 </body>
 </html>

@@ -33,10 +33,16 @@ jobs:
           echo "GitHub Pages is not enabled for this repository. In Settings > Pages, set Build and deployment to GitHub Actions, then rerun this workflow."
           exit 1
 
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+          cp -R assets dist/assets
+
       - name: Upload demo artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
