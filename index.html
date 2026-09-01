@@ -640,6 +640,10 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <div class="fg"><label class="fl">Address</label><input class="fc" type="text" id="rad" placeholder="City, Country"></div>
         <div class="fg"><label class="fl">Emergency Contact</label><input class="fc" type="text" id="rec" placeholder="Name — Phone number"></div>
       </div>
+      <div class="fg" style="display:flex;align-items:flex-start;gap:8px">
+        <input type="checkbox" id="rtc" style="margin-top:3px">
+        <label class="fl" for="rtc" style="font-weight:400"><span id="lbl-agree-terms">I have read and agree to the</span> <span class="alk" onclick="showTerms()" id="lbl-read-terms">Terms &amp; Conditions</span></label>
+      </div>
       <button type="button" class="btn bp w100 mt8" onclick="doReg()">Create Account</button>
       <div class="afo" id="afo-reg">Have an account? <span class="alk" onclick="swtTab('login')">Sign in</span></div>
     </div>
@@ -856,6 +860,12 @@ const T = {
     add_note:'Add Care Note', add_user:'Add User', view_audit:'View Audit Log',
     refresh:'Refresh', edit:'Edit', suspend:'Suspend', activate:'Activate',
     delete:'Delete', done:'Done', cancel:'Cancel', save:'Save',
+    terms_and_conditions:'Terms & Conditions', read_terms_link:'Terms & Conditions',
+    agree_terms_label:'I have read and agree to the', terms_required:'You must read and accept the Terms & Conditions to register.',
+    terms_accept_btn:'I Agree — Close', terms_recorded:'Terms & Conditions accepted and recorded.',
+    terms_and_conditions:'Terms & Conditions', read_terms_link:'Terms & Conditions',
+    agree_terms_label:'I have read and agree to the', terms_required:'You must read and accept the Terms & Conditions to register.',
+    terms_accept_btn:'I Agree — Close', terms_recorded:'Terms & Conditions accepted and recorded.',
     save_changes:'Save Changes', confirm:'Confirm', send:'Send',
     join_video:'Join Video', join_call:'Join Call', open_chat:'Open Chat',
 
@@ -1103,6 +1113,12 @@ const T = {
     view_audit:'Voir Journal d\'Audit', refresh:'Actualiser',
     edit:'Modifier', suspend:'Suspendre', activate:'Activer',
     delete:'Supprimer', done:'Terminé', cancel:'Annuler', save:'Sauvegarder',
+    terms_and_conditions:'Conditions Générales', read_terms_link:'Conditions Générales',
+    agree_terms_label:'J\'ai lu et j\'accepte les', terms_required:'Vous devez lire et accepter les Conditions Générales pour vous inscrire.',
+    terms_accept_btn:'J\'Accepte — Fermer', terms_recorded:'Conditions Générales acceptées et enregistrées.',
+    terms_and_conditions:'Conditions Générales', read_terms_link:'Conditions Générales',
+    agree_terms_label:'J\'ai lu et j\'accepte les', terms_required:'Vous devez lire et accepter les Conditions Générales pour vous inscrire.',
+    terms_accept_btn:'J\'Accepte — Fermer', terms_recorded:'Conditions Générales acceptées et enregistrées.',
     save_changes:'Enregistrer les Modifications', confirm:'Confirmer', send:'Envoyer',
     join_video:'Rejoindre Vidéo', join_call:'Rejoindre l\'Appel', open_chat:'Ouvrir le Chat',
 
@@ -1339,6 +1355,8 @@ function updateStaticHTML() {
     'lbl-phone': t('phone'),
     'lbl-pass':  t('password'),
     'lbl-iama':  t('i_am_a'),
+    'lbl-agree-terms': t('agree_terms_label'),
+    'lbl-read-terms': t('read_terms_link'),
     'demo-lbl':  t('demo_creds'),
     'back-home-btn': LANG==='fr'?'← Retour':'← Back to Home',
     'auth-lang-btn': LANG==='fr'?'Langue':'Language',
@@ -2028,6 +2046,48 @@ function showPortalChoice(role) {
       <button class="btn bp" style="flex:1" onclick="closeMo();goAuth('register','${role}')">${t('register')}</button>
     </div>`);
 }
+function showTerms() {
+  const sections = [
+    {title:{en:'1. Scope of Service & Emergency Limitation',fr:'1. Port\u00e9e du Service et Limite d\u2019Urgence'},
+      text:{en:'HFA SilverStrong provides virtual consultations, messaging, appointment booking, and care coordination. It is NOT an emergency service. For chest pain, difficulty breathing, stroke symptoms, severe bleeding, loss of consciousness, or any immediate danger to life, contact local emergency services or go to the nearest hospital immediately. Do not rely on this platform for emergency care.',
+          fr:'HFA SilverStrong fournit des consultations virtuelles, la messagerie, la prise de rendez-vous et la coordination des soins. Ce N\u2019EST PAS un service d\u2019urgence. En cas de douleur thoracique, difficult\u00e9 respiratoire, symptomes d\u2019AVC, h\u00e9morragie grave, perte de conscience ou tout danger imm\u00e9diat pour la vie, contactez les services d\u2019urgence locaux ou rendez-vous immediatement a l\u2019hopital le plus proche. Ne comptez pas sur cette plateforme pour les soins d\u2019urgence.'}},
+    {title:{en:'2. Eligibility & Accurate Information',fr:'2. Eligibilit\u00e9 et Exactitude des Informations'},
+      text:{en:'You must provide truthful, accurate, and complete registration and medical information. Providing false identity, health history, or credentials is a breach of this agreement and may endanger patient safety. Accounts found to contain fraudulent information will be suspended and may be reported to relevant authorities.',
+          fr:'Vous devez fournir des informations d\u2019inscription et m\u00e9dicales v\u00e9ridiques, exactes et compl\u00e8tes. Fournir une fausse identit\u00e9, un faux historique de sant\u00e9 ou de fausses qualifications constitue une violation du present accord et peut mettre en danger la s\u00e9curit\u00e9 des patients. Les comptes contenant des informations frauduleuses seront suspendus et pourront \u00eatre signal\u00e9s aux autorit\u00e9s comp\u00e9tentes.'}},
+    {title:{en:'3. Professional Licensure & Scope of Practice',fr:'3. Licence Professionnelle et Champ d\u2019Exercice'},
+      text:{en:'Doctors and nurses registering on this platform warrant that they hold a valid, current, and unrevoked license to practice medicine or nursing in their jurisdiction, and that all specialty, license number, and hospital affiliation details submitted are true. Clinicians must practice strictly within their licensed scope of practice, follow evidence-based standards of care, and comply with the Cameroon Medical Council / Nursing Council codes of conduct and all applicable national health regulations. Misrepresentation of credentials or practicing outside one\u2019s licensed scope will result in immediate suspension and referral to the relevant professional licensing board.',
+          fr:'Les m\u00e9decins et infirmiers qui s\u2019inscrivent sur cette plateforme garantissent qu\u2019ils d\u00e9tiennent une licence valide, en cours et non r\u00e9voqu\u00e9e pour exercer la m\u00e9decine ou les soins infirmiers dans leur juridiction, et que toutes les informations de sp\u00e9cialit\u00e9, num\u00e9ro de licence et affiliation hospitali\u00e8re soumises sont exactes. Les cliniciens doivent exercer strictement dans les limites de leur champ de pratique autoris\u00e9, suivre des normes de soins fond\u00e9es sur des donn\u00e9es probantes, et respecter les codes de conduite de l\u2019Ordre des M\u00e9decins / Ordre des Infirmiers du Cameroun ainsi que toutes les r\u00e9glementations sanitaires nationales applicables. Toute fausse d\u00e9claration de qualifications ou exercice en dehors du champ autoris\u00e9 entra\u00eenera une suspension imm\u00e9diate et un signalement a l\u2019ordre professionnel comp\u00e9tent.'}},
+    {title:{en:'4. Medical Secrecy & Confidentiality',fr:'4. Secret M\u00e9dical et Confidentialit\u00e9'},
+      text:{en:'Medical secrecy is a professional and criminal obligation under Cameroon law (including the Penal Code provisions on professional secrecy) and continues even after the care relationship ends. All users must keep patient identity, diagnoses, consultation content, and care notes confidential, sharing them only with the assigned care team or under a permitted legal exception. Full detail is provided on the Confidentiality & Medical Secrecy page, which you must also review.',
+          fr:'Le secret m\u00e9dical est une obligation professionnelle et p\u00e9nale en droit camerounais (y compris les dispositions du Code P\u00e9nal relatives au secret professionnel) et se poursuit m\u00eame apr\u00e8s la fin de la relation de soins. Tous les utilisateurs doivent garder confidentiels l\u2019identit\u00e9 du patient, les diagnostics, le contenu des consultations et les notes de soins, en ne les partageant qu\u2019avec l\u2019\u00e9quipe de soins assign\u00e9e ou dans le cadre d\u2019une exception l\u00e9gale autoris\u00e9e. Le d\u00e9tail complet figure sur la page Confidentialit\u00e9 et Secret M\u00e9dical, que vous devez \u00e9galement consulter.'}},
+    {title:{en:'5. Data Protection & Privacy',fr:'5. Protection des Donn\u00e9es et Vie Priv\u00e9e'},
+      text:{en:'Personal and health data is processed in line with Cameroon Law No. 2010/012 on cybersecurity and personal data protection, ANTIC registration requirements, and GDPR-aligned architecture and safeguards. Data is encrypted in transit and at rest, access is role-based and audit-logged, and retention periods follow the schedule on the Privacy & Data Protection page. You have rights of access, rectification, erasure, and objection as described there.',
+          fr:'Les donn\u00e9es personnelles et de sant\u00e9 sont trait\u00e9es conform\u00e9ment a la Loi camerounaise n\u00b0 2010/012 relative a la cybers\u00e9curit\u00e9 et a la protection des donn\u00e9es personnelles, aux exigences d\u2019enregistrement de l\u2019ANTIC, et a une architecture et des garanties align\u00e9es sur le RGPD. Les donn\u00e9es sont chiffr\u00e9es en transit et au repos, l\u2019acc\u00e8s est bas\u00e9 sur les r\u00f4les et journalis\u00e9, et les dur\u00e9es de conservation suivent le calendrier de la page Confidentialit\u00e9 et Protection des Donn\u00e9es. Vous disposez des droits d\u2019acc\u00e8s, de rectification, d\u2019effacement et d\u2019opposition qui y sont d\u00e9crits.'}},
+    {title:{en:'6. Informed Consent for Virtual Care',fr:'6. Consentement Eclair\u00e9 aux Soins Virtuels'},
+      text:{en:'By booking a virtual consultation, patients acknowledge that telehealth has inherent limitations compared to in-person examination, that technical interruptions may occur, and that the treating clinician may recommend an in-person visit, referral, or emergency care when virtual assessment is insufficient. Consent to telehealth and data sharing is recorded in your account and may be withdrawn at any time by contacting the care team.',
+          fr:'En r\u00e9servant une consultation virtuelle, le patient reconnait que la t\u00e9l\u00e9m\u00e9decine pr\u00e9sente des limites inh\u00e9rentes par rapport a un examen en personne, que des interruptions techniques peuvent survenir, et que le clinicien traitant peut recommander une visite en personne, une orientation ou des soins d\u2019urgence lorsque l\u2019\u00e9valuation virtuelle est insuffisante. Le consentement a la t\u00e9l\u00e9m\u00e9decine et au partage des donn\u00e9es est enregistr\u00e9 dans votre compte et peut \u00eatre retir\u00e9 a tout moment en contactant l\u2019\u00e9quipe de soins.'}},
+    {title:{en:'7. Prohibited Conduct',fr:'7. Conduites Interdites'},
+      text:{en:'You must not: share your login credentials; impersonate another person or professional; falsify medical records or prescriptions; prescribe or dispense medication outside your licensed authority; harass, discriminate against, or abuse any patient, clinician, or staff member; or use the platform for any unlawful purpose. Violations may result in immediate suspension, account termination, and referral to law enforcement or professional regulators.',
+          fr:'Vous ne devez pas : partager vos identifiants de connexion ; usurper l\u2019identit\u00e9 d\u2019une autre personne ou d\u2019un professionnel ; falsifier des dossiers m\u00e9dicaux ou des ordonnances ; prescrire ou d\u00e9livrer des m\u00e9dicaments en dehors de votre autorit\u00e9 l\u00e9gale ; harceler, discriminer ou maltraiter un patient, un clinicien ou un membre du personnel ; ou utiliser la plateforme a des fins illicites. Toute violation peut entrainer une suspension imm\u00e9diate, la r\u00e9siliation du compte et un signalement aux forces de l\u2019ordre ou aux ordres professionnels.'}},
+    {title:{en:'8. Fees, Subscriptions & Payments',fr:'8. Frais, Abonnements et Paiements'},
+      text:{en:'Doctors set their own consultation fees at registration; these are displayed to patients before booking and are payable through the app\u2019s payment portal. Patient subscription tiers (Free, Basic, Premium) and their features are described on the Subscriptions page. Fees are non-transferable and payment disputes should be raised with support before escalating.',
+          fr:'Les m\u00e9decins fixent leurs propres frais de consultation lors de l\u2019inscription ; ceux-ci sont affich\u00e9s aux patients avant la r\u00e9servation et sont payables via le portail de paiement de l\u2019application. Les paliers d\u2019abonnement patient (Gratuit, Basique, Premium) et leurs fonctionnalit\u00e9s sont d\u00e9crits sur la page Abonnements. Les frais ne sont pas transf\u00e9rables et tout litige de paiement doit \u00eatre soulev\u00e9 aupr\u00e8s du support avant toute escalade.'}},
+    {title:{en:'9. Liability & Limitation',fr:'9. Responsabilit\u00e9 et Limitation'},
+      text:{en:'HFA SilverStrong is a technology platform connecting patients with independently licensed healthcare professionals. Clinical decisions remain the responsibility of the treating clinician. The platform is provided "as is"; while reasonable security and availability measures are maintained, HFA SilverStrong is not liable for clinical outcomes, professional negligence of independent practitioners, or events beyond its reasonable control.',
+          fr:'HFA SilverStrong est une plateforme technologique qui met en relation des patients avec des professionnels de sant\u00e9 ind\u00e9pendants et licenci\u00e9s. Les d\u00e9cisions cliniques rel\u00e8vent de la responsabilit\u00e9 du clinicien traitant. La plateforme est fournie \u00ab telle quelle \u00bb ; bien que des mesures raisonnables de s\u00e9curit\u00e9 et de disponibilit\u00e9 soient maintenues, HFA SilverStrong n\u2019est pas responsable des r\u00e9sultats cliniques, de la n\u00e9gligence professionnelle des praticiens ind\u00e9pendants, ou d\u2019\u00e9v\u00e9nements ind\u00e9pendants de sa volont\u00e9.'}},
+    {title:{en:'10. Suspension, Termination & Reporting',fr:'10. Suspension, R\u00e9siliation et Signalement'},
+      text:{en:'HFA SilverStrong may suspend or terminate any account that breaches this agreement, endangers patient safety, or violates applicable law. Serious clinical, safety, or legal violations by licensed professionals may be reported to the appropriate medical or nursing regulatory board and, where required, to law enforcement.',
+          fr:'HFA SilverStrong peut suspendre ou r\u00e9silier tout compte qui enfreint le pr\u00e9sent accord, met en danger la s\u00e9curit\u00e9 des patients, ou viole la loi applicable. Les violations cliniques, de s\u00e9curit\u00e9 ou l\u00e9gales graves commises par des professionnels agr\u00e9es peuvent \u00eatre signal\u00e9es a l\u2019ordre m\u00e9dical ou infirmier comp\u00e9tent et, si n\u00e9cessaire, aux forces de l\u2019ordre.'}},
+    {title:{en:'11. Governing Law',fr:'11. Droit Applicable'},
+      text:{en:'This agreement is governed by the laws of the Republic of Cameroon, including healthcare practice regulations and Law No. 2010/012 on cybersecurity and personal data protection. Any dispute will first be addressed through good-faith negotiation with HFA SilverStrong support before other remedies are pursued.',
+          fr:'Le pr\u00e9sent accord est r\u00e9gi par les lois de la R\u00e9publique du Cameroun, y compris les r\u00e9glementations relatives a la pratique des soins de sant\u00e9 et la Loi n\u00b0 2010/012 relative a la cybers\u00e9curit\u00e9 et a la protection des donn\u00e9es personnelles. Tout litige sera d\u2019abord trait\u00e9 par une n\u00e9gociation de bonne foi avec le support HFA SilverStrong avant toute autre voie de recours.'}},
+  ];
+  openMo(`<div class="mh"><div class="mt2">${t('terms_and_conditions')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div style="max-height:55vh;overflow-y:auto;padding-right:4px">
+      ${sections.map(sec=>`<div style="margin-bottom:14px"><h3 style="font-size:.88rem;color:var(--na);margin-bottom:4px">${lt(sec.title)}</h3><p class="mu sm" style="line-height:1.6">${lt(sec.text)}</p></div>`).join('')}
+    </div>
+    <div class="mf"><button class="btn bp w100" onclick="closeMo()">${t('terms_accept_btn')}</button></div>`);
+}
 function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
   buildSidebar();
@@ -2073,13 +2133,15 @@ function doReg() {
   if (RROLE==='doctor'&&!$('rsp').value) return amsg(t('spec_required'));
   if (RROLE==='doctor'&&!$('rcf').value) return amsg(t('fee_required'));
   if (RROLE==='nurse'&&!$('rns').value) return amsg(t('nurse_spec_required'));
+  if (!$('rtc').checked) return amsg(t('terms_required'));
   if (DB.users.find(u=>u.email===email)) return amsg(t('email_exists'));
   const id = RROLE.slice(0,3)+Date.now();
   const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:'active',createdAt:todayD()};
   const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value,consultationFee:parseFloat($('rcf').value)||0}
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
-  DB.users.push({...base,...extra});
+  DB.users.push({...base,...extra,termsAcceptedAt:tsNow()});
+  DB.consents.push({id:'con'+Date.now(),patientId:id,type:'Terms and Conditions',status:'active',version:'2025.1',recordedAt:todayD()});
   if (RROLE==='patient') {
     CU = DB.users[DB.users.length-1];
     log('REGISTER','System');
