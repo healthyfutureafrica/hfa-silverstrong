@@ -667,7 +667,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
     <div class="sb-ft">
       <div class="sb-us">
         <div class="av" id="sav"></div>
-        <div><div class="un" id="snm"></div><div class="ue" id="sem"></div></div>
+        <div><div class="un" id="snm"></div><div class="ue" id="sem"></div><div class="ue" id="shfa" style="font-family:var(--fm)"></div></div>
       </div>
       <div class="sb-lang">
       <button type="button" class="sb-lang-btn" id="slb-pick" onclick="openLangPicker()">Language</button>
@@ -1846,6 +1846,43 @@ const auditActionLabel = action => action==='INCIDENT_REPORT' ? t('incident_repo
 const lt = value => value[LANG] || value.en;
 const convBetween = (a,b) => DB.messages.filter(m=>(m.from===a&&m.to===b)||(m.from===b&&m.to===a));
 
+// ── HFA ID: role-legible identifier, e.g. HFA-DR-24-00001-7 (Doctor), HFA-NS-24-00001-3 (Nurse), HFA-PT-24-00001-5 (Patient) ──
+const ROLE_CODE = {doctor:'DR', nurse:'NS', patient:'PT', admin:'AD'};
+function luhnCheckDigit(digits) {
+  let sum=0, alt=false;
+  for (let i=digits.length-1;i>=0;i--) {
+    let d = +digits[i];
+    if (alt) { d*=2; if (d>9) d-=9; }
+    sum+=d; alt=!alt;
+  }
+  return (10 - (sum%10))%10;
+}
+function genHfaId(role, seq, yy) {
+  const code = ROLE_CODE[role] || 'US';
+  const seqStr = String(seq).padStart(5,'0');
+  const check = luhnCheckDigit(yy+seqStr);
+  return `HFA-${code}-${yy}-${seqStr}-${check}`;
+}
+function nextHfaId(role) {
+  const yy = String(new Date().getFullYear()).slice(-2);
+  const seq = DB.users.filter(u=>u.role===role).length + 1;
+  return genHfaId(role, seq, yy);
+}
+function isValidHfaId(str) {
+  const m = /^HFA-(DR|NS|PT|AD)-(\d{2})-(\d{5})-(\d)$/.exec(str||'');
+  if (!m) return false;
+  return luhnCheckDigit(m[2]+m[3]) === +m[4];
+}
+(function seedHfaIds() {
+  const seq = {doctor:0, nurse:0, patient:0, admin:0};
+  DB.users.forEach(u => {
+    if (!ROLE_CODE[u.role] || u.hfaId) return;
+    seq[u.role]++;
+    const yy = (u.createdAt||'2024').slice(2,4);
+    u.hfaId = genHfaId(u.role, seq[u.role], yy);
+  });
+})();
+
 function myContacts() {
   if (!CU) return [];
   const r = CU.role;
@@ -2178,7 +2215,7 @@ function doReg() {
 function finishReg(idInput) {
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
   const id = RROLE.slice(0,3)+Date.now();
-  const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:'active',createdAt:todayD()};
+  const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:'active',createdAt:todayD(),hfaId:nextHfaId(RROLE)};
   const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value,consultationFee:parseFloat($('rcf').value)||0}
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
@@ -2216,6 +2253,7 @@ function buildSidebar() {
   $('sav').textContent = ini(CU.name);
   $('snm').textContent = CU.name;
   $('sem').textContent = CU.email;
+  $('shfa').textContent = CU.hfaId || '';
   $('snav').innerHTML = (NAV[r]||[]).map(sec =>
     `<div class="nl">${typeof sec.s==='function'?sec.s():sec.s}</div>` +
     sec.items.map(item =>
@@ -2519,7 +2557,7 @@ function renderManage(pc, roleFilter, title) {
       <tbody>${users.map(u=>`<tr>
         <td><div style="display:flex;align-items:center;gap:10px">
           <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
-          <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email}</div></div>
+          <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${u.hfaId||'—'}</code></div>
         </div></td>
         <td class="sm">${roleFilter==='admin'?(u.adminRole||'Administrator'):(u.specialty||u.department||u.dateOfBirth||'—')}</td>
         <td class="mu sm">${u.phone||'—'}</td>
@@ -2593,7 +2631,7 @@ function renderDrDash(pc) {
   const myA=DB.appointments.filter(a=>a.doctorId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${CU.specialty||''} · ${CU.hospital||''}</p></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${CU.specialty||''} · ${CU.hospital||''} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">${t('my_patients_lbl')}</div></div>
       <div class="sc cg"><div class="sv">${up.length}</div><div class="sl">${t('upcoming')}</div></div>
@@ -2627,7 +2665,7 @@ function renderPatients(pc) {
     <div class="ptc mb12">
       <div class="pch">
         <div class="pca">${ini(p.name)}</div>
-        <div style="flex:1"><div class="bo">${p.name}</div><div class="pcm">${p.email} · ${p.phone||''}</div></div>
+        <div style="flex:1"><div class="bo">${p.name}</div><div class="pcm">${p.email} · ${p.phone||''}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${p.hfaId||'—'}</code></div>
         <span class="badge bsu">Active</span>
       </div>
       <div class="pcg">
@@ -2690,7 +2728,7 @@ function renderNsDash(pc) {
   const myA=DB.appointments.filter(a=>a.nurseId===CU.id&&a.status==='scheduled');
   const notes=DB.careNotes.filter(n=>n.nurseId===CU.id);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${CU.department||''} · ${CU.hospital||''}</p></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${CU.department||''} · ${CU.hospital||''} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">${t('assigned_patients')}</div></div>
       <div class="sc cg"><div class="sv">${myA.length}</div><div class="sl">${t('upcoming_tasks')}</div></div>
@@ -3124,8 +3162,8 @@ function renderPatRecords(pc) {
     <div class="ph"><h2>${t('health_records')}</h2></div>
     <div class="g2">
       <div class="card"><div class="ct mb18">${t('personal_info')}</div>
-        ${[['Full Name',u.name],['Date of Birth',u.dateOfBirth||'—'],['Gender',u.gender||'—'],['Blood Type',u.bloodType||'—'],['Phone',u.phone||'—'],['Address',u.address||'—']]
-          .map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.85rem"><span class="mu bo" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em">${l}</span><span class="bo">${v}</span></div>`).join('')}
+        ${[['HFA ID',u.hfaId||'—'],['Full Name',u.name],['Date of Birth',u.dateOfBirth||'—'],['Gender',u.gender||'—'],['Blood Type',u.bloodType||'—'],['Phone',u.phone||'—'],['Address',u.address||'—']]
+          .map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.85rem"><span class="mu bo" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em">${l}</span><span class="bo">${l==='HFA ID'?`<code class="code-chip">${v}</code>`:v}</span></div>`).join('')}
       </div>
       <div class="card"><div class="ct mb18">${t('medical_info')}</div>
         <div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin:4px 0 16px">${u.medicalHistory||t('none_recorded')}</p>
@@ -3487,7 +3525,7 @@ function saveAddUser(role) {
   if(!n||!e||!pw){alert('Please fill all required fields.');return;}
   if(DB.users.find(u=>u.email===e)){alert('Email already in use.');return;}
   const id=role.slice(0,3)+Date.now();
-  const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:'active',createdAt:todayD()};
+  const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:'active',createdAt:todayD(),hfaId:nextHfaId(role)};
   const extra=role==='admin'?{adminRole:$('au-ar')?.value||'Support Administrator',permissions:['users','audit'],createdAt:todayD()}
     :role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||'',consultationFee:parseFloat($('au-cf')?.value)||0}
     :role==='nurse'?{department:$('au-de')?.value||'',specialty:$('au-ns')?.value||'',nurseId:$('au-ni')?.value||'',hospital:$('au-ho')?.value||'',qualifications:''}
