@@ -538,7 +538,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <h3 id="lnd-nur-t">Nurse Portal</h3><p id="lnd-nur-p">Patient care &amp; coordination tools</p>
         <div class="pa">Access Portal →</div>
       </div>
-      <div class="pc2" onclick="goAuth('register','patient')">
+      <div class="pc2" onclick="showPortalChoice('patient')">
         <div class="pi" style="background:rgba(138,155,176,.15)"><svg width="22" height="22" fill="none" stroke="#c0d0e0" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <h3 id="lnd-pat-t">Patient Portal</h3><p id="lnd-pat-p">Book consultations &amp; view health records</p>
         <div class="pa">Access Portal →</div>
@@ -2019,6 +2019,15 @@ function startDemo(role='patient') {
   if(!demo) return goAuth('login');
   CU=demo; SC=null; log('START_DEMO','System'); goApp();
 }
+function showPortalChoice(role) {
+  const label = role==='patient' ? (LANG==='fr'?'Portail Patient':'Patient Portal') : role;
+  openMo(`<div class="mh"><div class="mt2">${label}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <p class="mu sm" style="margin-bottom:16px">${LANG==='fr'?'Avez-vous déjà un compte ?':'Do you already have an account?'}</p>
+    <div class="mf" style="justify-content:stretch;gap:10px">
+      <button class="btn bs" style="flex:1" onclick="closeMo();goAuth('login')">${t('sign_in')}</button>
+      <button class="btn bp" style="flex:1" onclick="closeMo();goAuth('register','${role}')">${t('register')}</button>
+    </div>`);
+}
 function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
   buildSidebar();
@@ -2071,6 +2080,13 @@ function doReg() {
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   DB.users.push({...base,...extra});
+  if (RROLE==='patient') {
+    CU = DB.users[DB.users.length-1];
+    log('REGISTER','System');
+    goApp();
+    navigate('subscriptions');
+    return;
+  }
   amsg(t('reg_success'),'o');
   swtTab('login');
   $('le').value = email;
