@@ -912,6 +912,13 @@ const T = {
     upload_id_document:'Upload ID Document', replace_id_document:'Replace ID Document',
     id_status_pending:'Pending Review', id_status_verified:'Verified', id_status_not_uploaded:'Not Uploaded',
     id_uploaded_on:'Uploaded on', id_document_saved:'ID document uploaded and pending administrator review.',
+    medical_documents_title:'Test Results & Imaging', medical_documents_desc:'Upload lab test results, X-rays, scans, or other documents before or after a consultation so your care team has the full picture.',
+    upload_document:'Upload Document', document_category:'Document Type', document_file:'File',
+    document_category_lab:'Lab Test Result', document_category_xray:'X-Ray', document_category_scan:'Scan / Imaging (MRI, CT, Ultrasound)', document_category_prescription:'Prescription', document_category_other:'Other Document',
+    document_notes:'Notes', document_notes_ph:'Describe the test, date performed, or any relevant context...',
+    document_related_apt:'Related Appointment (optional)', no_documents:'No documents uploaded yet',
+    document_required:'Please choose a file to upload.', document_uploaded_by:'Uploaded by',
+    view_document:'View', document_saved:'Document uploaded successfully.',
     date_lbl:'Date', time_lbl:'Time', notes_lbl:'Notes',
     apt_notes_ph:'Appointment notes...', apt_mode:'Mode',
     video_call:'📹 Video Call', voice_call:'📞 Voice Call', text_chat:'💬 Text',
@@ -1171,6 +1178,13 @@ const T = {
     upload_id_document:'Télécharger le Document d’Identité', replace_id_document:'Remplacer le Document d’Identité',
     id_status_pending:'En Attente de Vérification', id_status_verified:'Vérifié', id_status_not_uploaded:'Non Téléchargé',
     id_uploaded_on:'Téléchargé le', id_document_saved:'Document d’identité téléchargé et en attente de vérification par l’administrateur.',
+    medical_documents_title:'Résultats de Tests & Imagerie', medical_documents_desc:'Téléchargez les résultats d’analyses, radiographies, scans ou autres documents avant ou après une consultation afin que votre équipe de soins ait une vue complète.',
+    upload_document:'Télécharger un Document', document_category:'Type de Document', document_file:'Fichier',
+    document_category_lab:'Résultat d’Analyse', document_category_xray:'Radiographie', document_category_scan:'Scan / Imagerie (IRM, Scanner, Échographie)', document_category_prescription:'Ordonnance', document_category_other:'Autre Document',
+    document_notes:'Notes', document_notes_ph:'Décrivez le test, la date de réalisation ou tout contexte pertinent...',
+    document_related_apt:'Rendez-vous Associé (optionnel)', no_documents:'Aucun document téléchargé pour le moment',
+    document_required:'Veuillez choisir un fichier à télécharger.', document_uploaded_by:'Téléchargé par',
+    view_document:'Voir', document_saved:'Document téléchargé avec succès.',
     date_lbl:'Date', time_lbl:'Heure', notes_lbl:'Notes',
     apt_notes_ph:'Notes sur le rendez-vous...', apt_mode:'Mode',
     video_call:'📹 Appel Vidéo', voice_call:'📞 Appel Vocal', text_chat:'💬 Texte',
@@ -1540,6 +1554,7 @@ const DB = {
     {id:'hv1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',visitDate:'2025-02-20',visitTime:'14:00',status:'scheduled',location:'Emmanuel\'s home - Douala',notes:'Monthly wellness check and medication review'},
   ],
   payments: [],
+  medicalDocuments: [],
 };
 
 const SPECIALTIES = [
@@ -2630,7 +2645,7 @@ function renderRecords(pc) {
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('medical_records')}</h2><p>${LANG==='fr'?'Dossiers complets pour vos patients':'Complete records for your patients'}</p></div>
-    ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_records')}</p></div></div>` : myP.map(p=>`
+    ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_records')}</p></div></div>` : myP.map(p=>{const docs=DB.medicalDocuments.filter(d=>d.patientId===p.id).sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));return`
     <div class="card mb18">
       <div class="ch"><div><div class="ct">${p.name}</div><div class="mu sm">DOB: ${p.dateOfBirth||'—'} · ${p.gender||'—'} · ${p.bloodType||'—'}</div></div><span class="badge bsu">Active</span></div>
       <div class="g2">
@@ -2639,7 +2654,13 @@ function renderRecords(pc) {
         <div><div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${p.emergencyContact||'—'}</p></div>
         <div><div class="fl">${t('address')}</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
       </div>
-    </div>`).join('')}
+      <div class="fl" style="margin-top:16px">${t('medical_documents_title')}</div>
+      ${docs.length===0?`<p class="mu sm" style="margin-top:4px">${t('no_documents')}</p>`:docs.map(d=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
+          <div style="flex:1"><div class="bo sm">${d.category}</div><div class="mu sm">${d.fileName} · ${d.uploadedAt}</div>${d.notes?`<div class="mu sm">${d.notes}</div>`:''}</div>
+          <a class="btn bs bsm" href="${d.fileData}" download="${d.fileName}" target="_blank">${t('view_document')}</a>
+        </div>`).join('')}
+    </div>`;}).join('')}
   </div>`;
 }
 
@@ -3093,6 +3114,8 @@ function saveRating(providerId) {
 function renderPatRecords(pc) {
   $('tbt').textContent=t('health_records');
   const u=CU;
+  const docs=DB.medicalDocuments.filter(d=>d.patientId===CU.id).sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));
+  const myApts=DB.appointments.filter(a=>a.patientId===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('health_records')}</h2></div>
     <div class="g2">
@@ -3106,7 +3129,47 @@ function renderPatRecords(pc) {
         <div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${u.emergencyContact||'—'}</p>
       </div>
     </div>
+    <div class="card mt18"><div class="ch"><div><div class="ct">${t('medical_documents_title')}</div><div class="rating-note">${t('medical_documents_desc')}</div></div><button class="btn bp bsm" onclick="showUploadDocument()">${IC.plus} ${t('upload_document')}</button></div>
+      ${docs.length===0?`<div class="emp"><p>${t('no_documents')}</p></div>`:docs.map(d=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)">
+          <div class="pca">${IC.file}</div>
+          <div style="flex:1">
+            <div class="bo sm">${d.category}</div>
+            <div class="mu sm">${d.fileName} · ${d.uploadedAt}${myApts.find(a=>a.id===d.relatedApptId)?` · ${myApts.find(a=>a.id===d.relatedApptId).date}`:''}</div>
+            ${d.notes?`<div class="mu sm" style="margin-top:2px">${d.notes}</div>`:''}
+          </div>
+          <a class="btn bs bsm" href="${d.fileData}" download="${d.fileName}" target="_blank">${t('view_document')}</a>
+        </div>`).join('')}
+    </div>
   </div>`;
+}
+function showUploadDocument() {
+  const myApts=DB.appointments.filter(a=>a.patientId===CU.id);
+  openMo(`<div class="mh"><div class="mt2">${t('upload_document')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="fg"><label class="fl">${t('document_category')}</label><select class="fc" id="ud-cat">
+      <option value="${t('document_category_lab')}">${t('document_category_lab')}</option>
+      <option value="${t('document_category_xray')}">${t('document_category_xray')}</option>
+      <option value="${t('document_category_scan')}">${t('document_category_scan')}</option>
+      <option value="${t('document_category_prescription')}">${t('document_category_prescription')}</option>
+      <option value="${t('document_category_other')}">${t('document_category_other')}</option>
+    </select></div>
+    <div class="fg"><label class="fl">${t('document_file')}</label><input class="fc" type="file" id="ud-file" accept="image/*,.pdf"></div>
+    ${myApts.length?`<div class="fg"><label class="fl">${t('document_related_apt')}</label><select class="fc" id="ud-apt"><option value="">${t('none_lbl')}</option>${myApts.map(a=>`<option value="${a.id}">${a.date} · ${a.serviceName||a.type}</option>`).join('')}</select></div>`:''}
+    <div class="fg"><label class="fl">${t('document_notes')}</label><textarea class="fc" id="ud-notes" placeholder="${t('document_notes_ph')}"></textarea></div>
+    <div id="ud-status" class="mu sm"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveUploadDocument()">${t('upload_document')}</button></div>`);
+}
+function saveUploadDocument() {
+  const input=$('ud-file'); if(!input||!input.files.length){ const s=$('ud-status'); if(s) s.textContent=t('document_required'); return; }
+  const file=input.files[0], category=$('ud-cat').value, relatedApptId=$('ud-apt')?$('ud-apt').value:'', notes=$('ud-notes').value.trim();
+  const reader=new FileReader();
+  reader.onload=()=>{
+    DB.medicalDocuments.push({id:'doc'+Date.now(),patientId:CU.id,uploadedBy:CU.id,category,fileName:file.name,fileData:reader.result,relatedApptId,notes,uploadedAt:tsNow()});
+    log('UPLOAD_MEDICAL_DOCUMENT','Medical Records');
+    closeMo();
+    navigate(CP);
+  };
+  reader.readAsDataURL(file);
 }
 
 // ═══════════════════════ MESSAGES ═══════════════════════
