@@ -1,0 +1,37 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Container Image'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/hfa-silverstrong/app:$COMMIT_SHA'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/hfa-silverstrong/app:latest'
+      - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Container Image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/hfa-silverstrong/app'
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to Cloud Run'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'hfa-silverstrong'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/hfa-silverstrong/app:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=80'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/hfa-silverstrong/app:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/hfa-silverstrong/app:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
