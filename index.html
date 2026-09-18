@@ -2328,7 +2328,8 @@ function navigate(page) {
 function renderPage(page) {
   const r = CU.role, pc = $('pgc');
   pc.style.padding = '';
-  $('tbr').innerHTML = `<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
+  const signOutBtn = r==='admin' ? `<button type="button" class="btn bd2 bsm" onclick="doLogout()" title="${t('sign_out')}">${IC.x} ${t('sign_out')}</button>` : '';
+  $('tbr').innerHTML = `${signOutBtn}<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
   if (page==='messages') return renderMessages(pc);
   if (page==='consult')  return renderConsult(pc);
   if (page==='privacy') return renderPrivacy(pc);
