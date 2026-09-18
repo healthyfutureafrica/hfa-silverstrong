@@ -857,6 +857,20 @@ const T = {
     status:'Status', date_time:'Date & Time', type:'Type', mode:'Mode',
     phone_lbl:'Phone', joined:'Joined', actions:'Actions', month:'month', at:'at', free:'Free',
 
+    // Approval workflow
+    pending_approval:'Pending Approval', rejected:'Rejected',
+    pending_approvals_nav:'Pending Approvals', pending_approvals_title:'Pending Approvals',
+    pending_approvals_sub:'Review new doctor and nurse applications before granting platform access',
+    no_pending_approvals:'No applications are awaiting review.',
+    approve:'Approve', reject:'Reject',
+    approve_confirm_title:'Approve this application?', approve_confirm_body:'will gain full access to operate on the platform.',
+    reject_confirm_title:'Reject this application?', reject_confirm_body:'will be denied access. This can be reversed later by an administrator.',
+    yes_approve:'Yes, Approve', yes_reject:'Yes, Reject',
+    pending_review_msg:'Your account has been submitted and is pending administrator review. You will be able to sign in once approved.',
+    rejected_msg:'Your registration was reviewed and not approved. Contact the administrator for details.',
+    account_approved_msg:'Account approved and granted full access.', account_rejected_msg:'Account application rejected.',
+    applied_on:'Applied on', awaiting_review:'Awaiting Review',
+
     // Buttons
     add_doctor:'Add Doctor', add_nurse:'Add Nurse', add_patient:'Add Patient',
     new_appointment:'New Appointment', book_consultation:'Book Consultation',
@@ -983,6 +997,11 @@ const T = {
     triage_location:'Your current location', triage_location_ph:'City and country', submit_triage:'Submit Triage',
     testing_access:'Testing Access', demo_admin_only:'Admin-only demo credentials. Share them only with approved testers.', restricted:'Restricted', temp_test_pw:'Temporary testing password:',
     admin_role_lbl:'Administrator Role', add_admin:'Add Admin', platform_owner:'Platform Owner', clinical_operations:'Clinical Operations', compliance_officer:'Compliance Officer', support_admin:'Support Administrator',
+    super_admin_role:'Super Admin', super_admin_badge:'Super Admin',
+    super_admin_only_msg:'Only a Super Admin can perform this action on an administrator account.',
+    admin_pending_note:'New admin accounts created by a Super Admin are active immediately. Admins created by other administrators require Super Admin validation before gaining access.',
+    admin_pending_review_msg:'Administrator account submitted. It will remain inactive until a Super Admin validates it.',
+    super_admin_protect_msg:'The Super Admin account cannot be modified, suspended, or removed by another administrator.',
     spec_required:'Please select your medical specialty.', nurse_spec_required:'Please select your nursing specialty.',
     try_demo:'Try Demo', lang_prompt_lbl:'Language',
 
@@ -1114,6 +1133,20 @@ const T = {
     // Stats
     total_doctors:'Médecins', total_nurses:'Infirmiers', total_patients:'Patients',
     suspended:'Suspendus', failed_logins:'Connexions Échouées',
+
+    // Approval workflow
+    pending_approval:'En Attente d\'Approbation', rejected:'Rejeté',
+    pending_approvals_nav:'Approbations en Attente', pending_approvals_title:'Approbations en Attente',
+    pending_approvals_sub:'Examinez les nouvelles candidatures de médecins et infirmiers avant d\'accorder l\'accès à la plateforme',
+    no_pending_approvals:'Aucune candidature en attente d\'examen.',
+    approve:'Approuver', reject:'Rejeter',
+    approve_confirm_title:'Approuver cette candidature ?', approve_confirm_body:'obtiendra un accès complet pour opérer sur la plateforme.',
+    reject_confirm_title:'Rejeter cette candidature ?', reject_confirm_body:'se verra refuser l\'accès. Un administrateur peut annuler cette décision plus tard.',
+    yes_approve:'Oui, Approuver', yes_reject:'Oui, Rejeter',
+    pending_review_msg:'Votre compte a été soumis et est en attente d\'examen par un administrateur. Vous pourrez vous connecter une fois approuvé.',
+    rejected_msg:'Votre inscription a été examinée et n\'a pas été approuvée. Contactez l\'administrateur pour plus de détails.',
+    account_approved_msg:'Compte approuvé et accès complet accordé.', account_rejected_msg:'Candidature du compte rejetée.',
+    applied_on:'Soumis le', awaiting_review:'En Attente d\'Examen',
     recent_activity:'Activité Récente',
 
     // Table headers
@@ -1249,6 +1282,11 @@ const T = {
     triage_location:'Votre emplacement actuel', triage_location_ph:'Ville et pays', submit_triage:'Soumettre le Triage',
     testing_access:'Accès de Test', demo_admin_only:'Identifiants de démonstration réservés aux administrateurs. Ne les partagez qu\'avec des testeurs approuvés.', restricted:'Restreint', temp_test_pw:'Mot de passe de test temporaire :',
     admin_role_lbl:'Rôle Administrateur', add_admin:'Ajouter Admin', platform_owner:'Propriétaire de la Plateforme', clinical_operations:'Opérations Cliniques', compliance_officer:'Responsable de la Conformité', support_admin:'Administrateur de Support',
+    super_admin_role:'Super Admin', super_admin_badge:'Super Admin',
+    super_admin_only_msg:'Seul un Super Admin peut effectuer cette action sur un compte administrateur.',
+    admin_pending_note:'Les comptes admin créés par un Super Admin sont actifs immédiatement. Ceux créés par d\'autres administrateurs nécessitent la validation d\'un Super Admin avant d\'obtenir l\'accès.',
+    admin_pending_review_msg:'Compte administrateur soumis. Il restera inactif jusqu\'à validation par un Super Admin.',
+    super_admin_protect_msg:'Le compte Super Admin ne peut être modifié, suspendu ou supprimé par un autre administrateur.',
     spec_required:'Veuillez sélectionner votre spécialité médicale.', nurse_spec_required:'Veuillez sélectionner votre spécialité infirmière.',
     try_demo:'Essayer la Démo', lang_prompt_lbl:'Langue',
 
@@ -1490,7 +1528,7 @@ function updateStaticHTML() {
 // ═══════════════════════ DATA STORE ═══════════════════════
 const DB = {
   users: [
-    {id:'adm1',role:'admin',name:'Chinjie Sylvester',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
+    {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
     {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
     {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
     {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
@@ -1836,6 +1874,7 @@ const $= id => document.getElementById(id);
 const show = id => $(id).classList.remove('hid');
 const hide = id => $(id).classList.add('hid');
 const G = id => DB.users.find(u => u.id === id);
+const isSuperAdmin = u => !!u && u.role==='admin' && u.adminRole==='Super Admin';
 const ini = n => ((n||'?').split(' ').filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?');
 const fmtD = d => { try{if(!d)return{day:'--',mon:'---'};const p=d.split('-'),m=p[1],dd=p[2];const ms=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return{day:dd||'--',mon:ms[+m-1]||'---'};}catch(e){return{day:'--',mon:'---'};} };
 const nowT = () => new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -2064,7 +2103,7 @@ const IC = {
 const NAV = {
   admin:[
     {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'admin-control',l:()=>t('control_center'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
-    {s:()=>t('user'),items:[{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'}]},
+    {s:()=>t('user'),items:[{id:'mgr-approvals',l:()=>pendingApprovalsLabel(),i:'shield'},{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'}]},
     {s:()=>t('administration'),items:[{id:'mgr-a',l:'Administrators',i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
     {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
@@ -2196,6 +2235,8 @@ function doLogin() {
   const u = DB.users.find(u => u.email===email && u.password===pass);
   if (!u) { log('LOGIN_FAILED','System','failed'); return amsg(t('invalid_creds')); }
   if (u.status==='suspended') return amsg(t('suspended_msg'));
+  if (u.status==='pending_approval') return amsg(t('pending_review_msg'));
+  if (u.status==='rejected') return amsg(t('rejected_msg'));
   CU = u; log('LOGIN','System'); goApp();
 }
 
@@ -2215,7 +2256,9 @@ function doReg() {
 function finishReg(idInput) {
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
   const id = RROLE.slice(0,3)+Date.now();
-  const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:'active',createdAt:todayD(),hfaId:nextHfaId(RROLE)};
+  // Doctors and nurses require admin verification before they may access the platform.
+  const initialStatus = (RROLE==='doctor'||RROLE==='nurse') ? 'pending_approval' : 'active';
+  const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:initialStatus,createdAt:todayD(),hfaId:nextHfaId(RROLE)};
   const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value,consultationFee:parseFloat($('rcf').value)||0}
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
@@ -2229,7 +2272,8 @@ function finishReg(idInput) {
       navigate('subscriptions');
       return;
     }
-    amsg(t('reg_success'),'o');
+    log('REGISTER','System');
+    amsg(t('pending_review_msg'),'o');
     swtTab('login');
     $('le').value = email;
   };
@@ -2248,13 +2292,17 @@ function doLogout() { log('LOGOUT','System'); CU=null; SC=null; goLand(); }
 // ═══════════════════════ SIDEBAR ═══════════════════════
 function buildSidebar() {
   const r = CU.role;
-  $('srb').textContent = r.toUpperCase();
+  $('srb').textContent = (r==='admin' && CU.adminRole) ? CU.adminRole.toUpperCase() : r.toUpperCase();
   $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp'}[r];
   $('sav').textContent = ini(CU.name);
   $('snm').textContent = CU.name;
   $('sem').textContent = CU.email;
   $('shfa').textContent = CU.hfaId || '';
-  $('snav').innerHTML = (NAV[r]||[]).map(sec =>
+  const nav = (NAV[r]||[]).map(sec => ({
+    s: sec.s,
+    items: sec.items.filter(item => item.id!=='mgr-a' || isSuperAdmin(CU))
+  })).filter(sec => sec.items.length);
+  $('snav').innerHTML = nav.map(sec =>
     `<div class="nl">${typeof sec.s==='function'?sec.s():sec.s}</div>` +
     sec.items.map(item =>
       `<div class="ni ${CP===item.id?'active':''}" id="ni-${item.id}" onclick="navigate('${item.id}')">${IC[item.i]||''}${typeof item.l==='function'?item.l():item.l}</div>`
@@ -2290,10 +2338,11 @@ function renderPage(page) {
     if (page==='dashboard') renderAdminDash(pc);
     else if (page==='admin-control') renderAdminControl(pc);
     else if (page==='audit') renderAudit(pc);
+    else if (page==='mgr-approvals') renderApprovals(pc);
     else if (page==='mgr-d') renderManage(pc,'doctor','Doctors');
     else if (page==='mgr-n') renderManage(pc,'nurse','Nurses');
     else if (page==='mgr-p') renderManage(pc,'patient','Patients');
-    else if (page==='mgr-a') renderManage(pc,'admin','Administrators');
+    else if (page==='mgr-a') { if (isSuperAdmin(CU)) renderManage(pc,'admin','Administrators'); else renderRestricted(pc); }
     else if (page==='appointments') renderAllApts(pc);
     else if (page==='integrations') renderIntegrations(pc);
     else if (page==='triage-queue') renderTriageQueue(pc);
@@ -2322,6 +2371,19 @@ function renderPage(page) {
 function topBtn(html) { $('tbr').insertAdjacentHTML('afterbegin', html+' '); }
 
 // ═══════════════════════ BADGE HELPERS ═══════════════════════
+function pendingApprovalsCount() {
+  return DB.users.filter(u=>(u.role==='doctor'||u.role==='nurse')&&u.status==='pending_approval').length;
+}
+function pendingApprovalsLabel() {
+  const n = pendingApprovalsCount();
+  return t('pending_approvals_nav') + (n>0 ? ` (${n})` : '');
+}
+function userStatusBadge(u) {
+  if (u.status==='active') return `<span class="badge bsu">${IC.chk}${t('active')}</span>`;
+  if (u.status==='pending_approval') return `<span class="badge bwa">${t('pending_approval')}</span>`;
+  if (u.status==='rejected') return `<span class="badge bda">${IC.x}${t('rejected')}</span>`;
+  return `<span class="badge bda">${IC.x}${t('suspended')}</span>`;
+}
 function aptBadge(s) {
   return s==='scheduled' ? `<span class="badge bin">${IC.chk}${t('scheduled')}</span>`
     : s==='completed' ? `<span class="badge bsu">${IC.chk}${t('completed')}</span>`
@@ -2356,12 +2418,15 @@ function renderAdminDash(pc) {
   topBtn(`<button class="btn bp bsm" onclick="navigate('admin-control')">${IC.shield} ${t('control_center')}</button>`);
   const docs=DB.users.filter(u=>u.role==='doctor'), nurs=DB.users.filter(u=>u.role==='nurse'), pats=DB.users.filter(u=>u.role==='patient');
   const susp=DB.users.filter(u=>u.status==='suspended'), fails=DB.auditLogs.filter(l=>l.status==='failed');
+  const pendingCount = pendingApprovalsCount();
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('platform_overview')}</h2><p>${LANG==='fr'?'Surveiller l\'activité et gérer la plateforme':'Monitor system activity and manage platform health'}</p></div>
+    ${pendingCount>0?`<div class="alt ai" style="margin-bottom:16px;cursor:pointer" onclick="navigate('mgr-approvals')">${IC.shield} ${pendingCount} ${pendingCount===1?t('pending_approval'):t('pending_approvals_nav')} — ${LANG==='fr'?'cliquez pour examiner':'click to review'}</div>`:''}
     <div class="stats">
       <div class="sc ce"><div class="sv">${docs.length}</div><div class="sl">${t('total_doctors')}</div></div>
       <div class="sc cb"><div class="sv">${nurs.length}</div><div class="sl">${t('total_nurses')}</div></div>
       <div class="sc cg"><div class="sv">${pats.length}</div><div class="sl">${t('total_patients')}</div></div>
+      <div class="sc cp"><div class="sv">${pendingCount}</div><div class="sl">${t('pending_approvals_nav')}</div></div>
       <div class="sc cr"><div class="sv">${susp.length}</div><div class="sl">${t('suspended')}</div></div>
       <div class="sc cp"><div class="sv">${fails.length}</div><div class="sl">${t('failed_logins')}</div></div>
     </div>
@@ -2546,33 +2611,93 @@ function acknowledgeConfidentialityPledge() {
   if (box) box.innerHTML = `<div class="alt ao">${t('pledge_recorded')}</div>`;
 }
 
+function renderRestricted(pc) {
+  $('tbt').textContent = t('restricted');
+  pc.innerHTML = `<div class="page"><div class="card" style="text-align:center;padding:40px 20px">${IC.shield}<p class="mt8">${t('super_admin_only_msg')}</p></div></div>`;
+}
+
 function renderManage(pc, roleFilter, title) {
   $('tbt').textContent = roleFilter==='admin'?t('administrators'):t('manage_'+roleFilter+'s');
-  topBtn(`<button class="btn bp bsm" onclick="showAddUser('${roleFilter}')">${IC.plus} ${roleFilter==='doctor'?t('add_doctor'):roleFilter==='nurse'?t('add_nurse'):roleFilter==='admin'?t('add_admin'):t('add_patient')}</button>`);
+  const canAddAdmin = roleFilter!=='admin' || isSuperAdmin(CU);
+  topBtn(canAddAdmin?`<button class="btn bp bsm" onclick="showAddUser('${roleFilter}')">${IC.plus} ${roleFilter==='doctor'?t('add_doctor'):roleFilter==='nurse'?t('add_nurse'):roleFilter==='admin'?t('add_admin'):t('add_patient')}</button>`:'');
   const users = DB.users.filter(u=>u.role===roleFilter);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${title}</h2><p>${LANG==='fr'?'Gérer sur la plateforme':'Manage all '+title.toLowerCase()+' on the platform'}</p></div>
+    ${roleFilter==='admin'?`<div class="alt ai mb18">${t('admin_pending_note')}</div>`:''}
     <div class="card"><div class="tw"><table>
       <thead><tr><th>${t('user')}</th><th>${roleFilter==='doctor'?t('specialty'):roleFilter==='nurse'?t('department'):roleFilter==='admin'?t('admin_role_lbl'):t('dob_lbl')}</th><th>${t('phone_lbl')}</th><th>${t('status')}</th><th>${t('joined')}</th><th>${t('actions')}</th></tr></thead>
-      <tbody>${users.map(u=>`<tr>
+      <tbody>${users.map(u=>{
+        const protectedSuper = isSuperAdmin(u);
+        return `<tr>
         <td><div style="display:flex;align-items:center;gap:10px">
           <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
-          <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${u.hfaId||'—'}</code></div>
+          <div><div class="bo sm">${u.name} ${protectedSuper?`<span class="badge bwa" style="margin-left:4px">${t('super_admin_badge')}</span>`:''}</div><div class="mu sm">${u.email}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${u.hfaId||'—'}</code></div>
         </div></td>
         <td class="sm">${roleFilter==='admin'?(u.adminRole||'Administrator'):(u.specialty||u.department||u.dateOfBirth||'—')}</td>
         <td class="mu sm">${u.phone||'—'}</td>
-        <td>${u.status==='active'?`<span class="badge bsu">${IC.chk}${t('active')}</span>`:`<span class="badge bda">${IC.x}${t('suspended')}</span>`}</td>
+        <td>${userStatusBadge(u)}</td>
         <td class="mu sm">${u.createdAt}</td>
         <td><div style="display:flex;gap:4px">
+          ${protectedSuper ? `<span class="mu sm">${t('super_admin_protect_msg')}</span>` : `
           <button class="btn bgh bsm" onclick="showEditUser('${u.id}')">${IC.edit}</button>
-          ${u.status==='active'
+          ${u.status==='pending_approval'
+            ?`<button class="btn bsm" style="background:#d5f0e0;color:#145a32;border:none" onclick="askApprove('${u.id}')">${IC.chk} ${t('approve')}</button>
+              <button class="btn bsm" style="background:#fcdcd9;color:#6e1a13;border:none" onclick="askReject('${u.id}')">${IC.x} ${t('reject')}</button>`
+          :u.status==='active'
             ?`<button class="btn bsm" style="background:#fff3cd;color:#856404;border:none" onclick="doSuspend('${u.id}')">${IC.x} ${t('suspend')}</button>`
             :`<button class="btn bsm" style="background:#d5f0e0;color:#145a32;border:none" onclick="doActivate('${u.id}')">${IC.chk} ${t('activate')}</button>`}
-          <button class="btn bd2 bsm" onclick="askDelete('${u.id}','${u.name.replace(/'/g,"&#39;")}')">${IC.trash}</button>
+          <button class="btn bd2 bsm" onclick="askDelete('${u.id}','${u.name.replace(/'/g,"&#39;")}')">${IC.trash}</button>`}
         </div></td>
-      </tr>`).join('')}</tbody>
+      </tr>`;}).join('')}</tbody>
     </table></div></div>
   </div>`;
+}
+
+function renderApprovals(pc) {
+  $('tbt').textContent = t('pending_approvals_title');
+  const pending = DB.users.filter(u=>(u.role==='doctor'||u.role==='nurse'||(u.role==='admin'&&isSuperAdmin(CU)))&&u.status==='pending_approval');
+  pc.innerHTML=`<div class="page">
+    <div class="ph"><h2>${t('pending_approvals_title')}</h2><p>${t('pending_approvals_sub')}</p></div>
+    <div class="card">${pending.length===0?`<p class="mu sm">${t('no_pending_approvals')}</p>`:`<div class="tw"><table>
+      <thead><tr><th>${t('user')}</th><th>${t('phone_lbl')}</th><th>${t('specialty')}</th><th>${t('applied_on')}</th><th>${t('status')}</th><th>${t('actions')}</th></tr></thead>
+      <tbody>${pending.map(u=>`<tr>
+        <td><div style="display:flex;align-items:center;gap:10px">
+          <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
+          <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email} · ${u.role==='doctor'?t('doctor'):u.role==='nurse'?t('nurse'):t('admin_role_lbl')}</div></div>
+        </div></td>
+        <td class="mu sm">${u.phone||'—'}</td>
+        <td class="sm">${u.specialty||u.adminRole||'—'}</td>
+        <td class="mu sm">${u.createdAt}</td>
+        <td><span class="badge bwa">${t('awaiting_review')}</span></td>
+        <td><div style="display:flex;gap:4px">
+          <button class="btn bgh bsm" onclick="showEditUser('${u.id}')">${IC.edit}</button>
+          <button class="btn bsm" style="background:#d5f0e0;color:#145a32;border:none" onclick="askApprove('${u.id}')">${IC.chk} ${t('approve')}</button>
+          <button class="btn bsm" style="background:#fcdcd9;color:#6e1a13;border:none" onclick="askReject('${u.id}')">${IC.x} ${t('reject')}</button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}</div>
+  </div>`;
+}
+
+function askApprove(id) {
+  const u=G(id); if(!u) return;
+  if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
+  openMo(`<div style="text-align:center;padding:10px 0">${IC.chk}<p style="margin-top:12px">${t('approve_confirm_title')}<br><strong>${u.name}</strong> ${t('approve_confirm_body')}</p>
+    <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="confirmApprove('${id}')">${t('yes_approve')}</button></div></div>`);
+}
+function confirmApprove(id) {
+  const u=G(id); if(u && !(u.role==='admin' && !isSuperAdmin(CU))){u.status='active';u.approvedBy=CU.id;u.approvedAt=tsNow();log('APPROVE_USER','User Management');}
+  closeMo(); navigate(CP);
+}
+function askReject(id) {
+  const u=G(id); if(!u) return;
+  if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
+  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">${t('reject_confirm_title')}<br><strong>${u.name}</strong> ${t('reject_confirm_body')}</p>
+    <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmReject('${id}')">${t('yes_reject')}</button></div></div>`);
+}
+function confirmReject(id) {
+  const u=G(id); if(u && !(u.role==='admin' && !isSuperAdmin(CU))){u.status='rejected';u.rejectedBy=CU.id;u.rejectedAt=tsNow();log('REJECT_USER','User Management');}
+  closeMo(); navigate(CP);
 }
 
 function renderAllApts(pc) {
@@ -3514,7 +3639,7 @@ function showAddUser(role) {
     <div class="fg"><label class="fl">Password</label><input class="fc" type="password" id="au-pw" placeholder="Temporary password"></div>
     ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><input class="fc" type="number" min="0" step="0.01" id="au-cf" placeholder="e.g. 15"></div></div>`:''}
     ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="au-ns"><option value="">Select...</option>${NURSE_SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div></div>`:''}
-    ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar"><option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
+    ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar">${isSuperAdmin(CU)?`<option>${t('super_admin_role')}</option>`:''}<option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
     ${role==='patient'?`<div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="au-bt"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
     <div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="au-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="au-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${n.name}</option>`).join('')}</select></div>`:''}
@@ -3523,31 +3648,39 @@ function showAddUser(role) {
 function saveAddUser(role) {
   const n=$('au-n').value.trim(),e=$('au-e').value.trim(),pw=$('au-pw').value;
   if(!n||!e||!pw){alert('Please fill all required fields.');return;}
+  if(role==='admin' && !isSuperAdmin(CU)){alert(t('super_admin_only_msg'));return;}
   if(DB.users.find(u=>u.email===e)){alert('Email already in use.');return;}
   const id=role.slice(0,3)+Date.now();
-  const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:'active',createdAt:todayD(),hfaId:nextHfaId(role)};
-  const extra=role==='admin'?{adminRole:$('au-ar')?.value||'Support Administrator',permissions:['users','audit'],createdAt:todayD()}
+  const adminRole = role==='admin' ? ($('au-ar')?.value||'Support Administrator') : null;
+  const adminStatus = role==='admin' ? (isSuperAdmin(CU)?'active':'pending_approval') : 'active';
+  const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:adminStatus,createdAt:todayD(),hfaId:nextHfaId(role)};
+  const extra=role==='admin'?{adminRole:adminRole,permissions:adminRole==='Super Admin'?['all']:['users','audit'],createdAt:todayD()}
     :role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||'',consultationFee:parseFloat($('au-cf')?.value)||0}
     :role==='nurse'?{department:$('au-de')?.value||'',specialty:$('au-ns')?.value||'',nurseId:$('au-ni')?.value||'',hospital:$('au-ho')?.value||'',qualifications:''}
     :{dateOfBirth:$('au-db')?.value||'',bloodType:$('au-bt')?.value||'',assignedDoctor:$('au-dc')?.value||null,assignedNurse:$('au-nr')?.value||null,allergies:'None',address:'',emergencyContact:'',medicalHistory:''};
   DB.users.push({...base,...extra});
-  log('ADMIN_ADD_USER','User Management'); closeMo(); navigate(CP);
+  log('ADMIN_ADD_USER','User Management'); closeMo();
+  navigate(CP);
 }
 
 function showEditUser(id) {
   const u=G(id); if(!u) return;
+  if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
+  if (isSuperAdmin(u) && u.id!==CU.id) return alert(t('super_admin_protect_msg'));
   openMo(`<div class="mh"><div class="mt2">${t('edit')} ${t('user')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="eu-n" value="${u.name}"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="eu-ph" value="${u.phone||''}"></div>
-    <div class="fg"><label class="fl">Status</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option><option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
+    <div class="fg"><label class="fl">Status</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option>${(u.role==='doctor'||u.role==='nurse'||u.role==='admin')?`<option value="pending_approval" ${u.status==='pending_approval'?'selected':''}>${t('pending_approval')}</option><option value="rejected" ${u.status==='rejected'?'selected':''}>${t('rejected')}</option>`:''}<option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
     ${u.role==='doctor'?`<div class="fg"><label class="fl">Consultation Fee (USD)</label><input class="fc" type="number" min="0" step="0.01" id="eu-cf" value="${u.consultationFee||0}"></div>`:''}
-    ${u.role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="eu-ar"><option ${u.adminRole==='Platform Owner'?'selected':''}>${t('platform_owner')}</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>${t('clinical_operations')}</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>${t('compliance_officer')}</option><option ${u.adminRole==='Support Administrator'?'selected':''}>${t('support_admin')}</option></select></div>`:''}
+    ${u.role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="eu-ar">${isSuperAdmin(CU)?`<option ${u.adminRole==='Super Admin'?'selected':''}>${t('super_admin_role')}</option>`:''}<option ${u.adminRole==='Platform Owner'?'selected':''}>${t('platform_owner')}</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>${t('clinical_operations')}</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>${t('compliance_officer')}</option><option ${u.adminRole==='Support Administrator'?'selected':''}>${t('support_admin')}</option></select></div>`:''}
     ${u.role==='patient'?`<div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveEditUser('${id}')">${t('save_changes')}</button></div>`);
 }
 function saveEditUser(id) {
   const u=G(id); if(!u) return;
+  if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
+  if (isSuperAdmin(u) && u.id!==CU.id) return alert(t('super_admin_protect_msg'));
   u.name=$('eu-n').value.trim()||u.name;
   u.phone=$('eu-ph').value.trim(); u.status=$('eu-st').value;
   if($('eu-cf')) u.consultationFee=parseFloat($('eu-cf').value)||0;
@@ -3559,17 +3692,31 @@ function saveEditUser(id) {
 
 function doSuspend(id) {
   const u=G(id); if(!u) return;
+  if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
+  if (isSuperAdmin(u)) return alert(t('super_admin_protect_msg'));
   openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">Suspend <strong>${u.name}</strong>?<br>They will be unable to log in.</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmSuspend('${id}')">${t('yes_suspend')}</button></div></div>`);
 }
-function confirmSuspend(id) { const u=G(id);if(u){u.status='suspended';log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
-function doActivate(id) { const u=G(id);if(u){u.status='active';log('ACTIVATE_USER','User Management');} navigate(CP); }
+function confirmSuspend(id) { const u=G(id);if(u && !(u.role==='admin' && !isSuperAdmin(CU)) && !isSuperAdmin(u)){u.status='suspended';log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
+function doActivate(id) {
+  const u=G(id); if(!u) return;
+  if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
+  u.status='active'; log('ACTIVATE_USER','User Management'); navigate(CP);
+}
 
 function askDelete(id, name) {
+  const u=G(id); if(!u) return;
+  if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
+  if (isSuperAdmin(u)) return alert(t('super_admin_protect_msg'));
   openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">Permanently delete <strong>${name}</strong>?<br>This action cannot be undone.</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmDel('${id}')">${t('yes_delete')}</button></div></div>`);
 }
-function confirmDel(id) { DB.users=DB.users.filter(u=>u.id!==id); log('DELETE_USER','User Management'); closeMo(); navigate(CP); }
+function confirmDel(id) {
+  const u=G(id); if(!u) return;
+  if (u.role==='admin' && !isSuperAdmin(CU)) return;
+  if (isSuperAdmin(u)) return;
+  DB.users=DB.users.filter(x=>x.id!==id); log('DELETE_USER','User Management'); closeMo(); navigate(CP);
+}
 
 // ── Contact form (landing page) ──────────────────────────────────────────────
 function submitForm(btn) {
