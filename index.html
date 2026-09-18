@@ -2231,8 +2231,8 @@ function tpw(id) { const e=$(id); e.type = e.type==='password' ? 'text' : 'passw
 function amsg(txt, type='e') { $('amsg').innerHTML=`<div class="alt ${type==='e'?'ae':type==='o'?'ao':'ai'}">${txt}</div>`; }
 
 function doLogin() {
-  const email = $('le').value.trim(), pass = $('lp').value;
-  const u = DB.users.find(u => u.email===email && u.password===pass);
+  const email = $('le').value.trim().toLowerCase(), pass = $('lp').value.trim();
+  const u = DB.users.find(u => u.email.toLowerCase()===email && u.password===pass);
   if (!u) { log('LOGIN_FAILED','System','failed'); return amsg(t('invalid_creds')); }
   if (u.status==='suspended') return amsg(t('suspended_msg'));
   if (u.status==='pending_approval') return amsg(t('pending_review_msg'));
@@ -2250,7 +2250,7 @@ function doReg() {
   const idInput = RROLE==='doctor' ? $('rid-d') : RROLE==='nurse' ? $('rid-n') : $('rid-p');
   if (!idInput || !idInput.files.length) return amsg(t('id_required'));
   if (!$('rtc').checked) return amsg(t('terms_required'));
-  if (DB.users.find(u=>u.email===email)) return amsg(t('email_exists'));
+  if (DB.users.find(u=>u.email.toLowerCase()===email.toLowerCase())) return amsg(t('email_exists'));
   finishReg(idInput);
 }
 function finishReg(idInput) {
@@ -3649,7 +3649,7 @@ function saveAddUser(role) {
   const n=$('au-n').value.trim(),e=$('au-e').value.trim(),pw=$('au-pw').value;
   if(!n||!e||!pw){alert('Please fill all required fields.');return;}
   if(role==='admin' && !isSuperAdmin(CU)){alert(t('super_admin_only_msg'));return;}
-  if(DB.users.find(u=>u.email===e)){alert('Email already in use.');return;}
+  if(DB.users.find(u=>u.email.toLowerCase()===e.toLowerCase())){alert('Email already in use.');return;}
   const id=role.slice(0,3)+Date.now();
   const adminRole = role==='admin' ? ($('au-ar')?.value||'Support Administrator') : null;
   const adminStatus = role==='admin' ? (isSuperAdmin(CU)?'active':'pending_approval') : 'active';
