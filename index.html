@@ -928,6 +928,7 @@ const T = {
     id_status_pending:'Pending Review', id_status_verified:'Verified', id_status_not_uploaded:'Not Uploaded',
     id_uploaded_on:'Uploaded on', id_document_saved:'ID document uploaded and pending administrator review.',
     medical_documents_title:'Test Results & Imaging', medical_documents_desc:'Upload lab test results, X-rays, scans, or other documents before or after a consultation so your care team has the full picture.',
+    medical_upload_cta_title:'Upload Medical Exams or X-rays', medical_upload_cta_desc:'Add lab results, X-rays, scans, prescriptions, or other reports to your official health history for authorised care review.',
     upload_document:'Upload Document', document_category:'Document Type', document_file:'File',
     document_category_lab:'Lab Test Result', document_category_xray:'X-Ray', document_category_scan:'Scan / Imaging (MRI, CT, Ultrasound)', document_category_prescription:'Prescription', document_category_other:'Other Document',
     document_notes:'Notes', document_notes_ph:'Describe the test, date performed, or any relevant context...',
@@ -1213,6 +1214,7 @@ const T = {
     id_status_pending:'En Attente de Vérification', id_status_verified:'Vérifié', id_status_not_uploaded:'Non Téléchargé',
     id_uploaded_on:'Téléchargé le', id_document_saved:'Document d’identité téléchargé et en attente de vérification par l’administrateur.',
     medical_documents_title:'Résultats de Tests & Imagerie', medical_documents_desc:'Téléchargez les résultats d’analyses, radiographies, scans ou autres documents avant ou après une consultation afin que votre équipe de soins ait une vue complète.',
+    medical_upload_cta_title:'Télécharger Examens Médicaux ou Radiographies', medical_upload_cta_desc:'Ajoutez analyses, radiographies, scans, ordonnances ou autres rapports à votre historique médical officiel pour revue autorisée.',
     upload_document:'Télécharger un Document', document_category:'Type de Document', document_file:'Fichier',
     document_category_lab:'Résultat d’Analyse', document_category_xray:'Radiographie', document_category_scan:'Scan / Imagerie (IRM, Scanner, Échographie)', document_category_prescription:'Ordonnance', document_category_other:'Autre Document',
     document_notes:'Notes', document_notes_ph:'Décrivez le test, la date de réalisation ou tout contexte pertinent...',
@@ -2641,6 +2643,7 @@ function renderManage(pc, roleFilter, title) {
         <td><div style="display:flex;gap:4px">
           ${protectedSuper ? `<span class="mu sm">${t('super_admin_protect_msg')}</span>` : `
           <button class="btn bgh bsm" onclick="showEditUser('${u.id}')">${IC.edit}</button>
+          ${roleFilter==='patient'?`<button class="btn bs bsm" onclick="showPatientDocuments('${u.id}')">${IC.file} ${t('medical_documents_title')}</button>`:''}
           ${u.status==='pending_approval'
             ?`<button class="btn bsm" style="background:#d5f0e0;color:#145a32;border:none" onclick="askApprove('${u.id}')">${IC.chk} ${t('approve')}</button>
               <button class="btn bsm" style="background:#fcdcd9;color:#6e1a13;border:none" onclick="askReject('${u.id}')">${IC.x} ${t('reject')}</button>`
@@ -2803,6 +2806,7 @@ function renderPatients(pc) {
         <div class="pf"><label>${t('address')}</label><span>${p.address||'—'}</span></div>
         <div class="pf"><label>${t('emergency_contact')}</label><span>${p.emergencyContact||'—'}</span></div>
       </div>
+      <div style="margin-top:12px"><button class="btn bs bsm" onclick="showPatientDocuments('${p.id}')">${IC.file} ${t('medical_documents_title')}</button></div>
     </div>`).join('')}
   </div>`;
 }
@@ -2812,7 +2816,7 @@ function renderRecords(pc) {
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('medical_records')}</h2><p>${LANG==='fr'?'Dossiers complets pour vos patients':'Complete records for your patients'}</p></div>
-    ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_records')}</p></div></div>` : myP.map(p=>{const docs=DB.medicalDocuments.filter(d=>d.patientId===p.id).sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));return`
+    ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_records')}</p></div></div>` : myP.map(p=>`
     <div class="card mb18">
       <div class="ch"><div><div class="ct">${p.name}</div><div class="mu sm">DOB: ${p.dateOfBirth||'—'} · ${p.gender||'—'} · ${p.bloodType||'—'}</div></div><span class="badge bsu">Active</span></div>
       <div class="g2">
@@ -2822,13 +2826,29 @@ function renderRecords(pc) {
         <div><div class="fl">${t('address')}</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
       </div>
       <div class="fl" style="margin-top:16px">${t('medical_documents_title')}</div>
-      ${docs.length===0?`<p class="mu sm" style="margin-top:4px">${t('no_documents')}</p>`:docs.map(d=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
-          <div style="flex:1"><div class="bo sm">${d.category}</div><div class="mu sm">${d.fileName} · ${d.uploadedAt}</div>${d.notes?`<div class="mu sm">${d.notes}</div>`:''}</div>
-          <a class="btn bs bsm" href="${d.fileData}" download="${d.fileName}" target="_blank">${t('view_document')}</a>
-        </div>`).join('')}
-    </div>`;}).join('')}
+      ${medicalDocumentList(p.id)}
+    </div>`).join('')}
   </div>`;
+}
+
+function medicalDocumentList(patientId) {
+  const docs=DB.medicalDocuments.filter(d=>d.patientId===patientId).sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));
+  const apts=DB.appointments.filter(a=>a.patientId===patientId);
+  return docs.length===0?`<p class="mu sm" style="margin-top:4px">${t('no_documents')}</p>`:docs.map(d=>{
+    const apt=apts.find(a=>a.id===d.relatedApptId);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
+      <div class="pca">${IC.file}</div>
+      <div style="flex:1"><div class="bo sm">${d.category}</div><div class="mu sm">${d.fileName} · ${d.uploadedAt}${apt?` · ${apt.date}`:''}</div>${d.notes?`<div class="mu sm">${d.notes}</div>`:''}</div>
+      <a class="btn bs bsm" href="${d.fileData}" download="${d.fileName}" target="_blank">${t('view_document')}</a>
+    </div>`;
+  }).join('');
+}
+
+function showPatientDocuments(patientId) {
+  const p=G(patientId); if(!p) return;
+  openMo(`<div class="mh"><div><div class="mt2">${t('medical_documents_title')}</div><div class="mu sm">${p.name}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    ${medicalDocumentList(patientId)}
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('close_btn')}</button></div>`);
 }
 
 function renderApts(pc) {
@@ -2897,6 +2917,7 @@ function renderCareNotes(pc) {
 // ═══════════════════════ PATIENT ═══════════════════════
 function renderPatDash(pc) {
   $('tbt').textContent=t('patient_dashboard');
+  topBtn(`<button class="btn bs bsm" onclick="showUploadDocument()">${IC.file} ${t('upload_document')}</button>`);
   topBtn(`<button class="btn bd2 bsm" onclick="showTriage()">${t('urgent_help')}</button>`);
   topBtn(`<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} ${t('book_consultation')}</button>`);
   const myDoc=G(CU.assignedDoctor), myNur=G(CU.assignedNurse);
@@ -2905,6 +2926,7 @@ function renderPatDash(pc) {
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${LANG==='fr'?'Bonjour,':'Hello,'} ${CU.name.split(' ')[0]}</h2><p>${LANG==='fr'?'Gérez votre santé et contactez votre équipe soignante':'Manage your health and communicate with your care team'}</p></div>
     <div class="safety-banner"><div>!</div><div><strong>${t('virtual_care_safety')}</strong><p>${t('virtual_care_safety_desc')}</p></div></div>
+    <div class="card mb18"><div class="ch"><div><div class="ct">${t('medical_upload_cta_title')}</div><div class="rating-note">${t('medical_upload_cta_desc')}</div></div><button class="btn bp bsm" onclick="showUploadDocument()">${IC.plus} ${t('upload_document')}</button></div></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${up.length}</div><div class="sl">${t('upcoming_apts')}</div></div>
       <div class="sc cg"><div class="sv">${myA.filter(a=>a.status==='completed').length}</div><div class="sl">${t('completed_consults')}</div></div>
@@ -3321,7 +3343,7 @@ function showUploadDocument() {
       <option value="${t('document_category_prescription')}">${t('document_category_prescription')}</option>
       <option value="${t('document_category_other')}">${t('document_category_other')}</option>
     </select></div>
-    <div class="fg"><label class="fl">${t('document_file')}</label><input class="fc" type="file" id="ud-file" accept="image/*,.pdf"></div>
+    <div class="fg"><label class="fl">${t('document_file')}</label><input class="fc" type="file" id="ud-file" accept="image/*,.pdf" multiple></div>
     ${myApts.length?`<div class="fg"><label class="fl">${t('document_related_apt')}</label><select class="fc" id="ud-apt"><option value="">${t('none_lbl')}</option>${myApts.map(a=>`<option value="${a.id}">${a.date} · ${a.serviceName||a.type}</option>`).join('')}</select></div>`:''}
     <div class="fg"><label class="fl">${t('document_notes')}</label><textarea class="fc" id="ud-notes" placeholder="${t('document_notes_ph')}"></textarea></div>
     <div id="ud-status" class="mu sm"></div>
@@ -3329,15 +3351,17 @@ function showUploadDocument() {
 }
 function saveUploadDocument() {
   const input=$('ud-file'); if(!input||!input.files.length){ const s=$('ud-status'); if(s) s.textContent=t('document_required'); return; }
-  const file=input.files[0], category=$('ud-cat').value, relatedApptId=$('ud-apt')?$('ud-apt').value:'', notes=$('ud-notes').value.trim();
-  const reader=new FileReader();
-  reader.onload=()=>{
-    DB.medicalDocuments.push({id:'doc'+Date.now(),patientId:CU.id,uploadedBy:CU.id,category,fileName:file.name,fileData:reader.result,relatedApptId,notes,uploadedAt:tsNow()});
-    log('UPLOAD_MEDICAL_DOCUMENT','Medical Records');
-    closeMo();
-    navigate(CP);
-  };
-  reader.readAsDataURL(file);
+  const files=Array.from(input.files), category=$('ud-cat').value, relatedApptId=$('ud-apt')?$('ud-apt').value:'', notes=$('ud-notes').value.trim(), uploadedAt=tsNow();
+  let remaining=files.length;
+  files.forEach((file,index)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      DB.medicalDocuments.push({id:'doc'+Date.now()+'-'+index,patientId:CU.id,uploadedBy:CU.id,category,fileName:file.name,fileData:reader.result,relatedApptId,notes,uploadedAt});
+      remaining--;
+      if(remaining===0){ log('UPLOAD_MEDICAL_DOCUMENT','Medical Records'); closeMo(); navigate(CP); }
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ═══════════════════════ MESSAGES ═══════════════════════
