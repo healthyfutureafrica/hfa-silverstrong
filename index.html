@@ -642,6 +642,10 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <div class="fg"><label class="fl">Address</label><input class="fc" type="text" id="rad" placeholder="City, Country"></div>
         <div class="fg"><label class="fl">Emergency Contact</label><input class="fc" type="text" id="rec" placeholder="Name — Phone number"></div>
         <div class="fg"><label class="fl" id="lbl-id-doc-p">Government ID Card, Passport, or Driver's License</label><input class="fc" type="file" id="rid-p" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-p" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
+        <div class="fg" style="display:flex;align-items:flex-start;gap:8px;background:var(--si-p);border:1px solid var(--bd);border-radius:var(--rs);padding:12px">
+          <input type="checkbox" id="rpc" style="margin-top:3px">
+          <label class="fl" for="rpc" id="lbl-patient-commitment" style="font-weight:400;line-height:1.5;text-transform:none;letter-spacing:0;margin-bottom:0">I confirm that all information I provide is truthful, accurate, and complete. I agree not to falsify records, impersonate anyone, upload misleading documents, misuse the platform, harass staff or clinicians, or engage in any misconduct that could endanger patient safety or breach HFA SilverStrong policies.</label>
+        </div>
       </div>
       <div class="fg" style="display:flex;align-items:flex-start;gap:8px">
         <input type="checkbox" id="rtc" style="margin-top:3px">
@@ -879,6 +883,8 @@ const T = {
     delete:'Delete', done:'Done', cancel:'Cancel', save:'Save',
     terms_and_conditions:'Terms & Conditions', read_terms_link:'Terms & Conditions',
     agree_terms_label:'I have read and agree to the', terms_required:'You must read and accept the Terms & Conditions to register.',
+    patient_commitment_label:'I confirm that all information I provide is truthful, accurate, and complete. I agree not to falsify records, impersonate anyone, upload misleading documents, misuse the platform, harass staff or clinicians, or engage in any misconduct that could endanger patient safety or breach HFA SilverStrong policies.',
+    patient_commitment_required:'You must confirm the patient honesty and conduct commitment to register.',
     terms_accept_btn:'I Agree — Close', terms_recorded:'Terms & Conditions accepted and recorded.',
     terms_and_conditions:'Terms & Conditions', read_terms_link:'Terms & Conditions',
     agree_terms_label:'I have read and agree to the', terms_required:'You must read and accept the Terms & Conditions to register.',
@@ -1165,6 +1171,8 @@ const T = {
     delete:'Supprimer', done:'Terminé', cancel:'Annuler', save:'Sauvegarder',
     terms_and_conditions:'Conditions Générales', read_terms_link:'Conditions Générales',
     agree_terms_label:'J\'ai lu et j\'accepte les', terms_required:'Vous devez lire et accepter les Conditions Générales pour vous inscrire.',
+    patient_commitment_label:'Je confirme que toutes les informations que je fournis sont véridiques, exactes et complètes. Je m\'engage à ne pas falsifier de dossiers, usurper l\'identité d\'autrui, téléverser des documents trompeurs, abuser de la plateforme, harceler le personnel ou les cliniciens, ni adopter une conduite susceptible de mettre en danger la sécurité des patients ou de violer les règles de HFA SilverStrong.',
+    patient_commitment_required:'Vous devez confirmer l\'engagement patient d\'honnêteté et de bonne conduite pour vous inscrire.',
     terms_accept_btn:'J\'Accepte — Fermer', terms_recorded:'Conditions Générales acceptées et enregistrées.',
     terms_and_conditions:'Conditions Générales', read_terms_link:'Conditions Générales',
     agree_terms_label:'J\'ai lu et j\'accepte les', terms_required:'Vous devez lire et accepter les Conditions Générales pour vous inscrire.',
@@ -1425,6 +1433,7 @@ function updateStaticHTML() {
     'lbl-pass':  t('password'),
     'lbl-iama':  t('i_am_a'),
     'lbl-agree-terms': t('agree_terms_label'),
+    'lbl-patient-commitment': t('patient_commitment_label'),
     'lbl-read-terms': t('read_terms_link'),
     'lbl-id-doc-d': t('id_document_label'),
     'lbl-id-doc-n': t('id_document_label'),
@@ -2251,6 +2260,7 @@ function doReg() {
   if (RROLE==='nurse'&&!$('rns').value) return amsg(t('nurse_spec_required'));
   const idInput = RROLE==='doctor' ? $('rid-d') : RROLE==='nurse' ? $('rid-n') : $('rid-p');
   if (!idInput || !idInput.files.length) return amsg(t('id_required'));
+  if (RROLE==='patient'&&!$('rpc').checked) return amsg(t('patient_commitment_required'));
   if (!$('rtc').checked) return amsg(t('terms_required'));
   if (DB.users.find(u=>u.email.toLowerCase()===email.toLowerCase())) return amsg(t('email_exists'));
   finishReg(idInput);
@@ -2265,7 +2275,7 @@ function finishReg(idInput) {
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   const finalize = (idFields) => {
-    DB.users.push({...base,...extra,...idFields,termsAcceptedAt:tsNow()});
+    DB.users.push({...base,...extra,...idFields,termsAcceptedAt:tsNow(),patientCommitmentAt:RROLE==='patient'?tsNow():null});
     DB.consents.push({id:'con'+Date.now(),patientId:id,type:'Terms and Conditions',status:'active',version:'2025.1',recordedAt:todayD()});
     if (RROLE==='patient') {
       CU = DB.users[DB.users.length-1];
