@@ -626,7 +626,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       </div>
       <div id="df">
         <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
-        <div class="fr"><div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><input class="fc" type="number" min="0" step="0.01" id="rcf" placeholder="e.g. 15"></div></div>
+        <div class="fr"><div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
         <div class="fg"><label class="fl" id="lbl-id-doc-d">Government ID Card or Passport</label><input class="fc" type="file" id="rid-d" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-d" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
       </div>
       <div id="nf" class="hid">
@@ -923,7 +923,7 @@ const T = {
     add_care_note:'Add Care Note', patient_lbl:'Patient', note_lbl:'Note',
     note_ph:'Observations, vital signs, medications given...',
     new_apt:'New Appointment', book_apt:'Book Consultation',
-    consultation_fee:'Consultation Fee', fee_required:'Consultation fee is required for doctors',
+    consultation_fee:'Consultation Fee', fee_required:'Consultation fee is required for doctors', fee_range_required:'Doctors must choose a consultation fee from USD 5 to USD 20.', consultation_fee_hint:'Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.',
     payable_via_portal:'Payable via the app\'s payment portal', pay_now:'Pay Now',
     processing_payment:'Processing payment...', payment_success:'Payment successful', payment_failed:'Payment failed. Please try again.',
     payment_method:'Payment Method', mobile_money:'Mobile Money', card_payment:'Card', bank_transfer:'Bank Transfer',
@@ -1059,10 +1059,16 @@ const T = {
     renews_monthly:'Renews monthly', renews_on:'Renews on',
     no_subscriptions:'No active subscriptions', expired:'Expired',
     reactivate:'Reactivate', active_subscription:'Active Subscription',
-    home_visit_title:'Home Medical Visits', home_visit_desc:'Book a home visit from your medical team',
-    schedule_visit:'Schedule Visit', upcoming_visits:'Upcoming Visits',
+    home_visit_title:'Home Medical Visits', home_visit_desc:'Book a paid home visit from a nurse. Available to premium patients.',
+    schedule_visit:'Book Nurse Home Visit', upcoming_visits:'Upcoming Visits',
     visit_date:'Visit Date', visit_time:'Visit Time', visit_location:'Visit Location',
     visit_notes:'Visit Notes', cancel_visit:'Cancel Visit',
+    choose_nurse:'Choose Nurse', home_visit_fee:'Home Visit Fee', home_visit_fee_desc:'Your Premium plan includes one nurse home visit per month. Extra visits are payable in the app before scheduling.',
+    home_visit_included:'Included in Premium', home_visit_included_desc:'This is your included nurse home visit for the month. No extra payment is required.',
+    extra_home_visit_fee_desc:'You have used your included Premium home visit for this month. This extra visit is payable before scheduling.',
+    home_visit_notes_ph:'Reason for visit, mobility needs, medicines to review, or special instructions...',
+    home_visit_premium_only:'Nurse home visits are available to Premium patients. Upgrade to Premium to book this service.',
+    home_visit_payment_success:'Payment successful. Your nurse home visit has been scheduled.',
     no_upcoming_visits:'No upcoming home visits scheduled', visit_notes_default:'Scheduled health check and medication review',
   },
 
@@ -1211,7 +1217,7 @@ const T = {
     add_care_note:'Ajouter une Note de Soins', patient_lbl:'Patient', note_lbl:'Note',
     note_ph:'Observations, constantes, médicaments administrés...',
     new_apt:'Nouveau Rendez-vous', book_apt:'Réserver une Consultation',
-    consultation_fee:'Frais de Consultation', fee_required:'Les frais de consultation sont requis pour les médecins',
+    consultation_fee:'Frais de Consultation', fee_required:'Les frais de consultation sont requis pour les médecins', fee_range_required:'Les médecins doivent choisir des frais de consultation entre 5 USD et 20 USD.', consultation_fee_hint:'Choisissez des frais de 5 USD à 20 USD selon la complexité clinique de votre département.',
     payable_via_portal:'Payable via le portail de paiement de l\'application', pay_now:'Payer Maintenant',
     processing_payment:'Traitement du paiement...', payment_success:'Paiement réussi', payment_failed:'Échec du paiement. Veuillez réessayer.',
     payment_method:'Mode de Paiement', mobile_money:'Mobile Money', card_payment:'Carte', bank_transfer:'Virement Bancaire',
@@ -1347,10 +1353,16 @@ const T = {
     renews_monthly:'Renouvellement mensuel', renews_on:'Renouvellement le',
     no_subscriptions:'Aucun abonnement actif', expired:'Expiré',
     reactivate:'Réactiver', active_subscription:'Abonnement Actif',
-    home_visit_title:'Visites Médicales à Domicile', home_visit_desc:'Réservez une visite de votre équipe médicale',
-    schedule_visit:'Planifier une Visite', upcoming_visits:'Visites à Venir',
+    home_visit_title:'Visites Médicales à Domicile', home_visit_desc:'Réservez une visite infirmière payante à domicile. Disponible aux patients Premium.',
+    schedule_visit:'Réserver une Visite Infirmière', upcoming_visits:'Visites à Venir',
     visit_date:'Date de la Visite', visit_time:'Heure de la Visite', visit_location:'Lieu de la Visite',
     visit_notes:'Notes de Visite', cancel_visit:'Annuler la Visite',
+    choose_nurse:'Choisir un(e) Infirmier(e)', home_visit_fee:'Frais de Visite à Domicile', home_visit_fee_desc:'Votre plan Premium inclut une visite infirmière à domicile par mois. Les visites supplémentaires sont payables dans l’application avant la planification.',
+    home_visit_included:'Inclus dans Premium', home_visit_included_desc:'Ceci est votre visite infirmière à domicile incluse pour le mois. Aucun paiement supplémentaire n’est requis.',
+    extra_home_visit_fee_desc:'Vous avez utilisé votre visite à domicile Premium incluse pour ce mois. Cette visite supplémentaire est payable avant la planification.',
+    home_visit_notes_ph:'Motif de la visite, mobilité, médicaments à revoir ou instructions particulières...',
+    home_visit_premium_only:'Les visites infirmières à domicile sont disponibles pour les patients Premium. Passez à Premium pour réserver ce service.',
+    home_visit_payment_success:'Paiement réussi. Votre visite infirmière à domicile a été planifiée.',
     no_upcoming_visits:'Aucune visite à domicile prévue', visit_notes_default:'Visite de santé programmée et examen des médicaments',
   }
 };
@@ -1438,6 +1450,7 @@ function updateStaticHTML() {
     'lbl-id-doc-d': t('id_document_label'),
     'lbl-id-doc-n': t('id_document_label'),
     'lbl-id-doc-p': t('id_document_label_patient'),
+    'lbl-consult-fee-hint': t('consultation_fee_hint'),
     'lbl-id-doc-ph-d': t('id_document_ph'),
     'lbl-id-doc-ph-n': t('id_document_ph'),
     'lbl-id-doc-ph-p': t('id_document_ph'),
@@ -1543,8 +1556,8 @@ const DB = {
     {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
     {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
     {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
-    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',status:'active',createdAt:'2024-02-20'},
-    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',password:'Nurse@123',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',status:'active',createdAt:'2024-04-01'},
+    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',homeVisitFee:12,status:'active',createdAt:'2024-02-20'},
+    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',password:'Nurse@123',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',homeVisitFee:10,status:'active',createdAt:'2024-04-01'},
     {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',password:'Patient@123',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
     {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',password:'Patient@123',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.',conditions:[{system:'ICD-10-CM',code:'E11.9',display:'Type 2 diabetes mellitus without complications'}],medications:[{system:'RxNorm',code:'860975',display:'Metformin 500 MG Oral Tablet'}],observations:[{system:'LOINC',code:'2339-0',display:'Glucose [Mass/volume] in Blood',value:'8.4',unit:'mmol/L',effectiveDate:'2025-01-27'}]},
     {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',password:'Patient@123',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.',conditions:[{system:'ICD-10-CM',code:'I25.10',display:'Atherosclerotic heart disease of native coronary artery without angina pectoris'}],medications:[],observations:[]},
@@ -1895,6 +1908,10 @@ const log = (action, resource, status='success') => { if(!CU) return; DB.auditLo
 const auditActionLabel = action => action==='INCIDENT_REPORT' ? t('incident_report_action') : action==='CONFIDENTIALITY_PLEDGE' ? t('confidentiality_pledge_action') : action;
 const lt = value => value[LANG] || value.en;
 const convBetween = (a,b) => DB.messages.filter(m=>(m.from===a&&m.to===b)||(m.from===b&&m.to===a));
+const validConsultationFee = value => Number(value)>=5 && Number(value)<=20;
+function consultationFeeOptions(selected='') {
+  return '<option value="">Select fee...</option>' + Array.from({length:16},(_,i)=>i+5).map(fee=>`<option value="${fee}" ${Number(selected)===fee?'selected':''}>USD ${fee}</option>`).join('');
+}
 
 // ── HFA ID: role-legible identifier, e.g. HFA-DR-24-00001-7 (Doctor), HFA-NS-24-00001-3 (Nurse), HFA-PT-24-00001-5 (Patient) ──
 const ROLE_CODE = {doctor:'DR', nurse:'NS', patient:'PT', admin:'AD'};
@@ -2062,6 +2079,16 @@ function getTierDesc(tier) {
   return tier === 'free' ? t('free_tier_desc')
     : tier === 'basic' ? t('basic_tier_desc')
     : tier === 'premium' ? t('premium_tier_desc') : '';
+}
+
+function premiumHomeVisitsUsedThisMonth(patientId, visitDate) {
+  const month = (visitDate || todayD()).slice(0,7);
+  return DB.homeVisits.filter(hv=>hv.patientId===patientId && (hv.visitDate||'').slice(0,7)===month && hv.premiumIncluded).length;
+}
+
+function hasIncludedPremiumHomeVisit(patientId, visitDate) {
+  const sub = getSubscription(patientId);
+  return !!sub && sub.tier==='premium' && premiumHomeVisitsUsedThisMonth(patientId, visitDate) < (sub.monthlyVisitsAllowed || 1);
 }
 
 function canAccessFeature(patientId, feature) {
@@ -2257,6 +2284,7 @@ function doReg() {
   if (pass.length<6) return amsg(t('password_short'));
   if (RROLE==='doctor'&&!$('rsp').value) return amsg(t('spec_required'));
   if (RROLE==='doctor'&&!$('rcf').value) return amsg(t('fee_required'));
+  if (RROLE==='doctor'&&!validConsultationFee($('rcf').value)) return amsg(t('fee_range_required'));
   if (RROLE==='nurse'&&!$('rns').value) return amsg(t('nurse_spec_required'));
   const idInput = RROLE==='doctor' ? $('rid-d') : RROLE==='nurse' ? $('rid-n') : $('rid-p');
   if (!idInput || !idInput.files.length) return amsg(t('id_required'));
@@ -3075,12 +3103,13 @@ function renderSubscriptions(pc) {
   
   if (sub && sub.tier === 'premium') {
     const homeVisits = DB.homeVisits.filter(hv => hv.patientId === CU.id);
-    html += `<div class="card"><div class="ch"><div class="ct">${t('home_visit_title')}</div></div>
+    html += `<div class="card"><div class="ch"><div><div class="ct">${t('home_visit_title')}</div><div class="rating-note">${t('home_visit_desc')}</div></div></div>
       ${homeVisits.length ? homeVisits.map(hv => `
         <div style="padding:12px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:start">
           <div style="flex:1">
             <div class="bo sm">${t('visit_date')}: ${hv.visitDate} ${t('at')} ${hv.visitTime}</div>
-            <div class="mu sm">${hv.location}</div>
+            <div class="mu sm">${G(hv.nurseId)?.name||t('nurse')} · ${hv.location}</div>
+            ${hv.premiumIncluded?`<div class="mu sm">${t('home_visit_included')}</div>`:hv.fee?`<div class="mu sm">${t('home_visit_fee')}: ${hv.currency||'USD'} ${Number(hv.fee).toFixed(2)} · ${t('payment_success')}</div>`:''}
             ${hv.notes ? `<div class="mu sm" style="color:#666;margin-top:4px">${hv.notes}</div>` : ''}
           </div>
           <span class="badge ${hv.status==='scheduled'?'bsu':hv.status==='completed'?'bin':'bda'}">${hv.status}</span>
@@ -3088,6 +3117,8 @@ function renderSubscriptions(pc) {
       `).join('') : `<div class="emp"><p>${t('no_upcoming_visits')}</p></div>`}
       <button class="btn bp bsm w100 mt8" onclick="scheduleHomeVisit()">${t('schedule_visit')}</button>
     </div>`;
+  } else {
+    html += `<div class="card"><div class="ch"><div><div class="ct">${t('home_visit_title')}</div><div class="rating-note">${t('home_visit_desc')}</div></div></div><div class="emp"><p>${t('home_visit_premium_only')}</p><button class="btn bg2 bsm mt8" onclick="upgradeSubscription('premium')">${t('subscribe_premium')}</button></div></div>`;
   }
   
   html += `</div>`;
@@ -3128,26 +3159,52 @@ async function upgradeSubscription(tierId) {
   }
   
   log('UPDATE_SUBSCRIPTION', 'Billing', {tier: tierId, status: 'upgraded'});
-  renderSubscriptions($('pc'));
+  renderSubscriptions($('pgc'));
 }
 
 function scheduleHomeVisit() {
-  const doctor = G(CU.assignedDoctor);
-  const nurse = G(CU.assignedNurse);
-  const newVisit = {
-    id: 'hv' + Date.now(),
-    patientId: CU.id,
-    doctorId: doctor?.id || 'doc1',
-    nurseId: nurse?.id || 'nur1',
-    visitDate: new Date(new Date().setDate(new Date().getDate() + 14)).toISOString().split('T')[0],
-    visitTime: '14:00',
-    status: 'scheduled',
-    location: `${CU.name}'s home`,
-    notes: t('visit_notes_default')
-  };
-  DB.homeVisits.push(newVisit);
-  log('SCHEDULE_HOME_VISIT', 'Healthcare');
-  renderSubscriptions($('pc'));
+  const sub=getSubscription(CU.id);
+  if(!sub||sub.tier!=='premium') return alert(t('home_visit_premium_only'));
+  const nurses=DB.users.filter(u=>u.role==='nurse'&&u.status==='active');
+  const defaultDate=new Date(new Date().setDate(new Date().getDate()+3)).toISOString().split('T')[0];
+  openMo(`<div class="mh"><div class="mt2">${t('schedule_visit')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="fg"><label class="fl">${t('choose_nurse')}</label><select class="fc" id="hv-nurse" onchange="renderHomeVisitFee()">${nurses.map(n=>`<option value="${n.id}">${n.name} — ${n.specialty||n.department||''}</option>`).join('')}</select></div>
+    <div class="fr"><div class="fg"><label class="fl">${t('visit_date')}</label><input class="fc" type="date" id="hv-date" value="${defaultDate}" onchange="renderHomeVisitFee()"></div><div class="fg"><label class="fl">${t('visit_time')}</label><input class="fc" type="time" id="hv-time" value="14:00"></div></div>
+    <div class="fg"><label class="fl">${t('visit_location')}</label><input class="fc" id="hv-location" value="${CU.address||`${CU.name}'s home`}"></div>
+    <div class="fg"><label class="fl">${t('visit_notes')}</label><textarea class="fc" id="hv-notes" placeholder="${t('home_visit_notes_ph')}"></textarea></div>
+    <div class="fg" id="hv-payment-method"><label class="fl">${t('payment_method')}</label><select class="fc" id="hv-pay-md"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>
+    <div id="hv-fee" class="alt ai"></div><div id="hv-status" class="mu sm"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" id="hv-pay-btn" onclick="confirmHomeVisitBooking()">${t('pay_now')}</button></div>`);
+  renderHomeVisitFee();
+}
+
+function renderHomeVisitFee() {
+  const nurse=G($('hv-nurse')?.value), visitDate=$('hv-date')?.value; const box=$('hv-fee'), payMethod=$('hv-payment-method'), btn=$('hv-pay-btn');
+  if(!box||!nurse) return;
+  const included=hasIncludedPremiumHomeVisit(CU.id, visitDate), fee=Number(nurse.homeVisitFee||10);
+  box.className=`alt ${included?'ao':'ai'}`;
+  box.innerHTML=included?`<strong>${t('home_visit_included')}</strong><br><span class="sm">${t('home_visit_included_desc')}</span>`:`<strong>${t('home_visit_fee')}: USD ${fee.toFixed(2)}</strong><br><span class="sm">${t('extra_home_visit_fee_desc')}</span>`;
+  if(payMethod) payMethod.style.display=included?'none':'';
+  if(btn) btn.textContent=included?t('schedule_visit'):t('pay_now');
+}
+
+async function confirmHomeVisitBooking() {
+  const nurse=G($('hv-nurse')?.value); if(!nurse) return;
+  const visitDate=$('hv-date').value, visitTime=$('hv-time').value, location=$('hv-location').value.trim(), notes=$('hv-notes').value.trim()||t('visit_notes_default');
+  if(!visitDate||!visitTime||!location) return;
+  const included=hasIncludedPremiumHomeVisit(CU.id, visitDate), fee=included?0:Number(nurse.homeVisitFee||10), btn=$('hv-pay-btn'), status=$('hv-status');
+  btn.disabled=true; status.textContent=included?t('home_visit_included_desc'):t('processing_payment');
+  try {
+    const receipt=included?null:await Payment.create().from(CU.id).to(nurse.id).amount(fee).currency('USD').purpose('nurse_home_visit')
+      .describe(`Nurse home visit — ${nurse.name}`).method($('hv-pay-md').value).meta({nurseName:nurse.name,visitDate,visitTime}).process();
+    DB.homeVisits.push({id:'hv'+Date.now(),patientId:CU.id,nurseId:nurse.id,doctorId:CU.assignedDoctor||'',visitDate,visitTime,status:'scheduled',location,notes,fee,currency:'USD',premiumIncluded:included,paymentId:receipt?.id||null,paymentReference:receipt?.reference||null,paymentStatus:included?'included':receipt.status,createdAt:tsNow()});
+    const sub=getSubscription(CU.id); if(included&&sub) sub.monthlyVisitsUsed=(sub.monthlyVisitsUsed||0)+1;
+    log('SCHEDULE_HOME_VISIT','Healthcare');
+    status.textContent=included?t('home_visit_included_desc'):t('home_visit_payment_success');
+    setTimeout(()=>{ closeMo(); renderSubscriptions($('pgc')); }, 700);
+  } catch (err) {
+    status.textContent=t('payment_failed'); btn.disabled=false;
+  }
 }
 
 // ═══════════════════════ FREE HEALTH HUB ═══════════════════════
@@ -3672,7 +3729,7 @@ function showAddUser(role) {
     <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="au-e" placeholder="email@example.com"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="au-ph" placeholder="+237 6XX XXX XXX"></div>
     <div class="fg"><label class="fl">Password</label><input class="fc" type="password" id="au-pw" placeholder="Temporary password"></div>
-    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><input class="fc" type="number" min="0" step="0.01" id="au-cf" placeholder="e.g. 15"></div></div>`:''}
+    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div><div class="fg"><label class="fl">${t('consultation_fee')} (USD)</label><select class="fc" id="au-cf">${consultationFeeOptions()}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div></div>`:''}
     ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="au-ns"><option value="">Select...</option>${NURSE_SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div></div>`:''}
     ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar">${isSuperAdmin(CU)?`<option>${t('super_admin_role')}</option>`:''}<option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
     ${role==='patient'?`<div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="au-bt"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
@@ -3684,6 +3741,7 @@ function saveAddUser(role) {
   const n=$('au-n').value.trim(),e=$('au-e').value.trim(),pw=$('au-pw').value;
   if(!n||!e||!pw){alert('Please fill all required fields.');return;}
   if(role==='admin' && !isSuperAdmin(CU)){alert(t('super_admin_only_msg'));return;}
+  if(role==='doctor' && !validConsultationFee($('au-cf')?.value)){alert(t('fee_range_required'));return;}
   if(DB.users.find(u=>u.email.toLowerCase()===e.toLowerCase())){alert('Email already in use.');return;}
   const id=role.slice(0,3)+Date.now();
   const adminRole = role==='admin' ? ($('au-ar')?.value||'Support Administrator') : null;
@@ -3706,7 +3764,7 @@ function showEditUser(id) {
     <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="eu-n" value="${u.name}"></div>
     <div class="fg"><label class="fl">Phone</label><input class="fc" id="eu-ph" value="${u.phone||''}"></div>
     <div class="fg"><label class="fl">Status</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option>${(u.role==='doctor'||u.role==='nurse'||u.role==='admin')?`<option value="pending_approval" ${u.status==='pending_approval'?'selected':''}>${t('pending_approval')}</option><option value="rejected" ${u.status==='rejected'?'selected':''}>${t('rejected')}</option>`:''}<option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
-    ${u.role==='doctor'?`<div class="fg"><label class="fl">Consultation Fee (USD)</label><input class="fc" type="number" min="0" step="0.01" id="eu-cf" value="${u.consultationFee||0}"></div>`:''}
+    ${u.role==='doctor'?`<div class="fg"><label class="fl">${t('consultation_fee')} (USD)</label><select class="fc" id="eu-cf">${consultationFeeOptions(u.consultationFee||'')}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div>`:''}
     ${u.role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="eu-ar">${isSuperAdmin(CU)?`<option ${u.adminRole==='Super Admin'?'selected':''}>${t('super_admin_role')}</option>`:''}<option ${u.adminRole==='Platform Owner'?'selected':''}>${t('platform_owner')}</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>${t('clinical_operations')}</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>${t('compliance_officer')}</option><option ${u.adminRole==='Support Administrator'?'selected':''}>${t('support_admin')}</option></select></div>`:''}
     ${u.role==='patient'?`<div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
@@ -3718,6 +3776,7 @@ function saveEditUser(id) {
   if (isSuperAdmin(u) && u.id!==CU.id) return alert(t('super_admin_protect_msg'));
   u.name=$('eu-n').value.trim()||u.name;
   u.phone=$('eu-ph').value.trim(); u.status=$('eu-st').value;
+  if($('eu-cf')&&!validConsultationFee($('eu-cf').value)){alert(t('fee_range_required'));return;}
   if($('eu-cf')) u.consultationFee=parseFloat($('eu-cf').value)||0;
   if($('eu-ar')) u.adminRole=$('eu-ar').value;
   if($('eu-dc')) u.assignedDoctor=$('eu-dc').value||null;
