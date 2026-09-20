@@ -27,7 +27,13 @@ steps:
       - '--region=us-central1'
       - '--platform=managed'
       - '--allow-unauthenticated'
-      - '--port=80'
+      - '--port=8080'
+      - '--execution-environment=gen2'
+      - '--cpu=1'
+      - '--memory=512Mi'
+      - '--max-instances=5'
+      - '--timeout=60s'
+      - '--ingress=all'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/hfa-silverstrong/app:$COMMIT_SHA'

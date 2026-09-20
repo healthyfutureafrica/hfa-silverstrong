@@ -108,7 +108,18 @@ resource "google_cloud_run_v2_service" "app" {
       image = var.container_image
 
       ports {
-        container_port = 80
+        container_port = 8080
+      }
+
+      startup_probe {
+        http_get {
+          path = "/healthz"
+          port = 8080
+        }
+        initial_delay_seconds = 0
+        timeout_seconds       = 3
+        period_seconds        = 10
+        failure_threshold     = 3
       }
 
       resources {
