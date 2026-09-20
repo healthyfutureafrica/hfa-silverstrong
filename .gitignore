@@ -1,4 +1,5 @@
 workspace.xml
+.terraform/
 junitvmwatcher*.properties
 build.properties
 
