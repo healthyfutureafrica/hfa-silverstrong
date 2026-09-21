@@ -40,6 +40,7 @@ input,select,textarea,button{font-family:var(--fb)}
 .rd{background:rgba(10,107,80,.35);color:#6ddbb8}
 .rn{background:rgba(26,111,163,.3);color:#7ec9ed}
 .rp{background:rgba(138,155,176,.2);color:#c0d0e0}
+.rl{background:rgba(108,52,131,.3);color:#d6a8ee}
 .sb-nav{flex:1;padding:8px 0;overflow-y:auto}
 .nl{font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--si);padding:14px 20px 5px}
 .ni{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;transition:var(--tr);border-left:3px solid transparent;color:rgba(255,255,255,.6);font-size:.83rem;user-select:none}
@@ -819,6 +820,7 @@ const T = {
     my_patients:'My Patients', appointments:'Appointments',
     messages:'Messages', consultations:'Consultations',
     medical_records:'Medical Records', care_notes:'Care Notes',
+    lab_portal:'Lab Portal', lab_results:'Lab Results', upload_lab_result:'Upload Lab Result',
     my_appointments:'My Appointments', health_records:'Health Records',
     consult_now:'Consult Now', sign_out:'Sign Out',
     legal_privacy:'Legal & Privacy', compliance_nav:'Compliance Centre',
@@ -840,6 +842,16 @@ const T = {
     upcoming_tasks:'Upcoming Tasks', upcoming_apts:'Upcoming Appointments',
     completed_consults:'Completed Consultations',
     no_upcoming:'No upcoming appointments', no_patients:'No assigned patients',
+    doctor_reports_title:'Doctor Consultation Reports', doctor_report:'Doctor Report', add_doctor_report:'Add Doctor Report',
+    report_required:'Please enter the doctor report before completing this consultation.', report_saved:'Doctor report saved to the patient profile.',
+    diagnosis_summary:'Diagnosis / Assessment', treatment_plan:'Treatment / Follow-up Plan', report_notes_ph:'Clinical findings, diagnosis, prescriptions, referrals, and follow-up advice...',
+    generalist_first_notice:'Care starts with your generalist. A specialist is added only after your illness is reviewed and matched to the right specialty.',
+    specialist_referral_title:'Specialist Referral', specialist_referral_desc:'Your generalist has recommended specialist care based on the illness detected.',
+    refer_specialist:'Refer Specialist', illness_detected:'Illness Detected', recommended_specialty:'Recommended Specialty', referral_reason:'Clinical Reason',
+    referral_required:'Please select a specialty and describe the clinical reason for referral.',
+    choose_specialist:'Choose Specialist', no_specialists_available:'No active specialist is available for this specialty right now.',
+    specialist_selected:'Specialist selected and connected to the patient portal.', specialist_pending_choice:'Specialist recommended. Please choose a matching doctor with your generalist.',
+    assigned_specialist:'Assigned Specialist', book_specialist_consult:'Book Specialist Consult',
     no_notes:'No care notes yet',no_patients_yet:'No patients assigned yet',
     add_first_note:'No care notes yet. Add your first note.',
     no_records:'No patient records available', no_apts:'No appointments found',
@@ -850,6 +862,12 @@ const T = {
     ensure_informed:'Ensure all care providers are informed.',
     care_team:'My Care Team', no_team:'No care team assigned yet',
     allergies:'Allergies', address:'Address',
+    lab_technician:'Lab Technician', laboratory:'Laboratory', test_type:'Test Type', lab_result_file:'Lab Result File',
+    tag_patient:'Tag Patient', tag_specialist:'Tag Specialist', lab_result_notes:'Result Notes', lab_result_notes_ph:'Test summary, reference range notes, specimen date, or lab comments...',
+    result_uploaded:'Lab result uploaded and parties alerted.', pending_specialist_review:'Pending Specialist Review', opened_by_specialist:'Opened by Specialist', released_to_patient:'Released to Patient',
+    open_lab_result:'Open Result', release_result:'Release to Patient', patient_lab_results:'Patient Lab Results', no_lab_results:'No lab results available.',
+    lab_result_uploaded_alert:'A lab result has been uploaded and is awaiting specialist review.', lab_result_opened_alert:'The specialist has opened the lab result for review.', lab_result_released_alert:'Your specialist has released a lab result to your portal.',
+    notifications:'Notifications', no_notifications:'No notifications yet.',
 
     // Stats
     total_doctors:'Doctors', total_nurses:'Nurses', total_patients:'Patients',
@@ -1111,6 +1129,7 @@ const T = {
     my_patients:'Mes Patients', appointments:'Rendez-vous',
     messages:'Messages', consultations:'Consultations',
     medical_records:'Dossiers Médicaux', care_notes:'Notes de Soins',
+    lab_portal:'Portail Laboratoire', lab_results:'Résultats de Laboratoire', upload_lab_result:'Télécharger Résultat de Laboratoire',
     my_appointments:'Mes Rendez-vous', health_records:'Dossiers de Santé',
     consult_now:'Consulter Maintenant', sign_out:'Se Déconnecter',
     legal_privacy:'Juridique & Confidentialité', compliance_nav:'Centre de Conformité',
@@ -1130,6 +1149,16 @@ const T = {
     dept_lbl:'Département', upcoming:'À Venir', completed:'Terminés',
     my_patients_lbl:'Mes Patients', assigned_patients:'Patients Assignés',
     upcoming_tasks:'Tâches à Venir', upcoming_apts:'Rendez-vous à Venir',
+    doctor_reports_title:'Rapports de Consultation du Médecin', doctor_report:'Rapport du Médecin', add_doctor_report:'Ajouter Rapport du Médecin',
+    report_required:'Veuillez saisir le rapport du médecin avant de terminer cette consultation.', report_saved:'Rapport du médecin enregistré dans le profil patient.',
+    diagnosis_summary:'Diagnostic / Évaluation', treatment_plan:'Traitement / Plan de Suivi', report_notes_ph:'Constats cliniques, diagnostic, prescriptions, orientations et conseils de suivi...',
+    generalist_first_notice:'Les soins commencent avec votre médecin généraliste. Un spécialiste est ajouté seulement après évaluation de votre maladie et orientation vers la bonne spécialité.',
+    specialist_referral_title:'Orientation vers un Spécialiste', specialist_referral_desc:'Votre généraliste a recommandé des soins spécialisés selon la maladie détectée.',
+    refer_specialist:'Orienter vers Spécialiste', illness_detected:'Maladie Détectée', recommended_specialty:'Spécialité Recommandée', referral_reason:'Raison Clinique',
+    referral_required:'Veuillez sélectionner une spécialité et décrire la raison clinique de l’orientation.',
+    choose_specialist:'Choisir un Spécialiste', no_specialists_available:'Aucun spécialiste actif n’est disponible pour cette spécialité actuellement.',
+    specialist_selected:'Spécialiste sélectionné et connecté au portail patient.', specialist_pending_choice:'Spécialiste recommandé. Veuillez choisir un médecin correspondant avec votre généraliste.',
+    assigned_specialist:'Spécialiste Assigné', book_specialist_consult:'Réserver Consultation Spécialiste',
     completed_consults:'Consultations Terminées',
     no_upcoming:'Aucun rendez-vous à venir', no_patients:'Aucun patient assigné',
     no_notes:'Aucune note de soins', no_patients_yet:'Aucun patient assigné pour l\'instant',
@@ -1142,6 +1171,12 @@ const T = {
     ensure_informed:'Assurez-vous que tous les soignants sont informés.',
     care_team:'Mon Équipe Soignante', no_team:'Aucune équipe soignante assignée',
     allergies:'Allergies', address:'Adresse',
+    lab_technician:'Technicien de Laboratoire', laboratory:'Laboratoire', test_type:'Type de Test', lab_result_file:'Fichier du Résultat',
+    tag_patient:'Associer Patient', tag_specialist:'Associer Spécialiste', lab_result_notes:'Notes du Résultat', lab_result_notes_ph:'Résumé du test, valeurs de référence, date du prélèvement ou commentaires du laboratoire...',
+    result_uploaded:'Résultat de laboratoire téléchargé et parties alertées.', pending_specialist_review:'En Attente de Revue Spécialiste', opened_by_specialist:'Ouvert par le Spécialiste', released_to_patient:'Publié au Patient',
+    open_lab_result:'Ouvrir le Résultat', release_result:'Publier au Patient', patient_lab_results:'Résultats de Laboratoire du Patient', no_lab_results:'Aucun résultat de laboratoire disponible.',
+    lab_result_uploaded_alert:'Un résultat de laboratoire a été téléchargé et attend la revue du spécialiste.', lab_result_opened_alert:'Le spécialiste a ouvert le résultat de laboratoire pour revue.', lab_result_released_alert:'Votre spécialiste a publié un résultat de laboratoire dans votre portail.',
+    notifications:'Notifications', no_notifications:'Aucune notification pour le moment.',
 
     // Stats
     total_doctors:'Médecins', total_nurses:'Infirmiers', total_patients:'Patients',
@@ -1554,6 +1589,7 @@ const DB = {
   users: [
     {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
     {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
+    {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',password:'Lab@123',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',status:'active',createdAt:'2024-02-05'},
     {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
     {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
     {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',homeVisitFee:12,status:'active',createdAt:'2024-02-20'},
@@ -1591,11 +1627,15 @@ const DB = {
     {id:'cn2',nurseId:'nur1',patientId:'pat2',text:'Blood glucose: 8.4 mmol/L. Diet review completed. Patient doing well.',date:'2025-01-27',time:'10:30 AM'},
     {id:'cn3',nurseId:'nur1',patientId:'pat3',text:'Post-op incision site checked. Healing well. No signs of infection.',date:'2025-01-28',time:'08:45 AM'},
   ],
+  doctorReports: [],
   carePlans: [
     {id:'cp1',patientId:'pat1',title:'Blood pressure control',ownerId:'doc1',status:'active',nextReview:'2025-02-04',goals:[{label:'Take prescribed medicine as directed',progress:80},{label:'Record blood pressure three times weekly',progress:60}]},
     {id:'cp2',patientId:'pat2',title:'Diabetes self-management',ownerId:'doc1',status:'active',nextReview:'2025-02-12',goals:[{label:'Track glucose readings',progress:70},{label:'Follow nutrition plan',progress:50}]},
   ],
   triageCases: [],
+  labResults: [],
+  notifications: [],
+  specialistReferrals: [],
   reviews: [],
   fhAnalytics: [],
   clinicianVerifications: [
@@ -1912,9 +1952,26 @@ const validConsultationFee = value => Number(value)>=5 && Number(value)<=20;
 function consultationFeeOptions(selected='') {
   return '<option value="">Select fee...</option>' + Array.from({length:16},(_,i)=>i+5).map(fee=>`<option value="${fee}" ${Number(selected)===fee?'selected':''}>USD ${fee}</option>`).join('');
 }
+const GENERALIST_SPECIALTIES = ['General Medicine','Family Medicine','Internal Medicine'];
+const isGeneralistDoctor = user => !!user && user.role==='doctor' && GENERALIST_SPECIALTIES.includes(user.specialty);
+function activeSpecialistReferral(patientId) {
+  return DB.specialistReferrals.filter(r=>r.patientId===patientId&&r.status!=='closed').sort((a,b)=>b.createdAt.localeCompare(a.createdAt))[0] || null;
+}
+function specialistsForReferral(referral) {
+  return DB.users.filter(u=>u.role==='doctor'&&u.status==='active'&&u.specialty===referral.specialty&&!isGeneralistDoctor(u));
+}
+function patientsForDoctor(doctorId) {
+  const referredIds = DB.specialistReferrals.filter(r=>r.specialistDoctorId===doctorId&&r.status==='accepted').map(r=>r.patientId);
+  return DB.users.filter(u=>u.role==='patient'&&(u.assignedDoctor===doctorId||referredIds.includes(u.id)));
+}
+function notifyUser(userId, message, resource='Lab Results', meta={}) {
+  if(!userId) return;
+  DB.notifications.unshift({id:'nt'+Date.now()+Math.floor(Math.random()*1000),userId,message,resource,meta,read:false,createdAt:tsNow()});
+}
+function userNotifications(userId) { return DB.notifications.filter(n=>n.userId===userId).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)); }
 
 // ── HFA ID: role-legible identifier, e.g. HFA-DR-24-00001-7 (Doctor), HFA-NS-24-00001-3 (Nurse), HFA-PT-24-00001-5 (Patient) ──
-const ROLE_CODE = {doctor:'DR', nurse:'NS', patient:'PT', admin:'AD'};
+const ROLE_CODE = {doctor:'DR', nurse:'NS', patient:'PT', admin:'AD', labtech:'LT'};
 function luhnCheckDigit(digits) {
   let sum=0, alt=false;
   for (let i=digits.length-1;i>=0;i--) {
@@ -1936,12 +1993,12 @@ function nextHfaId(role) {
   return genHfaId(role, seq, yy);
 }
 function isValidHfaId(str) {
-  const m = /^HFA-(DR|NS|PT|AD)-(\d{2})-(\d{5})-(\d)$/.exec(str||'');
+  const m = /^HFA-(DR|NS|PT|AD|LT)-(\d{2})-(\d{5})-(\d)$/.exec(str||'');
   if (!m) return false;
   return luhnCheckDigit(m[2]+m[3]) === +m[4];
 }
 (function seedHfaIds() {
-  const seq = {doctor:0, nurse:0, patient:0, admin:0};
+  const seq = {doctor:0, nurse:0, patient:0, admin:0, labtech:0};
   DB.users.forEach(u => {
     if (!ROLE_CODE[u.role] || u.hfaId) return;
     seq[u.role]++;
@@ -1954,9 +2011,10 @@ function myContacts() {
   if (!CU) return [];
   const r = CU.role;
   if (r==='admin') return DB.users.filter(u=>u.id!==CU.id);
-  if (r==='doctor') return DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id).concat(DB.users.filter(u=>u.role==='nurse'||u.role==='admin'||(u.role==='doctor'&&u.id!==CU.id)));
+  if (r==='doctor') return patientsForDoctor(CU.id).concat(DB.users.filter(u=>u.role==='nurse'||u.role==='admin'||(u.role==='doctor'&&u.id!==CU.id)));
   if (r==='nurse')  return DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id).concat(DB.users.filter(u=>u.role==='doctor'||u.role==='admin'||(u.role==='nurse'&&u.id!==CU.id)));
-  if (r==='patient') return DB.users.filter(u=>u.id===CU.assignedDoctor||u.id===CU.assignedNurse);
+  if (r==='patient') { const ref=activeSpecialistReferral(CU.id); return DB.users.filter(u=>u.id===CU.assignedDoctor||u.id===CU.assignedNurse||(ref?.status==='accepted'&&u.id===ref.specialistDoctorId)); }
+  if (r==='labtech') return DB.users.filter(u=>u.role==='doctor'||u.role==='admin');
   return [];
 }
 
@@ -2159,6 +2217,11 @@ const NAV = {
     {s:()=>t('care_notes'),items:[{id:'carenotes',l:()=>t('care_notes'),i:'clip'}]},
     {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
   ],
+  labtech:[
+    {s:()=>t('lab_portal'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'lab-results',l:()=>t('lab_results'),i:'file'}]},
+    {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
+  ],
   patient:[
     {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'},{id:'subscriptions',l:()=>t('subscriptions'),i:'go'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'}]},
@@ -2333,7 +2396,7 @@ function doLogout() { log('LOGOUT','System'); CU=null; SC=null; goLand(); }
 function buildSidebar() {
   const r = CU.role;
   $('srb').textContent = (r==='admin' && CU.adminRole) ? CU.adminRole.toUpperCase() : r.toUpperCase();
-  $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp'}[r];
+  $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp',labtech:'rl'}[r];
   $('sav').textContent = ini(CU.name);
   $('snm').textContent = CU.name;
   $('sem').textContent = CU.email;
@@ -2399,6 +2462,9 @@ function renderPage(page) {
     else if (page==='patients') renderPatients(pc);
     else if (page==='appointments') renderApts(pc);
     else if (page==='carenotes') renderCareNotes(pc);
+  } else if (r==='labtech') {
+    if (page==='dashboard') renderLabDash(pc);
+    else if (page==='lab-results') renderLabResults(pc);
   } else if (r==='patient') {
     if (page==='dashboard') renderPatDash(pc);
     else if (page==='appointments') renderApts(pc);
@@ -2433,6 +2499,7 @@ function aptBadge(s) {
 }
 function aptCard(a) {
   const pat=G(a.patientId), doc=G(a.doctorId), fd=fmtD(a.date);
+  const report=DB.doctorReports.find(r=>r.appointmentId===a.id);
   const who = CU.role==='patient' ? (doc?.name||'Doctor') : (pat?.name||'Patient');
   return `<div class="ai2" style="margin-bottom:10px">
     <div class="adb"><div class="add">${fd.day}</div><div class="adm">${fd.mon}</div></div>
@@ -2440,6 +2507,7 @@ function aptCard(a) {
       <div class="ain">${who}</div>
       <div class="ame">${a.time} · ${a.serviceName||a.type} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
       ${a.notes ? `<div class="ame">${a.notes}</div>` : ''}
+      ${report ? `<div class="ame"><strong>${t('doctor_report')}:</strong> ${report.summary}</div>` : ''}
     </div>
     <div class="aac">
       ${a.status==='scheduled' ? `<button class="btn bp bsm" onclick="completeApt('${a.id}')">${IC.chk} ${t('done')}</button>` : ''}
@@ -2447,11 +2515,36 @@ function aptCard(a) {
     </div>
   </div>`;
 }
-function completeApt(id) { const a=DB.appointments.find(x=>x.id===id); if(a){a.status='completed'; log('COMPLETE_APPOINTMENT','Appointments');} navigate(CP); }
+function completeApt(id) {
+  const a=DB.appointments.find(x=>x.id===id); if(!a) return;
+  if(CU.role==='doctor'&&a.doctorId===CU.id) return showDoctorReport(id);
+  a.status='completed'; log('COMPLETE_APPOINTMENT','Appointments'); navigate(CP);
+}
+
+function showDoctorReport(appointmentId) {
+  const apt=DB.appointments.find(a=>a.id===appointmentId), patient=G(apt?.patientId);
+  if(!apt||!patient) return;
+  openMo(`<div class="mh"><div><div class="mt2">${t('add_doctor_report')}</div><div class="mu sm">${patient.name} · ${apt.date} ${t('at')} ${apt.time}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="fg"><label class="fl">${t('diagnosis_summary')}</label><input class="fc" id="dr-summary" placeholder="e.g. Hypertension follow-up, diabetes review, cardiology concern"></div>
+    <div class="fg"><label class="fl">${t('treatment_plan')}</label><textarea class="fc" id="dr-plan" placeholder="${t('report_notes_ph')}"></textarea></div>
+    <div id="dr-status" class="mu sm"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveDoctorReport('${appointmentId}')">${t('done')}</button></div>`);
+}
+
+function saveDoctorReport(appointmentId) {
+  const apt=DB.appointments.find(a=>a.id===appointmentId); if(!apt) return;
+  const summary=$('dr-summary').value.trim(), plan=$('dr-plan').value.trim();
+  if(!summary||!plan){ const s=$('dr-status'); if(s) s.textContent=t('report_required'); return; }
+  const existing=DB.doctorReports.find(r=>r.appointmentId===appointmentId);
+  const report={appointmentId,patientId:apt.patientId,doctorId:CU.id,consultationDate:apt.date,consultationTime:apt.time,summary,plan,createdAt:tsNow()};
+  if(existing) Object.assign(existing,report); else DB.doctorReports.unshift({id:'dr'+Date.now(),...report});
+  apt.status='completed'; apt.doctorReportId=(existing?.id)||DB.doctorReports[0].id;
+  log('ADD_DOCTOR_REPORT','Medical Records'); closeMo(); navigate(CP);
+}
 
 // ═══════════════════════ ADMIN ═══════════════════════
 function renderDemoCredentials() {
-  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
+  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
 }
 
 function renderAdminDash(pc) {
@@ -2794,7 +2887,7 @@ function saveIdUpload() {
 function renderDrDash(pc) {
   $('tbt').textContent=t('doctor_dashboard');
   topBtn(`<button class="btn bp bsm" onclick="showNewApt()">${IC.plus} ${t('new_appointment')}</button>`);
-  const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id);
+  const myP=patientsForDoctor(CU.id);
   const myA=DB.appointments.filter(a=>a.doctorId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
   pc.innerHTML=`<div class="page">
@@ -2804,6 +2897,8 @@ function renderDrDash(pc) {
       <div class="sc cg"><div class="sv">${up.length}</div><div class="sl">${t('upcoming')}</div></div>
       <div class="sc cb"><div class="sv">${myA.filter(a=>a.status==='completed').length}</div><div class="sl">${t('completed')}</div></div>
     </div>
+    ${notificationList(CU.id)}
+    <div class="card mb18"><div class="ch"><div class="ct">${t('lab_results')}</div></div>${labResultList('specialist')}</div>
     <div class="g2">
       <div class="card"><div class="ch"><div class="ct">${t('upcoming_apts')}</div></div>
         ${up.length===0 ? `<div class="emp"><p>${t('no_upcoming')}</p></div>` : up.map(a=>aptCard(a)).join('')}
@@ -2824,7 +2919,7 @@ function renderDrDash(pc) {
 function renderPatients(pc) {
   $('tbt').textContent=t('my_patients');
   const myP = CU.role==='doctor'
-    ? DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id)
+    ? patientsForDoctor(CU.id)
     : DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('patient_list')}</h2><p>${LANG==='fr'?'Patients assignés à vous':'Patients assigned to you'}</p></div>
@@ -2844,14 +2939,14 @@ function renderPatients(pc) {
         <div class="pf"><label>${t('address')}</label><span>${p.address||'—'}</span></div>
         <div class="pf"><label>${t('emergency_contact')}</label><span>${p.emergencyContact||'—'}</span></div>
       </div>
-      <div style="margin-top:12px"><button class="btn bs bsm" onclick="showPatientDocuments('${p.id}')">${IC.file} ${t('medical_documents_title')}</button></div>
+      <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn bs bsm" onclick="showPatientDocuments('${p.id}')">${IC.file} ${t('medical_documents_title')}</button>${CU.role==='doctor'&&isGeneralistDoctor(CU)?`<button class="btn bp bsm" onclick="showSpecialistReferral('${p.id}')">${IC.plus} ${t('refer_specialist')}</button>`:''}</div>
     </div>`).join('')}
   </div>`;
 }
 
 function renderRecords(pc) {
   $('tbt').textContent=t('medical_records');
-  const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id);
+  const myP=patientsForDoctor(CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('medical_records')}</h2><p>${LANG==='fr'?'Dossiers complets pour vos patients':'Complete records for your patients'}</p></div>
     ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_records')}</p></div></div>` : myP.map(p=>`
@@ -2863,10 +2958,51 @@ function renderRecords(pc) {
         <div><div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${p.emergencyContact||'—'}</p></div>
         <div><div class="fl">${t('address')}</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
       </div>
+      <div class="fl" style="margin-top:16px">${t('doctor_reports_title')}</div>
+      ${doctorReportList(p.id)}
       <div class="fl" style="margin-top:16px">${t('medical_documents_title')}</div>
       ${medicalDocumentList(p.id)}
     </div>`).join('')}
   </div>`;
+}
+
+function doctorReportList(patientId) {
+  const reports=DB.doctorReports.filter(r=>r.patientId===patientId).sort((a,b)=>(b.consultationDate+b.consultationTime).localeCompare(a.consultationDate+a.consultationTime));
+  return reports.length===0?`<p class="mu sm" style="margin-top:4px">${t('none_recorded')}</p>`:reports.map(r=>{const doc=G(r.doctorId);return`
+    <div style="padding:10px 0;border-bottom:1px solid var(--bd)">
+      <div style="display:flex;justify-content:space-between;gap:12px"><div class="bo sm">${r.summary}</div><span class="badge bin">${r.consultationDate} ${t('at')} ${r.consultationTime}</span></div>
+      <div class="mu sm">${doc?.name||t('doctor')} · ${doc?.specialty||''}</div>
+      <div class="sm" style="margin-top:4px">${r.plan}</div>
+    </div>`;}).join('');
+}
+
+function notificationList(userId) {
+  const notes=userNotifications(userId).slice(0,6);
+  return `<div class="card mb18"><div class="ch"><div class="ct">${t('notifications')}</div></div>${notes.length?notes.map(n=>`<div class="code-item"><code class="code-chip">${n.resource}</code><div><strong>${n.message}</strong><span>${n.createdAt}</span></div></div>`).join(''):`<div class="rating-empty">${t('no_notifications')}</div>`}</div>`;
+}
+
+function labResultStatusBadge(status) {
+  return status==='released' ? `<span class="badge bsu">${t('released_to_patient')}</span>`
+    : status==='opened' ? `<span class="badge bin">${t('opened_by_specialist')}</span>`
+    : `<span class="badge bwa">${t('pending_specialist_review')}</span>`;
+}
+
+function labResultList(scope='patient', patientId=null) {
+  const results=DB.labResults.filter(result=>{
+    if(scope==='lab') return result.labTechId===CU.id;
+    if(scope==='specialist') return result.specialistDoctorId===CU.id;
+    if(scope==='patient') return result.patientId===(patientId||CU.id)&&result.status==='released';
+    return false;
+  }).sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));
+  return results.length?results.map(result=>{const patient=G(result.patientId), specialist=G(result.specialistDoctorId), lab=G(result.labTechId);const canOpen=scope==='specialist'&&result.status==='pending';const canRelease=scope==='specialist'&&result.status==='opened';const canView=scope==='specialist'||(scope==='patient'&&result.status==='released');return`
+    <div class="code-item">
+      <code class="code-chip">${result.testType}</code>
+      <div style="flex:1"><strong>${patient?.name||'Patient'} · ${specialist?.name||t('doctor')}</strong><span>${result.fileName} · ${result.uploadedAt} · ${lab?.laboratory||lab?.name||t('laboratory')}</span>${result.notes?`<span>${result.notes}</span>`:''}</div>
+      ${labResultStatusBadge(result.status)}
+      ${canOpen?`<button class="btn bp bsm" onclick="openLabResultFirst('${result.id}')">${t('open_lab_result')}</button>`:''}
+      ${canRelease?`<button class="btn bg2 bsm" onclick="releaseLabResult('${result.id}')">${t('release_result')}</button>`:''}
+      ${canView?`<a class="btn bs bsm" href="${result.fileData}" download="${result.fileName}" target="_blank">${t('view_document')}</a>`:''}
+    </div>`;}).join(''):`<div class="rating-empty">${t('no_lab_results')}</div>`;
 }
 
 function medicalDocumentList(patientId) {
@@ -2887,6 +3023,42 @@ function showPatientDocuments(patientId) {
   openMo(`<div class="mh"><div><div class="mt2">${t('medical_documents_title')}</div><div class="mu sm">${p.name}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     ${medicalDocumentList(patientId)}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('close_btn')}</button></div>`);
+}
+
+function showSpecialistReferral(patientId) {
+  const p=G(patientId); if(!p||!isGeneralistDoctor(CU)) return;
+  const specialistOptions=SPECIALTIES.filter(s=>!GENERALIST_SPECIALTIES.includes(s)).map(s=>`<option>${s}</option>`).join('');
+  openMo(`<div class="mh"><div><div class="mt2">${t('refer_specialist')}</div><div class="mu sm">${p.name}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="alt ai">${t('specialist_referral_desc')}</div>
+    <div class="fg"><label class="fl">${t('illness_detected')}</label><input class="fc" id="sr-illness" placeholder="e.g. chest pain, abnormal ECG, skin lesion"></div>
+    <div class="fg"><label class="fl">${t('recommended_specialty')}</label><select class="fc" id="sr-spec"><option value="">${t('select')}</option>${specialistOptions}</select></div>
+    <div class="fg"><label class="fl">${t('referral_reason')}</label><textarea class="fc" id="sr-reason" placeholder="Clinical findings, suspected illness, and why specialist care is needed..."></textarea></div>
+    <div id="sr-status" class="mu sm"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveSpecialistReferral('${patientId}')">${t('confirm')}</button></div>`);
+}
+
+function saveSpecialistReferral(patientId) {
+  const specialty=$('sr-spec').value, illness=$('sr-illness').value.trim(), reason=$('sr-reason').value.trim();
+  if(!specialty||!reason){ const s=$('sr-status'); if(s) s.textContent=t('referral_required'); return; }
+  const existing=activeSpecialistReferral(patientId); if(existing&&existing.status==='pending_choice') existing.status='closed';
+  DB.specialistReferrals.push({id:'sr'+Date.now(),patientId,generalistId:CU.id,specialty,illness,reason,status:'pending_choice',createdAt:tsNow()});
+  log('CREATE_SPECIALIST_REFERRAL','Care Coordination'); closeMo(); navigate(CP);
+}
+
+function showChooseSpecialist(referralId) {
+  const ref=DB.specialistReferrals.find(r=>r.id===referralId); if(!ref) return;
+  const doctors=specialistsForReferral(ref);
+  openMo(`<div class="mh"><div><div class="mt2">${t('choose_specialist')}</div><div class="mu sm">${ref.specialty}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="alt ai"><strong>${t('illness_detected')}:</strong> ${ref.illness||'—'}<br>${ref.reason}</div>
+    ${doctors.length?doctors.map(doc=>`<div class="code-item"><code class="code-chip">${doc.specialty}</code><div style="flex:1"><strong>${doc.name}</strong><span>${doc.hospital||''}${doc.consultationFee?` · ${t('consultation_fee')}: USD ${doc.consultationFee.toFixed(2)}`:''}</span></div><button class="btn bp bsm" onclick="confirmSpecialistChoice('${referralId}','${doc.id}')">${t('choose_specialist')}</button></div>`).join(''):`<div class="emp"><p>${t('no_specialists_available')}</p></div>`}
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button></div>`);
+}
+
+function confirmSpecialistChoice(referralId, doctorId) {
+  const ref=DB.specialistReferrals.find(r=>r.id===referralId), doc=G(doctorId), pat=G(ref?.patientId);
+  if(!ref||!doc||!pat) return;
+  ref.status='accepted'; ref.specialistDoctorId=doctorId; ref.acceptedAt=tsNow(); pat.assignedSpecialist=doctorId;
+  log('ACCEPT_SPECIALIST_REFERRAL','Care Coordination'); closeMo(); navigate('dashboard');
 }
 
 function renderApts(pc) {
@@ -2952,6 +3124,67 @@ function renderCareNotes(pc) {
   </div>`;
 }
 
+// ═══════════════════════ LAB TECHNICIAN ═══════════════════════
+function renderLabDash(pc) {
+  $('tbt').textContent=t('lab_portal');
+  topBtn(`<button class="btn bp bsm" onclick="showLabUpload()">${IC.plus} ${t('upload_lab_result')}</button>`);
+  const mine=DB.labResults.filter(r=>r.labTechId===CU.id), pending=mine.filter(r=>r.status==='pending').length, released=mine.filter(r=>r.status==='released').length;
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('lab_portal')}</h2><p>${CU.laboratory||t('laboratory')} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
+    <div class="stats"><div class="sc ce"><div class="sv">${mine.length}</div><div class="sl">${t('lab_results')}</div></div><div class="sc cg"><div class="sv">${pending}</div><div class="sl">${t('pending_specialist_review')}</div></div><div class="sc cb"><div class="sv">${released}</div><div class="sl">${t('released_to_patient')}</div></div></div>
+    ${notificationList(CU.id)}
+    <div class="card"><div class="ch"><div class="ct">${t('lab_results')}</div><button class="btn bp bsm" onclick="showLabUpload()">${IC.plus} ${t('upload_lab_result')}</button></div>${labResultList('lab')}</div>
+  </div>`;
+}
+
+function renderLabResults(pc) {
+  $('tbt').textContent=t('lab_results');
+  topBtn(`<button class="btn bp bsm" onclick="showLabUpload()">${IC.plus} ${t('upload_lab_result')}</button>`);
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('lab_results')}</h2><p>${LANG==='fr'?'Téléversez et suivez les résultats associés au patient et au spécialiste.':'Upload and track results tagged to the patient and involved specialist.'}</p></div>${notificationList(CU.id)}<div class="card">${labResultList('lab')}</div></div>`;
+}
+
+function showLabUpload() {
+  const patients=DB.users.filter(u=>u.role==='patient'&&u.status==='active');
+  const specialists=DB.users.filter(u=>u.role==='doctor'&&u.status==='active'&&!isGeneralistDoctor(u));
+  openMo(`<div class="mh"><div class="mt2">${t('upload_lab_result')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="fg"><label class="fl">${t('tag_patient')}</label><select class="fc" id="lr-patient"><option value="">${t('select')}</option>${patients.map(p=>`<option value="${p.id}">${p.name} · ${p.hfaId||''}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('tag_specialist')}</label><select class="fc" id="lr-specialist"><option value="">${t('select')}</option>${specialists.map(d=>`<option value="${d.id}">${d.name} — ${d.specialty}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('test_type')}</label><input class="fc" id="lr-test" placeholder="CBC, malaria test, lipid panel, X-ray report..."></div>
+    <div class="fg"><label class="fl">${t('lab_result_file')}</label><input class="fc" type="file" id="lr-file" accept="image/*,.pdf"></div>
+    <div class="fg"><label class="fl">${t('lab_result_notes')}</label><textarea class="fc" id="lr-notes" placeholder="${t('lab_result_notes_ph')}"></textarea></div>
+    <div id="lr-status" class="mu sm"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveLabResult()">${t('upload_lab_result')}</button></div>`);
+}
+
+function saveLabResult() {
+  const patientId=$('lr-patient').value, specialistDoctorId=$('lr-specialist').value, testType=$('lr-test').value.trim(), fileInput=$('lr-file'), notes=$('lr-notes').value.trim();
+  if(!patientId||!specialistDoctorId||!testType||!fileInput.files.length){ const s=$('lr-status'); if(s) s.textContent=t('fill_required'); return; }
+  const file=fileInput.files[0], reader=new FileReader();
+  reader.onload=()=>{
+    const result={id:'lr'+Date.now(),patientId,specialistDoctorId,labTechId:CU.id,testType,fileName:file.name,fileData:reader.result,notes,status:'pending',uploadedAt:tsNow(),openedAt:null,releasedAt:null};
+    DB.labResults.unshift(result);
+    notifyUser(specialistDoctorId,t('lab_result_uploaded_alert'),'Lab Results',{labResultId:result.id});
+    notifyUser(patientId,t('lab_result_uploaded_alert'),'Lab Results',{labResultId:result.id});
+    log('UPLOAD_LAB_RESULT','Lab Results'); closeMo(); navigate(CP);
+  };
+  reader.readAsDataURL(file);
+}
+
+function openLabResultFirst(id) {
+  const result=DB.labResults.find(r=>r.id===id); if(!result||result.specialistDoctorId!==CU.id) return;
+  result.status='opened'; result.openedAt=tsNow();
+  notifyUser(result.patientId,t('lab_result_opened_alert'),'Lab Results',{labResultId:id});
+  notifyUser(result.labTechId,t('lab_result_opened_alert'),'Lab Results',{labResultId:id});
+  log('OPEN_LAB_RESULT','Lab Results'); navigate(CP);
+}
+
+function releaseLabResult(id) {
+  const result=DB.labResults.find(r=>r.id===id); if(!result||result.specialistDoctorId!==CU.id) return;
+  result.status='released'; result.releasedAt=tsNow();
+  notifyUser(result.patientId,t('lab_result_released_alert'),'Lab Results',{labResultId:id});
+  notifyUser(result.labTechId,t('lab_result_released_alert'),'Lab Results',{labResultId:id});
+  log('RELEASE_LAB_RESULT','Lab Results'); navigate(CP);
+}
+
 // ═══════════════════════ PATIENT ═══════════════════════
 function renderPatDash(pc) {
   $('tbt').textContent=t('patient_dashboard');
@@ -2959,11 +3192,16 @@ function renderPatDash(pc) {
   topBtn(`<button class="btn bd2 bsm" onclick="showTriage()">${t('urgent_help')}</button>`);
   topBtn(`<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} ${t('book_consultation')}</button>`);
   const myDoc=G(CU.assignedDoctor), myNur=G(CU.assignedNurse);
+  const referral=activeSpecialistReferral(CU.id), mySpec=referral?.status==='accepted'?G(referral.specialistDoctorId):null;
   const myA=DB.appointments.filter(a=>a.patientId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${LANG==='fr'?'Bonjour,':'Hello,'} ${CU.name.split(' ')[0]}</h2><p>${LANG==='fr'?'Gérez votre santé et contactez votre équipe soignante':'Manage your health and communicate with your care team'}</p></div>
+    ${notificationList(CU.id)}
     <div class="safety-banner"><div>!</div><div><strong>${t('virtual_care_safety')}</strong><p>${t('virtual_care_safety_desc')}</p></div></div>
+    <div class="alt ai mb12">${t('generalist_first_notice')}</div>
+    ${referral&&referral.status==='pending_choice'?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('specialist_referral_title')}</div><div class="rating-note">${t('specialist_pending_choice')}</div></div><button class="btn bp bsm" onclick="showChooseSpecialist('${referral.id}')">${t('choose_specialist')}</button></div><div class="mu sm"><strong>${t('recommended_specialty')}:</strong> ${referral.specialty} · <strong>${t('illness_detected')}:</strong> ${referral.illness||'—'}</div><div class="mu sm" style="margin-top:4px">${referral.reason}</div></div>`:''}
+    ${mySpec?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('assigned_specialist')}</div><div class="rating-note">${referral.specialty} · ${referral.illness||''}</div></div><button class="btn bp bsm" onclick="showBookApt('SPECIALIST-REFERRAL')">${t('book_specialist_consult')}</button></div><div class="bo sm">${mySpec.name}</div><div class="mu sm">${mySpec.hospital||''}${mySpec.consultationFee?` · ${t('consultation_fee')}: USD ${mySpec.consultationFee.toFixed(2)}`:''}</div></div>`:''}
     <div class="card mb18"><div class="ch"><div><div class="ct">${t('medical_upload_cta_title')}</div><div class="rating-note">${t('medical_upload_cta_desc')}</div></div><button class="btn bp bsm" onclick="showUploadDocument()">${IC.plus} ${t('upload_document')}</button></div></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${up.length}</div><div class="sl">${t('upcoming_apts')}</div></div>
@@ -2980,6 +3218,10 @@ function renderPatDash(pc) {
           <div class="av">${ini(myDoc.name)}</div>
           <div style="flex:1"><div class="bo sm">${myDoc.name}</div><div class="mu sm">${myDoc.specialty||''} · ${myDoc.hospital||''}</div>${myDoc.consultationFee?`<div class="mu sm">${t('consultation_fee')}: USD ${myDoc.consultationFee.toFixed(2)} <button class="btn bp bsm" style="margin-left:6px" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>
           <span class="badge bdo">${t('doctor')}</span></div>`:''}
+        ${mySpec?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--go-p);border-radius:var(--rs);margin-bottom:8px">
+          <div class="av" style="background:linear-gradient(135deg,var(--go),var(--go-l))">${ini(mySpec.name)}</div>
+          <div style="flex:1"><div class="bo sm">${mySpec.name}</div><div class="mu sm">${mySpec.specialty||''} · ${mySpec.hospital||''}</div></div>
+          <span class="badge bwa">${t('assigned_specialist')}</span></div>`:''}
         ${myNur?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:#eaf3fb;border-radius:var(--rs)">
           <div class="av" style="background:linear-gradient(135deg,#2e8bc0,#1a5f8f)">${ini(myNur.name)}</div>
           <div style="flex:1"><div class="bo sm">${myNur.name}</div><div class="mu sm">${myNur.department||''} · ${myNur.hospital||''}</div></div>
@@ -3371,8 +3613,6 @@ function saveRating(providerId) {
 function renderPatRecords(pc) {
   $('tbt').textContent=t('health_records');
   const u=CU;
-  const docs=DB.medicalDocuments.filter(d=>d.patientId===CU.id).sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));
-  const myApts=DB.appointments.filter(a=>a.patientId===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('health_records')}</h2></div>
     <div class="g2">
@@ -3386,17 +3626,14 @@ function renderPatRecords(pc) {
         <div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${u.emergencyContact||'—'}</p>
       </div>
     </div>
+    <div class="card mt18"><div class="ch"><div><div class="ct">${t('doctor_reports_title')}</div><div class="rating-note">${LANG==='fr'?'Historique des rapports ajoutés après chaque consultation médicale':'History of reports added after each doctor consultation'}</div></div></div>
+      ${doctorReportList(CU.id)}
+    </div>
+    <div class="card mt18"><div class="ch"><div><div class="ct">${t('patient_lab_results')}</div><div class="rating-note">${LANG==='fr'?'Résultats publiés par votre spécialiste après revue':'Results released by your specialist after review'}</div></div></div>
+      ${labResultList('patient', CU.id)}
+    </div>
     <div class="card mt18"><div class="ch"><div><div class="ct">${t('medical_documents_title')}</div><div class="rating-note">${t('medical_documents_desc')}</div></div><button class="btn bp bsm" onclick="showUploadDocument()">${IC.plus} ${t('upload_document')}</button></div>
-      ${docs.length===0?`<div class="emp"><p>${t('no_documents')}</p></div>`:docs.map(d=>`
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)">
-          <div class="pca">${IC.file}</div>
-          <div style="flex:1">
-            <div class="bo sm">${d.category}</div>
-            <div class="mu sm">${d.fileName} · ${d.uploadedAt}${myApts.find(a=>a.id===d.relatedApptId)?` · ${myApts.find(a=>a.id===d.relatedApptId).date}`:''}</div>
-            ${d.notes?`<div class="mu sm" style="margin-top:2px">${d.notes}</div>`:''}
-          </div>
-          <a class="btn bs bsm" href="${d.fileData}" download="${d.fileName}" target="_blank">${t('view_document')}</a>
-        </div>`).join('')}
+      ${medicalDocumentList(CU.id)}
     </div>
   </div>`;
 }
@@ -3641,7 +3878,7 @@ function saveNote() {
 }
 
 function showNewApt() {
-  const pats=CU.role==='doctor'?DB.users.filter(u=>u.role==='patient'&&u.assignedDoctor===CU.id):DB.users.filter(u=>u.role==='patient');
+  const pats=CU.role==='doctor'?patientsForDoctor(CU.id):DB.users.filter(u=>u.role==='patient');
   const docs=DB.users.filter(u=>u.role==='doctor');
   openMo(`<div class="mh"><div class="mt2">${t('new_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="fg"><label class="fl">Patient</label><select class="fc" id="ap-p"><option value="">Select patient...</option>${pats.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
@@ -3662,11 +3899,12 @@ function saveApt() {
 
 function showBookApt(serviceCode='PC-VIRTUAL') {
   const myDoc=G(CU.assignedDoctor);
+  const referral=activeSpecialistReferral(CU.id), mySpec=referral?.status==='accepted'?G(referral.specialistDoctorId):null;
   const docs=DB.users.filter(u=>u.role==='doctor'&&u.status==='active');
-  BOOKDOC = myDoc ? myDoc.id : (docs[0]?.id || null);
+  BOOKDOC = serviceCode==='SPECIALIST-REFERRAL'&&mySpec ? mySpec.id : (myDoc ? myDoc.id : (docs[0]?.id || null));
   APTSERVICE=VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-VIRTUAL';
   openMo(`<div class="mh"><div class="mt2">${t('book_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    ${myDoc?`<div style="background:var(--em-p);padding:10px 14px;border-radius:var(--rs);margin-bottom:16px;font-size:.83rem"><strong>${myDoc.name}</strong> — ${myDoc.specialty||''}${myDoc.consultationFee?`<div style="margin-top:6px;display:flex;align-items:center;gap:8px"><span><strong>${t('consultation_fee')}:</strong> USD ${myDoc.consultationFee.toFixed(2)} <span class="mu sm">(${t('payable_via_portal')})</span></span><button class="btn bp bsm" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>`
+    ${myDoc?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()"><option value="${myDoc.id}" ${BOOKDOC===myDoc.id?'selected':''}>${myDoc.name} — ${myDoc.specialty||t('doctor')}</option>${mySpec?`<option value="${mySpec.id}" ${BOOKDOC===mySpec.id?'selected':''}>${mySpec.name} — ${mySpec.specialty||t('assigned_specialist')}</option>`:''}</select><div class="mu sm" style="margin-top:4px">${mySpec?t('generalist_first_notice'):''}</div></div><div id="bk-doc-fee"></div>`
       :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${d.name} — ${d.specialty||''}${d.consultationFee?` (USD ${d.consultationFee.toFixed(2)})`:''}</option>`).join('')}</select></div>
         <div id="bk-doc-fee"></div>`
       :`<div class="alt ae">${t('no_doctors_available')}</div>`}
@@ -3681,7 +3919,7 @@ function showBookApt(serviceCode='PC-VIRTUAL') {
     <div class="fr"><div class="fg"><label class="fl">Preferred Date</label><input type="date" class="fc" id="bk-d"></div><div class="fg"><label class="fl">Preferred Time</label><input type="time" class="fc" id="bk-t2"></div></div>
     <div class="fg"><label class="fl">Reason for Consultation</label><textarea class="fc" id="bk-n" placeholder="Describe your symptoms or concern..."></textarea></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveBooking()" ${docs.length||myDoc?'':'disabled'}>${t('confirm_booking')}</button></div>`);
-  if (!myDoc) bkRenderDocFee();
+  bkRenderDocFee();
 }
 function bkRenderDocFee() {
   const box=$('bk-doc-fee'); if(!box) return;
@@ -3696,7 +3934,7 @@ function setAptMode(m) {
 }
 function saveBooking() {
   const date=$('bk-d').value, time=$('bk-t2').value; if(!date||!time) return;
-  const docId=CU.assignedDoctor||BOOKDOC; if(!docId) return;
+  const docId=BOOKDOC||CU.assignedDoctor; if(!docId) return;
   if(!CU.assignedDoctor){ CU.assignedDoctor=docId; }
   const service=VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
   DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:docId,nurseId:CU.assignedNurse||'',date,time,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
