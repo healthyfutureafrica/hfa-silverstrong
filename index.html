@@ -549,6 +549,11 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
         <h3 id="lnd-adm-t">Admin Panel</h3><p id="lnd-adm-p">Audit, manage &amp; oversee all users</p>
         <div class="pa">Access Panel →</div>
       </div>
+      <div class="pc2" onclick="goAuth('login')">
+        <div class="pi" style="background:rgba(108,52,131,.18)"><svg width="22" height="22" fill="none" stroke="#d6a8ee" stroke-width="2" viewBox="0 0 24 24"><path d="M10 2v6.5L4.4 19A2 2 0 0 0 6.2 22h11.6a2 2 0 0 0 1.8-3L14 8.5V2"/><path d="M8 2h8"/><path d="M7 16h10"/></svg></div>
+        <h3 id="lnd-lab-t">Lab Portal</h3><p id="lnd-lab-p">Upload lab results for specialist review</p>
+        <div class="pa">Access Portal →</div>
+      </div>
     </div>
   </div>
   <div class="lft">
@@ -1474,6 +1479,7 @@ function updateStaticHTML() {
     'lnd-nur-t': LANG==='fr'?'Portail Infirmier':'Nurse Portal',
     'lnd-pat-t': LANG==='fr'?'Portail Patient':'Patient Portal',
     'lnd-adm-t': LANG==='fr'?'Panneau Admin':'Admin Panel',
+    'lnd-lab-t': t('lab_portal'),
     'lbl-name':  t('full_name'),
     'lbl-email': t('email'),
     'lbl-phone': t('phone'),
@@ -1533,6 +1539,7 @@ function updateStaticHTML() {
     'lnd-nur-p': LANG==='fr'?'Coordination des soins & outils infirmiers':'Patient care & coordination tools',
     'lnd-pat-p': LANG==='fr'?'Réservez des consultations & dossiers de santé':'Book consultations & view health records',
     'lnd-adm-p': LANG==='fr'?'Audit, gestion & supervision':'Audit, manage & oversee all users',
+    'lnd-lab-p': LANG==='fr'?'Téléverser résultats pour revue spécialiste':'Upload lab results for specialist review',
   };
   Object.entries(desc).forEach(([id, val]) => {
     const el = $(id); if(el) el.textContent = val;
@@ -2245,7 +2252,7 @@ function goAuth(tab, role) {
   if(bh) bh.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
 }
 function startDemo(role='patient') {
-  if(!['patient','doctor','nurse'].includes(role)) return goAuth('login');
+  if(!['patient','doctor','nurse','labtech'].includes(role)) return goAuth('login');
   const demo=DB.users.find(user=>user.role===role&&user.status==='active');
   if(!demo) return goAuth('login');
   CU=demo; SC=null; log('START_DEMO','System'); goApp();
