@@ -83,7 +83,7 @@ describe('index.html sanity checks', () => {
     expect(content).not.toContain('<strong>Demo Credentials</strong>');
     expect(content).toContain('Testing Access');
     expect(content).toContain('Admin-only demo credentials');
-    expect(content).toContain("DB.users.filter(u=>['admin','doctor','nurse','patient'].includes(u.role))");
+    expect(content).toContain("DB.users.filter(u=>['admin','doctor','nurse','patient','labtech'].includes(u.role))");
     expect(content).toContain('${renderDemoCredentials()}');
   });
 
@@ -123,7 +123,10 @@ describe('index.html sanity checks', () => {
   });
 
   test('keeps Compliance Centre out of patient navigation', () => {
-    expect(content).toContain("{s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]}");
+    const patientNavigation = content.match(/  patient:\[([\s\S]*?)\r?\n  \],\r?\n};/);
+
+    expect(patientNavigation?.[1]).toBeDefined();
+    expect(patientNavigation?.[1]).not.toContain("id:'compliance'");
     expect(content).toContain("{id:'compliance',l:()=>t('compliance_nav'),i:'shield'}");
   });
 
