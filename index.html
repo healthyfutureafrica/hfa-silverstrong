@@ -406,6 +406,23 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .contact-card h3{font-family:var(--fd);font-size:1rem;color:var(--na);margin-bottom:4px}
 .contact-card p{font-size:.8rem;color:var(--t2);line-height:1.55}
 
+.creator-credit{display:flex;align-items:center;justify-content:center;gap:14px;padding:22px 24px;background:var(--na);border-top:1px solid rgba(232,184,75,.22);color:#fff;text-align:left}
+.creator-monogram{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:42px;height:42px;border:1px solid rgba(232,184,75,.5);border-radius:6px;color:var(--go-l);font-family:var(--fd);font-size:1rem;letter-spacing:0}
+.creator-label{display:block;color:var(--si-l);font-size:.68rem;letter-spacing:0;line-height:1.5}
+.creator-name{display:block;font-family:var(--fd);font-style:italic;font-weight:600;font-size:1.15rem;line-height:1.5;color:var(--go-l);letter-spacing:0;overflow-wrap:anywhere}
+body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
+.creator-credit--picker{margin-top:32px;padding:16px 0 0;background:transparent;width:calc(100% - 40px);max-width:352px}
+@media(max-width:700px){
+  body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:210px}
+  .creator-credit{gap:10px;padding:18px 16px}
+  .creator-name{font-size:1rem}
+  .creator-credit--picker{padding:16px 0 0}
+}
+@media(max-height:650px){
+  #lang-pick{overflow-y:auto;justify-content:flex-start!important;padding:24px 0}
+  #lang-pick > *{flex-shrink:0}
+}
+
 @media(max-width:900px){
   .hero{grid-template-columns:1fr;padding:48px 28px}
   .service-grid{grid-template-columns:repeat(2,1fr)}
@@ -495,6 +512,13 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
       <span class="lp-btn-lang">Français</span>
       <span class="lp-btn-name">Continuer en Français</span>
     </button>
+  </div>
+  <div class="creator-credit creator-credit--picker">
+    <span class="creator-monogram" aria-hidden="true">CSN</span>
+    <div>
+      <span class="creator-label">Designed &amp; built by / Conçu et développé par</span>
+      <span class="creator-name">Chinjie Sylvester Nkeh</span>
+    </div>
   </div>
 </div>
 
@@ -703,6 +727,15 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
     <div id="pgc"></div>
   </div>
 </div>
+
+<footer class="creator-credit" aria-label="App creator">
+  <span class="creator-monogram" aria-hidden="true">CSN</span>
+  <div>
+    <span class="creator-label t-en" lang="en">Designed &amp; built by</span>
+    <span class="creator-label t-fr" lang="fr">Conçu et développé par</span>
+    <span class="creator-name">Chinjie Sylvester Nkeh</span>
+  </div>
+</footer>
 
 <!-- VIDEO CALL -->
 <div id="vc" class="hid">

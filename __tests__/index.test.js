@@ -22,6 +22,14 @@ describe('index.html sanity checks', () => {
     expect(content.toLowerCase()).toMatch(/<title>.*<\/title>/);
   });
 
+  test('credits the designer and builder on the app and language picker', () => {
+    expect(content).toContain('<footer class="creator-credit" aria-label="App creator">');
+    expect(content).toContain('class="creator-credit creator-credit--picker"');
+    expect((content.match(/class="creator-name">Chinjie Sylvester Nkeh/g) || []).length).toBe(2);
+    expect(content).toContain('lang="en">Designed &amp; built by');
+    expect(content).toContain('lang="fr">Conçu et développé par');
+  });
+
   test('includes the patient provider rating section', () => {
     expect(content).toContain('Rate Your Care Team');
     expect(content).toContain('function renderProviderRatings');
