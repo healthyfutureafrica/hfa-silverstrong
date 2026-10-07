@@ -11,5 +11,9 @@ README.md
 __tests__
 jest.config.js
 k8s-deployment.yaml
-package*.json
 npm-debug.log
+.env
+.env.*
+backend/data
+backend/test
+**/*.sqlite*

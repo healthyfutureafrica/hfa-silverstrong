@@ -37,6 +37,8 @@ describe('index.html sanity checks', () => {
       fields['rwa-consent'] = {checked:false};
       const context = {
         RROLE:role, CU:{}, CP:'dashboard', DB:{users:[],consents:[]},
+        ApiState:{enabled:false},
+        notifyPatientActivity:jest.fn(),
         $:id=>fields[id] || {value:'Synthetic example',checked:true},
         t:key=>key, amsg:jest.fn(), validConsultationFee:()=>true,
         tsNow:()=>'test timestamp', todayD:()=>'2026-10-07', nextHfaId:()=>'test-id',
@@ -130,16 +132,18 @@ describe('index.html sanity checks', () => {
       const doctor={id:'doc1',role:'doctor',name:'Synthetic Doctor'}, patient={id:'pat1',role:'patient',phone:'+237600000000'};
       const appointment={id:'apt-test',doctorId:'doc1',patientId:'pat1',nurseId:'nur1',date:'2030-01-02',time:'10:00',durationMinutes:30,mode:'video',status:'scheduled'};
       const clock={now:new Date('2030-01-02T10:15').getTime()};
-      const context={CU:patient,SC:doctor,LANG:'en',DB:{appointments:[appointment],whatsappAlerts:[]},
+      const context={CU:patient,SC:doctor,LANG:'en',DB:{appointments:[appointment],whatsappAlerts:[],notifications:[]},
+        ApiState:{enabled:false},
         Date:class extends Date { static now() { return clock.now; } },
         G:id=>id==='doc1'?doctor:id==='pat1'?patient:null,
         t:key=>key,tsNow:()=>'test time',notifyUser:jest.fn(),fetch:jest.fn(),alert:jest.fn(),$:jest.fn(),
         convBetween:()=>[],RCOL:{},ini:()=>'SD',IC:{send:'send'},
       };
       vm.createContext(context);
-      ['appointmentCallAllowed','startVC','startVoiceCall','normalizeWhatsAppNumber','queuePatientWhatsAppAlert','notifyPatientAccountChange','prepareDoctorReplyAlert','chatView'].forEach(name=>{
+      ['appointmentCallAllowed','startVC','startVoiceCall','normalizeWhatsAppNumber','queuePatientWhatsAppAlert','notifyUser','notifyPatientActivity','notifyPatientAccountChange','prepareDoctorReplyAlert','chatView'].forEach(name=>{
         vm.runInContext(content.match(new RegExp(`^function ${name}\\([^]*?^}`, 'm'))[0],context);
       });
+      context.notifyUser=jest.fn(context.notifyUser);
       return {context,doctor,patient,appointment,clock};
     }
 
@@ -190,6 +194,31 @@ describe('index.html sanity checks', () => {
       expect(context.DB.whatsappAlerts[0]).toMatchObject({patientId:'pat1',phone:'+237600000000',status:'integration_pending',requiresConsent:true,template:'doctor_reply_available'});
       expect(JSON.stringify(context.DB.whatsappAlerts)).not.toContain('Synthetic clinical details');
       expect(context.fetch).not.toHaveBeenCalled();
+    });
+
+    test('patient activity creates a single automated no-reply alert and login link', ()=>{
+      const {context}=communicationContext();
+      context.notifyUser('pat1','Synthetic private clinical details','Lab Results',{labResultId:'lab-test'});
+      expect(context.DB.notifications).toHaveLength(1);
+      expect(context.DB.whatsappAlerts).toHaveLength(1);
+      expect(context.DB.whatsappAlerts[0]).toMatchObject({template:'profile_activity_available',message:'patient_activity_no_reply',sender:'HFA SilverStrong',replyAllowed:false,loginUrl:'https://healthyfutureafrica.github.io/hfa-silverstrong/',status:'integration_pending'});
+      expect(JSON.stringify(context.DB.whatsappAlerts)).not.toContain('Synthetic private clinical details');
+      expect(context.fetch).not.toHaveBeenCalled();
+    });
+
+    test.each(['Appointments','Medical Records','Care Notes','Care Coordination','Billing','Home Visits','Urgent Care','Account'])('%s activity generates a generic alert without private data', resource=>{
+      const {context}=communicationContext();
+      context.notifyPatientActivity('pat1',resource,{notes:'Private clinical content',diagnosis:'Private diagnosis'});
+      expect(context.DB.whatsappAlerts).toHaveLength(1);
+      expect(context.DB.whatsappAlerts[0]).toMatchObject({message:'patient_activity_no_reply',replyAllowed:false,status:'integration_pending'});
+      expect(JSON.stringify(context.DB.whatsappAlerts)).not.toContain('Private');
+    });
+
+    test('provider activity does not create a patient WhatsApp alert', ()=>{
+      const {context}=communicationContext();
+      context.notifyUser('doc1','Provider-only activity','Lab Results');
+      expect(context.DB.notifications).toHaveLength(1);
+      expect(context.DB.whatsappAlerts).toHaveLength(0);
     });
 
     test('alerts use the dedicated WhatsApp number and recorded opt-in', ()=>{
@@ -299,6 +328,7 @@ describe('index.html sanity checks', () => {
       payment.process=jest.fn().mockResolvedValue({id:'pay-test',status:'completed'});
       const context={
         $:id=>fields[id],t:key=>key,CU:{id:role==='doctor'?'doc1':'pat1',role},DB:{appointments:[appointment]},
+        notifyPatientActivity:jest.fn(),
         ReschedulePolicy:{patientFee:5,currency:'USD'},Payment:{create:jest.fn().mockReturnValue(payment)},
         Date:class extends Date { static now() { return new Date('2030-01-01T00:00').getTime(); } },
         tsNow:()=>'test time',log:jest.fn(),closeMo:jest.fn(),navigate:jest.fn(),CP:'appointments',
@@ -378,6 +408,7 @@ describe('index.html sanity checks', () => {
       fields['ap-error']={textContent:''};
       const context = {
         $:id=>fields[id], t:key=>key, G:()=>({assignedNurse:'nur1'}),
+        notifyPatientActivity:jest.fn(),
         CU:{id:'pat1',role:'patient',assignedDoctor:null}, BOOKDOC:'doc1', APTMODE:'video', APTSERVICE:'PC-VIRTUAL', CP:'appointments',
         DB:{appointments:[]}, VIRTUAL_SERVICES:[{code:'PC-VIRTUAL',name:'Virtual primary care'}],
         Date:class extends Date { static now() { return new Date('2030-01-01T00:00').getTime(); } },
@@ -403,6 +434,7 @@ describe('index.html sanity checks', () => {
         context.saveBooking();
       }
       expect(context.DB.appointments[0]).toMatchObject({patientId:'pat1',doctorId:'doc1',date:'2030-01-02',time:'10:00',durationMinutes:duration,status:'scheduled'});
+      expect(context.notifyPatientActivity).toHaveBeenCalledWith('pat1','Appointments');
       expect(context.closeMo).toHaveBeenCalled();
     });
 

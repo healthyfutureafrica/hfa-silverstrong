@@ -268,6 +268,12 @@ tbody tr:hover{background:#fcfdfe}
 .code-chip{font-family:var(--fm);font-size:.67rem;background:var(--si-p);color:var(--na);border:1px solid var(--bd);border-radius:3px;padding:3px 5px;white-space:nowrap}
 .code-item strong{display:block;font-size:.8rem}
 .code-item span{display:block;color:var(--t3);font-size:.72rem;margin-top:2px}
+.activity-notifications .code-item > div{min-width:0;flex:1;overflow-wrap:anywhere}
+.activity-notifications .code-chip{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.whatsapp-settings{overflow-wrap:anywhere}
+.whatsapp-settings .ch{flex-wrap:wrap;gap:8px}
+.whatsapp-settings .ct{max-width:100%}
+.whatsapp-settings label{min-width:0}
 .safety-banner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:#fff6e6;border:1px solid #f1d39b;border-left:3px solid var(--go);border-radius:var(--rs);margin-bottom:18px}
 .safety-banner strong{display:block;color:#7d5800;font-size:.8rem}
 .safety-banner p{color:#856404;font-size:.74rem;margin-top:2px}
@@ -443,6 +449,9 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   .ai2{max-width:100%;min-width:0}
   .ai2 .adi{min-width:0;flex-basis:100%;overflow-wrap:anywhere}
   .ai2 .aac{width:100%}
+  .activity-notifications .code-item{flex-direction:column}
+  .activity-notifications .code-item > div{width:100%}
+  .whatsapp-settings .btn{white-space:normal;line-height:1.35;max-width:100%}
   .g2,.fr{grid-template-columns:1fr}
   .rating-row{align-items:flex-start;flex-wrap:wrap}
   .rating-stars{margin-left:50px;margin-top:-6px}
@@ -1029,6 +1038,8 @@ const T = {
     photo_file_required:'Choose a JPG, PNG or WebP image, up to 2 MB.', photo_upload_failed:'The image could not be read. Please choose another image.', doctor_photo_reviews:'Doctor Photo Reviews', no_photo_reviews:'No photos awaiting review.',
     appointment_call_only:'Voice and video calls are available only during your scheduled appointment, in its booked mode.', doctor_reply_alert:'Your doctor has sent you a new message.',
     whatsapp_number:'WhatsApp Number', whatsapp_number_required:'Please enter a valid WhatsApp number with its country code, for example +237600000000.', whatsapp_notifications_consent:'I agree to receive account updates and new-message alerts on WhatsApp.', account_updated_alert:'Your account has been updated. Sign in to review the changes.',
+    patient_activity_no_reply:'HFA SilverStrong: New activity on your account needs your attention. Please sign in securely to review it. This is an automated notification. Do not reply.',
+    whatsapp_settings:'WhatsApp Notifications', whatsapp_verify:'Verify WhatsApp Number', whatsapp_verified:'Number verified', whatsapp_unverified:'Number not verified', whatsapp_provider_missing:'Provider not configured', whatsapp_verify_link:'Send Verification Message in WhatsApp', backend_unavailable:'The account service is unavailable. Please try again later.', backend_password_short:'Use a password of at least 12 characters.', backend_password_hint:'Min. 12 characters',
     booking_required:'Please select a patient, doctor, consultation date and time.', duration_required:'Please select a consultation duration of 30 or 45 minutes.',
     booking_future:'Please select a valid future consultation date and time.', booking_conflict:'The doctor or patient already has an appointment during this time. Please choose another time.',
     reason_lbl:'Reason for Consultation',
@@ -1352,6 +1363,8 @@ const T = {
     photo_file_required:'Choisissez une image JPG, PNG ou WebP de 2 Mo maximum.', photo_upload_failed:'Impossible de lire cette image. Choisissez une autre image.', doctor_photo_reviews:'Validation des photos des médecins', no_photo_reviews:'Aucune photo en attente de validation.',
     appointment_call_only:'Les appels audio et vidéo sont disponibles uniquement pendant votre rendez-vous, selon le mode réservé.', doctor_reply_alert:'Votre médecin vous a envoyé un nouveau message.',
     whatsapp_number:'Numéro WhatsApp', whatsapp_number_required:'Veuillez saisir un numéro WhatsApp valide avec son indicatif pays, par exemple +237600000000.', whatsapp_notifications_consent:'J’accepte de recevoir les mises à jour de mon compte et les alertes de nouveaux messages sur WhatsApp.', account_updated_alert:'Votre compte a été mis à jour. Connectez-vous pour consulter les modifications.',
+    patient_activity_no_reply:'HFA SilverStrong : Une nouvelle activité sur votre compte nécessite votre attention. Connectez-vous de manière sécurisée pour la consulter. Ceci est une notification automatique. Ne répondez pas.',
+    whatsapp_settings:'Notifications WhatsApp', whatsapp_verify:'Vérifier le numéro WhatsApp', whatsapp_verified:'Numéro vérifié', whatsapp_unverified:'Numéro non vérifié', whatsapp_provider_missing:'Service WhatsApp non configuré', whatsapp_verify_link:'Envoyer le message de vérification sur WhatsApp', backend_unavailable:'Le service de compte est indisponible. Réessayez plus tard.', backend_password_short:'Utilisez un mot de passe d’au moins 12 caractères.', backend_password_hint:'12 caractères minimum',
     booking_required:'Veuillez sélectionner un patient, un médecin, une date et une heure de consultation.', duration_required:'Veuillez sélectionner une durée de consultation de 30 ou 45 minutes.',
     booking_future:'Veuillez sélectionner une date et une heure de consultation futures valides.', booking_conflict:'Le médecin ou le patient a déjà un rendez-vous pendant cette période. Veuillez choisir une autre heure.',
     reason_lbl:'Motif de la Consultation',
@@ -1585,6 +1598,7 @@ function updateStaticHTML() {
     const select = $('rid-type-'+role);
     if (select) select.innerHTML = idDocumentTypeOptions(select.value);
   });
+  if (ApiState.enabled) { $('rpa').placeholder=t('backend_password_hint');$('rpa').minLength=12;$('rpa').maxLength=128; }
   // Auth footer lines
   const afoLogin = $('afo-login');
   if(afoLogin) afoLogin.innerHTML = LANG==='fr'
@@ -2007,6 +2021,101 @@ const EXERCISE_ESSENTIALS = [
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
+const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false};
+async function apiRequest(path, method='GET', body) {
+  const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(15000)});
+  if (response.status===204) return {};
+  const data=await response.json().catch(()=>({}));
+  if (!response.ok) { const error=new Error(data.error||t('backend_unavailable'));error.status=response.status;throw error; }
+  return data;
+}
+function installBackendSession(data, localProfile={}) {
+  const previous=DB.users;
+  DB.users=data.users.map(user=>({...previous.find(item=>item.id===user.id),...(user.id===data.user.id?localProfile:{}),...user}));
+  DB.users.forEach(user=>{delete user.password;});
+  CU=DB.users.find(user=>user.id===data.user.id);
+  if (data.notifications) DB.notifications=data.notifications;
+  ApiState.authenticated=true;
+}
+async function initializeBackend() {
+  if (location.protocol==='file:') return;
+  ApiState.loading=true;
+  try {
+    const response=await fetch('/api/config',{signal:AbortSignal.timeout(5000)});
+    if (response.status===404) return;
+    if (!response.ok) throw new Error('Backend unavailable');
+    const config=await response.json();
+    if (!config.backend) throw new Error('Invalid backend');
+    ApiState.enabled=true; ApiState.providerConfigured=config.providerConfigured;
+    DB.users=[];
+    ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
+    $('lnd-demo').classList.add('hid');
+    updateStaticHTML();
+    const session=await fetch('/api/session',{credentials:'same-origin'});
+    if (session.ok) { installBackendSession(await session.json()); LANG_RETURN_SCREEN='app'; }
+  } catch (error) { ApiState.failed=true; }
+  finally { ApiState.loading=false; }
+}
+async function backendLogin(email, password) {
+  if (ApiState.busy) return;
+  ApiState.busy=true;
+  try { installBackendSession(await apiRequest('/api/auth/login','POST',{email,password})); $('lp').value='';goApp(); }
+  catch(error) { $('amsg').textContent=error.message; }
+  finally { ApiState.busy=false; }
+}
+async function backendRegister(localUser) {
+  if (ApiState.busy) return;
+  ApiState.busy=true;
+  const payload={};
+  ['name','email','password','role','phone','whatsappNumber','whatsappNotificationsConsent','specialty','hospital','department','consultationFee'].forEach(key=>{if(localUser[key]!==undefined&&localUser[key]!=='')payload[key]=localUser[key];});
+  try {
+    const data=await apiRequest('/api/auth/register','POST',payload);
+    $('rpa').value='';
+    if (data.user.role==='patient') { installBackendSession(data,localUser); goApp(); }
+    else { swtTab('login'); $('le').value=localUser.email; $('amsg').textContent=t('pending_review_msg'); }
+  } catch(error) { $('amsg').textContent=error.message; }
+  finally { ApiState.busy=false; }
+}
+async function backendAdminUpdate(id, patch) {
+  try {
+    const data=await apiRequest('/api/admin/users/'+encodeURIComponent(id),'PATCH',patch);
+    Object.assign(G(id),data.user); buildSidebar(); closeMo(); navigate(CP);
+  } catch(error) { alert(error.message); }
+}
+function whatsAppSettingsCard() {
+  if (!ApiState.enabled||CU.role!=='patient') return '';
+  return `<div class="card mb18 whatsapp-settings"><div class="ch"><div class="ct">${t('whatsapp_settings')}</div><span class="badge ${CU.whatsappVerifiedAt?'bsu':'bwa'}">${t(CU.whatsappVerifiedAt?'whatsapp_verified':'whatsapp_unverified')}</span></div>
+    <div class="fg"><label class="fl" for="wa-number">${t('whatsapp_number')}</label><input class="fc" id="wa-number" type="tel" value="${CU.whatsappNumber||''}" required></div>
+    <div class="fg" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="wa-consent" ${CU.whatsappNotificationsConsent?'checked':''}><label for="wa-consent">${t('whatsapp_notifications_consent')}</label></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bs" onclick="saveWhatsAppPreferences()">${IC.chk} ${t('save_changes')}</button><button class="btn bp" onclick="beginWhatsAppVerification()" ${ApiState.providerConfigured?'':'disabled'}>${IC.shield} ${t('whatsapp_verify')}</button></div>
+    ${ApiState.providerConfigured?'':`<p class="mu sm mt8">${t('whatsapp_provider_missing')}</p>`}<div id="wa-status" class="mu sm mt8" role="status"></div></div>`;
+}
+async function saveWhatsAppPreferences() {
+  const number=normalizeWhatsAppNumber($('wa-number').value), consent=$('wa-consent').checked;
+  if (!number) { $('wa-status').textContent=t('whatsapp_number_required'); return; }
+  try { const data=await apiRequest('/api/whatsapp/preferences','POST',{number,consent}); Object.assign(CU,data.user); navigate(CP); }
+  catch(error) { $('wa-status').textContent=error.message; }
+}
+async function beginWhatsAppVerification() {
+  try {
+    const data=await apiRequest('/api/whatsapp/verification','POST',{});
+    const link=document.createElement('a'); link.href=data.url; link.target='_blank'; link.rel='noopener noreferrer'; link.className='alk'; link.textContent=t('whatsapp_verify_link');
+    $('wa-status').replaceChildren(link);
+  } catch(error) { $('wa-status').textContent=error.message; }
+}
+async function refreshBackendNotifications() {
+  if (!ApiState.enabled||!ApiState.authenticated||!CU) return;
+  try {
+    const data=await apiRequest('/api/session');
+    if (!CU||CU.id!==data.user.id) return;
+    installBackendSession(data);
+    const panel=document.querySelector('#pgc .activity-notifications');
+    if (panel) panel.outerHTML=notificationList(CU.id);
+    for (const delivery of DB.whatsappAlerts.filter(item=>item.backendId&&!['delivered','read','failed'].includes(item.status)).slice(-10)) {
+      const current=await apiRequest('/api/deliveries/'+encodeURIComponent(delivery.backendId)); delivery.status=current.status;
+    }
+  } catch(error) { if(error.status===401){ApiState.authenticated=false;CU=null;SC=null;goAuth('login');} }
+}
 let CP = 'dashboard'; // current page
 let SC = null; // selected contact
 let VCI = null; // video call interval
@@ -2055,9 +2164,16 @@ function patientsForDoctor(doctorId) {
 }
 function notifyUser(userId, message, resource='Lab Results', meta={}) {
   if(!userId) return;
-  DB.notifications.unshift({id:'nt'+Date.now()+Math.floor(Math.random()*1000),userId,message,resource,meta,read:false,createdAt:tsNow()});
+  const notification={id:'nt'+Date.now()+Math.floor(Math.random()*1000),userId,message,resource,meta,read:false,createdAt:tsNow()};
+  DB.notifications.unshift(notification);
+  const template=resource==='Communications'?'doctor_reply_available':resource==='Account'?'account_update_available':'profile_activity_available';
+  queuePatientWhatsAppAlert(userId,template,{notificationId:notification.id,change:meta.change,doctorId:meta.doctorId,messageId:meta.messageId});
 }
 function userNotifications(userId) { return DB.notifications.filter(n=>n.userId===userId).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)); }
+function notifyPatientActivity(patientId, resource, metadata={}) {
+  if (G(patientId)?.role!=='patient') return;
+  notifyUser(patientId,t('patient_activity_no_reply'),resource,metadata);
+}
 
 // ── HFA ID: role-legible identifier, e.g. HFA-DR-24-00001-7 (Doctor), HFA-NS-24-00001-3 (Nurse), HFA-PT-24-00001-5 (Patient) ──
 const ROLE_CODE = {doctor:'DR', nurse:'NS', patient:'PT', admin:'AD', labtech:'LT'};
@@ -2203,6 +2319,7 @@ async function confirmFeePayment(doctorId) {
     await Payment.create().from(CU.id).to(doctorId).amount(doc.consultationFee).currency('USD')
       .purpose('consultation_fee').describe(`Consultation fee — ${doc.name}`).method($('pay-md').value)
       .meta({doctorName:doc.name}).process();
+    notifyPatientActivity(CU.id,'Billing');
     status.textContent = t('payment_success');
     setTimeout(() => { closeMo(); navigate(CP); }, 700);
   } catch (err) {
@@ -2334,6 +2451,8 @@ function goAuth(tab, role) {
   if(bh) bh.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
 }
 function startDemo(role='patient') {
+  if (ApiState.loading) { ApiState.ready.then(()=>startDemo(role)); return; }
+  if (ApiState.enabled||ApiState.failed) { goAuth('login'); return; }
   if(!['patient','doctor','nurse','labtech'].includes(role)) return goAuth('login');
   const demo=DB.users.find(user=>user.role===role&&user.status==='active');
   if(!demo) return goAuth('login');
@@ -2421,7 +2540,10 @@ function tpw(id) { const e=$(id); e.type = e.type==='password' ? 'text' : 'passw
 function amsg(txt, type='e') { $('amsg').innerHTML=`<div class="alt ${type==='e'?'ae':type==='o'?'ao':'ai'}">${txt}</div>`; }
 
 function doLogin() {
-  const email = $('le').value.trim().toLowerCase(), pass = $('lp').value.trim();
+  if (ApiState.loading) { ApiState.ready.then(()=>doLogin()); return; }
+  if (ApiState.failed) return amsg(t('backend_unavailable'));
+  const email = $('le').value.trim().toLowerCase(), pass = ApiState.enabled?$('lp').value:$('lp').value.trim();
+  if (ApiState.enabled) { backendLogin(email,pass); return; }
   const u = DB.users.find(u => u.email.toLowerCase()===email && u.password===pass);
   if (!u) { log('LOGIN_FAILED','System','failed'); return amsg(t('invalid_creds')); }
   if (u.status==='suspended') return amsg(t('suspended_msg'));
@@ -2435,9 +2557,12 @@ function normalizeWhatsAppNumber(value) {
   return /^\+[1-9]\d{7,14}$/.test(number)?number:null;
 }
 function doReg() {
+  if (ApiState.loading) { ApiState.ready.then(()=>doReg()); return; }
+  if (ApiState.failed) return amsg(t('backend_unavailable'));
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
   if (!name||!email||!pass) return amsg(t('fill_required'));
   if (pass.length<6) return amsg(t('password_short'));
+  if (ApiState.enabled&&pass.length<12) return amsg(t('backend_password_short'));
   if (RROLE==='doctor'&&!$('rsp').value) return amsg(t('spec_required'));
   if (RROLE==='doctor'&&!$('rcf').value) return amsg(t('fee_required'));
   if (RROLE==='doctor'&&!validConsultationFee($('rcf').value)) return amsg(t('fee_range_required'));
@@ -2463,6 +2588,7 @@ function finishReg(idInput, idDocumentType, whatsappNumber) {
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {whatsappNumber,whatsappNotificationsConsent:$('rwa-consent').checked,whatsappConsentAt:$('rwa-consent').checked?tsNow():null,dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   const finalize = (idFields) => {
+    if (ApiState.enabled) { backendRegister({...base,...extra,...idFields}); return; }
     DB.users.push({...base,...extra,...idFields,termsAcceptedAt:tsNow(),patientCommitmentAt:RROLE==='patient'?tsNow():null});
     DB.consents.push({id:'con'+Date.now(),patientId:id,type:'Terms and Conditions',status:'active',version:'2025.1',recordedAt:todayD()});
     if (RROLE==='patient') {
@@ -2487,7 +2613,10 @@ function finishReg(idInput, idDocumentType, whatsappNumber) {
   }
 }
 
-function doLogout() { log('LOGOUT','System'); CU=null; SC=null; goLand(); }
+function doLogout() {
+  if (ApiState.enabled) { apiRequest('/api/auth/logout','POST',{}).then(()=>{ApiState.authenticated=false;log('LOGOUT','System');CU=null;SC=null;goLand();}).catch(error=>alert(error.message));return; }
+  ApiState.authenticated=false;log('LOGOUT','System');CU=null;SC=null;goLand();
+}
 
 // ═══════════════════════ SIDEBAR ═══════════════════════
 function buildSidebar() {
@@ -2619,7 +2748,7 @@ function completeApt(id) {
   const a=DB.appointments.find(x=>x.id===id); if(!a) return;
   if (a.rescheduleReservation) return;
   if(CU.role==='doctor'&&a.doctorId===CU.id) return showDoctorReport(id);
-  a.status='completed'; log('COMPLETE_APPOINTMENT','Appointments'); navigate(CP);
+  a.status='completed'; notifyPatientActivity(a.patientId,'Appointments',{appointmentId:id}); log('COMPLETE_APPOINTMENT','Appointments'); navigate(CP);
 }
 
 function showDoctorReport(appointmentId) {
@@ -2640,11 +2769,13 @@ function saveDoctorReport(appointmentId) {
   const report={appointmentId,patientId:apt.patientId,doctorId:CU.id,consultationDate:apt.date,consultationTime:apt.time,summary,plan,createdAt:tsNow()};
   if(existing) Object.assign(existing,report); else DB.doctorReports.unshift({id:'dr'+Date.now(),...report});
   apt.status='completed'; apt.doctorReportId=(existing?.id)||DB.doctorReports[0].id;
+  notifyPatientActivity(apt.patientId,'Medical Records',{appointmentId});
   log('ADD_DOCTOR_REPORT','Medical Records'); closeMo(); navigate(CP);
 }
 
 // ═══════════════════════ ADMIN ═══════════════════════
 function renderDemoCredentials() {
+  if (ApiState.enabled) return '';
   return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
 }
 
@@ -2924,6 +3055,7 @@ function askApprove(id) {
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="confirmApprove('${id}')">${t('yes_approve')}</button></div></div>`);
 }
 function confirmApprove(id) {
+  if (ApiState.enabled) { backendAdminUpdate(id,{status:'active'}); return; }
   const u=G(id); if(u && !(u.role==='admin' && !isSuperAdmin(CU))){u.status='active';u.approvedBy=CU.id;u.approvedAt=tsNow();log('APPROVE_USER','User Management');}
   closeMo(); navigate(CP);
 }
@@ -2934,6 +3066,7 @@ function askReject(id) {
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmReject('${id}')">${t('yes_reject')}</button></div></div>`);
 }
 function confirmReject(id) {
+  if (ApiState.enabled) { backendAdminUpdate(id,{status:'rejected'}); return; }
   const u=G(id); if(u && !(u.role==='admin' && !isSuperAdmin(CU))){u.status='rejected';u.rejectedBy=CU.id;u.rejectedAt=tsNow();log('REJECT_USER','User Management');}
   closeMo(); navigate(CP);
 }
@@ -2990,6 +3123,7 @@ function saveIdUpload() {
     CU.idDocumentData = reader.result;
     CU.idUploadedAt = tsNow();
     CU.idVerificationStatus = 'pending';
+    notifyPatientActivity(CU.id,'Account',{change:'identity_document_updated'});
     log('UPLOAD_ID_DOCUMENT', 'Identity Verification');
     closeMo();
     navigate(CP);
@@ -3163,7 +3297,7 @@ function doctorReportList(patientId) {
 
 function notificationList(userId) {
   const notes=userNotifications(userId).slice(0,6);
-  return `<div class="card mb18"><div class="ch"><div class="ct">${t('notifications')}</div></div>${notes.length?notes.map(n=>`<div class="code-item"><code class="code-chip">${n.resource}</code><div><strong>${n.message}</strong><span>${n.createdAt}</span></div></div>`).join(''):`<div class="rating-empty">${t('no_notifications')}</div>`}</div>`;
+  return `<div class="card mb18 activity-notifications"><div class="ch"><div class="ct">${t('notifications')}</div></div>${notes.length?notes.map(n=>`<div class="code-item"><code class="code-chip">${n.resource}</code><div><strong>${n.message}</strong><span>${n.createdAt}</span></div></div>`).join(''):`<div class="rating-empty">${t('no_notifications')}</div>`}</div>`;
 }
 
 function labResultStatusBadge(status) {
@@ -3227,6 +3361,7 @@ function saveSpecialistReferral(patientId) {
   if(!specialty||!reason){ const s=$('sr-status'); if(s) s.textContent=t('referral_required'); return; }
   const existing=activeSpecialistReferral(patientId); if(existing&&existing.status==='pending_choice') existing.status='closed';
   DB.specialistReferrals.push({id:'sr'+Date.now(),patientId,generalistId:CU.id,specialty,illness,reason,status:'pending_choice',createdAt:tsNow()});
+  notifyPatientActivity(patientId,'Care Coordination');
   log('CREATE_SPECIALIST_REFERRAL','Care Coordination'); closeMo(); navigate(CP);
 }
 
@@ -3243,6 +3378,7 @@ function confirmSpecialistChoice(referralId, doctorId) {
   const ref=DB.specialistReferrals.find(r=>r.id===referralId), doc=G(doctorId), pat=G(ref?.patientId);
   if(!ref||!doc||!pat) return;
   ref.status='accepted'; ref.specialistDoctorId=doctorId; ref.acceptedAt=tsNow(); pat.assignedSpecialist=doctorId;
+  notifyPatientActivity(pat.id,'Care Coordination',{referralId});
   log('ACCEPT_SPECIALIST_REFERRAL','Care Coordination'); closeMo(); navigate('dashboard');
 }
 
@@ -3383,6 +3519,7 @@ function renderPatDash(pc) {
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${LANG==='fr'?'Bonjour,':'Hello,'} ${CU.name.split(' ')[0]}</h2><p>${LANG==='fr'?'Gérez votre santé et contactez votre équipe soignante':'Manage your health and communicate with your care team'}</p></div>
     ${notificationList(CU.id)}
+    ${whatsAppSettingsCard()}
     <div class="safety-banner"><div>!</div><div><strong>${t('virtual_care_safety')}</strong><p>${t('virtual_care_safety_desc')}</p></div></div>
     <div class="alt ai mb12">${t('generalist_first_notice')}</div>
     ${referral&&referral.status==='pending_choice'?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('specialist_referral_title')}</div><div class="rating-note">${t('specialist_pending_choice')}</div></div><button class="btn bp bsm" onclick="showChooseSpecialist('${referral.id}')">${t('choose_specialist')}</button></div><div class="mu sm"><strong>${t('recommended_specialty')}:</strong> ${referral.specialty} · <strong>${t('illness_detected')}:</strong> ${referral.illness||'—'}</div><div class="mu sm" style="margin-top:4px">${referral.reason}</div></div>`:''}
@@ -3586,6 +3723,7 @@ async function upgradeSubscription(tierId) {
   }
   
   log('UPDATE_SUBSCRIPTION', 'Billing', {tier: tierId, status: 'upgraded'});
+  notifyPatientActivity(sub.patientId,'Billing');
   renderSubscriptions($('pgc'));
 }
 
@@ -3626,6 +3764,7 @@ async function confirmHomeVisitBooking() {
       .describe(`Nurse home visit — ${nurse.name}`).method($('hv-pay-md').value).meta({nurseName:nurse.name,visitDate,visitTime}).process();
     DB.homeVisits.push({id:'hv'+Date.now(),patientId:CU.id,nurseId:nurse.id,doctorId:CU.assignedDoctor||'',visitDate,visitTime,status:'scheduled',location,notes,fee,currency:'USD',premiumIncluded:included,paymentId:receipt?.id||null,paymentReference:receipt?.reference||null,paymentStatus:included?'included':receipt.status,createdAt:tsNow()});
     const sub=getSubscription(CU.id); if(included&&sub) sub.monthlyVisitsUsed=(sub.monthlyVisitsUsed||0)+1;
+    notifyPatientActivity(CU.id,'Home Visits');
     log('SCHEDULE_HOME_VISIT','Healthcare');
     status.textContent=included?t('home_visit_included_desc'):t('home_visit_payment_success');
     setTimeout(()=>{ closeMo(); renderSubscriptions($('pgc')); }, 700);
@@ -3840,14 +3979,15 @@ function showUploadDocument() {
 }
 function saveUploadDocument() {
   const input=$('ud-file'); if(!input||!input.files.length){ const s=$('ud-status'); if(s) s.textContent=t('document_required'); return; }
+  const patientId=CU.id;
   const files=Array.from(input.files), category=$('ud-cat').value, relatedApptId=$('ud-apt')?$('ud-apt').value:'', notes=$('ud-notes').value.trim(), uploadedAt=tsNow();
   let remaining=files.length;
   files.forEach((file,index)=>{
     const reader=new FileReader();
     reader.onload=()=>{
-      DB.medicalDocuments.push({id:'doc'+Date.now()+'-'+index,patientId:CU.id,uploadedBy:CU.id,category,fileName:file.name,fileData:reader.result,relatedApptId,notes,uploadedAt});
+      DB.medicalDocuments.push({id:'doc'+Date.now()+'-'+index,patientId,uploadedBy:patientId,category,fileName:file.name,fileData:reader.result,relatedApptId,notes,uploadedAt});
       remaining--;
-      if(remaining===0){ log('UPLOAD_MEDICAL_DOCUMENT','Medical Records'); closeMo(); navigate(CP); }
+      if(remaining===0){ notifyPatientActivity(patientId,'Medical Records'); log('UPLOAD_MEDICAL_DOCUMENT','Medical Records'); if(CU?.id===patientId){closeMo();navigate(CP);} }
     };
     reader.readAsDataURL(file);
   });
@@ -3917,20 +4057,25 @@ function prepareDoctorReplyAlert(message) {
   const sender=G(message.from), patient=G(message.to);
   if (sender?.role!=='doctor' || patient?.role!=='patient') return;
   notifyUser(patient.id,t('doctor_reply_alert'),'Communications',{messageId:message.id,doctorId:sender.id});
-  queuePatientWhatsAppAlert(patient.id,'doctor_reply_available',{doctorId:sender.id,messageId:message.id});
 }
 function queuePatientWhatsAppAlert(patientId, template, metadata={}) {
   const patient=G(patientId);
   if (patient?.role!=='patient') return;
   const phone=normalizeWhatsAppNumber(patient.whatsappNumber||patient.phone||'');
   if (!phone) return;
-  DB.whatsappAlerts.push({...metadata,id:'wa'+Date.now(),patientId:patient.id,phone,template,status:'integration_pending',requiresConsent:patient.whatsappNotificationsConsent!==true,createdAt:tsNow()});
+  const loginUrl='https://healthyfutureafrica.github.io/hfa-silverstrong/';
+  const event={...metadata,id:'wa'+Date.now()+'-'+Math.random().toString(36).slice(2),patientId:patient.id,phone,template,sender:'HFA SilverStrong',message:t('patient_activity_no_reply'),loginUrl,replyAllowed:false,status:'integration_pending',requiresConsent:patient.whatsappNotificationsConsent!==true,createdAt:tsNow()};
+  DB.whatsappAlerts.push(event);
+  if (ApiState.enabled&&ApiState.authenticated) {
+    event.status='pending_backend';
+    const resource=template==='doctor_reply_available'?'Communications':template==='account_update_available'?'Account':(DB.notifications.find(item=>item.id===metadata.notificationId)?.resource||'Account');
+    apiRequest('/api/activities','POST',{eventId:event.id,patientId:patient.id,resource}).then(result=>{event.backendId=result.id;event.status=result.status;}).catch(()=>{event.status='backend_rejected';});
+  }
 }
 function notifyPatientAccountChange(patientId, change) {
   const patient=G(patientId);
   if (patient?.role!=='patient') return;
   notifyUser(patient.id,t('account_updated_alert'),'Account',{change});
-  queuePatientWhatsAppAlert(patient.id,'account_update_available',{change});
 }
 
 // ═══════════════════════ CONSULT ═══════════════════════
@@ -4042,6 +4187,7 @@ function showAddNote() {
 function saveNote() {
   const p=$('cn-p').value, t=$('cn-t').value.trim(); if(!p||!t) return;
   DB.careNotes.push({id:'cn'+Date.now(),nurseId:CU.id,patientId:p,text:t,date:todayD(),time:nowT()});
+  notifyPatientActivity(p,'Care Notes');
   log('ADD_CARE_NOTE','Care Notes'); closeMo(); navigate('carenotes');
 }
 
@@ -4083,6 +4229,7 @@ async function confirmReschedule(appointmentId) {
     appointment.reschedules.push({previousDate:appointment.date,previousTime:appointment.time,previousDurationMinutes:appointment.durationMinutes||30,date,time,durationMinutes,reason,requestedBy:actor.id,requestedRole:actor.role,fee:receipt?ReschedulePolicy.patientFee:0,currency:ReschedulePolicy.currency,paymentId:receipt?.id||null,createdAt:tsNow()});
     Object.assign(appointment,{date,time,durationMinutes});
     delete appointment.rescheduleReservation;
+    notifyPatientActivity(appointment.patientId,'Appointments',{appointmentId});
     log('RESCHEDULE_APPOINTMENT','Appointments');
     if (CU?.id===actor.id) { closeMo(); navigate(CP); }
   } catch (error) {
@@ -4132,6 +4279,7 @@ function saveApt() {
   if (error) { $('ap-error').textContent=error; return; }
   const pat=G(patId);
   DB.appointments.push({id:'apt'+Date.now(),patientId:patId,doctorId:docId,nurseId:pat?.assignedNurse||'',date,time,durationMinutes,mode:$('ap-md').value,type:$('ap-ty').value,notes:$('ap-nt').value,status:'scheduled'});
+  notifyPatientActivity(patId,'Appointments');
   log('CREATE_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
 
@@ -4180,6 +4328,7 @@ function saveBooking() {
   if(!CU.assignedDoctor){ CU.assignedDoctor=docId; }
   const service=VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
   DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:docId,nurseId:CU.assignedNurse||'',date,time,durationMinutes,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
+  notifyPatientActivity(CU.id,'Appointments');
   log('BOOK_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
 
@@ -4196,6 +4345,7 @@ function submitTriage() {
   const level=$('triage-level').value, symptoms=$('triage-symptoms').value.trim(), location=$('triage-location').value.trim();
   if(!symptoms||!location) return;
   DB.triageCases.push({id:'tr'+Date.now(),patientId:CU.id,priority:level,symptoms,location,status:'received',createdAt:tsNow()});
+  notifyPatientActivity(CU.id,'Urgent Care');
   log('SUBMIT_TRIAGE','Urgent Care');
   closeMo();
   if(level==='emergency') alert('Call your local emergency number now. Your triage request has been recorded for the care team.');
@@ -4212,13 +4362,21 @@ function showAddUser(role) {
     ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div><div class="fg"><label class="fl">${t('consultation_fee')} (USD)</label><select class="fc" id="au-cf">${consultationFeeOptions()}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div></div>`:''}
     ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="au-ns"><option value="">Select...</option>${NURSE_SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div></div>`:''}
     ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar">${isSuperAdmin(CU)?`<option>${t('super_admin_role')}</option>`:''}<option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
-    ${role==='patient'?`<div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="au-bt"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
+    ${role==='patient'?`${ApiState.enabled?`<div class="fg"><label class="fl" for="au-wa">${t('whatsapp_number')}</label><input class="fc" id="au-wa" type="tel" placeholder="+237600000000" required></div>`:''}<div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="au-bt"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
     <div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="au-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="au-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${n.name}</option>`).join('')}</select></div>`:''}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveAddUser('${role}')">${t('add_user')}</button></div>`);
 }
 function saveAddUser(role) {
   const n=$('au-n').value.trim(),e=$('au-e').value.trim(),pw=$('au-pw').value;
+  if (ApiState.enabled) {
+    const payload={name:n,email:e,password:pw,role,phone:$('au-ph')?.value||''};
+    if(role==='patient'){payload.whatsappNumber=normalizeWhatsAppNumber($('au-wa').value);payload.whatsappNotificationsConsent=false;}
+    if(role==='doctor'){payload.specialty=$('au-sp').value;payload.consultationFee=Number($('au-cf').value);}
+    if(role==='nurse'&&$('au-ns').value)payload.specialty=$('au-ns').value;
+    apiRequest('/api/admin/users','POST',payload).then(result=>{DB.users.push(result.user);closeMo();navigate(CP);}).catch(error=>alert(error.message));
+    return;
+  }
   if(!n||!e||!pw){alert('Please fill all required fields.');return;}
   if(role==='admin' && !isSuperAdmin(CU)){alert(t('super_admin_only_msg'));return;}
   if(role==='doctor' && !validConsultationFee($('au-cf')?.value)){alert(t('fee_range_required'));return;}
@@ -4252,6 +4410,13 @@ function showEditUser(id) {
 }
 function saveEditUser(id) {
   const u=G(id); if(!u) return;
+  if (ApiState.enabled) {
+    const patch={name:$('eu-n').value.trim(),phone:$('eu-ph').value.trim(),status:$('eu-st').value};
+    if($('eu-dc'))patch.assignedDoctor=$('eu-dc').value||null;
+    if($('eu-nr'))patch.assignedNurse=$('eu-nr').value||null;
+    if($('eu-cf'))patch.consultationFee=Number($('eu-cf').value);
+    backendAdminUpdate(id,patch);return;
+  }
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   if (isSuperAdmin(u) && u.id!==CU.id) return alert(t('super_admin_protect_msg'));
   const previous=JSON.stringify([u.name,u.phone,u.status,u.assignedDoctor,u.assignedNurse]);
@@ -4273,8 +4438,9 @@ function doSuspend(id) {
   openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">Suspend <strong>${u.name}</strong>?<br>They will be unable to log in.</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmSuspend('${id}')">${t('yes_suspend')}</button></div></div>`);
 }
-function confirmSuspend(id) { const u=G(id);if(u && !(u.role==='admin' && !isSuperAdmin(CU)) && !isSuperAdmin(u)){const changed=u.status!=='suspended';u.status='suspended';if(changed)notifyPatientAccountChange(id,'account_suspended');log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
+function confirmSuspend(id) { if(ApiState.enabled){backendAdminUpdate(id,{status:'suspended'});return;}const u=G(id);if(u && !(u.role==='admin' && !isSuperAdmin(CU)) && !isSuperAdmin(u)){const changed=u.status!=='suspended';u.status='suspended';if(changed)notifyPatientAccountChange(id,'account_suspended');log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
 function doActivate(id) {
+  if (ApiState.enabled) { backendAdminUpdate(id,{status:'active'}); return; }
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   const changed=u.status!=='active';
@@ -4289,6 +4455,7 @@ function askDelete(id, name) {
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmDel('${id}')">${t('yes_delete')}</button></div></div>`);
 }
 function confirmDel(id) {
+  if (ApiState.enabled) { apiRequest('/api/admin/users/'+encodeURIComponent(id),'DELETE').then(()=>{DB.users=DB.users.filter(user=>user.id!==id);closeMo();navigate(CP);}).catch(error=>alert(error.message));return; }
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return;
   if (isSuperAdmin(u)) return;
@@ -4332,6 +4499,8 @@ hide('auth-wrap');
 hide('app-wrap');
 hide('free-hub');
 show('lang-pick');
+ApiState.ready=initializeBackend();
+setInterval(refreshBackendNotifications,30000);
 </script>
 </body>
 </html>
