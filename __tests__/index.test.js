@@ -86,7 +86,7 @@ describe('index.html sanity checks', () => {
       expect(context.DB.users[0]).toMatchObject({whatsappNumber:'+237600000000',whatsappNotificationsConsent:consent,whatsappConsentAt:consent?'test timestamp':null});
     });
 
-    test.each(['','unsupported'])('blocks profile uploads with invalid ID type %s', documentType => {
+    test.each(['','unsupported','drivers_license'])('blocks profile uploads with invalid ID type %s', documentType => {
       const {context,fields} = uploadContext('patient', documentType);
       context.saveIdUpload();
       expect(fields['pf-id-status'].textContent).toBe('id_type_required');
@@ -94,7 +94,7 @@ describe('index.html sanity checks', () => {
       expect(context.CU.idDocumentType).toBeUndefined();
     });
 
-    test.each(['national_id','passport','drivers_license'])('saves and displays profile ID type %s', documentType => {
+    test.each(['national_id','passport'])('saves and displays profile ID type %s', documentType => {
       const {context} = uploadContext('patient', documentType);
       context.CU.idDocumentType = 'passport';
       context.saveIdUpload();
@@ -111,6 +111,22 @@ describe('index.html sanity checks', () => {
       expect(fields['pf-id-status'].textContent).toBe('id_required');
       expect(context.CU.idDocumentType).toBe('national_id');
       expect(context.FileReader).not.toHaveBeenCalled();
+    });
+
+    test.each(['doctor','nurse','patient'])('rejects driver licenses for %s registration', role => {
+      const {context}=uploadContext(role,'drivers_license');
+      context.doReg();
+      expect(context.amsg).toHaveBeenCalledWith('id_type_required');
+      expect(context.FileReader).not.toHaveBeenCalled();
+    });
+
+    test('offers only national ID card and passport', () => {
+      const {context}=uploadContext();
+      const options=context.idDocumentTypeOptions();
+      expect(options).toContain('value="national_id"');
+      expect(options).toContain('value="passport"');
+      expect(options).not.toContain('drivers_license');
+      expect(content).not.toContain('id_type_drivers_license');
     });
   });
 
