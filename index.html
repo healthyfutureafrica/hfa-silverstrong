@@ -28,7 +28,7 @@ input,select,textarea,button{font-family:var(--fb)}
 
 #app-wrap{display:flex;min-height:100vh}
 #sidebar{width:252px;min-height:100vh;background:var(--na);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:200}
-#main{margin-left:252px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+#main{margin-left:252px;flex:1;min-width:0;min-height:100vh;display:flex;flex-direction:column}
 
 .sb-logo{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
 .sb-li{display:flex;align-items:center;gap:10px}
@@ -243,6 +243,10 @@ tbody tr:hover{background:#fcfdfe}
 .ain{font-weight:600;font-size:.88rem}
 .ame{font-size:.75rem;color:var(--t3);margin-top:2px}
 .aac{display:flex;gap:6px;align-items:center}
+.ai2,.aac{flex-wrap:wrap}
+.adi{min-width:120px}
+.doctor-portrait{width:48px;height:48px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--em-p);color:var(--em-d);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700}
+.doctor-photo-preview{width:96px;height:96px;border-radius:6px;object-fit:cover}
 
 .cc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
 .ccd{background:#fff;border:2px solid var(--bd);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:var(--tr)}
@@ -432,7 +436,13 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   #sidebar{width:210px}
   #main{margin-left:210px}
   .page{padding:20px 16px}
-  .topbar{padding:10px 16px}
+  .topbar{padding:10px 16px;flex-wrap:wrap;gap:8px}
+  .tb-r{flex-wrap:wrap;max-width:100%}
+  .tb-t,.ph h2{overflow-wrap:anywhere;max-width:100%}
+  .topbar .btn,.aac .btn{white-space:normal;line-height:1.35;max-width:100%}
+  .ai2{max-width:100%;min-width:0}
+  .ai2 .adi{min-width:0;flex-basis:100%;overflow-wrap:anywhere}
+  .ai2 .aac{width:100%}
   .g2,.fr{grid-template-columns:1fr}
   .rating-row{align-items:flex-start;flex-wrap:wrap}
   .rating-stars{margin-left:50px;margin-top:-6px}
@@ -657,21 +667,26 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
       <div id="df">
         <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
         <div class="fr"><div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
-        <div class="fg"><label class="fl" id="lbl-id-doc-d">Government ID Card or Passport</label><input class="fc" type="file" id="rid-d" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-d" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
+        <div class="fg"><label class="fl" for="rid-type-d" id="lbl-id-type-d">ID Document Type</label><select class="fc" id="rid-type-d" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option><option value="drivers_license">Driver's License</option></select></div>
+        <div class="fg"><label class="fl" for="rid-d" id="lbl-id-doc-d">Government ID Card or Passport</label><input class="fc" type="file" id="rid-d" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-d" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
       </div>
       <div id="nf" class="hid">
         <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="" id="rde-def">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="rns" required><option value="" id="rns-def">Select...</option><option>General Nursing</option><option>Critical Care Nursing</option><option>Emergency Nursing</option><option>Pediatric Nursing</option><option>Neonatal Nursing</option><option>Oncology Nursing</option><option>Surgical and Perioperative Nursing</option><option>Maternal and Midwifery Care</option><option>Psychiatric and Mental Health Nursing</option><option>Community and Public Health Nursing</option><option>Geriatric Nursing</option><option>Renal Nursing</option><option>Cardiac Nursing</option><option>Infection Prevention and Control</option><option>Nurse Anesthesia</option><option>Rehabilitation Nursing</option><option>Occupational Health Nursing</option></select></div></div>
         <div class="fg"><label class="fl">Nurse ID</label><input class="fc" type="text" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div>
         <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhn" placeholder="Institution name"></div>
         <div class="fg"><label class="fl">Qualifications</label><input class="fc" type="text" id="rqu" placeholder="e.g. BSN, ICU Certified"></div>
-        <div class="fg"><label class="fl" id="lbl-id-doc-n">Government ID Card or Passport</label><input class="fc" type="file" id="rid-n" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-n" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
+        <div class="fg"><label class="fl" for="rid-type-n" id="lbl-id-type-n">ID Document Type</label><select class="fc" id="rid-type-n" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option><option value="drivers_license">Driver's License</option></select></div>
+        <div class="fg"><label class="fl" for="rid-n" id="lbl-id-doc-n">Government ID Card or Passport</label><input class="fc" type="file" id="rid-n" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-n" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
       </div>
       <div id="pf">
+        <div class="fg"><label class="fl" for="rwa" id="lbl-whatsapp">WhatsApp Number</label><input class="fc" type="tel" id="rwa" inputmode="tel" autocomplete="tel" placeholder="+237600000000" required></div>
+        <div class="fg" style="display:flex;align-items:flex-start;gap:8px"><input type="checkbox" id="rwa-consent" style="margin-top:3px"><label for="rwa-consent" id="lbl-whatsapp-consent" style="font-size:.78rem">I agree to receive account updates and new-message alerts on WhatsApp.</label></div>
         <div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="rdb"></div><div class="fg"><label class="fl">Gender</label><select class="fc" id="rge"><option value="" id="rge-def">Select...</option><option>Male</option><option>Female</option><option>Other</option></select></div></div>
         <div class="fr"><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="rbl"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div><div class="fg"><label class="fl">Allergies</label><input class="fc" type="text" id="ral" placeholder="None, or list them"></div></div>
         <div class="fg"><label class="fl">Address</label><input class="fc" type="text" id="rad" placeholder="City, Country"></div>
         <div class="fg"><label class="fl">Emergency Contact</label><input class="fc" type="text" id="rec" placeholder="Name — Phone number"></div>
-        <div class="fg"><label class="fl" id="lbl-id-doc-p">Government ID Card, Passport, or Driver's License</label><input class="fc" type="file" id="rid-p" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-p" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
+        <div class="fg"><label class="fl" for="rid-type-p" id="lbl-id-type-p">ID Document Type</label><select class="fc" id="rid-type-p" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option><option value="drivers_license">Driver's License</option></select></div>
+        <div class="fg"><label class="fl" for="rid-p" id="lbl-id-doc-p">Government ID Card, Passport, or Driver's License</label><input class="fc" type="file" id="rid-p" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-p" style="margin-top:4px">National ID card, passport, or driver's license (JPG, PNG, or PDF)</p></div>
         <div class="fg" style="display:flex;align-items:flex-start;gap:8px;background:var(--si-p);border:1px solid var(--bd);border-radius:var(--rs);padding:12px">
           <input type="checkbox" id="rpc" style="margin-top:3px">
           <label class="fl" for="rpc" id="lbl-patient-commitment" style="font-weight:400;line-height:1.5;text-transform:none;letter-spacing:0;margin-bottom:0">I confirm that all information I provide is truthful, accurate, and complete. I agree not to falsify records, impersonate anyone, upload misleading documents, misuse the platform, harass staff or clinicians, or engage in any misconduct that could endanger patient safety or breach HFA SilverStrong policies.</label>
@@ -986,6 +1001,8 @@ const T = {
     id_verification_title:'Identity Verification', id_verification_desc:'Upload a legal, valid ID card or passport so patients and administrators can trust your verified professional identity.',
     id_document_label:'Government ID Card or Passport', id_document_label_patient:'Government ID Card, Passport, or Driver\'s License', id_document_ph:'National ID card, passport, or driver\'s license (JPG, PNG, or PDF)',
     id_required:'A valid ID card, passport, or driver\'s license upload is required to register.',
+    id_type_label:'ID Document Type', id_type_placeholder:'Select ID document type', id_type_required:'Please select the type of ID document being uploaded.',
+    id_type_national_id:'National ID Card', id_type_passport:'Passport', id_type_drivers_license:'Driver\'s License',
     upload_id_document:'Upload ID Document', replace_id_document:'Replace ID Document',
     id_status_pending:'Pending Review', id_status_verified:'Verified', id_status_not_uploaded:'Not Uploaded',
     id_uploaded_on:'Uploaded on', id_document_saved:'ID document uploaded and pending administrator review.',
@@ -1004,6 +1021,16 @@ const T = {
     emergency:'Emergency', book_btn:'Book Appointment', confirm_booking:'Confirm Booking',
     reason_ph:'Describe your symptoms or concern...',
     preferred_date:'Preferred Date', preferred_time:'Preferred Time',
+    consultation_duration:'Consultation Duration', select_duration:'Select duration', minutes_short:'min',
+    patient_surname_initial:'Last Name Initial', all_patient_initials:'All initials', no_matching_patients:'No patients match this initial.',
+    reschedule_appointment:'Reschedule Appointment', reschedule_reason:'Reason for Rescheduling', reschedule_reason_required:'Please provide a reason for rescheduling.',
+    reschedule_fee:'Patient Rescheduling Fee', doctor_reschedule_free:'Doctor rescheduling is free.', pay_and_reschedule:'Pay & Reschedule', mock_payment_notice:'Demo payment: no real charge.',
+    doctor_profile_photo:'Doctor Profile Photo', upload_profile_photo:'Upload Profile Photo', approved_doctor_photo:'Admin-approved doctor portrait', photo_pending:'Photo awaiting admin review', photo_rejected:'Photo rejected by admin', no_approved_photo:'No approved photo',
+    photo_file_required:'Choose a JPG, PNG or WebP image, up to 2 MB.', photo_upload_failed:'The image could not be read. Please choose another image.', doctor_photo_reviews:'Doctor Photo Reviews', no_photo_reviews:'No photos awaiting review.',
+    appointment_call_only:'Voice and video calls are available only during your scheduled appointment, in its booked mode.', doctor_reply_alert:'Your doctor has sent you a new message.',
+    whatsapp_number:'WhatsApp Number', whatsapp_number_required:'Please enter a valid WhatsApp number with its country code, for example +237600000000.', whatsapp_notifications_consent:'I agree to receive account updates and new-message alerts on WhatsApp.', account_updated_alert:'Your account has been updated. Sign in to review the changes.',
+    booking_required:'Please select a patient, doctor, consultation date and time.', duration_required:'Please select a consultation duration of 30 or 45 minutes.',
+    booking_future:'Please select a valid future consultation date and time.', booking_conflict:'The doctor or patient already has an appointment during this time. Please choose another time.',
     reason_lbl:'Reason for Consultation',
     start_video_call:'Start Video Call', start_voice_call:'Start Voice Call',
     select_video_contact:'Select who you want to video call:',
@@ -1297,6 +1324,8 @@ const T = {
     id_verification_title:'Vérification d’Identité', id_verification_desc:'Téléchargez une carte d’identité ou un passeport valide afin que les patients et administrateurs puissent faire confiance a votre identité professionnelle vérifiée.',
     id_document_label:'Carte d’Identité ou Passeport', id_document_label_patient:'Carte d’Identité, Passeport ou Permis de Conduire', id_document_ph:'Carte nationale d’identité, passeport ou permis de conduire (JPG, PNG ou PDF)',
     id_required:'Le téléchargement d’une carte d’identité, d’un passeport ou d’un permis de conduire valide est requis pour s’inscrire.',
+    id_type_label:'Type de document d’identité', id_type_placeholder:'Sélectionnez le type de document', id_type_required:'Veuillez sélectionner le type de document d’identité à télécharger.',
+    id_type_national_id:'Carte nationale d’identité', id_type_passport:'Passeport', id_type_drivers_license:'Permis de conduire',
     upload_id_document:'Télécharger le Document d’Identité', replace_id_document:'Remplacer le Document d’Identité',
     id_status_pending:'En Attente de Vérification', id_status_verified:'Vérifié', id_status_not_uploaded:'Non Téléchargé',
     id_uploaded_on:'Téléchargé le', id_document_saved:'Document d’identité téléchargé et en attente de vérification par l’administrateur.',
@@ -1315,6 +1344,16 @@ const T = {
     emergency:'Urgence', book_btn:'Réserver le Rendez-vous', confirm_booking:'Confirmer la Réservation',
     reason_ph:'Décrivez vos symptômes ou votre préoccupation...',
     preferred_date:'Date Préférée', preferred_time:'Heure Préférée',
+    consultation_duration:'Durée de la consultation', select_duration:'Sélectionnez une durée', minutes_short:'min',
+    patient_surname_initial:'Initiale du nom de famille', all_patient_initials:'Toutes les initiales', no_matching_patients:'Aucun patient ne correspond à cette initiale.',
+    reschedule_appointment:'Reprogrammer le rendez-vous', reschedule_reason:'Motif de reprogrammation', reschedule_reason_required:'Veuillez indiquer le motif de reprogrammation.',
+    reschedule_fee:'Frais de reprogrammation pour le patient', doctor_reschedule_free:'La reprogrammation par le médecin est gratuite.', pay_and_reschedule:'Payer et reprogrammer', mock_payment_notice:'Paiement de démonstration : aucun débit réel.',
+    doctor_profile_photo:'Photo de profil du médecin', upload_profile_photo:'Télécharger une photo de profil', approved_doctor_photo:'Portrait du médecin approuvé par un administrateur', photo_pending:'Photo en attente de validation', photo_rejected:'Photo refusée par un administrateur', no_approved_photo:'Aucune photo approuvée',
+    photo_file_required:'Choisissez une image JPG, PNG ou WebP de 2 Mo maximum.', photo_upload_failed:'Impossible de lire cette image. Choisissez une autre image.', doctor_photo_reviews:'Validation des photos des médecins', no_photo_reviews:'Aucune photo en attente de validation.',
+    appointment_call_only:'Les appels audio et vidéo sont disponibles uniquement pendant votre rendez-vous, selon le mode réservé.', doctor_reply_alert:'Votre médecin vous a envoyé un nouveau message.',
+    whatsapp_number:'Numéro WhatsApp', whatsapp_number_required:'Veuillez saisir un numéro WhatsApp valide avec son indicatif pays, par exemple +237600000000.', whatsapp_notifications_consent:'J’accepte de recevoir les mises à jour de mon compte et les alertes de nouveaux messages sur WhatsApp.', account_updated_alert:'Votre compte a été mis à jour. Connectez-vous pour consulter les modifications.',
+    booking_required:'Veuillez sélectionner un patient, un médecin, une date et une heure de consultation.', duration_required:'Veuillez sélectionner une durée de consultation de 30 ou 45 minutes.',
+    booking_future:'Veuillez sélectionner une date et une heure de consultation futures valides.', booking_conflict:'Le médecin ou le patient a déjà un rendez-vous pendant cette période. Veuillez choisir une autre heure.',
     reason_lbl:'Motif de la Consultation',
     start_video_call:'Démarrer un Appel Vidéo', start_voice_call:'Démarrer un Appel Vocal',
     select_video_contact:'Sélectionnez le destinataire de l\'appel vidéo :',
@@ -1516,6 +1555,8 @@ function updateStaticHTML() {
     'lbl-name':  t('full_name'),
     'lbl-email': t('email'),
     'lbl-phone': t('phone'),
+    'lbl-whatsapp': t('whatsapp_number'),
+    'lbl-whatsapp-consent': t('whatsapp_notifications_consent'),
     'lbl-pass':  t('password'),
     'lbl-iama':  t('i_am_a'),
     'lbl-agree-terms': t('agree_terms_label'),
@@ -1524,6 +1565,9 @@ function updateStaticHTML() {
     'lbl-id-doc-d': t('id_document_label'),
     'lbl-id-doc-n': t('id_document_label'),
     'lbl-id-doc-p': t('id_document_label_patient'),
+    'lbl-id-type-d': t('id_type_label'),
+    'lbl-id-type-n': t('id_type_label'),
+    'lbl-id-type-p': t('id_type_label'),
     'lbl-consult-fee-hint': t('consultation_fee_hint'),
     'lbl-id-doc-ph-d': t('id_document_ph'),
     'lbl-id-doc-ph-n': t('id_document_ph'),
@@ -1536,6 +1580,10 @@ function updateStaticHTML() {
   };
   Object.entries(ids).forEach(([id, val]) => {
     const el = $(id); if(el) el.textContent = val;
+  });
+  ['d','n','p'].forEach(role => {
+    const select = $('rid-type-'+role);
+    if (select) select.innerHTML = idDocumentTypeOptions(select.value);
   });
   // Auth footer lines
   const afoLogin = $('afo-login');
@@ -1699,6 +1747,7 @@ const DB = {
     {id:'hv1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',visitDate:'2025-02-20',visitTime:'14:00',status:'scheduled',location:'Emmanuel\'s home - Douala',notes:'Monthly wellness check and medication review'},
   ],
   payments: [],
+  whatsappAlerts: [],
   medicalDocuments: [],
 };
 
@@ -2381,6 +2430,10 @@ function doLogin() {
   CU = u; log('LOGIN','System'); goApp();
 }
 
+function normalizeWhatsAppNumber(value) {
+  const number=value.trim().replace(/[\s()-]/g,'');
+  return /^\+[1-9]\d{7,14}$/.test(number)?number:null;
+}
 function doReg() {
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
   if (!name||!email||!pass) return amsg(t('fill_required'));
@@ -2389,14 +2442,18 @@ function doReg() {
   if (RROLE==='doctor'&&!$('rcf').value) return amsg(t('fee_required'));
   if (RROLE==='doctor'&&!validConsultationFee($('rcf').value)) return amsg(t('fee_range_required'));
   if (RROLE==='nurse'&&!$('rns').value) return amsg(t('nurse_spec_required'));
+  const whatsappNumber=RROLE==='patient'?normalizeWhatsAppNumber($('rwa').value):null;
+  if (RROLE==='patient'&&!whatsappNumber) return amsg(t('whatsapp_number_required'));
   const idInput = RROLE==='doctor' ? $('rid-d') : RROLE==='nurse' ? $('rid-n') : $('rid-p');
   if (!idInput || !idInput.files.length) return amsg(t('id_required'));
+  const idDocumentType = $(idInput.id.replace('rid-', 'rid-type-')).value;
+  if (!['national_id','passport','drivers_license'].includes(idDocumentType)) return amsg(t('id_type_required'));
   if (RROLE==='patient'&&!$('rpc').checked) return amsg(t('patient_commitment_required'));
   if (!$('rtc').checked) return amsg(t('terms_required'));
   if (DB.users.find(u=>u.email.toLowerCase()===email.toLowerCase())) return amsg(t('email_exists'));
-  finishReg(idInput);
+  finishReg(idInput, idDocumentType, whatsappNumber);
 }
-function finishReg(idInput) {
+function finishReg(idInput, idDocumentType, whatsappNumber) {
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
   const id = RROLE.slice(0,3)+Date.now();
   // Doctors and nurses require admin verification before they may access the platform.
@@ -2404,7 +2461,7 @@ function finishReg(idInput) {
   const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:initialStatus,createdAt:todayD(),hfaId:nextHfaId(RROLE)};
   const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value,consultationFee:parseFloat($('rcf').value)||0}
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
-    : {dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
+    : {whatsappNumber,whatsappNotificationsConsent:$('rwa-consent').checked,whatsappConsentAt:$('rwa-consent').checked?tsNow():null,dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   const finalize = (idFields) => {
     DB.users.push({...base,...extra,...idFields,termsAcceptedAt:tsNow(),patientCommitmentAt:RROLE==='patient'?tsNow():null});
     DB.consents.push({id:'con'+Date.now(),patientId:id,type:'Terms and Conditions',status:'active',version:'2025.1',recordedAt:todayD()});
@@ -2423,7 +2480,7 @@ function finishReg(idInput) {
   if (idInput && idInput.files.length) {
     const file = idInput.files[0];
     const reader = new FileReader();
-    reader.onload = () => finalize({idDocumentName:file.name,idDocumentData:reader.result,idUploadedAt:tsNow(),idVerificationStatus:'pending'});
+    reader.onload = () => finalize({idDocumentType,idDocumentName:file.name,idDocumentData:reader.result,idUploadedAt:tsNow(),idVerificationStatus:'pending'});
     reader.readAsDataURL(file);
   } else {
     finalize({});
@@ -2519,7 +2576,7 @@ function topBtn(html) { $('tbr').insertAdjacentHTML('afterbegin', html+' '); }
 
 // ═══════════════════════ BADGE HELPERS ═══════════════════════
 function pendingApprovalsCount() {
-  return DB.users.filter(u=>(u.role==='doctor'||u.role==='nurse')&&u.status==='pending_approval').length;
+  return DB.users.filter(u=>(u.role==='doctor'||u.role==='nurse')&&u.status==='pending_approval').length + DB.users.filter(u=>u.role==='doctor'&&u.doctorPhotoSubmission?.status==='pending').length;
 }
 function pendingApprovalsLabel() {
   const n = pendingApprovalsCount();
@@ -2542,14 +2599,17 @@ function aptCard(a) {
   const report=DB.doctorReports.find(r=>r.appointmentId===a.id);
   const who = CU.role==='patient' ? (doc?.name||'Doctor') : (pat?.name||'Patient');
   return `<div class="ai2" style="margin-bottom:10px">
+    ${CU.role==='patient'?doctorPortrait(doc):''}
     <div class="adb"><div class="add">${fd.day}</div><div class="adm">${fd.mon}</div></div>
     <div class="adi" style="flex:1">
       <div class="ain">${who}</div>
-      <div class="ame">${a.time} · ${a.serviceName||a.type} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
+      <div class="ame">${a.time} · ${a.durationMinutes||30} ${t('minutes_short')} · ${a.serviceName||a.type} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
       ${a.notes ? `<div class="ame">${a.notes}</div>` : ''}
       ${report ? `<div class="ame"><strong>${t('doctor_report')}:</strong> ${report.summary}</div>` : ''}
     </div>
     <div class="aac">
+      ${a.status==='scheduled'&&[a.patientId,a.doctorId,a.nurseId].includes(CU.id)?`<button class="btn bp bsm" onclick="joinAppointment('${a.id}')">${a.mode==='video'?IC.vid:a.mode==='voice'?IC.phone:IC.send} ${t(a.mode==='video'?'join_video':a.mode==='voice'?'join_call':'open_chat')}</button>`:''}
+      ${canRescheduleAppointment(a)?`<button class="btn bs bsm" onclick="showReschedule('${a.id}')">${IC.edit} ${t('reschedule_appointment')}</button>`:''}
       ${a.status==='scheduled' ? `<button class="btn bp bsm" onclick="completeApt('${a.id}')">${IC.chk} ${t('done')}</button>` : ''}
       ${aptBadge(a.status)}
     </div>
@@ -2557,6 +2617,7 @@ function aptCard(a) {
 }
 function completeApt(id) {
   const a=DB.appointments.find(x=>x.id===id); if(!a) return;
+  if (a.rescheduleReservation) return;
   if(CU.role==='doctor'&&a.doctorId===CU.id) return showDoctorReport(id);
   a.status='completed'; log('COMPLETE_APPOINTMENT','Appointments'); navigate(CP);
 }
@@ -2829,6 +2890,7 @@ function renderManage(pc, roleFilter, title) {
 }
 
 function renderApprovals(pc) {
+  if (CU.role!=='admin') return;
   $('tbt').textContent = t('pending_approvals_title');
   const pending = DB.users.filter(u=>(u.role==='doctor'||u.role==='nurse'||(u.role==='admin'&&isSuperAdmin(CU)))&&u.status==='pending_approval');
   pc.innerHTML=`<div class="page">
@@ -2851,6 +2913,7 @@ function renderApprovals(pc) {
         </div></td>
       </tr>`).join('')}</tbody>
     </table></div>`}</div>
+    ${doctorPhotoReviewPanel()}
   </div>`;
 }
 
@@ -2884,7 +2947,7 @@ function renderAllApts(pc) {
       <tbody>${DB.appointments.map(a=>{const pat=G(a.patientId),doc=G(a.doctorId);return`<tr>
         <td class="bo sm">${pat?.name||'—'}</td>
         <td class="sm">${doc?.name||'—'}</td>
-        <td class="mu sm">${a.date} @ ${a.time}</td>
+        <td class="mu sm">${a.date} @ ${a.time} · ${a.durationMinutes||30} ${t('minutes_short')}</td>
         <td><span class="badge bse">${a.type}</span></td>
         <td><span class="badge ${a.mode==='video'?'bwa':'bin'}">${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</span></td>
         <td>${aptBadge(a.status)}</td>
@@ -2894,26 +2957,35 @@ function renderAllApts(pc) {
 }
 
 // ═══════════════════════ DOCTOR ═══════════════════════
+function idDocumentTypeOptions(selected='') {
+  return `<option value="">${t('id_type_placeholder')}</option>`+['national_id','passport','drivers_license'].map(type=>`<option value="${type}"${type===selected?' selected':''}>${t('id_type_'+type)}</option>`).join('');
+}
 function idVerificationCard() {
   const status = CU.idVerificationStatus || (CU.idDocumentData ? 'pending' : null);
   const statusLabel = status==='verified' ? t('id_status_verified') : status==='pending' ? t('id_status_pending') : t('id_status_not_uploaded');
   const statusBadge = status==='verified' ? 'bsu' : status==='pending' ? 'bad' : 'bda';
   return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('id_verification_title')}</div><div class="rating-note">${t('id_verification_desc')}</div></div><span class="badge ${statusBadge}">${statusLabel}</span></div>
+    ${['national_id','passport','drivers_license'].includes(CU.idDocumentType)?`<div class="bo sm" style="margin-bottom:4px">${t('id_type_label')}: ${t('id_type_'+CU.idDocumentType)}</div>`:''}
     ${CU.idDocumentName?`<div class="mu sm" style="margin-bottom:8px">${CU.idDocumentName} · ${t('id_uploaded_on')} ${CU.idUploadedAt||''}</div>`:''}
     <button class="btn bp bsm" onclick="showIdUpload()">${CU.idDocumentData?t('replace_id_document'):t('upload_id_document')}</button>
   </div>`;
 }
 function showIdUpload() {
   openMo(`<div class="mh"><div class="mt2">${t('id_verification_title')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="fg"><label class="fl">${t('id_document_label')}</label><input class="fc" type="file" id="pf-id" accept="image/*,.pdf"><p class="mu sm" style="margin-top:4px">${t('id_document_ph')}</p></div>
-    <div id="pf-id-status" class="mu sm"></div>
+    <div class="fg"><label class="fl" for="pf-id-type">${t('id_type_label')}</label><select class="fc" id="pf-id-type" required>${idDocumentTypeOptions(CU.idDocumentType)}</select></div>
+    <div class="fg"><label class="fl" for="pf-id">${t('id_document_label')}</label><input class="fc" type="file" id="pf-id" accept="image/*,.pdf"><p class="mu sm" style="margin-top:4px">${t('id_document_ph')}</p></div>
+    <div id="pf-id-status" class="mu sm" role="alert"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveIdUpload()">${t('upload_id_document')}</button></div>`);
 }
 function saveIdUpload() {
-  const input = $('pf-id'); if (!input || !input.files.length) return;
+  const input = $('pf-id');
+  const idDocumentType = $('pf-id-type').value;
+  if (!['national_id','passport','drivers_license'].includes(idDocumentType)) { $('pf-id-status').textContent=t('id_type_required'); return; }
+  if (!input || !input.files.length) { $('pf-id-status').textContent=t('id_required'); return; }
   const file = input.files[0];
   const reader = new FileReader();
   reader.onload = () => {
+    CU.idDocumentType = idDocumentType;
     CU.idDocumentName = file.name;
     CU.idDocumentData = reader.result;
     CU.idUploadedAt = tsNow();
@@ -2923,6 +2995,76 @@ function saveIdUpload() {
     navigate(CP);
   };
   reader.readAsDataURL(file);
+}
+function approvedDoctorPhoto(doctor) {
+  const photo=doctor?.doctorPhoto;
+  return photo?.status==='approved' && /^data:image\/(jpeg|png|webp);base64,/.test(photo.data) ? photo.data : null;
+}
+function doctorPortrait(doctor) {
+  const photo=approvedDoctorPhoto(doctor);
+  return photo?`<img class="doctor-portrait" src="${photo}" alt="${t('approved_doctor_photo')}">`:`<div class="doctor-portrait" title="${t('no_approved_photo')}">${ini(doctor?.name||'?')}</div>`;
+}
+function doctorPhotoCard() {
+  const submission=CU.doctorPhotoSubmission;
+  return `<div class="card mt18"><div class="ch"><div class="ct">${t('doctor_profile_photo')}</div>${doctorPortrait(CU)}</div>
+    ${submission?`<p class="mu sm mb12">${t(submission.status==='pending'?'photo_pending':submission.status==='rejected'?'photo_rejected':'approved_doctor_photo')}</p>`:''}
+    <button class="btn bs" onclick="showDoctorPhotoUpload()">${IC.file} ${t('upload_profile_photo')}</button></div>`;
+}
+function showDoctorPhotoUpload() {
+  if (CU.role!=='doctor') return;
+  openMo(`<div class="mh"><div class="mt2">${t('doctor_profile_photo')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="fg"><label class="fl" for="doctor-photo-file">${t('upload_profile_photo')}</label><input class="fc" type="file" id="doctor-photo-file" accept="image/jpeg,image/png,image/webp" required></div>
+    <div id="doctor-photo-status" class="mu sm" role="alert"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveDoctorPhoto()">${t('upload_profile_photo')}</button></div>`);
+}
+function saveDoctorPhoto() {
+  if (CU.role!=='doctor') return;
+  const doctor=CU, file=$('doctor-photo-file')?.files[0], status=$('doctor-photo-status');
+  if (!file || !['image/jpeg','image/png','image/webp'].includes(file.type) || file.size>2*1024*1024) { status.textContent=t('photo_file_required'); return; }
+  const reader=new FileReader();
+  reader.onerror=()=>{status.textContent=t('photo_upload_failed');};
+  reader.onload=()=>{
+    const image=new Image();
+    image.onerror=()=>{status.textContent=t('photo_upload_failed');};
+    image.onload=()=>{
+      const canvas=document.createElement('canvas'), scale=Math.min(1,480/Math.max(image.naturalWidth,image.naturalHeight));
+      canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
+      canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+      canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+      doctor.doctorPhotoSubmission={data:canvas.toDataURL('image/jpeg',.85),status:'pending',submittedAt:tsNow()};
+      log('SUBMIT_DOCTOR_PHOTO','Profile Photos');
+      if (CU?.id===doctor.id) { closeMo(); navigate(CP); }
+    };
+    image.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+function doctorPhotoReviewPanel() {
+  if (CU.role!=='admin') return '';
+  const doctors=DB.users.filter(user=>user.role==='doctor'&&user.doctorPhotoSubmission?.status==='pending');
+  return `<section class="mt18"><h3 class="ct mb12">${t('doctor_photo_reviews')}</h3>${doctors.length?doctors.map(doctor=>`<div class="ai2 mb12"><img class="doctor-photo-preview" src="${doctor.doctorPhotoSubmission.data}" alt="${t('photo_pending')}"><div class="adi"><strong>${doctor.name}</strong><div class="mu sm">${doctor.specialty||''}</div></div><div class="aac"><button class="btn bp bsm" onclick="reviewDoctorPhoto('${doctor.id}',true)">${IC.chk} ${t('approve')}</button><button class="btn bd2 bsm" onclick="reviewDoctorPhoto('${doctor.id}',false)">${IC.x} ${t('reject')}</button></div></div>`).join(''):`<p class="mu sm">${t('no_photo_reviews')}</p>`}</section>`;
+}
+function reviewDoctorPhoto(doctorId, approve) {
+  if (CU.role!=='admin') return;
+  const doctor=G(doctorId), submission=doctor?.doctorPhotoSubmission;
+  if (doctor?.role!=='doctor' || submission?.status!=='pending' || !/^data:image\/(jpeg|png|webp);base64,/.test(submission.data)) return;
+  submission.status=approve?'approved':'rejected';
+  submission.reviewedBy=CU.id;
+  submission.reviewedAt=tsNow();
+  if (approve) doctor.doctorPhoto={data:submission.data,status:'approved',reviewedBy:CU.id,reviewedAt:submission.reviewedAt};
+  log(approve?'APPROVE_DOCTOR_PHOTO':'REJECT_DOCTOR_PHOTO','Profile Photos');
+  buildSidebar(); navigate(CP);
+}
+function patientSurname(patient) {
+  return (patient.lastName || patient.name.trim().split(/\s+/).pop()).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function filterPatientsByInitial(patients, initial) {
+  return patients.filter(patient=>!initial || patientSurname(patient).toLocaleUpperCase().startsWith(initial))
+    .sort((first,second)=>patientSurname(first).localeCompare(patientSurname(second)));
+}
+function patientInitialControl(patients) {
+  const initials=[...new Set(patients.map(patient=>Array.from(patientSurname(patient).toLocaleUpperCase())[0]).filter(Boolean))].sort();
+  return `<div class="fg"><label class="fl" for="patient-initial">${t('patient_surname_initial')}</label><select class="fc" id="patient-initial" onchange="CU.patientInitialFilter=this.value;renderPage(CP)"><option value="">${t('all_patient_initials')}</option>${initials.map(initial=>`<option value="${initial}"${initial===CU.patientInitialFilter?' selected':''}>${initial}</option>`).join('')}</select></div>`;
 }
 function renderDrDash(pc) {
   $('tbt').textContent=t('doctor_dashboard');
@@ -2943,8 +3085,9 @@ function renderDrDash(pc) {
       <div class="card"><div class="ch"><div class="ct">${t('upcoming_apts')}</div></div>
         ${up.length===0 ? `<div class="emp"><p>${t('no_upcoming')}</p></div>` : up.map(a=>aptCard(a)).join('')}
       </div>
-      <div class="card"><div class="ch"><div class="ct">My Patients</div></div>
-        ${myP.length===0 ? `<div class="emp"><p>${t('no_patients')}</p></div>` : myP.map(p=>`
+      <div class="card"><div class="ch"><div class="ct">${t('my_patients')}</div></div>
+        ${patientInitialControl(myP)}
+        ${filterPatientsByInitial(myP,CU.patientInitialFilter).length===0 ? `<div class="emp"><p>${t(myP.length?'no_matching_patients':'no_patients')}</p></div>` : filterPatientsByInitial(myP,CU.patientInitialFilter).map(p=>`
           <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
             <div class="pca">${ini(p.name)}</div>
             <div style="flex:1"><div class="bo sm">${p.name}</div><div class="mu sm">${p.bloodType||'—'} · ${p.gender||'—'}</div></div>
@@ -2953,6 +3096,7 @@ function renderDrDash(pc) {
       </div>
     </div>
     ${idVerificationCard()}
+    ${doctorPhotoCard()}
   </div>`;
 }
 
@@ -2963,7 +3107,8 @@ function renderPatients(pc) {
     : DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id);
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('patient_list')}</h2><p>${LANG==='fr'?'Patients assignés à vous':'Patients assigned to you'}</p></div>
-    ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_patients')}</p></div></div>` : myP.map(p=>`
+    ${patientInitialControl(myP)}
+    ${filterPatientsByInitial(myP,CU.patientInitialFilter).length===0 ? `<div class="card"><div class="emp"><p>${t(myP.length?'no_matching_patients':'no_patients')}</p></div></div>` : filterPatientsByInitial(myP,CU.patientInitialFilter).map(p=>`
     <div class="ptc mb12">
       <div class="pch">
         <div class="pca">${ini(p.name)}</div>
@@ -3742,10 +3887,6 @@ function chatView() {
       <div class="cav" style="background:${col}22;border-color:${col}44;color:${col};width:36px;height:36px">${ini(c.name)}</div>
       <div><div class="canm">${c.name}</div><div class="carl">${c.specialty||c.department||c.role}${c.hospital?' · '+c.hospital:''}</div></div>
     </div>
-    <div style="display:flex;gap:6px">
-      <button class="btn bgh bsm" onclick="startVoiceCall('${c.id}')">${IC.phone} ${t('voice_call').replace('📞 ','')}</button>
-      <button class="btn bp bsm" onclick="startVC('${c.id}')">${IC.vid} ${t('video_call').replace('📹 ','')}</button>
-    </div>
   </div>
   <div class="cam" id="chatmsgs">
     ${conv.length===0?`<div class="cemp" style="flex:none;padding:24px"><p>${LANG==='fr'?'Commencez !':'Start the conversation!'}</p></div>`
@@ -3764,11 +3905,32 @@ function filterCts(v) { const cts=myContacts().filter(c=>c.name.toLowerCase().in
 function sendMsg() {
   const inp=$('mgin'); if(!inp||!inp.value.trim()||!SC) return;
   const txt=inp.value.trim();
-  DB.messages.push({id:'m'+Date.now(),from:CU.id,to:SC.id,text:txt,time:nowT(),date:todayD()});
+  const message={id:'m'+Date.now(),from:CU.id,to:SC.id,text:txt,time:nowT(),date:todayD()};
+  DB.messages.push(message);
+  prepareDoctorReplyAlert(message);
   log('SEND_MESSAGE','Communications');
   const el=$('chatmsgs');
   if(el){el.innerHTML+=`<div class="msg2 snt"><div><div class="mb2">${txt}</div><div class="mt3">${nowT()}</div></div></div>`;el.scrollTop=el.scrollHeight;}
   inp.value='';
+}
+function prepareDoctorReplyAlert(message) {
+  const sender=G(message.from), patient=G(message.to);
+  if (sender?.role!=='doctor' || patient?.role!=='patient') return;
+  notifyUser(patient.id,t('doctor_reply_alert'),'Communications',{messageId:message.id,doctorId:sender.id});
+  queuePatientWhatsAppAlert(patient.id,'doctor_reply_available',{doctorId:sender.id,messageId:message.id});
+}
+function queuePatientWhatsAppAlert(patientId, template, metadata={}) {
+  const patient=G(patientId);
+  if (patient?.role!=='patient') return;
+  const phone=normalizeWhatsAppNumber(patient.whatsappNumber||patient.phone||'');
+  if (!phone) return;
+  DB.whatsappAlerts.push({...metadata,id:'wa'+Date.now(),patientId:patient.id,phone,template,status:'integration_pending',requiresConsent:patient.whatsappNotificationsConsent!==true,createdAt:tsNow()});
+}
+function notifyPatientAccountChange(patientId, change) {
+  const patient=G(patientId);
+  if (patient?.role!=='patient') return;
+  notifyUser(patient.id,t('account_updated_alert'),'Account',{change});
+  queuePatientWhatsAppAlert(patient.id,'account_update_available',{change});
 }
 
 // ═══════════════════════ CONSULT ═══════════════════════
@@ -3777,69 +3939,34 @@ function renderConsult(pc) {
   pc.style.padding='0';
   const myA=DB.appointments.filter(a=>(a.patientId===CU.id||a.doctorId===CU.id||a.nurseId===CU.id)&&a.status==='scheduled');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${t('start_consultation')}</h2><p>${t('choose_mode')}</p></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px">
-      <div class="ccd" onclick="navigate('messages')">
-        <div class="cci" style="background:var(--em-p)"><svg width="28" height="28" fill="none" stroke="var(--em)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <h3>${t('text_consult')}</h3>
-        <p>${t('text_desc')}</p>
-        <div class="cdf"><span>✓ ${t('text_feat1')}</span><span>✓ ${t('text_feat2')}</span></div>
-        <button class="btn bp w100">${t('start_text')}</button>
-      </div>
-      <div class="ccd" onclick="showVoicePicker()">
-        <div class="cci" style="background:#eaf3fb"><svg width="28" height="28" fill="none" stroke="#1a6fa3" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.26 9.91 2 2 0 0 1 5.26 8.5l3-.79a2 2 0 0 1 2 .56l1.68 2.79a2 2 0 0 1-.45 2.11l-.27.27a16 16 0 0 0 6.29 6.29l.27-.27a2 2 0 0 1 2.11-.45l2.79 1.68a2 2 0 0 1 .56 2z"/></svg></div>
-        <h3>${t('voice_consult')}</h3>
-        <p>${t('voice_desc')}</p>
-        <div class="cdf"><span>✓ ${t('voice_feat1')}</span><span>✓ ${t('voice_feat2')}</span></div>
-        <button class="btn w100" style="background:#1a6fa3;color:#fff">${t('start_voice')}</button>
-      </div>
-      <div class="ccd gc" onclick="showVCPicker()">
-        <div class="cci" style="background:var(--go-p)"><svg width="28" height="28" fill="none" stroke="var(--go)" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
-        <h3>${t('video_consult')}</h3>
-        <p>${t('video_desc')}</p>
-        <div class="cdf"><span>✓ ${t('video_feat1')}</span><span>✓ ${t('video_feat2')}</span></div>
-        <button class="btn bg2 w100">${t('start_video')}</button>
-      </div>
-    </div>
-    ${myA.length>0?`<div class="card"><div class="ch"><div class="ct">${t('scheduled_consults')}</div></div>
-      ${myA.map(a=>{const other=CU.role==='patient'?G(a.doctorId):G(a.patientId);const fd=fmtD(a.date);return`
-        <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)">
-          <div class="av" style="width:38px;height:38px;font-size:.75rem">${ini(other?.name||'?')}</div>
-          <div style="flex:1"><div class="bo sm">${other?.name||'Unknown'}</div><div class="mu sm">${a.date} at ${a.time} · ${a.notes||''}</div></div>
-          <span class="badge ${a.mode==='video'?'bwa':a.mode==='voice'?'bin':'bse'}">${a.mode}</span>
-          <button class="btn bp bsm" onclick="${a.mode==='video'?`startVC('${other?.id||''}')`:a.mode==='voice'?`startVoiceCall('${other?.id||''}')`:``}navigate('messages')">${a.mode==='video'?t('join_video'):a.mode==='voice'?t('join_call'):t('open_chat')}</button>
-        </div>`}).join('')}
-    </div>`:''}
+    <div class="ph"><h2>${t('scheduled_consults')}</h2></div>
+    ${myA.length?myA.map(appointment=>aptCard(appointment)).join(''):`<div class="emp"><p>${t('no_upcoming')}</p></div>`}
   </div>`;
 }
 
-function showVCPicker() {
-  const contacts=myContacts();
-  openMo(`<div class="mh"><div class="mt2">${t('start_video_call')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <p class="mu sm mb12">${t('select_video_contact')}</p>
-    ${contacts.map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:8px;cursor:pointer" onclick="closeMo();startVC('${c.id}')">
-      <div class="av" style="width:36px;height:36px">${ini(c.name)}</div>
-      <div style="flex:1"><div class="bo sm">${c.name}</div><div class="mu sm">${c.specialty||c.department||c.role}</div></div>
-      <button class="btn bp bsm">Call</button>
-    </div>`).join('')}
-    ${contacts.length===0?`<div class="emp"><p>No contacts available</p></div>`:''}`);
+function appointmentCallAllowed(appointmentId, contactId, mode) {
+  if (!CU) return false;
+  const appointment=DB.appointments.find(item=>item.id===appointmentId);
+  if (!appointment || appointment.status!=='scheduled' || appointment.rescheduleReservation || appointment.mode!==mode || !['video','voice'].includes(mode)) return false;
+  if (!['patient','doctor','nurse'].includes(CU.role) || ![appointment.patientId,appointment.doctorId,appointment.nurseId].includes(CU.id)) return false;
+  const expectedContact=CU.id===appointment.patientId?appointment.doctorId:appointment.patientId;
+  const start=new Date(`${appointment.date}T${appointment.time}`).getTime(), end=start+(appointment.durationMinutes||30)*60000;
+  return contactId===expectedContact && Date.now()>=start && Date.now()<end;
 }
-function showVoicePicker() {
-  const contacts=myContacts();
-  openMo(`<div class="mh"><div class="mt2">${t('start_voice_call')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <p class="mu sm mb12">${t('select_voice_contact')}</p>
-    ${contacts.map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:8px;cursor:pointer" onclick="closeMo();startVoiceCall('${c.id}')">
-      <div class="av" style="width:36px;height:36px;background:linear-gradient(135deg,#1a6fa3,#0d3d63)">${ini(c.name)}</div>
-      <div style="flex:1"><div class="bo sm">${c.name}</div><div class="mu sm">${c.specialty||c.department||c.role}</div></div>
-      <button class="btn bsm" style="background:#1a6fa3;color:#fff;border:none">${IC.phone} Call</button>
-    </div>`).join('')}
-    ${contacts.length===0?`<div class="emp"><p>No contacts available</p></div>`:''}`);
+function joinAppointment(appointmentId) {
+  const appointment=DB.appointments.find(item=>item.id===appointmentId);
+  if (!appointment || appointment.status!=='scheduled' || ![appointment.patientId,appointment.doctorId,appointment.nurseId].includes(CU.id)) return;
+  const contactId=CU.id===appointment.patientId?appointment.doctorId:appointment.patientId;
+  if (appointment.mode==='video') startVC(contactId,appointmentId);
+  else if (appointment.mode==='voice') startVoiceCall(contactId,appointmentId);
+  else { SC=G(contactId); navigate('messages'); }
 }
 
 // ═══════════════════════ VIDEO CALL ═══════════════════════
-function startVC(contactId) {
-  const c=DB.users.find(u=>u.id===contactId)||SC; if(!c)return;
-  $('vcav').textContent=ini(c.name); $('vcn').textContent=c.name; $('vcro').textContent=c.specialty||c.department||c.role;
+function startVC(contactId, appointmentId) {
+  if (!appointmentCallAllowed(appointmentId,contactId,'video')) return alert(t('appointment_call_only'));
+  const c=G(contactId); if(!c)return;
+  $('vcav').innerHTML=c.role==='doctor'?doctorPortrait(c):ini(c.name); $('vcn').textContent=c.name; $('vcro').textContent=c.specialty||c.department||c.role;
   VCS=0; MUT=false; VIDOFF=false;
   $('vcmb').className='vcb vcm'; $('mico').outerHTML=`<span id="mico">${IC.micOn}</span>`;
   $('vcvb').className='vcb vcv'; $('vico').outerHTML=`<span id="vico">${IC.vidOn}</span>`;
@@ -3848,15 +3975,16 @@ function startVC(contactId) {
   const vctl = $('vc-type-label'); if(vctl) vctl.textContent = t('video_call_title');
   show('vc');
   if(VCI) clearInterval(VCI);
-  VCI=setInterval(()=>{VCS++;const m=Math.floor(VCS/60),s=VCS%60;$('vctm').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000);
+  VCI=setInterval(()=>{if(!appointmentCallAllowed(appointmentId,contactId,'video')) return endCall();VCS++;const m=Math.floor(VCS/60),s=VCS%60;$('vctm').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000);
   log('START_VIDEO_CALL','Consultations');
 }
 function endCall() { clearInterval(VCI);VCI=null; hide('vc'); log('END_VIDEO_CALL','Consultations'); }
 
 // ═══════════════════════ VOICE CALL ═══════════════════════
-function startVoiceCall(contactId) {
-  const c = DB.users.find(u=>u.id===contactId)||SC; if(!c) return;
-  $('voav').textContent = ini(c.name);
+function startVoiceCall(contactId, appointmentId) {
+  if (!appointmentCallAllowed(appointmentId,contactId,'voice')) return alert(t('appointment_call_only'));
+  const c = G(contactId); if(!c) return;
+  $('voav').innerHTML = c.role==='doctor'?doctorPortrait(c):ini(c.name);
   $('von').textContent  = c.name;
   $('vor').textContent  = c.specialty||c.department||c.role;
   $('vo-status').textContent = 'Connected';
@@ -3873,7 +4001,7 @@ function startVoiceCall(contactId) {
   const vows = $('vo-status'); if(vows) vows.textContent = t('connected');
   show('voc');
   if(VCI2) clearInterval(VCI2);
-  VCI2=setInterval(()=>{VCS2++;const m=Math.floor(VCS2/60),s=VCS2%60;$('votm').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000);
+  VCI2=setInterval(()=>{if(!appointmentCallAllowed(appointmentId,contactId,'voice')) return endVoiceCall();VCS2++;const m=Math.floor(VCS2/60),s=VCS2%60;$('votm').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000);
   log('START_VOICE_CALL','Consultations');
 }
 function endVoiceCall() { clearInterval(VCI2);VCI2=null; hide('voc'); log('END_VOICE_CALL','Consultations'); }
@@ -3917,23 +4045,93 @@ function saveNote() {
   log('ADD_CARE_NOTE','Care Notes'); closeMo(); navigate('carenotes');
 }
 
+const ReschedulePolicy={patientFee:5,currency:'USD'};
+function canRescheduleAppointment(appointment) {
+  return !!appointment && appointment.status==='scheduled' && !appointment.rescheduleReservation &&
+    ((CU.role==='patient' && appointment.patientId===CU.id) || (CU.role==='doctor' && appointment.doctorId===CU.id));
+}
+function showReschedule(appointmentId) {
+  const appointment=DB.appointments.find(item=>item.id===appointmentId);
+  if (!canRescheduleAppointment(appointment)) return;
+  openMo(`<div class="mh"><div class="mt2">${t('reschedule_appointment')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    <div class="mu sm mb12">${appointment.date} ${appointment.time} · ${appointment.durationMinutes||30} ${t('minutes_short')}</div>
+    <div class="fr"><div class="fg"><label class="fl" for="rs-date">${t('date_lbl')}</label><input class="fc" type="date" id="rs-date" value="${appointment.date}" required></div><div class="fg"><label class="fl" for="rs-time">${t('time_lbl')}</label><input class="fc" type="time" id="rs-time" value="${appointment.time}" required></div></div>
+    <div class="fg"><label class="fl" for="rs-duration">${t('consultation_duration')}</label><select class="fc" id="rs-duration" required>${consultationDurationOptions()}</select></div>
+    <div class="fg"><label class="fl" for="rs-reason">${t('reschedule_reason')}</label><textarea class="fc" id="rs-reason" required></textarea></div>
+    ${CU.role==='patient'?`<p class="bo sm mb12">${t('reschedule_fee')}: ${ReschedulePolicy.currency} ${ReschedulePolicy.patientFee.toFixed(2)}</p>${PaymentConfig.provider==='mock'?`<p class="mu sm mb12">${t('mock_payment_notice')}</p>`:''}<div class="fg"><label class="fl" for="rs-method">${t('payment_method')}</label><select class="fc" id="rs-method"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>`:`<p class="mu sm mb12">${t('doctor_reschedule_free')}</p>`}
+    <div id="rs-status" class="mu sm" role="alert"></div>
+    <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" id="rs-confirm" onclick="confirmReschedule('${appointmentId}')">${t(CU.role==='patient'?'pay_and_reschedule':'reschedule_appointment')}</button></div>`);
+  $('rs-duration').value=String(appointment.durationMinutes||30);
+}
+async function confirmReschedule(appointmentId) {
+  const appointment=DB.appointments.find(item=>item.id===appointmentId);
+  if (!canRescheduleAppointment(appointment)) return;
+  const date=$('rs-date').value, time=$('rs-time').value, durationMinutes=Number($('rs-duration').value), reason=$('rs-reason').value.trim();
+  const status=$('rs-status'), button=$('rs-confirm'), actor={id:CU.id,role:CU.role};
+  const error=appointmentScheduleError(appointment.patientId,appointment.doctorId,date,time,durationMinutes,appointmentId);
+  if (error || !reason) { status.textContent=error||t('reschedule_reason_required'); return; }
+  if (date===appointment.date && time===appointment.time && durationMinutes===(appointment.durationMinutes||30)) return;
+  const method=actor.role==='patient'?$('rs-method').value:null;
+  appointment.rescheduleReservation={date,time,durationMinutes};
+  button.disabled=true;
+  status.textContent=actor.role==='patient'?t('processing_payment'):'';
+  try {
+    const receipt=actor.role==='patient'?await Payment.create().from(actor.id).amount(ReschedulePolicy.patientFee).currency(ReschedulePolicy.currency)
+      .purpose('appointment_reschedule').method(method).meta({appointmentId,date,time,durationMinutes}).process():null;
+    if (receipt && receipt.status!=='completed') throw new Error('Rescheduling payment failed');
+    appointment.reschedules=appointment.reschedules||[];
+    appointment.reschedules.push({previousDate:appointment.date,previousTime:appointment.time,previousDurationMinutes:appointment.durationMinutes||30,date,time,durationMinutes,reason,requestedBy:actor.id,requestedRole:actor.role,fee:receipt?ReschedulePolicy.patientFee:0,currency:ReschedulePolicy.currency,paymentId:receipt?.id||null,createdAt:tsNow()});
+    Object.assign(appointment,{date,time,durationMinutes});
+    delete appointment.rescheduleReservation;
+    log('RESCHEDULE_APPOINTMENT','Appointments');
+    if (CU?.id===actor.id) { closeMo(); navigate(CP); }
+  } catch (error) {
+    status.textContent=t('payment_failed');
+    button.disabled=false;
+  } finally {
+    delete appointment.rescheduleReservation;
+  }
+}
+function appointmentScheduleError(patientId, doctorId, date, time, durationMinutes, excludeAppointmentId=null) {
+  if (!patientId || !doctorId || !date || !time) return t('booking_required');
+  if (![30,45].includes(durationMinutes)) return t('duration_required');
+  const start = new Date(`${date}T${time}`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time) || !Number.isFinite(start.getTime()) || start.getDate()!==Number(date.slice(-2)) || start.getHours()!==Number(time.slice(0,2)) || start.getTime()<=Date.now()) return t('booking_future');
+  const end = start.getTime()+durationMinutes*60000;
+  const conflict = DB.appointments.some(appointment => {
+    if (appointment.id===excludeAppointmentId || appointment.status!=='scheduled' || (appointment.doctorId!==doctorId && appointment.patientId!==patientId)) return false;
+    return [appointment,appointment.rescheduleReservation].filter(Boolean).some(slot=>{
+      const existingStart = new Date(`${slot.date}T${slot.time}`).getTime();
+      const existingEnd = existingStart+(slot.durationMinutes||30)*60000;
+      return start.getTime()<existingEnd && end>existingStart;
+    });
+  });
+  return conflict ? t('booking_conflict') : '';
+}
+function consultationDurationOptions() {
+  return `<option value="">${t('select_duration')}</option><option value="30">30 ${t('minutes_short')}</option><option value="45">45 ${t('minutes_short')}</option>`;
+}
 function showNewApt() {
   const pats=CU.role==='doctor'?patientsForDoctor(CU.id):DB.users.filter(u=>u.role==='patient');
   const docs=DB.users.filter(u=>u.role==='doctor');
   openMo(`<div class="mh"><div class="mt2">${t('new_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="fg"><label class="fl">Patient</label><select class="fc" id="ap-p"><option value="">Select patient...</option>${pats.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
     ${CU.role!=='doctor'?`<div class="fg"><label class="fl">Doctor</label><select class="fc" id="ap-d"><option value="">Select doctor...</option>${docs.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>`:''}
-    <div class="fr"><div class="fg"><label class="fl">Date</label><input type="date" class="fc" id="ap-dt"></div><div class="fg"><label class="fl">Time</label><input type="time" class="fc" id="ap-tm"></div></div>
+    <div class="fr"><div class="fg"><label class="fl" for="ap-dt">${t('date_lbl')}</label><input type="date" class="fc" id="ap-dt" required></div><div class="fg"><label class="fl" for="ap-tm">${t('time_lbl')}</label><input type="time" class="fc" id="ap-tm" required></div></div>
+    <div class="fg"><label class="fl" for="ap-duration">${t('consultation_duration')}</label><select class="fc" id="ap-duration" required>${consultationDurationOptions()}</select></div>
     <div class="fr"><div class="fg"><label class="fl">Mode</label><select class="fc" id="ap-md"><option value="video">${t('video_call')}</option><option value="voice">${t('voice_call')}</option><option value="text">${t('text_chat')}</option></select></div>
     <div class="fg"><label class="fl">Type</label><select class="fc" id="ap-ty"><option value="consultation">${t('consultation')}</option><option value="follow-up">${t('follow_up')}</option><option value="emergency">${t('emergency')}</option></select></div></div>
     <div class="fg"><label class="fl">Notes</label><textarea class="fc" id="ap-nt" placeholder="Appointment notes..."></textarea></div>
+    <div id="ap-error" class="mu sm" role="alert"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveApt()">${t('book_btn')}</button></div>`);
 }
 function saveApt() {
   const patId=$('ap-p').value, docId=CU.role==='doctor'?CU.id:($('ap-d')?$('ap-d').value:''), date=$('ap-dt').value, time=$('ap-tm').value;
-  if(!patId||!date||!time) return;
+  const durationMinutes=Number($('ap-duration').value);
+  const error=appointmentScheduleError(patId,docId,date,time,durationMinutes);
+  if (error) { $('ap-error').textContent=error; return; }
   const pat=G(patId);
-  DB.appointments.push({id:'apt'+Date.now(),patientId:patId,doctorId:docId,nurseId:pat?.assignedNurse||'',date,time,mode:$('ap-md').value,type:$('ap-ty').value,notes:$('ap-nt').value,status:'scheduled'});
+  DB.appointments.push({id:'apt'+Date.now(),patientId:patId,doctorId:docId,nurseId:pat?.assignedNurse||'',date,time,durationMinutes,mode:$('ap-md').value,type:$('ap-ty').value,notes:$('ap-nt').value,status:'scheduled'});
   log('CREATE_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
 
@@ -3956,8 +4154,10 @@ function showBookApt(serviceCode='PC-VIRTUAL') {
         <button id="bk-t" class="btn bs" style="flex:1" onclick="setAptMode('text')">💬 Text</button>
       </div>
     </div>
-    <div class="fr"><div class="fg"><label class="fl">Preferred Date</label><input type="date" class="fc" id="bk-d"></div><div class="fg"><label class="fl">Preferred Time</label><input type="time" class="fc" id="bk-t2"></div></div>
+    <div class="fr"><div class="fg"><label class="fl" for="bk-d">${t('preferred_date')}</label><input type="date" class="fc" id="bk-d" required></div><div class="fg"><label class="fl" for="bk-t2">${t('preferred_time')}</label><input type="time" class="fc" id="bk-t2" required></div></div>
+    <div class="fg"><label class="fl" for="bk-duration">${t('consultation_duration')}</label><select class="fc" id="bk-duration" required>${consultationDurationOptions()}</select></div>
     <div class="fg"><label class="fl">Reason for Consultation</label><textarea class="fc" id="bk-n" placeholder="Describe your symptoms or concern..."></textarea></div>
+    <div id="bk-error" class="mu sm" role="alert"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveBooking()" ${docs.length||myDoc?'':'disabled'}>${t('confirm_booking')}</button></div>`);
   bkRenderDocFee();
 }
@@ -3973,11 +4173,13 @@ function setAptMode(m) {
   if(active){active.className='btn bp';active.style.flex='1';}
 }
 function saveBooking() {
-  const date=$('bk-d').value, time=$('bk-t2').value; if(!date||!time) return;
-  const docId=BOOKDOC||CU.assignedDoctor; if(!docId) return;
+  const date=$('bk-d').value, time=$('bk-t2').value, durationMinutes=Number($('bk-duration').value);
+  const docId=BOOKDOC||CU.assignedDoctor;
+  const error=appointmentScheduleError(CU.id,docId,date,time,durationMinutes);
+  if (error) { $('bk-error').textContent=error; return; }
   if(!CU.assignedDoctor){ CU.assignedDoctor=docId; }
   const service=VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
-  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:docId,nurseId:CU.assignedNurse||'',date,time,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
+  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:docId,nurseId:CU.assignedNurse||'',date,time,durationMinutes,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
   log('BOOK_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
 
@@ -4052,6 +4254,7 @@ function saveEditUser(id) {
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   if (isSuperAdmin(u) && u.id!==CU.id) return alert(t('super_admin_protect_msg'));
+  const previous=JSON.stringify([u.name,u.phone,u.status,u.assignedDoctor,u.assignedNurse]);
   u.name=$('eu-n').value.trim()||u.name;
   u.phone=$('eu-ph').value.trim(); u.status=$('eu-st').value;
   if($('eu-cf')&&!validConsultationFee($('eu-cf').value)){alert(t('fee_range_required'));return;}
@@ -4059,6 +4262,7 @@ function saveEditUser(id) {
   if($('eu-ar')) u.adminRole=$('eu-ar').value;
   if($('eu-dc')) u.assignedDoctor=$('eu-dc').value||null;
   if($('eu-nr')) u.assignedNurse=$('eu-nr').value||null;
+  if (previous!==JSON.stringify([u.name,u.phone,u.status,u.assignedDoctor,u.assignedNurse])) notifyPatientAccountChange(id,'account_updated');
   log('EDIT_USER','User Management'); closeMo(); navigate(CP);
 }
 
@@ -4069,11 +4273,12 @@ function doSuspend(id) {
   openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">Suspend <strong>${u.name}</strong>?<br>They will be unable to log in.</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmSuspend('${id}')">${t('yes_suspend')}</button></div></div>`);
 }
-function confirmSuspend(id) { const u=G(id);if(u && !(u.role==='admin' && !isSuperAdmin(CU)) && !isSuperAdmin(u)){u.status='suspended';log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
+function confirmSuspend(id) { const u=G(id);if(u && !(u.role==='admin' && !isSuperAdmin(CU)) && !isSuperAdmin(u)){const changed=u.status!=='suspended';u.status='suspended';if(changed)notifyPatientAccountChange(id,'account_suspended');log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
 function doActivate(id) {
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
-  u.status='active'; log('ACTIVATE_USER','User Management'); navigate(CP);
+  const changed=u.status!=='active';
+  u.status='active'; if(changed)notifyPatientAccountChange(id,'account_activated'); log('ACTIVATE_USER','User Management'); navigate(CP);
 }
 
 function askDelete(id, name) {
@@ -4087,6 +4292,7 @@ function confirmDel(id) {
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return;
   if (isSuperAdmin(u)) return;
+  notifyPatientAccountChange(id,'account_deleted');
   DB.users=DB.users.filter(x=>x.id!==id); log('DELETE_USER','User Management'); closeMo(); navigate(CP);
 }
 

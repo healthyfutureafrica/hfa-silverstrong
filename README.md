@@ -55,3 +55,15 @@ The GitHub Pages workflow publishes the static demo after pushes to `main`. Enab
 
 The landing page includes a one-click **Try Demo** entry for the patient experience. The Admin portal is intentionally excluded from that shortcut; use the provisioned Super Admin account through normal sign-in. This demo stores data in browser memory only, resets on refresh, and must never receive real patient data or production credentials.
 
+## Doctor workflows
+
+- The doctor dashboard and patient list filter by surname initial. An explicit `lastName` is used when available; otherwise the last word of the full name is treated as the surname.
+- Consultations require a future date/time and a 30- or 45-minute duration. Doctor/patient overlaps are checked against this browser's appointment records.
+- Patients pay USD 5 to reschedule; doctors reschedule for free. The current payment provider is a mock, not a real charge. Failed payments leave the appointment unchanged. Rescheduling records retain the reason, previous slot, requester, and payment reference.
+- Doctors upload JPG, PNG, or WebP portraits up to 2 MB from their dashboard. Images are resized and submitted to the admin Pending Approvals screen. Patients see only approved portraits on appointment cards and appointment call screens. A pending or rejected replacement does not replace an already approved photo.
+- Conversations are text-only. Voice/video demo screens can be entered only by appointment participants, in the booked mode, during the booked time window; they do not establish real media connections.
+- Patient registration requires a dedicated WhatsApp number in international format and saves a separate, optional opt-in for account updates and new-message alerts. The number's format is validated, but ownership and WhatsApp availability are not verified.
+- Doctor replies and admin patient-account edits, suspension, activation, and deletion produce in-app notifications and unsent `DB.whatsappAlerts` records. The dedicated WhatsApp number is preferred; the phone on file is a fallback for legacy demo accounts. Consent is recorded in each queued alert's `requiresConsent` flag. No WhatsApp messages are sent. Production delivery requires a backend, number/ownership verification, explicit patient opt-in and withdrawal controls, approved generic templates, provider credentials, and delivery/retry handling. Clinical message text is not copied into the alert record.
+
+These checks, payments, moderation decisions, photos, and alerts are demo browser state, not production authorization or persistent storage. Enforce them server-side before using real patient data, collecting money, or delivering notifications. Appointment times currently use the device's local time zone.
+
