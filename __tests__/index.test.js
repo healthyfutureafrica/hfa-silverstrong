@@ -516,12 +516,11 @@ describe('index.html sanity checks', () => {
     });
   });
 
-  test('credits the designer and builder on the app and language picker', () => {
+  test('shows the HFA copyright and abbreviated creator signature on the app and language picker', () => {
     expect(content).toContain('<footer class="creator-credit" aria-label="App creator">');
     expect(content).toContain('class="creator-credit creator-credit--picker"');
-    expect((content.match(/class="creator-name">Chinjie Sylvester Nkeh/g) || []).length).toBe(2);
-    expect(content).toContain('lang="en">Designed &amp; built by');
-    expect(content).toContain('lang="fr">Conçu et développé par');
+    expect((content.match(/class="creator-label">&copy; Healthy Future Africa \(HFA\)/g) || []).length).toBe(2);
+    expect((content.match(/class="creator-name">Chinjie S\. N\./g) || []).length).toBe(2);
   });
 
   test('includes the patient provider rating section', () => {
