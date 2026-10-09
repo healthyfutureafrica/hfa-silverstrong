@@ -24,6 +24,10 @@ describe('index.html sanity checks', () => {
   });
 
   describe('free health assistant disclaimers', () => {
+    test('names the assistant SLY in English and French', ()=>{
+      expect((content.match(/fh_assistant_title:'SLY'/g)||[])).toHaveLength(2);
+    });
+
     function assistantContext() {
       const context={
         LANG:'en',IC:{warn:'WARNING ICON'},
