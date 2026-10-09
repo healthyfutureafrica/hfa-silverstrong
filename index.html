@@ -368,6 +368,20 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .fh-disclaimer svg{flex-shrink:0}
 .fh-disclaimer strong{color:var(--na);font-size:.88rem}
 .fh-disclaimer p{font-size:.8rem;color:var(--t2);margin-top:4px;line-height:1.55}
+.fh-assistant{border-top:3px solid var(--em);margin-bottom:18px}
+.fh-assistant-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px}
+.fh-assistant-note{font-size:.72rem;color:var(--t3);max-width:340px}
+.fh-assistant-prompts{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.fh-assistant-prompt{padding:6px 10px;border:1px solid var(--bd);border-radius:var(--rs);background:#fff;color:var(--t2);font-size:.74rem;cursor:pointer}
+.fh-assistant-prompt:hover{border-color:var(--em-l);color:var(--em-d)}
+.fh-assistant-form{display:flex;align-items:flex-end;gap:8px}
+.fh-assistant-form textarea{min-height:64px;max-height:150px;resize:vertical}
+.fh-assistant-answer{margin-top:14px;padding:14px;background:var(--si-p);border:1px solid var(--bd);border-radius:var(--rs)}
+.fh-assistant-answer p{font-size:.8rem;color:var(--t2);line-height:1.55;margin-top:7px}
+.fh-assistant-answer ul{margin:7px 0 8px 18px;font-size:.8rem;color:var(--t2);line-height:1.6}
+.fh-assistant-answer .fh-disclaimer{margin:0;padding:10px 12px}
+.fh-assistant-answer .fh-disclaimer strong{font-size:.76rem}
+.fh-assistant-answer .fh-disclaimer p{font-size:.73rem;margin-top:2px}
 .fh-chip-row{display:flex;flex-wrap:wrap;gap:8px}
 .fh-chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bd);background:#fff;color:var(--t2);font-size:.78rem;cursor:pointer;transition:var(--tr)}
 .fh-chip:hover{border-color:var(--em-l);color:var(--em-d);background:var(--em-p)}
@@ -446,6 +460,8 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   .tb-r{flex-wrap:wrap;max-width:100%}
   .tb-t,.ph h2{overflow-wrap:anywhere;max-width:100%}
   .topbar .btn,.aac .btn{white-space:normal;line-height:1.35;max-width:100%}
+  .fh-assistant-form{align-items:stretch;flex-direction:column}
+  .fh-assistant-form .btn{align-self:flex-start;min-height:40px}
   .ai2{max-width:100%;min-width:0}
   .ai2 .adi{min-width:0;flex-basis:100%;overflow-wrap:anywhere}
   .ai2 .aac{width:100%}
@@ -1110,6 +1126,16 @@ const T = {
     free_hub_sub:'Evidence-informed nutrition, exercise, and self-care guidance — free for everyone, patient or not.',
     fh_disclaimer_title:'Educational information, not a diagnosis',
     fh_disclaimer_body:'This section shares general wellness guidance aligned with widely accepted public-health practice. It does not replace an individual medical assessment. For emergencies, contact local emergency services immediately.',
+    fh_assistant_title:'AI Health Assistant', fh_assistant_sub:'Ask about everyday nutrition, fitness, or common wellness topics.',
+    fh_assistant_scope:'Answers are matched from the reviewed Health Hub library. This is not a live AI model, does not diagnose, and your question stays in this browser.',
+    fh_assistant_label:'Your question', fh_assistant_ph:'What would you like general guidance about?', fh_assistant_send:'Get guidance', fh_assistant_suggestions:'Suggested questions',
+    fh_assistant_prompt_food:'Balanced meals', fh_assistant_prompt_fitness:'Starting exercise', fh_assistant_prompt_sleep:'Better sleep',
+    fh_assistant_disclaimer_title:'Disclaimer before health guidance',
+    fh_assistant_disclaimer_body:'This is general educational information, not medical advice or a diagnosis. It may not fit your health needs. Ask a qualified health professional for personal advice. For an emergency, contact local emergency services now.',
+    fh_assistant_answer_intro:'Here is general guidance from the reviewed Health Hub library:',
+    fh_assistant_redflags:'Seek professional care if:',
+    fh_assistant_emergency:'Your message may describe an emergency. Call your local emergency number now; do not wait for online guidance.',
+    fh_assistant_no_match:'I could not match that question to a reviewed Health Hub topic. Try asking about a common symptom, nutrition, exercise, or sleep, or speak with a health professional.',
     fh_ask_title:'What kind of remedy are you looking for?',
     fh_ask_sub:'Search a symptom or condition, or choose one below, for general self-care guidance.',
     fh_search_ph:'e.g. headache, sore throat, trouble sleeping...',
@@ -1435,6 +1461,16 @@ const T = {
     free_hub_sub:'Conseils gratuits fondés sur des données probantes en nutrition, exercice et bien-être — pour tous, patient ou non.',
     fh_disclaimer_title:'Information éducative, pas un diagnostic',
     fh_disclaimer_body:'Cette section propose des conseils de bien-être généraux conformes aux pratiques de santé publique reconnues. Elle ne remplace pas une évaluation médicale individuelle. En cas d\'urgence, contactez immédiatement les services d\'urgence locaux.',
+    fh_assistant_title:'Assistant Santé IA', fh_assistant_sub:'Posez vos questions sur la nutrition, la forme physique ou le bien-être au quotidien.',
+    fh_assistant_scope:'Les réponses sont issues de la bibliothèque Santé vérifiée. Ce n\'est pas un modèle d\'IA en direct, il ne pose pas de diagnostic et votre question reste dans ce navigateur.',
+    fh_assistant_label:'Votre question', fh_assistant_ph:'Sur quel sujet souhaitez-vous des conseils généraux ?', fh_assistant_send:'Obtenir des conseils', fh_assistant_suggestions:'Questions suggérées',
+    fh_assistant_prompt_food:'Repas équilibrés', fh_assistant_prompt_fitness:'Commencer à bouger', fh_assistant_prompt_sleep:'Mieux dormir',
+    fh_assistant_disclaimer_title:'Avertissement avant tout conseil de santé',
+    fh_assistant_disclaimer_body:'Ces informations sont générales et éducatives ; elles ne constituent pas un avis médical ni un diagnostic. Elles peuvent ne pas convenir à vos besoins. Demandez conseil à un professionnel de santé qualifié. En cas d\'urgence, contactez immédiatement les services d\'urgence locaux.',
+    fh_assistant_answer_intro:'Voici des conseils généraux issus de la bibliothèque Santé vérifiée :',
+    fh_assistant_redflags:'Consultez un professionnel si :',
+    fh_assistant_emergency:'Votre message peut décrire une urgence. Appelez immédiatement votre numéro d\'urgence local ; n\'attendez pas un conseil en ligne.',
+    fh_assistant_no_match:'Je n\'ai pas trouvé de sujet correspondant dans la bibliothèque Santé vérifiée. Essayez une question sur un symptôme courant, la nutrition, l\'exercice ou le sommeil, ou consultez un professionnel de santé.',
     fh_ask_title:'Quel type de remède recherchez-vous ?',
     fh_ask_sub:'Recherchez un symptôme ou une condition, ou choisissez-en un ci-dessous, pour des conseils généraux.',
     fh_search_ph:'ex. mal de tête, mal de gorge, troubles du sommeil...',
@@ -1835,7 +1871,7 @@ const FREE_HEALTH_TOPICS = [
       fr:['Difficulté à avaler ou à respirer','Douleur sévère, salivation excessive ou voix étouffée','Fièvre élevée avec ganglions gonflés ou éruption cutanée','Symptômes durant plus d\'une semaine']}},
   {id:'sleep', cat:'general',
     name:{en:'Trouble Sleeping', fr:'Troubles du Sommeil'},
-    keywords:{en:['insomnia','sleep','trouble sleeping','tired'], fr:['insomnie','sommeil','fatigue']},
+    keywords:{en:['insomnia','sleep','trouble sleeping','tired'], fr:['insomnie','sommeil','dormir','fatigue']},
     guidance:{en:['Keep a consistent sleep and wake time, even on weekends.','Avoid caffeine and heavy meals late in the day.','Limit screens for at least 30–60 minutes before bed.','Keep your bedroom cool, dark, and quiet.','Gentle daytime activity can improve sleep quality.'],
       fr:['Gardez des horaires de sommeil réguliers, même le week-end.','Évitez la caféine et les repas copieux en fin de journée.','Limitez les écrans au moins 30 à 60 minutes avant le coucher.','Gardez votre chambre fraîche, sombre et calme.','Une activité physique modérée en journée peut améliorer la qualité du sommeil.']},
     redFlags:{en:['Sleep problems lasting more than a month and affecting daily life','Loud snoring with pauses in breathing','Persistent low mood alongside sleep difficulty'],
@@ -3815,6 +3851,39 @@ function fhShowRemedy(id) {
   box.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
+function fhAssistantResponse(question) {
+  const query=(question||'').trim().toLowerCase();
+  const disclaimer=`<div class="fh-disclaimer"><div>${IC.warn}</div><div><strong>${t('fh_assistant_disclaimer_title')}</strong><p>${t('fh_assistant_disclaimer_body')}</p></div></div>`;
+  const urgent=['chest pain','difficulty breathing','trouble breathing',"can't breathe",'severe bleeding','stroke','unconscious','suicid','self-harm','douleur thoracique','difficulté à respirer','saignement abondant','avc','perte de conscience','suicid'];
+  if (urgent.some(term=>query.includes(term))) return `<div class="fh-assistant-answer">${disclaimer}<p>${t('fh_assistant_emergency')}</p></div>`;
+
+  const topic=FREE_HEALTH_TOPICS.find(item=>fhL(item.keywords).some(keyword=>query.includes(keyword.toLowerCase())));
+  const nutrition=/nutrition|food|eat|meal|diet|hydration|water|sel|aliment|manger|repas|hydrat/i.test(query);
+  const exercise=/exercise|fitness|workout|activity|strength|stretch|sport|exercice|activité|bouger|muscle/i.test(query);
+  const tips=topic?fhL(topic.guidance):[
+    ...(nutrition?NUTRITION_ESSENTIALS.slice(0,3).map(item=>fhL(item.text)):[]),
+    ...(exercise?EXERCISE_ESSENTIALS.slice(0,3).map(item=>fhL(item.text)):[])
+  ];
+  if (!tips.length) return `<div class="fh-assistant-answer">${disclaimer}<p>${t('fh_assistant_no_match')}</p></div>`;
+
+  const redFlags=topic?fhL(topic.redFlags):[];
+  return `<div class="fh-assistant-answer">${disclaimer}<p>${t('fh_assistant_answer_intro')}</p><ul>${tips.map(tip=>`<li>${tip}</li>`).join('')}</ul>${redFlags.length?`<strong>${t('fh_assistant_redflags')}</strong><ul>${redFlags.map(flag=>`<li>${flag}</li>`).join('')}</ul>`:''}</div>`;
+}
+
+function fhAskAssistant(event) {
+  if (event) event.preventDefault();
+  const input=$('fh-assistant-input'), result=$('fh-assistant-result');
+  if (!input || !result || !input.value.trim()) return;
+  result.innerHTML=fhAssistantResponse(input.value);
+}
+
+function fhAskAssistantPrompt(category) {
+  const input=$('fh-assistant-input');
+  if (!input) return;
+  input.value=t(category==='nutrition'?'fh_assistant_prompt_food':category==='exercise'?'fh_assistant_prompt_fitness':'fh_assistant_prompt_sleep');
+  fhAskAssistant();
+}
+
 function fhBookConsult(topicId) {
   fhTrack('cta', {topicId: topicId||null});
   if (CU) { navigate('consult'); return; }
@@ -3830,6 +3899,20 @@ function renderFreeHub(container, standalone=false) {
         <div>${IC.warn}</div>
         <div><strong>${t('fh_disclaimer_title')}</strong><p>${t('fh_disclaimer_body')}</p></div>
       </div>
+
+      <section class="card fh-assistant" aria-labelledby="fh-assistant-title">
+        <div class="fh-assistant-head"><div><h3 class="ct" id="fh-assistant-title">${t('fh_assistant_title')}</h3><p class="mu sm">${t('fh_assistant_sub')}</p></div><p class="fh-assistant-note">${t('fh_assistant_scope')}</p></div>
+        <div class="fh-assistant-prompts" aria-label="${t('fh_assistant_suggestions')}">
+          <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('nutrition')">${t('fh_assistant_prompt_food')}</button>
+          <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('exercise')">${t('fh_assistant_prompt_fitness')}</button>
+          <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('sleep')">${t('fh_assistant_prompt_sleep')}</button>
+        </div>
+        <form class="fh-assistant-form" onsubmit="fhAskAssistant(event)">
+          <div style="flex:1;min-width:0"><label class="fl" for="fh-assistant-input">${t('fh_assistant_label')}</label><textarea class="fc" id="fh-assistant-input" maxlength="280" required placeholder="${t('fh_assistant_ph')}"></textarea></div>
+          <button type="submit" class="btn bp">${t('fh_assistant_send')}</button>
+        </form>
+        <div id="fh-assistant-result" aria-live="polite"></div>
+      </section>
 
       <div class="card mb18">
         <div class="ct mb8">${t('fh_ask_title')}</div>

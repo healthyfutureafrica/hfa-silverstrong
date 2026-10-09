@@ -23,6 +23,43 @@ describe('index.html sanity checks', () => {
     expect(content.toLowerCase()).toMatch(/<title>.*<\/title>/);
   });
 
+  describe('free health assistant disclaimers', () => {
+    function assistantContext() {
+      const context={
+        LANG:'en',IC:{warn:'WARNING ICON'},
+        t:key=>({fh_assistant_disclaimer_title:'Disclaimer first',fh_assistant_disclaimer_body:'General education, not diagnosis.',fh_assistant_answer_intro:'Reviewed guidance:',fh_assistant_redflags:'Seek care if:',fh_assistant_emergency:'Call emergency services now.',fh_assistant_no_match:'No reviewed match.'}[key]||key),
+        FREE_HEALTH_TOPICS:[{keywords:{en:['sore throat']},guidance:{en:['Rest and stay hydrated.']},redFlags:{en:['Seek care if breathing is difficult.']}}],
+        NUTRITION_ESSENTIALS:[{text:{en:'Choose balanced meals.'}},{text:{en:'Drink water.'}},{text:{en:'Limit added salt.'}}],
+        EXERCISE_ESSENTIALS:[{text:{en:'Start with short, easy walks.'}},{text:{en:'Increase activity gradually.'}},{text:{en:'Stop if you feel unwell.'}}],
+        fhL:field=>field?.[context.LANG]??field,
+      };
+      vm.createContext(context);
+      const source=content.match(/^function fhAssistantResponse\([^]*?^}/m);
+      expect(source).not.toBeNull();
+      vm.runInContext(source[0],context);
+      return context;
+    }
+
+    test.each([
+      ['What should I eat?', 'Choose balanced meals.'],
+      ['How do I start exercise?', 'Start with short, easy walks.'],
+      ['What can help a sore throat?', 'Rest and stay hydrated.'],
+    ])('puts the disclaimer before advice for %s', (question,advice)=>{
+      const response=assistantContext().fhAssistantResponse(question);
+      expect(response.indexOf('Disclaimer first')).toBeGreaterThanOrEqual(0);
+      expect(response.indexOf('Disclaimer first')).toBeLessThan(response.indexOf(advice));
+    });
+
+    test.each([
+      ['I have chest pain', 'Call emergency services now.'],
+      ['Tell me about a topic not covered here', 'No reviewed match.'],
+    ])('puts the disclaimer before non-guidance response for %s', (question,message)=>{
+      const response=assistantContext().fhAssistantResponse(question);
+      expect(response.indexOf('Disclaimer first')).toBeGreaterThanOrEqual(0);
+      expect(response.indexOf('Disclaimer first')).toBeLessThan(response.indexOf(message));
+    });
+  });
+
   describe('ID document type uploads', () => {
     function uploadContext(role='patient', documentType='passport') {
       const fields = {};
