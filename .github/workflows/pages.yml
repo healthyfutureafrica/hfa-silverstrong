@@ -36,7 +36,7 @@ jobs:
       - name: Prepare Pages artifact
         run: |
           mkdir -p dist
-          cp index.html offline.js offline-uploads.js service-worker.js dist/
+          cp index.html offline.js offline-uploads.js pharmacist.js service-worker.js dist/
           cp -R assets dist/assets
 
       - name: Upload demo artifact

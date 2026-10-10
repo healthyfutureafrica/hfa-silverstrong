@@ -31,6 +31,13 @@ input,select,textarea,button{font-family:var(--fb)}
 .offline-status .btn[hidden]{display:none}
 .offline-actions,.vault-actions{display:flex;flex-wrap:wrap;gap:8px}
 .price-country{max-width:210px;min-width:0;border:1px solid var(--bd);border-radius:var(--rs);padding:5px;background:#fff;color:var(--t2);font-size:.74rem}
+.rbs{flex-wrap:wrap}
+.pharmacy-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--bd);overflow-wrap:anywhere}
+.pharmacy-row>div{min-width:0}
+.pharmacy-row .btn{white-space:normal;line-height:1.3;flex-shrink:0}
+.pharmacy-page .ch{flex-wrap:wrap;gap:10px}
+.pharmacy-page .ct{overflow-wrap:anywhere;max-width:100%}
+.pharmacy-page .btn{max-width:100%;white-space:normal;line-height:1.3}
 .vault-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 0;border-bottom:1px solid var(--bd);font-size:.78rem}
 .vault-row span{min-width:0;overflow-wrap:anywhere;flex:1}
 .vault-actions .btn,.vault-row .btn{white-space:normal;line-height:1.3}
@@ -447,6 +454,9 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 .creator-credit--picker{margin-top:32px;padding:16px 0 0;background:transparent;width:calc(100% - 40px);max-width:352px}
 @media(max-width:700px){
+  #land .lnav{flex-wrap:wrap;gap:12px;padding:16px}
+  #land .lnr{flex-wrap:wrap;max-width:100%}
+  .pharmacy-row{flex-wrap:wrap}
   .offline-status{flex-wrap:wrap}
   .offline-actions{max-width:100%}
   body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:210px}
@@ -695,6 +705,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
           <button type="button" class="rb" id="rb-d" onclick="setRole('doctor')">Doctor</button>
           <button type="button" class="rb" id="rb-n" onclick="setRole('nurse')">Nurse</button>
           <button type="button" class="rb active" id="rb-p" onclick="setRole('patient')">Patient</button>
+          <button type="button" class="rb" id="rb-ph" onclick="setRole('pharmacist')">Pharmacist</button>
         </div>
       </div>
       <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" type="text" id="rn" placeholder="Full legal name"></div>
@@ -703,6 +714,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
       <div class="fg"><label class="fl">Password</label>
         <div class="iw"><input class="fc" type="password" id="rpa" placeholder="Min. 6 characters"><button type="button" class="eb" onclick="tpw('rpa')" aria-label="Toggle password visibility"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
+      <div id="phf" class="hid"></div>
       <div id="df">
         <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
         <div class="fr"><div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
@@ -973,7 +985,7 @@ const T = {
     // Approval workflow
     pending_approval:'Pending Approval', rejected:'Rejected',
     pending_approvals_nav:'Pending Approvals', pending_approvals_title:'Pending Approvals',
-    pending_approvals_sub:'Review new doctor and nurse applications before granting platform access',
+    pending_approvals_sub:'Review doctor, nurse and pharmacist applications before granting platform access',
     no_pending_approvals:'No applications are awaiting review.',
     approve:'Approve', reject:'Reject',
     approve_confirm_title:'Approve this application?', approve_confirm_body:'will gain full access to operate on the platform.',
@@ -1300,7 +1312,7 @@ const T = {
     // Approval workflow
     pending_approval:'En Attente d\'Approbation', rejected:'Rejeté',
     pending_approvals_nav:'Approbations en Attente', pending_approvals_title:'Approbations en Attente',
-    pending_approvals_sub:'Examinez les nouvelles candidatures de médecins et infirmiers avant d\'accorder l\'accès à la plateforme',
+    pending_approvals_sub:'Examinez les candidatures de médecins, infirmiers et pharmaciens avant d\'accorder l\'accès à la plateforme',
     no_pending_approvals:'Aucune candidature en attente d\'examen.',
     approve:'Approuver', reject:'Rejeter',
     approve_confirm_title:'Approuver cette candidature ?', approve_confirm_body:'obtiendra un accès complet pour opérer sur la plateforme.',
@@ -2257,7 +2269,7 @@ function notifyPatientActivity(patientId, resource, metadata={}) {
 }
 
 // ── HFA ID: role-legible identifier, e.g. HFA-DR-24-00001-7 (Doctor), HFA-NS-24-00001-3 (Nurse), HFA-PT-24-00001-5 (Patient) ──
-const ROLE_CODE = {doctor:'DR', nurse:'NS', patient:'PT', admin:'AD', labtech:'LT'};
+const ROLE_CODE = {doctor:'DR', nurse:'NS', patient:'PT', admin:'AD', labtech:'LT', pharmacist:'PH'};
 function luhnCheckDigit(digits) {
   let sum=0, alt=false;
   for (let i=digits.length-1;i>=0;i--) {
@@ -2284,7 +2296,7 @@ function isValidHfaId(str) {
   return luhnCheckDigit(m[2]+m[3]) === +m[4];
 }
 (function seedHfaIds() {
-  const seq = {doctor:0, nurse:0, patient:0, admin:0, labtech:0};
+  const seq = {doctor:0, nurse:0, patient:0, admin:0, labtech:0, pharmacist:0};
   DB.users.forEach(u => {
     if (!ROLE_CODE[u.role] || u.hfaId) return;
     seq[u.role]++;
@@ -2509,9 +2521,13 @@ const NAV = {
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'}]},
     {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
   ],
+  pharmacist:[
+    {s:()=>t('pharmacist'),items:[{id:'dashboard',l:()=>t('pharmacy_portal'),i:'clip'},{id:'pharmacy',l:()=>t('pharmacy_inventory'),i:'file'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'}]},
+  ],
   patient:[
     {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'},{id:'subscriptions',l:()=>t('subscriptions'),i:'go'}]},
-    {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'}]},
+    {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'},{id:'pharmacy',l:()=>t('pharmacy_shop'),i:'clip'}]},
     {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'freehub',l:()=>t('free_hub_nav'),i:'heart'}]},
   ],
@@ -2614,6 +2630,8 @@ function setRole(r) {
   $('df').classList.toggle('hid', r!=='doctor');
   $('nf').classList.toggle('hid', r!=='nurse');
   $('pf').classList.toggle('hid', r!=='patient');
+  $('rb-ph').classList.toggle('active',r==='pharmacist');
+  $('phf').classList.toggle('hid',r!=='pharmacist');
 }
 
 function tpw(id) { const e=$(id); e.type = e.type==='password' ? 'text' : 'password'; }
@@ -2644,6 +2662,7 @@ function doReg() {
   if (!name||!email||!pass) return amsg(t('fill_required'));
   if (pass.length<6) return amsg(t('password_short'));
   if (ApiState.enabled&&pass.length<12) return amsg(t('backend_password_short'));
+  if (RROLE==='pharmacist') { registerPharmacist(); return; }
   if (RROLE==='doctor'&&!$('rsp').value) return amsg(t('spec_required'));
   if (RROLE==='doctor'&&!$('rcf').value) return amsg(t('fee_required'));
   if (RROLE==='doctor'&&!validConsultationFee($('rcf').value)) return amsg(t('fee_range_required'));
@@ -2704,7 +2723,7 @@ function doLogout() {
 function buildSidebar() {
   const r = CU.role;
   $('srb').textContent = (r==='admin' && CU.adminRole) ? CU.adminRole.toUpperCase() : r.toUpperCase();
-  $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp',labtech:'rl'}[r];
+  $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp',labtech:'rl',pharmacist:'rd'}[r];
   $('sav').textContent = ini(CU.name);
   $('snm').textContent = CU.name;
   $('sem').textContent = CU.email;
@@ -2741,6 +2760,7 @@ function renderPage(page) {
   pc.style.padding = '';
   const signOutBtn = `<button type="button" class="btn bd2 bsm" onclick="doLogout()" title="${t('sign_out')}">${IC.x} ${t('sign_out')}</button>`;
   $('tbr').innerHTML = `${signOutBtn}<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
+  if (page==='pharmacy'||(r==='pharmacist'&&page==='dashboard')) return renderPharmacy(pc);
   if (page==='messages') return renderMessages(pc);
   if (page==='consult')  return renderConsult(pc);
   if (page==='privacy') return renderPrivacy(pc);
@@ -2787,7 +2807,7 @@ function topBtn(html) { $('tbr').insertAdjacentHTML('afterbegin', html+' '); }
 
 // ═══════════════════════ BADGE HELPERS ═══════════════════════
 function pendingApprovalsCount() {
-  return DB.users.filter(u=>(u.role==='doctor'||u.role==='nurse')&&u.status==='pending_approval').length + DB.users.filter(u=>u.role==='doctor'&&u.doctorPhotoSubmission?.status==='pending').length;
+  return DB.users.filter(u=>['doctor','nurse','pharmacist'].includes(u.role)&&u.status==='pending_approval').length + DB.users.filter(u=>u.role==='doctor'&&u.doctorPhotoSubmission?.status==='pending').length;
 }
 function pendingApprovalsLabel() {
   const n = pendingApprovalsCount();
@@ -3105,7 +3125,7 @@ function renderManage(pc, roleFilter, title) {
 function renderApprovals(pc) {
   if (CU.role!=='admin') return;
   $('tbt').textContent = t('pending_approvals_title');
-  const pending = DB.users.filter(u=>(u.role==='doctor'||u.role==='nurse'||(u.role==='admin'&&isSuperAdmin(CU)))&&u.status==='pending_approval');
+  const pending = DB.users.filter(u=>(['doctor','nurse','pharmacist'].includes(u.role)||(u.role==='admin'&&isSuperAdmin(CU)))&&u.status==='pending_approval');
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('pending_approvals_title')}</h2><p>${t('pending_approvals_sub')}</p></div>
     <div class="card">${pending.length===0?`<p class="mu sm">${t('no_pending_approvals')}</p>`:`<div class="tw"><table>
@@ -3113,10 +3133,10 @@ function renderApprovals(pc) {
       <tbody>${pending.map(u=>`<tr>
         <td><div style="display:flex;align-items:center;gap:10px">
           <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
-          <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email} · ${u.role==='doctor'?t('doctor'):u.role==='nurse'?t('nurse'):t('admin_role_lbl')}</div></div>
+          <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email} · ${u.role==='pharmacist'?t('pharmacist'):u.role==='doctor'?t('doctor'):u.role==='nurse'?t('nurse'):t('admin_role_lbl')}</div></div>
         </div></td>
         <td class="mu sm">${u.phone||'—'}</td>
-        <td class="sm">${u.specialty||u.adminRole||'—'}</td>
+        <td class="sm">${u.role==='pharmacist'?pharmacyCredentialSummary(u):u.specialty||u.adminRole||'—'}</td>
         <td class="mu sm">${u.createdAt}</td>
         <td><span class="badge bwa">${t('awaiting_review')}</span></td>
         <td><div style="display:flex;gap:4px">
@@ -3132,11 +3152,14 @@ function renderApprovals(pc) {
 
 function askApprove(id) {
   const u=G(id); if(!u) return;
+  if (u.role==='pharmacist') {showPharmacyApproval(u);return;}
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   openMo(`<div style="text-align:center;padding:10px 0">${IC.chk}<p style="margin-top:12px">${t('approve_confirm_title')}<br><strong>${u.name}</strong> ${t('approve_confirm_body')}</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="confirmApprove('${id}')">${t('yes_approve')}</button></div></div>`);
 }
 function confirmApprove(id) {
+  if (CU?.role!=='admin') return;
+  if (G(id)?.role==='pharmacist') {approvePharmacist(id);return;}
   if (ApiState.enabled) { backendAdminUpdate(id,{status:'active'}); return; }
   const u=G(id); if(u && !(u.role==='admin' && !isSuperAdmin(CU))){u.status='active';u.approvedBy=CU.id;u.approvedAt=tsNow();log('APPROVE_USER','User Management');}
   closeMo(); navigate(CP);
@@ -4632,6 +4655,7 @@ show('lang-pick');
 ApiState.ready=initializeBackend();
 setInterval(refreshBackendNotifications,30000);
 </script>
+<script src="pharmacist.js"></script>
 <script src="offline-uploads.js"></script>
 <script src="offline.js"></script>
 </body>

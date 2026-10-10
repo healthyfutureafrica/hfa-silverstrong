@@ -76,13 +76,22 @@ The app requests persistent browser storage, but browsers may decline it. Cleari
 
 This owner-only file vault does not automatically release lab results, verify IDs, assign documents to clinicians, scan malware, or synchronize the rest of the clinical chart. Use synthetic files until production retention/deletion, encrypted backups, malware scanning, consent/privacy review, and clinical access controls are complete.
 
-## Doctor workflows
+## Pharmacist Portal
 
-### CEMAC Price Display
+- Register through **Pharmacist Portal** or the pharmacist role in registration. Required fields are pharmacy business name, physical address, precise city/region/country location, pharmacist license number, business registration number, and MINSANTE authorization reference. The registration note makes these requirements explicit. References are declarations, not automated proof of regulatory authorization.
+- Pharmacists begin in `pending_approval` and receive no authenticated session. Admins review these details under Pending Approvals / Pharmacist profiles, verify original credentials and location outside the app, and explicitly confirm that review before activation. The backend records the validating administrator and timestamp; pending, rejected and suspended pharmacists cannot operate. Supporting-document upload and direct verification with MINSANTE are not implemented by this reference-based review.
+- Approved pharmacists manage medication batches, strength/form, pack unit, expiry, prescription requirement, unit price and stock. CEMAC price entry/display uses XAF at USD 1 = XAF 600, with canonical prices stored as USD cents. The inventory and orders are persisted by the backend; GitHub Pages alone cannot process purchases.
+- Patients browse stock from active validated pharmacies and submit purchase requests for pickup or delivery, with quantity and address. The server reserves stock atomically and uses a stable request ID to avoid duplicate reservations on retries. Expired batches and insufficient stock cannot be ordered. Cancelling through pharmacist logistics restores reserved stock once.
+- Pharmacists track requested, ready, dispatched (delivery), completed and cancelled orders. Prescription-required stock cannot be made ready without the pharmacist affirming review of the original prescription and patient suitability. Only the owning pharmacist can update fulfillment; patients see only their own orders.
+- This is a purchase-request and logistics workflow, not automated medication dispensing or live payment processing. Settlement must be arranged with the pharmacy. Inventory imports, prescription-document verification, controlled-drug rules, shipping integrations, tax receipts, refund handling and regulatory/privacy review are required before real medication commerce. Use synthetic data for testing. Pharmacy orders are online-only and are not silently queued offline.
+
+## CEMAC Price Display
 
 The country selector in the status bar controls regional pricing. Cameroon, Central African Republic, Chad, Republic of the Congo, Equatorial Guinea, and Gabon display USD-denominated amounts as XAF at the fixed rate **USD 1 = XAF 600**. A recognized CEMAC device time zone provides the initial setting; users must select their current country when travelling or when their device time zone does not identify it. Language is not used to infer location. The selection persists offline in this browser and can be changed when no dialog is open.
 
 Consultation fees, specialist/booking prices, subscriptions, home visits, rescheduling fees and price-bearing translations use this conversion. Existing XAF values are not multiplied again. Amounts are rounded to whole XAF for display. Stored fee values and mock payment requests retain their original currency; this does not implement live foreign-exchange settlement or geolocation tracking.
+
+## Doctor workflows
 
 - The doctor dashboard and patient list filter by surname initial. An explicit `lastName` is used when available; otherwise the last word of the full name is treated as the surname.
 - Consultations require a future date/time and a 30- or 45-minute duration. Doctor/patient overlaps are checked against this browser's appointment records.

@@ -23,6 +23,45 @@ describe('index.html sanity checks', () => {
     expect(content.toLowerCase()).toMatch(/<title>.*<\/title>/);
   });
 
+  describe('pharmacist portal',()=>{
+    function pharmacyContext() {
+      const fields={rn:{value:'Synthetic Pharmacist'},re:{value:'pharmacist@example.invalid'},rpa:{value:'Synthetic-password-123'},rph:{value:'+237600000000'},rtc:{checked:true},le:{value:''},'ph-credential-review':{checked:false},'ph-review-status':{textContent:''}};
+      ['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization'].forEach(name=>{fields['ph-'+name]={value:'Synthetic '+name};});
+      const context={T:{en:{},fr:{}},LANG:'en',DB:{users:[]},ApiState:{enabled:false},CU:{id:'admin-test',role:'admin'},CP:'mgr-approvals',
+        $:id=>fields[id],t:key=>key,amsg:jest.fn(),swtTab:jest.fn(),todayD:()=>'2026-10-10',nextHfaId:()=>'HFA-PH-TEST',tsNow:()=>'test time',log:jest.fn(),closeMo:jest.fn(),navigate:jest.fn(),backendAdminUpdate:jest.fn(),apiRequest:jest.fn().mockResolvedValue({}),priceCurrency:()=>'XAF',G:id=>context.DB.users.find(user=>user.id===id)};
+      vm.createContext(context);
+      const source=fs.readFileSync(path.join(__dirname,'..','pharmacist.js'),'utf8').split('NAV.admin[2].items.push')[0];
+      vm.runInContext(source,context);
+      return {context,fields};
+    }
+    test.each(['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization'])('requires %s before pharmacist registration',async name=>{
+      const {context,fields}=pharmacyContext();fields['ph-'+name].value='';
+      await context.registerPharmacist();
+      expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('pharmacy_required');
+    });
+    test('keeps a complete pharmacy profile pending and preserves credentials',async()=>{
+      const {context}=pharmacyContext();await context.registerPharmacist();
+      expect(context.DB.users[0]).toMatchObject({role:'pharmacist',status:'pending_approval',pharmacyAddress:'Synthetic pharmacyAddress',minsanteAuthorization:'Synthetic minsanteAuthorization'});
+      expect(context.apiRequest).not.toHaveBeenCalled();
+    });
+    test('requires explicit admin review and blocks patient approval',async()=>{
+      const {context,fields}=pharmacyContext();await context.registerPharmacist();const user=context.DB.users[0];
+      context.approvePharmacist(user.id);expect(user.status).toBe('pending_approval');
+      fields['ph-credential-review'].checked=true;context.CU={id:'patient-test',role:'patient'};
+      context.approvePharmacist(user.id);expect(user.status).toBe('pending_approval');
+      context.CU={id:'admin-test',role:'admin'};context.approvePharmacist(user.id);
+      expect(user).toMatchObject({status:'active',pharmacyValidatedBy:'admin-test'});
+    });
+    test('converts XAF inventory entry to canonical USD exactly once',async()=>{
+      const {context,fields}=pharmacyContext();context.CU={id:'pharmacy-test',role:'pharmacist'};
+      context.phForm=jest.fn();context.showPharmacyItem();
+      expect(context.phForm.mock.calls[0][1]).toContain('pharmacy_price (XAF)');
+      Object.assign(fields,{'pi-name':{value:'Test medicine'},'pi-strength':{value:'10 mg'},'pi-unit':{value:'Box'},'pi-batch':{value:'Test batch'},'pi-expiry':{value:'2099-12-31'},'pi-stock':{value:'5'},'pi-price':{value:'1200'},'pi-rx':{checked:true}});
+      await context.phForm.mock.calls[0][2]();
+      expect(context.apiRequest).toHaveBeenCalledWith('/api/pharmacy/items','POST',expect.objectContaining({price:2,requiresPrescription:true}));
+    });
+  });
+
   describe('CEMAC price conversion',()=>{
     function prices(country,lang='en') {
       const context={LANG:lang,CU:null,Intl,localStorage:{getItem:()=>country}};
@@ -64,7 +103,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/index.html','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/index.html','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;

@@ -5,6 +5,7 @@ const { z } = require('zod');
 const { Store, hashPassword, verifyPassword } = require('./store');
 const { configuration, validSignature, MetaProvider } = require('./provider');
 const { installFileRoutes, filesConfigured } = require('./files');
+const { installPharmacyRoutes } = require('./pharmacy');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -13,18 +14,24 @@ const contactPhone=z.string().max(40).regex(/^[+0-9\s()-]*$/);
 const phone = z.string().regex(/^\+[1-9]\d{7,14}$/);
 const registration = z.object({
   name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()),
-  password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech']),
+  password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']),
   phone: contactPhone.optional(), whatsappNumber: phone.optional(), whatsappNotificationsConsent: z.boolean().optional(),
-  specialty: plain.optional(), hospital: plain.optional(), department: plain.optional(), consultationFee: z.number().min(5).max(20).optional()
+  specialty: plain.optional(), hospital: plain.optional(), department: plain.optional(), consultationFee: z.number().min(5).max(20).optional(),
+  pharmacyName:plain.optional(),pharmacyAddress:plain.optional(),pharmacyLocation:plain.optional(),
+  pharmacyLicense:plain.optional(),businessRegistration:plain.optional(),minsanteAuthorization:plain.optional()
 }).strict().superRefine((input, context) => {
   if (input.role === 'patient' && !input.whatsappNumber) context.addIssue({ code: 'custom', message: 'Patient WhatsApp number is required' });
+  if (input.role==='pharmacist') for (const field of ['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization']) {
+    if (!input[field]) context.addIssue({code:'custom',path:[field],message:'Required pharmacist credential'});
+  }
 });
 const resources = ['Account', 'Communications', 'Appointments', 'Medical Records', 'Lab Results', 'Care Notes', 'Care Coordination', 'Billing', 'Home Visits', 'Urgent Care'];
 const activity = z.object({ eventId: z.string().min(8).max(100), patientId: z.string().min(1).max(100), resource: z.enum(resources) }).strict();
 const patchSchema = z.object({
   name: personName.optional(), phone: contactPhone.optional(), status: z.enum(['active', 'suspended', 'pending_approval', 'rejected']).optional(),
   assignedDoctor: z.string().max(100).nullable().optional(), assignedNurse: z.string().max(100).nullable().optional(),
-  consultationFee: z.number().min(5).max(20).optional()
+  consultationFee: z.number().min(5).max(20).optional(),
+  pharmacyCredentialReview:z.boolean().optional()
 }).strict();
 
 function cookieToken(request) {
@@ -75,12 +82,13 @@ function createApp(config, store, provider) {
   };
   const admin = (request, response, next) => request.user.role === 'admin' ? next() : response.status(403).json({ error: 'Administrator required' });
   installFileRoutes(app,config,store,authenticated);
+  installPharmacyRoutes(app,store,authenticated);
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
   const startSession = (response, user) => response.cookie('hfa_session', store.createSession(user.id), {
     httpOnly: true, sameSite: 'strict', secure: config.origin.startsWith('https://'), path: '/api', maxAge: 8 * 3600000
   });
-  const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
+  const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee','pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
 
   app.post('/api/auth/register', authLimit, async (request, response) => {
     const input = registration.parse(request.body);
@@ -137,17 +145,19 @@ function createApp(config, store, provider) {
   app.post('/api/admin/users', authenticated, admin, async (request, response) => {
     const input = registration.parse(request.body);
     if (store.credentials(input.email)) return response.status(409).json({ error: 'Email already registered' });
-    const user = store.createUser({ ...input, profile: profile(input) }, await hashPassword(input.password), 'active');
+    const user = store.createUser({ ...input, profile: profile(input) }, await hashPassword(input.password), input.role==='pharmacist'?'pending_approval':'active');
     response.status(201).json({ user });
   });
   app.patch('/api/admin/users/:id', authenticated, admin, (request, response) => {
     const user = store.user(request.params.id);
     if (!user || user.role === 'admin') return response.status(403).json({ error: 'This account cannot be changed through this endpoint' });
     const patch = patchSchema.parse(request.body);
+    if (user.role==='pharmacist' && patch.status==='active' && patch.pharmacyCredentialReview!==true) return response.status(409).json({error:'Confirm original pharmacy credentials were reviewed before activation'});
+    if (user.role==='pharmacist' && patch.status==='active' && ['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization'].some(field=>!user[field])) return response.status(409).json({error:'Pharmacist credentials are incomplete'});
     for (const [key, role] of [['assignedDoctor', 'doctor'], ['assignedNurse', 'nurse']]) {
       if (patch[key] && (store.user(patch[key])?.role !== role || store.user(patch[key]).status !== 'active')) return response.status(400).json({ error: 'Invalid provider assignment' });
     }
-    const updated = store.updateUser(user.id, { ...patch, profile: patch.consultationFee === undefined ? {} : { consultationFee: patch.consultationFee } });
+    const updated = store.updateUser(user.id, { ...patch, profile: {...(patch.consultationFee === undefined ? {} : { consultationFee: patch.consultationFee }),...(user.role==='pharmacist'&&patch.status==='active'?{pharmacyValidatedBy:request.user.id,pharmacyValidatedAt:new Date().toISOString()}: {})} });
     if (user.role === 'patient' && JSON.stringify(updated) !== JSON.stringify(user)) store.activity(request.user, { eventId: require('node:crypto').randomUUID(), patientId: user.id, resource: 'Account' }, config.ready, message);
     response.json({ user: updated });
   });

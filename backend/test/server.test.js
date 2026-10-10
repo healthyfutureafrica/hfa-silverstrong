@@ -7,6 +7,29 @@ const { mkdtempSync, rmSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 
+test('pharmacists require credentials and administrator validation before login',async()=>{
+  const store=new Store(),config={origin:'http://localhost:8080',ready:false};
+  const server=createApp(config,store,{}).listen(0,'127.0.0.1');
+  await new Promise(resolve=>server.once('listening',resolve));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const request=(path,body,cookie,method='POST')=>fetch(base+path,{method,headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,...(cookie?{Cookie:cookie}:{})},body:JSON.stringify(body)});
+  const input={name:'Synthetic Pharmacist',email:'pharmacist@example.invalid',password:'Synthetic-password-123',role:'pharmacist',pharmacyName:'Synthetic Pharmacy',pharmacyAddress:'1 Test Street',pharmacyLocation:'Douala, Cameroon',pharmacyLicense:'TEST-LICENSE',businessRegistration:'TEST-RCCM',minsanteAuthorization:'TEST-MINSANTE'};
+  try {
+    assert.equal((await request('/api/auth/register',{...input,minsanteAuthorization:undefined})).status,400);
+    const registered=await request('/api/auth/register',input);
+    assert.equal(registered.status,201);
+    const {user}=await registered.json();
+    assert.equal(user.status,'pending_approval');assert.equal(registered.headers.get('set-cookie'),null);
+    assert.equal((await request('/api/auth/login',{email:input.email,password:input.password})).status,403);
+    const admin=store.createUser({name:'Synthetic Admin',email:'admin-pharmacy@example.invalid',role:'admin'},'unused','active');
+    const cookie=`hfa_session=${store.createSession(admin.id)}`;
+    assert.equal((await request('/api/admin/users/'+user.id,{status:'active'},cookie,'PATCH')).status,409);
+    assert.equal((await request('/api/admin/users/'+user.id,{status:'active',pharmacyCredentialReview:true},cookie,'PATCH')).status,200);
+    assert.equal(store.user(user.id).pharmacyValidatedBy,admin.id);
+    assert.equal((await request('/api/auth/login',{email:input.email,password:input.password})).status,200);
+  } finally {await new Promise(resolve=>server.close(resolve));store.close();}
+});
+
 test('encrypted file uploads are owner-scoped, idempotent and require reauthentication after days',async()=>{
   const directory=mkdtempSync(join(tmpdir(),'hfa-file-test-'));
   const database=join(directory,'test.sqlite');
@@ -90,4 +113,38 @@ test('authenticated API blocks forged recipients, roles, origins and unconfigure
     store.updateUser(user.id, { assignedDoctor: doctor.id });
     assert.equal((await request('/api/activities', { ...event, eventId: 'doctor-event-assigned' }, doctorCookie)).status, 202);
   } finally { await new Promise(resolve => server.close(resolve)); store.close(); }
+});
+
+test('pharmacy orders reserve stock once and enforce ownership, expiry and prescription review',async()=>{
+  const store=new Store(),config={origin:'http://localhost:8080',ready:false};
+  const pharmacy=store.createUser({name:'Synthetic Pharmacy',email:'orders-pharmacy@example.invalid',role:'pharmacist',profile:{pharmacyValidatedAt:'test',pharmacyName:'Test Pharmacy'}},'unused','active');
+  const patient=store.createUser({name:'Synthetic Buyer',email:'buyer@example.invalid',role:'patient'},'unused','active');
+  const server=createApp(config,store,{}).listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
+  const base=`http://127.0.0.1:${server.address().port}`,pc=`hfa_session=${store.createSession(pharmacy.id)}`,uc=`hfa_session=${store.createSession(patient.id)}`;
+  const request=(path,body,cookie,method='POST')=>fetch(base+path,{method,headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,Cookie:cookie},body:JSON.stringify(body)});
+  try {
+    const item={name:'Synthetic medicine',strength:'10 mg',unit:'Box',batch:'TEST-01',expiresOn:'2099-12-31',stock:5,price:2,requiresPrescription:true};
+    assert.equal((await request('/api/pharmacy/items',item,uc)).status,403);
+    assert.equal((await request('/api/pharmacy/items',{...item,expiresOn:'2020-01-01'},pc)).status,400);
+    assert.equal((await request('/api/pharmacy/items',{...item,expiresOn:'2099-02-31'},pc)).status,400);
+    const created=await request('/api/pharmacy/items',item,pc);assert.equal(created.status,201);const {id}=await created.json();
+    const purchase={requestId:randomUUID(),itemId:id,quantity:2,method:'pickup',address:'Test pickup'};
+    const ordered=await request('/api/pharmacy/orders',purchase,uc);assert.equal(ordered.status,201);const order=await ordered.json();
+    assert.equal((await request('/api/pharmacy/orders',purchase,uc)).status,200);
+    assert.equal(store.db.prepare('SELECT stock FROM pharmacy_items WHERE id=?').get(id).stock,3);
+    assert.equal((await request('/api/pharmacy/orders',{...purchase,requestId:randomUUID(),quantity:4},uc)).status,409);
+    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'ready'},uc,'PATCH')).status,403);
+    const unrelated=store.createUser({name:'Unrelated Pharmacy',email:'unrelated-pharmacy@example.invalid',role:'pharmacist',profile:{pharmacyValidatedAt:'test'}},'unused','active');
+    const otherCookie=`hfa_session=${store.createSession(unrelated.id)}`;
+    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'ready',prescriptionReviewed:true},otherCookie,'PATCH')).status,404);
+    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'ready'},pc,'PATCH')).status,409);
+    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'ready',prescriptionReviewed:true},pc,'PATCH')).status,200);
+    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'cancelled'},pc,'PATCH')).status,200);
+    assert.equal(store.db.prepare('SELECT stock FROM pharmacy_items WHERE id=?').get(id).stock,5);
+    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'cancelled'},pc,'PATCH')).status,409);
+    store.db.prepare('UPDATE pharmacy_items SET expires_on=? WHERE id=?').run('2020-01-01',id);
+    assert.equal((await request('/api/pharmacy/orders',{...purchase,requestId:randomUUID()},uc)).status,409);
+    store.updateUser(pharmacy.id,{status:'suspended'});
+    assert.equal((await request('/api/pharmacy/orders',{...purchase,requestId:randomUUID()},uc)).status,409);
+  } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
