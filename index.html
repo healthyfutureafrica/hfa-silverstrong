@@ -29,6 +29,11 @@ input,select,textarea,button{font-family:var(--fb)}
 .offline-status[data-offline="true"]{background:var(--go-p);color:#7d5800}
 .offline-status .btn{flex-shrink:0}
 .offline-status .btn[hidden]{display:none}
+.offline-actions,.vault-actions{display:flex;flex-wrap:wrap;gap:8px}
+.vault-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 0;border-bottom:1px solid var(--bd);font-size:.78rem}
+.vault-row span{min-width:0;overflow-wrap:anywhere;flex:1}
+.vault-actions .btn,.vault-row .btn{white-space:normal;line-height:1.3}
+.vault-download{display:block;padding:8px 0;color:var(--em);overflow-wrap:anywhere}
 
 #app-wrap{display:flex;min-height:100vh}
 #sidebar{width:252px;min-height:100vh;background:var(--na);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:200}
@@ -2077,6 +2082,7 @@ function installBackendSession(data, localProfile={}) {
   CU=DB.users.find(user=>user.id===data.user.id);
   if (data.notifications) DB.notifications=data.notifications;
   ApiState.authenticated=true;
+  window.dispatchEvent(new Event('hfa-session'));
 }
 async function initializeBackend() {
   if (location.protocol==='file:') return;
@@ -2655,6 +2661,7 @@ function finishReg(idInput, idDocumentType, whatsappNumber) {
 }
 
 function doLogout() {
+  if (typeof OfflineUploads!=='undefined') OfflineUploads.lock();
   if (ApiState.enabled) { apiRequest('/api/auth/logout','POST',{}).then(()=>{ApiState.authenticated=false;log('LOGOUT','System');CU=null;SC=null;goLand();}).catch(error=>alert(error.message));return; }
   ApiState.authenticated=false;log('LOGOUT','System');CU=null;SC=null;goLand();
 }
@@ -4050,6 +4057,7 @@ function renderPatRecords(pc) {
   </div>`;
 }
 function showUploadDocument() {
+  if (ApiState.enabled && typeof OfflineUploads!=='undefined') { OfflineUploads.open(); return; }
   const myApts=DB.appointments.filter(a=>a.patientId===CU.id);
   openMo(`<div class="mh"><div class="mt2">${t('upload_document')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div class="fg"><label class="fl">${t('document_category')}</label><select class="fc" id="ud-cat">
@@ -4590,6 +4598,7 @@ show('lang-pick');
 ApiState.ready=initializeBackend();
 setInterval(refreshBackendNotifications,30000);
 </script>
+<script src="offline-uploads.js"></script>
 <script src="offline.js"></script>
 </body>
 </html>

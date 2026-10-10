@@ -9,7 +9,10 @@
   banner.setAttribute('role','status');
   const text=document.createElement('span'), action=document.createElement('button');
   action.type='button'; action.className='btn bs bsm';
-  banner.append(text,action); document.body.prepend(banner);
+  const actions=document.createElement('div'),files=document.createElement('button');
+  actions.className='offline-actions';files.type='button';files.className='btn bs bsm';
+  files.addEventListener('click',()=>OfflineUploads.open());
+  actions.append(files,action);banner.append(text,actions); document.body.prepend(banner);
 
   function render() {
     const labels=copy[typeof LANG!=='undefined'?LANG:'en']||copy.en;
@@ -18,6 +21,7 @@
     banner.dataset.offline=String(offline);
     action.hidden=offline||(!updateAvailable&&status!=='failed');
     action.textContent=labels[updateAvailable?'reload':'retry'];
+    files.textContent=typeof LANG!=='undefined'&&LANG==='fr'?'Fichiers hors ligne':'Offline files';
   }
 
   async function reconnect() {

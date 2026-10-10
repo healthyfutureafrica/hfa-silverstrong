@@ -2,6 +2,56 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { Store, hashPassword } = require('../store');
 const { createApp } = require('../server');
+const { randomUUID } = require('node:crypto');
+const { mkdtempSync, rmSync } = require('node:fs');
+const { tmpdir } = require('node:os');
+const { join } = require('node:path');
+
+test('encrypted file uploads are owner-scoped, idempotent and require reauthentication after days',async()=>{
+  const directory=mkdtempSync(join(tmpdir(),'hfa-file-test-'));
+  const database=join(directory,'test.sqlite');
+  let store=new Store(database);
+  const config={origin:'http://localhost:8080',ready:false,fileEncryptionKey:'12'.repeat(32)};
+  const user=store.createUser({name:'Synthetic Owner',email:'owner@example.invalid',role:'patient'},'unused','active');
+  const other=store.createUser({name:'Synthetic Other',email:'other@example.invalid',role:'patient'},'unused','active');
+  const server=createApp(config,store,{}).listen(0,'127.0.0.1');
+  await new Promise(resolve=>server.once('listening',resolve));
+  const base=`http://127.0.0.1:${server.address().port}`,id=randomUUID();
+  const cookie=`hfa_session=${store.createSession(user.id)}`,otherCookie=`hfa_session=${store.createSession(other.id)}`;
+  const bytes=Buffer.from('%PDF-1.4\nSynthetic document');
+  const metadata={fileName:'synthetic.pdf',category:'Report',notes:'Synthetic note',relatedApptId:''};
+  const upload=(body=bytes,session=cookie,origin=config.origin)=>fetch(`${base}/api/files/${id}`,{method:'POST',headers:{'Content-Type':'application/octet-stream','X-HFA-Request':'1','X-HFA-File-Owner':user.id,'X-HFA-File-Metadata':encodeURIComponent(JSON.stringify(metadata)),Origin:origin,Cookie:session},body});
+  try {
+    assert.equal((await upload(bytes,'')).status,401);
+    assert.equal((await upload(bytes,otherCookie)).status,403);
+    assert.equal((await upload(bytes,cookie,'https://attacker.invalid')).status,403);
+    assert.equal((await upload(Buffer.from('<html>not a file</html>'))).status,400);
+    assert.equal((await upload()).status,201);
+    assert.equal((await upload()).status,200);
+    assert.equal(store.db.prepare('SELECT COUNT(*) AS total FROM uploaded_files').get().total,1);
+    assert.equal((await upload(Buffer.from('%PDF-1.4\nDifferent'))).status,409);
+    const row=store.db.prepare('SELECT * FROM uploaded_files').get();
+    assert.equal(Buffer.from(row.encrypted).includes(bytes),false);
+    assert.equal(Buffer.from(row.encrypted).includes(Buffer.from(metadata.fileName)),false);
+    assert.equal((await fetch(`${base}/api/files/${id}`,{headers:{Cookie:otherCookie}})).status,404);
+    const downloaded=await fetch(`${base}/api/files/${id}`,{headers:{Cookie:cookie}});
+    assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()),bytes);
+    store.db.prepare('UPDATE sessions SET expires_at=?').run(Date.now()-7*86400000);
+    assert.equal((await upload()).status,401);
+    const renewed=`hfa_session=${store.createSession(user.id)}`;
+    assert.equal((await upload(bytes,renewed)).status,200);
+    assert.equal(store.db.prepare('SELECT COUNT(*) AS total FROM uploaded_files').get().total,1);
+    await new Promise(resolve=>server.close(resolve));
+    store.close();store=new Store(database);
+    const reopened=createApp(config,store,{}).listen(0,'127.0.0.1');
+    await new Promise(resolve=>reopened.once('listening',resolve));
+    try {
+      const restored=await fetch(`http://127.0.0.1:${reopened.address().port}/api/files/${id}`,{headers:{Cookie:renewed}});
+      assert.equal(restored.status,200);
+      assert.deepEqual(Buffer.from(await restored.arrayBuffer()),bytes);
+    } finally { await new Promise(resolve=>reopened.close(resolve)); }
+  } finally { if(server.listening) await new Promise(resolve=>server.close(resolve));store.close();rmSync(directory,{recursive:true,force:true}); }
+});
 
 test('authenticated API blocks forged recipients, roles, origins and unconfigured verification', async () => {
   const store = new Store();

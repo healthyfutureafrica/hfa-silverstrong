@@ -42,7 +42,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/index.html','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/index.html','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;
@@ -97,6 +97,87 @@ describe('index.html sanity checks', () => {
   });
 
   describe('free health assistant disclaimers', () => {
+    describe('durable encrypted upload vault',()=>{
+      function uploadVaultContext() {
+        const {webcrypto}=require('node:crypto');
+        const {File}=require('node:buffer');
+        const {TextEncoder,TextDecoder}=require('node:util');
+        const tables={accounts:new Map(),files:new Map()};
+        const storage={
+          read:jest.fn(async(store,key)=>key===undefined?[...tables[store].values()].map(record=>structuredClone(record)):structuredClone(tables[store].get(key))),
+          write:jest.fn(async(store,records,remove)=>records.forEach(record=>remove?tables[store].delete(record.id):tables[store].set(store==='accounts'?record.ownerId:record.id,structuredClone(record)))),
+        };
+        const clock={now:1000},received=new Set();
+        const fetcher=jest.fn(async(url,options)=>{
+          if (url==='/api/session') return new Response(JSON.stringify({user:{id:'owner-one'}}));
+          const id=url.split('/').pop();received.add(id);
+          return new Response(JSON.stringify({id,ownerId:'owner-one',status:'stored'}));
+        });
+        const context={crypto:webcrypto,TextEncoder,TextDecoder,AbortSignal,fetch:fetcher,Uint8Array,Date};
+        vm.createContext(context);
+        const source=fs.readFileSync(path.join(__dirname,'..','offline-uploads.js'),'utf8');
+        vm.runInContext(source.split('globalThis.OfflineFileVault=OfflineFileVault;')[0]+'globalThis.OfflineFileVault=OfflineFileVault;',context);
+        const makeVault=()=>new context.OfflineFileVault({storage,cryptography:webcrypto,fetcher,now:()=>clock.now});
+        const file=new File(['%PDF-1.4\nPrivate synthetic content'],'synthetic-private.pdf',{type:'application/pdf'});
+        return {makeVault,clock,fetcher,received,tables,file};
+      }
+
+      test('reopens encrypted files after seven offline days and syncs with the same account',async()=>{
+        const {makeVault,clock,tables,file}=uploadVaultContext();
+        const first=makeVault();
+        await first.unlock('owner-one','Synthetic-device-passphrase',true);
+        await first.stage([file]);
+        const record=[...tables.files.values()][0];
+        expect(new TextDecoder().decode(record.file.encrypted)).not.toContain('Private synthetic');
+        expect(new TextDecoder().decode(record.metadata.encrypted)).not.toContain(file.name);
+        first.lock();clock.now+=7*86400000;
+        const reopened=makeVault();
+        await expect(reopened.unlock('owner-one','Wrong-device-passphrase')).rejects.toThrow('Incorrect device passphrase');
+        await reopened.unlock('owner-one','Synthetic-device-passphrase');
+        expect(await reopened.details((await reopened.entries())[0])).toMatchObject({fileName:file.name});
+        expect(await reopened.sync()).toBe('synced');
+        expect(tables.files.size).toBe(0);
+      });
+
+      test('keeps the queue through session expiry and blocks a different account',async()=>{
+        const {makeVault,fetcher,tables,file}=uploadVaultContext();
+        const vault=makeVault();await vault.unlock('owner-one','Synthetic-device-passphrase',true);await vault.stage([file]);
+        fetcher.mockResolvedValueOnce(new Response('',{status:401}));
+        expect(await vault.sync()).toBe('signin');
+        expect(tables.files.size).toBe(1);
+        fetcher.mockResolvedValueOnce(new Response(JSON.stringify({user:{id:'owner-two'}})));
+        expect(await vault.sync()).toBe('wrong-account');
+        expect(fetcher).toHaveBeenCalledTimes(2);
+        expect(tables.files.size).toBe(1);
+        expect(await vault.sync()).toBe('synced');
+      });
+
+      test('retries a lost acknowledgement with the same upload ID, even days later',async()=>{
+        const {makeVault,fetcher,clock,tables,file,received}=uploadVaultContext();
+        const vault=makeVault();await vault.unlock('owner-one','Synthetic-device-passphrase',true);await vault.stage([file]);
+        const id=[...tables.files.keys()][0];
+        fetcher.mockImplementationOnce(async()=>new Response(JSON.stringify({user:{id:'owner-one'}})))
+          .mockImplementationOnce(async url=>{received.add(url.split('/').pop());throw new Error('Acknowledgement lost');});
+        expect(await vault.sync()).toBe('pending');
+        expect(tables.files.size).toBe(1);
+        clock.now+=4*86400000;
+        expect(await vault.sync()).toBe('synced');
+        expect([...received]).toEqual([id]);
+      });
+
+      test('rejects unsupported files and never removes an invalid receipt',async()=>{
+        const {makeVault,file,fetcher,tables}=uploadVaultContext();
+        const {File}=require('node:buffer');
+        const vault=makeVault();await vault.unlock('owner-one','Synthetic-device-passphrase',true);
+        await expect(vault.stage([new File(['<html>invalid</html>'],'invalid.pdf')])).rejects.toThrow('Only PDF');
+        await vault.stage([file]);
+        fetcher.mockImplementationOnce(async()=>new Response(JSON.stringify({user:{id:'owner-one'}})))
+          .mockResolvedValueOnce(new Response(JSON.stringify({id:'wrong-receipt',ownerId:'owner-one',status:'stored'})));
+        expect(await vault.sync()).toBe('pending');
+        expect(tables.files.size).toBe(1);
+      });
+    });
+
     test('names the assistant SLY in English and French', ()=>{
       expect((content.match(/fh_assistant_title:'SLY'/g)||[])).toHaveLength(2);
     });
