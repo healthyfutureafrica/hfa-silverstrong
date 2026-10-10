@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HFA SilverStrong — Healthcare Telehealth Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -2137,7 +2136,7 @@ function installBackendSession(data, localProfile={}) {
   window.dispatchEvent(new Event('hfa-session'));
 }
 async function initializeBackend() {
-  if (location.protocol==='file:') return;
+  if (location.protocol==='file:' || location.hostname==='github.io' || location.hostname.endsWith('.github.io')) return;
   ApiState.loading=true;
   try {
     const response=await fetch('/api/config',{signal:AbortSignal.timeout(5000)});
@@ -4660,6 +4659,17 @@ hide('free-hub');
 show('lang-pick');
 ApiState.ready=initializeBackend();
 setInterval(refreshBackendNotifications,30000);
+window.addEventListener('load',()=>{
+  const loadFonts=()=>{
+    if (navigator.onLine===false) return;
+    const stylesheet=document.createElement('link');
+    stylesheet.rel='stylesheet';
+    stylesheet.href='https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap';
+    document.head.append(stylesheet);
+  };
+  if ('requestIdleCallback' in window) window.requestIdleCallback(loadFonts,{timeout:2000});
+  else setTimeout(loadFonts,0);
+},{once:true});
 </script>
 <script src="pharmacist.js"></script>
 <script src="offline-uploads.js"></script>

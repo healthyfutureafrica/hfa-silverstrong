@@ -1,11 +1,11 @@
-const CACHE_NAME='hfa-public-v3';
+const CACHE_NAME='hfa-public-v4';
 const ROOT=new URL('./',self.location.href);
 const SHELL=['index.html','offline.js','offline-uploads.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
 
 async function refreshPublicShell() {
   const cache=await caches.open(CACHE_NAME);
   const responses=await Promise.all(SHELL.map(async url=>{
-    const response=await fetch(url,{cache:'no-store',credentials:'omit'});
+    const response=await fetch(url,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(8000)});
     if (!response.ok) throw new Error('Public content unavailable');
     return {url,response};
   }));
@@ -38,14 +38,13 @@ self.addEventListener('fetch',event=>{
   if (!SHELL.includes(publicUrl)) return;
   event.respondWith((async()=>{
     const cache=await caches.open(CACHE_NAME);
+    const saved=await cache.match(publicUrl);
+    if (saved) return saved;
     try {
-      const response=await fetch(request,{cache:'no-store'});
+      const response=await fetch(request,{cache:'no-store',signal:AbortSignal.timeout(8000)});
       if (response.ok) { await cache.put(publicUrl,response.clone()); return response; }
-      const saved=await cache.match(publicUrl);
-      return saved||response;
+      return response;
     } catch (error) {
-      const saved=await cache.match(publicUrl);
-      if (saved) return saved;
       throw error;
     }
   })());

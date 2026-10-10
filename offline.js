@@ -65,8 +65,12 @@
     }
     try {
       registration=await navigator.serviceWorker.register(new URL('service-worker.js',document.baseURI),{updateViaCache:'none'});
-      await navigator.serviceWorker.ready;
+      await new Promise((resolve,reject)=>{
+        const timeout=setTimeout(()=>reject(new Error('Offline preparation timed out')),12000);
+        navigator.serviceWorker.ready.then(value=>{clearTimeout(timeout);resolve(value);},error=>{clearTimeout(timeout);reject(error);});
+      });
       status='ready'; render();
+      if (navigator.onLine!==false) registration.active?.postMessage({type:'REFRESH_PUBLIC'});
     } catch (error) { status='failed'; render(); }
   }
 

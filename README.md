@@ -57,6 +57,13 @@ The landing page includes a one-click **Try Demo** entry for the patient experie
 
 ## Offline Access
 
+### Pages Reachability and Loading
+
+- The canonical static URL is `https://healthyfutureafrica.github.io/hfa-silverstrong/`. GitHub Pages deployment success is separate from a device's ability to reach GitHub's CDN. A TCP connection timeout before TLS, despite correct DNS, cannot be repaired with HTML or JavaScript changes.
+- If the URL cannot connect, test the same URL on another trusted network (for example mobile data). Check with the network administrator whether outbound HTTPS to `*.github.io` / GitHub Pages is filtered. Review any configured VPN, proxy or security software with its administrator. Do not disable endpoint protection or TLS validation as a workaround. If the host is unreachable on multiple independent networks, check GitHub Status and the Pages workflow before changing the app.
+- Optional Google Fonts load after the page's load event during idle time, so a blocked font provider does not hold up initial rendering. The static GitHub host skips backend API probing because Pages cannot run that API.
+- Once prepared offline, public app assets are returned immediately from the service-worker cache. Fresh content is checked in the background on startup/reconnection and applied through the user-controlled Reload notice. Refresh fetches have an eight-second timeout; offline preparation reports failure after twelve seconds rather than staying pending indefinitely. A first visit still requires a working connection to the host.
+
 - Visit the deployed app once online using HTTPS (or localhost). Wait for **Offline Health Hub ready**. The browser caches only the public HTML, offline controls, and HFA logo. Service workers do not work from a directly opened local HTML file.
 - Reopen that same URL without internet to browse the Free Health Hub, nutrition and exercise guidance, and use SLY's local topic matching. SLY's disclaimer remains before every response. Fonts may fall back to the device's fonts while offline.
 - The English/French connection bar shows offline status, cache failures, and updates. On reconnection the app fetches the latest public content into its offline cache. If content has changed, **Reload** applies it when the user is ready; there is no automatic reload that discards work.

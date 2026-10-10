@@ -23,6 +23,23 @@ describe('index.html sanity checks', () => {
     expect(content.toLowerCase()).toMatch(/<title>.*<\/title>/);
   });
 
+  describe('fast static hosting startup',()=>{
+    test.each(['healthyfutureafrica.github.io','other-site.github.io'])('does not probe a nonexistent backend on %s',async hostname=>{
+      const context={location:{protocol:'https:',hostname},fetch:jest.fn(),ApiState:{loading:false,enabled:false}};
+      vm.createContext(context);
+      vm.runInContext(content.match(/^async function initializeBackend\([^]*?^}/m)[0],context);
+      await context.initializeBackend();
+      expect(context.fetch).not.toHaveBeenCalled();
+      expect(context.ApiState.loading).toBe(false);
+    });
+    test('does not include a render-blocking Google Fonts stylesheet in the head',()=>{
+      const head=content.slice(0,content.indexOf('</head>'));
+      expect(head).not.toContain('fonts.googleapis.com');
+      expect(content).toContain("window.addEventListener('load',()=>{");
+      expect(content).toContain('window.requestIdleCallback(loadFonts');
+    });
+  });
+
   describe('pharmacist portal',()=>{
     test('includes a static pharmacist tile and navigation entry in the published HTML',()=>{
       expect(content).toContain('id="lnd-pharmacist-card"');
@@ -94,7 +111,7 @@ describe('index.html sanity checks', () => {
     function workerContext() {
       const handlers={}, saved=new Map();
       const cache={match:jest.fn(async url=>saved.get(url)?.clone()),put:jest.fn(async(url,response)=>saved.set(url,response.clone()))};
-      const context={URL,Response,
+      const context={URL,Response,AbortSignal,
         self:{location:{href:'https://example.invalid/hfa/service-worker.js'},addEventListener:(type,handler)=>{handlers[type]=handler;},skipWaiting:jest.fn(),clients:{claim:jest.fn()}},
         caches:{open:jest.fn(async()=>cache),keys:jest.fn(async()=>['hfa-public-old','other-app']),delete:jest.fn()},
         fetch:jest.fn(async()=>new Response('Public version one',{status:200})),
@@ -136,6 +153,22 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/'},respondWith:promise=>{pending=promise;}});
       expect(await (await pending).text()).toBe('Saved public page');
+    });
+
+    test('returns cached navigation immediately without starting a stalled network fetch',async()=>{
+      const {context,handlers,saved}=workerContext();
+      saved.set('https://example.invalid/hfa/index.html',new Response('Cached page'));
+      context.fetch.mockImplementation(()=>new Promise(()=>{}));
+      let pending;
+      handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/'},respondWith:promise=>{pending=promise;}});
+      expect(await (await pending).text()).toBe('Cached page');
+      expect(context.fetch).not.toHaveBeenCalled();
+    });
+
+    test('bounds public-content refresh requests with an abort signal',async()=>{
+      const {context}=workerContext();
+      await context.refreshPublicShell();
+      expect(context.fetch).toHaveBeenCalledWith(expect.any(String),expect.objectContaining({signal:expect.any(AbortSignal)}));
     });
 
     test('refreshes public content on reconnection and announces the update',async()=>{
