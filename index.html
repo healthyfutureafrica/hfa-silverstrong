@@ -25,6 +25,10 @@
 }
 body{font-family:var(--fb);background:var(--ow);color:var(--t1);line-height:1.6;font-size:14px}
 input,select,textarea,button{font-family:var(--fb)}
+.offline-status{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;background:var(--em-p);border-bottom:1px solid var(--bd);font-size:.76rem;color:var(--em-d);position:relative;z-index:201;overflow-wrap:anywhere}
+.offline-status[data-offline="true"]{background:var(--go-p);color:#7d5800}
+.offline-status .btn{flex-shrink:0}
+.offline-status .btn[hidden]{display:none}
 
 #app-wrap{display:flex;min-height:100vh}
 #sidebar{width:252px;min-height:100vh;background:var(--na);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:200}
@@ -453,6 +457,8 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   .fh-grid{grid-template-columns:1fr}
 }
 @media(max-width:700px){
+  .fh-nav{flex-wrap:wrap;gap:12px;padding:16px}
+  .fh-nav .lnr{flex-wrap:wrap;max-width:100%}
   #sidebar{width:210px}
   #main{margin-left:210px}
   .page{padding:20px 16px}
@@ -4584,5 +4590,6 @@ show('lang-pick');
 ApiState.ready=initializeBackend();
 setInterval(refreshBackendNotifications,30000);
 </script>
+<script src="offline.js"></script>
 </body>
 </html>

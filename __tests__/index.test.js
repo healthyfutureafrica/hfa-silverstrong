@@ -23,6 +23,79 @@ describe('index.html sanity checks', () => {
     expect(content.toLowerCase()).toMatch(/<title>.*<\/title>/);
   });
 
+  describe('public offline caching', () => {
+    function workerContext() {
+      const handlers={}, saved=new Map();
+      const cache={match:jest.fn(async url=>saved.get(url)?.clone()),put:jest.fn(async(url,response)=>saved.set(url,response.clone()))};
+      const context={URL,Response,
+        self:{location:{href:'https://example.invalid/hfa/service-worker.js'},addEventListener:(type,handler)=>{handlers[type]=handler;},skipWaiting:jest.fn(),clients:{claim:jest.fn()}},
+        caches:{open:jest.fn(async()=>cache),keys:jest.fn(async()=>['hfa-public-old','other-app']),delete:jest.fn()},
+        fetch:jest.fn(async()=>new Response('Public version one',{status:200})),
+      };
+      vm.createContext(context);
+      vm.runInContext(fs.readFileSync(path.join(__dirname,'..','service-worker.js'),'utf8'),context);
+      return {context,handlers,cache,saved};
+    }
+
+    test('precaches only public assets and claims the installed worker',async()=>{
+      const {context,handlers,saved}=workerContext();
+      let pending;
+      handlers.install({waitUntil:promise=>{pending=promise;}});
+      await pending;
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/index.html','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect(context.self.skipWaiting).toHaveBeenCalled();
+      handlers.activate({waitUntil:promise=>{pending=promise;}});
+      await pending;
+      expect(context.caches.delete).toHaveBeenCalledWith('hfa-public-old');
+      expect(context.caches.delete).not.toHaveBeenCalledWith('other-app');
+    });
+
+    test.each([
+      ['GET','https://example.invalid/api/session'],
+      ['POST','https://example.invalid/hfa/index.html'],
+      ['GET','https://external.invalid/index.html'],
+      ['GET','https://example.invalid/hfa/index.html?token=private'],
+    ])('never intercepts %s %s', (method,url)=>{
+      const {handlers}=workerContext();
+      const respondWith=jest.fn();
+      handlers.fetch({request:{method,url},respondWith});
+      expect(respondWith).not.toHaveBeenCalled();
+    });
+
+    test('reopens the scoped app from cache without connectivity',async()=>{
+      const {context,handlers,saved}=workerContext();
+      saved.set('https://example.invalid/hfa/index.html',new Response('Saved public page'));
+      context.fetch.mockRejectedValue(new Error('Offline'));
+      let pending;
+      handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/'},respondWith:promise=>{pending=promise;}});
+      expect(await (await pending).text()).toBe('Saved public page');
+    });
+
+    test('refreshes public content on reconnection and announces the update',async()=>{
+      const {context,handlers,saved}=workerContext();
+      saved.set('https://example.invalid/hfa/index.html',new Response('Old public page'));
+      context.fetch.mockResolvedValue(new Response('New public page'));
+      const source={postMessage:jest.fn()};
+      let pending;
+      handlers.message({data:{type:'REFRESH_PUBLIC'},source,waitUntil:promise=>{pending=promise;}});
+      await pending;
+      expect(await saved.get('https://example.invalid/hfa/index.html').text()).toBe('New public page');
+      expect(source.postMessage).toHaveBeenCalledWith({type:'PUBLIC_REFRESHED',changed:true});
+    });
+
+    test('retains the saved version when a refresh fails',async()=>{
+      const {context,handlers,saved}=workerContext();
+      saved.set('https://example.invalid/hfa/index.html',new Response('Old public page'));
+      context.fetch.mockRejectedValue(new Error('Unavailable'));
+      const source={postMessage:jest.fn()};
+      let pending;
+      handlers.message({data:{type:'REFRESH_PUBLIC'},source,waitUntil:promise=>{pending=promise;}});
+      await pending;
+      expect(await saved.get('https://example.invalid/hfa/index.html').text()).toBe('Old public page');
+      expect(source.postMessage).toHaveBeenCalledWith({type:'PUBLIC_REFRESH_FAILED'});
+    });
+  });
+
   describe('free health assistant disclaimers', () => {
     test('names the assistant SLY in English and French', ()=>{
       expect((content.match(/fh_assistant_title:'SLY'/g)||[])).toHaveLength(2);

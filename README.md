@@ -12,7 +12,7 @@ A three-in-one application that covers 1. healthcare, 2. fitness & health tips a
 - `.github/workflows/ci.yml`: lint + tests + docker build
 - `.github/workflows/docker-publish.yml`: smoke-test and publish frontend and `-backend` images with `latest` plus SHA tags to GHCR on `main`; backend publishing verifies that live provider sending is disabled in its clean image.
 - `.github/workflows/release.yml`: build and push tagged container images to GHCR on semantic version tags
-- `.github/workflows/pages.yml`: publish only `index.html` and `assets/` to GitHub Pages on every push to `main`
+- `.github/workflows/pages.yml`: publish the public HTML, offline scripts, and `assets/` to GitHub Pages on every push to `main`
 - `docker-compose.yml`: same-origin frontend/API stack, persistent backend volume, and no public backend port; `HFA_PORT` selects the localhost web port.
 
 ## AWS deployment with Jenkins
@@ -54,6 +54,15 @@ This pipeline deploys the current demo frontend only. It does not make the clini
 The GitHub Pages workflow publishes the static demo after pushes to `main`. Enable **Settings > Pages > Build and deployment > GitHub Actions** in the repository, then open the URL shown by the `Publish shareable demo` workflow. For this repository it will normally be `https://healthyfutureafrica.github.io/hfa-silverstrong/`.
 
 The landing page includes a one-click **Try Demo** entry for the patient experience. The Admin portal is intentionally excluded from that shortcut; use the provisioned Super Admin account through normal sign-in. This demo stores data in browser memory only, resets on refresh, and must never receive real patient data or production credentials.
+
+## Offline Access
+
+- Visit the deployed app once online using HTTPS (or localhost). Wait for **Offline Health Hub ready**. The browser caches only the public HTML, offline controls, and HFA logo. Service workers do not work from a directly opened local HTML file.
+- Reopen that same URL without internet to browse the Free Health Hub, nutrition and exercise guidance, and use SLY's local topic matching. SLY's disclaimer remains before every response. Fonts may fall back to the device's fonts while offline.
+- The English/French connection bar shows offline status, cache failures, and updates. On reconnection the app fetches the latest public content into its offline cache. If content has changed, **Reload** applies it when the user is ready; there is no automatic reload that discards work.
+- Existing authenticated sessions refresh account notifications when connectivity returns. API responses, credentials, clinical records, uploads and outgoing requests are never cached or queued by this offline feature. A failed account request must be retried explicitly. This is public-content refresh, not clinical-data synchronization.
+- Offline account sign-in, registration, appointment confirmation, real consultations, payments, and WhatsApp delivery are not supported. The static demo's clinical state still resets on reload. Browser eviction or clearing site data removes offline availability; another successful online visit prepares it again.
+- Full clinical offline synchronization requires server-owned records, device encryption and opt-in, account isolation, idempotent writes, version/conflict handling, and explicit pending/confirmed states. These are prerequisites before introducing an offline medical outbox.
 
 ## Doctor workflows
 
