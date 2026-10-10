@@ -1,4 +1,4 @@
-const CACHE_NAME='hfa-public-v2';
+const CACHE_NAME='hfa-public-v3';
 const ROOT=new URL('./',self.location.href);
 const SHELL=['index.html','offline.js','offline-uploads.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
 

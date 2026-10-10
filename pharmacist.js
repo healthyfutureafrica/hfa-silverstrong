@@ -117,11 +117,12 @@ function showPharmacyFulfillment(id) {
 }
 
 NAV.admin[2].items.push({id:'pharmacy',l:()=>t('pharmacy_admin'),i:'clip'});
-const pharmacyEntry=document.createElement('button');
-pharmacyEntry.type='button';pharmacyEntry.className='btn bgh land-nav-btn nav-ghost';
-pharmacyEntry.addEventListener('click',()=>goAuth('register','pharmacist'));
-document.querySelector('#land .lnr').append(pharmacyEntry);
-const labelPharmacyEntry=()=>{pharmacyEntry.textContent=t('pharmacy_portal');};
+const labelPharmacyEntry=()=>{
+  $('lnd-pharmacist').textContent=t('pharmacy_portal');
+  $('lnd-pharmacist-title').textContent=t('pharmacy_portal');
+  $('lnd-pharmacist-desc').textContent=LANG==='fr'?'Stock, demandes d’achat et logistique de livraison':'Medication stock, purchase requests and delivery logistics';
+  $('lnd-pharmacist-access').textContent=LANG==='fr'?'Accéder au portail':'Access Portal';
+};
 labelPharmacyEntry();
 pharmacyRegistrationFields();
 new MutationObserver(()=>{pharmacyRegistrationFields();labelPharmacyEntry();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-lang']});

@@ -24,6 +24,12 @@ describe('index.html sanity checks', () => {
   });
 
   describe('pharmacist portal',()=>{
+    test('includes a static pharmacist tile and navigation entry in the published HTML',()=>{
+      expect(content).toContain('id="lnd-pharmacist-card"');
+      expect(content).toContain('id="lnd-pharmacist"');
+      expect(content).toContain('onclick="showPortalChoice(\'pharmacist\')"');
+      expect(content).toContain('id="lnd-pharmacist-title">Pharmacist Portal</h3>');
+    });
     function pharmacyContext() {
       const fields={rn:{value:'Synthetic Pharmacist'},re:{value:'pharmacist@example.invalid'},rpa:{value:'Synthetic-password-123'},rph:{value:'+237600000000'},rtc:{checked:true},le:{value:''},'ph-credential-review':{checked:false},'ph-review-status':{textContent:''}};
       ['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization'].forEach(name=>{fields['ph-'+name]={value:'Synthetic '+name};});
@@ -852,7 +858,7 @@ describe('index.html sanity checks', () => {
 
   test('uses the HFA logo asset across the app', () => {
     expect(fs.existsSync(path.join(__dirname, '..', 'assets', 'hfa-logo.svg'))).toBe(true);
-    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(4);
+    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(5);
     expect(content).toContain('alt="HFA SilverStrong logo"');
   });
 
