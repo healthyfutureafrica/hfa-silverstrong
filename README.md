@@ -78,6 +78,12 @@ This owner-only file vault does not automatically release lab results, verify ID
 
 ## Doctor workflows
 
+### CEMAC Price Display
+
+The country selector in the status bar controls regional pricing. Cameroon, Central African Republic, Chad, Republic of the Congo, Equatorial Guinea, and Gabon display USD-denominated amounts as XAF at the fixed rate **USD 1 = XAF 600**. A recognized CEMAC device time zone provides the initial setting; users must select their current country when travelling or when their device time zone does not identify it. Language is not used to infer location. The selection persists offline in this browser and can be changed when no dialog is open.
+
+Consultation fees, specialist/booking prices, subscriptions, home visits, rescheduling fees and price-bearing translations use this conversion. Existing XAF values are not multiplied again. Amounts are rounded to whole XAF for display. Stored fee values and mock payment requests retain their original currency; this does not implement live foreign-exchange settlement or geolocation tracking.
+
 - The doctor dashboard and patient list filter by surname initial. An explicit `lastName` is used when available; otherwise the last word of the full name is treated as the surname.
 - Consultations require a future date/time and a 30- or 45-minute duration. Doctor/patient overlaps are checked against this browser's appointment records.
 - Patients pay USD 5 to reschedule; doctors reschedule for free. The current payment provider is a mock, not a real charge. Failed payments leave the appointment unchanged. Rescheduling records retain the reason, previous slot, requester, and payment reference.

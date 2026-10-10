@@ -23,6 +23,28 @@ describe('index.html sanity checks', () => {
     expect(content.toLowerCase()).toMatch(/<title>.*<\/title>/);
   });
 
+  describe('CEMAC price conversion',()=>{
+    function prices(country,lang='en') {
+      const context={LANG:lang,CU:null,Intl,localStorage:{getItem:()=>country}};
+      vm.createContext(context);
+      ['priceCountry','priceCurrency','money','localPriceText'].forEach(name=>vm.runInContext(content.match(new RegExp(`^function ${name}\\([^]*?^}`, 'm'))[0],context));
+      return context;
+    }
+    test.each(['CM','CF','TD','CG','GQ','GA'])('converts USD at 600 XAF for %s',country=>{
+      const context=prices(country);
+      expect(context.money(5)).toBe('XAF 3,000');
+      expect(context.money(2)).toBe('XAF 1,200');
+      expect(context.money(10)).toBe('XAF 6,000');
+      expect(context.money(3000,'XAF')).toBe('XAF 3,000');
+      expect(context.localPriceText('USD 5 to USD 20; $2; 10 $')).toBe('XAF 3,000 to XAF 12,000; XAF 1,200; XAF 6,000');
+    });
+    test('keeps USD outside CEMAC and rounds fractional XAF',()=>{
+      expect(prices('OTHER').money(5)).toBe('USD 5.00');
+      expect(prices('CM').money(0.01)).toBe('XAF 6');
+      expect(prices('GA','fr').money(5)).toMatch(/^XAF 3\s000$/);
+    });
+  });
+
   describe('public offline caching', () => {
     function workerContext() {
       const handlers={}, saved=new Map();

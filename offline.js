@@ -12,7 +12,22 @@
   const actions=document.createElement('div'),files=document.createElement('button');
   actions.className='offline-actions';files.type='button';files.className='btn bs bsm';
   files.addEventListener('click',()=>OfflineUploads.open());
-  actions.append(files,action);banner.append(text,actions); document.body.prepend(banner);
+  const country=document.createElement('select');
+  country.id='price-country';country.className='price-country';
+  const countries=[['OTHER','Outside CEMAC / Hors CEMAC'],['CM','Cameroon / Cameroun'],['CF','Central African Republic / Centrafrique'],['TD','Chad / Tchad'],['CG','Republic of the Congo / Congo'],['GQ','Equatorial Guinea / Guinée équatoriale'],['GA','Gabon']];
+  for (const [code,name] of countries) {
+    const option=document.createElement('option');option.value=code;option.textContent=name;country.append(option);
+  }
+  country.value=priceCountry();
+  const modal=document.getElementById('movr');
+  new MutationObserver(()=>{country.disabled=!modal.classList.contains('hid');}).observe(modal,{attributes:true,attributeFilter:['class']});
+  country.addEventListener('change',()=>{
+    try {localStorage.setItem('hfa-price-country',country.value);} catch(error) {alert('Country preference could not be saved');return;}
+    updateStaticHTML();
+    if (typeof CU!=='undefined'&&CU&&!document.getElementById('app-wrap').classList.contains('hid')) navigate(CP);
+    render();
+  });
+  actions.append(country,files,action);banner.append(text,actions); document.body.prepend(banner);
 
   function render() {
     const labels=copy[typeof LANG!=='undefined'?LANG:'en']||copy.en;
@@ -22,6 +37,8 @@
     action.hidden=offline||(!updateAvailable&&status!=='failed');
     action.textContent=labels[updateAvailable?'reload':'retry'];
     files.textContent=typeof LANG!=='undefined'&&LANG==='fr'?'Fichiers hors ligne':'Offline files';
+    country.setAttribute('aria-label',typeof LANG!=='undefined'&&LANG==='fr'?'Pays actuel pour les prix':'Current country for prices');
+    country.title=priceCurrency()==='XAF'?'USD 1 = XAF 600':'Prices in USD';
   }
 
   async function reconnect() {
