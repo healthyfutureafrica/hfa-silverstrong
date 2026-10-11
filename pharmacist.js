@@ -8,6 +8,77 @@ Object.assign(T.fr,{pharmacy_medication:'Nom du médicament',pharmacy_total:'Tot
 const PH_FIELDS=[['pharmacyName','pharmacy_name'],['pharmacyAddress','pharmacy_address'],['pharmacyLocation','pharmacy_location'],['pharmacyLicense','pharmacy_license'],['businessRegistration','pharmacy_business'],['minsanteAuthorization','pharmacy_minsante']];
 let PH_DATA={items:[],orders:[]},PH_BUSY=false,PH_VIEW=0;
 
+// Static-demo pharmacy store: mirrors backend/pharmacy.js rules in browser memory and resets on reload.
+const PH_LOCAL={items:[
+  {id:'phi-demo-1',pharmacistId:'pha1',name:'Amlodipine',strength:'5 mg tablet',unit:'Box of 30',batch:'AML-2026-014',expiresOn:'2028-06-30',stock:39,price:4.5,requiresPrescription:true},
+  {id:'phi-demo-2',pharmacistId:'pha1',name:'Paracetamol',strength:'500 mg tablet',unit:'Box of 20',batch:'PCM-2026-102',expiresOn:'2028-03-31',stock:120,price:1.25,requiresPrescription:false},
+  {id:'phi-demo-3',pharmacistId:'pha1',name:'Metformin',strength:'500 mg tablet',unit:'Box of 60',batch:'MET-2026-031',expiresOn:'2027-12-31',stock:25,price:3.8,requiresPrescription:true}
+],orders:[
+  {id:'pho-demo-1',requestId:'demo-seed-1',itemId:'phi-demo-1',patientId:'pat1',pharmacistId:'pha1',quantity:1,total:4.5,method:'pickup',address:'Douala, Cameroon',status:'requested',prescriptionReviewed:false,createdAt:'2026-10-01T09:00:00.000Z'}
+]};
+
+function phLocalRequest(path,method='GET',body={}) {
+  const user=CU,today=new Date().toISOString().slice(0,10),fail=message=>{throw new Error(message);};
+  const owner=item=>DB.users.find(account=>account.id===item.pharmacistId);
+  const validated=account=>account?.role==='pharmacist'&&account.status==='active'&&!!account.pharmacyValidatedAt;
+  const text=value=>typeof value==='string'&&value.trim().length>0&&value.trim().length<=200&&!/[<>&"\u0000-\u001f]/.test(value);
+  if (path==='/api/pharmacy'&&method==='GET') {
+    if (!user||!['patient','pharmacist','admin'].includes(user.role)||(user.role==='pharmacist'&&!validated(user))) fail(t('pharmacy_unavailable'));
+    const items=PH_LOCAL.items.filter(item=>user.role==='admin'||(user.role==='pharmacist'?item.pharmacistId===user.id:validated(owner(item))&&item.stock>0&&item.expiresOn>today))
+      .map(item=>({...item,currency:'USD',pharmacyName:owner(item)?.pharmacyName,pharmacyAddress:owner(item)?.pharmacyAddress,pharmacyLocation:owner(item)?.pharmacyLocation}));
+    const orders=PH_LOCAL.orders.filter(order=>user.role==='admin'||order.patientId===user.id||order.pharmacistId===user.id)
+      .map(order=>({...order,currency:'USD',name:PH_LOCAL.items.find(item=>item.id===order.itemId)?.name})).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+    return {items,orders};
+  }
+  if (path==='/api/pharmacy/orders'&&method==='POST') {
+    if (user?.role!=='patient') fail(t('pharmacy_unavailable'));
+    if (!Number.isInteger(body.quantity)||body.quantity<1||body.quantity>20||!['pickup','delivery'].includes(body.method)||!text(body.address)) fail(t('pharmacy_required'));
+    const prior=PH_LOCAL.orders.find(order=>order.patientId===user.id&&order.requestId===body.requestId);
+    if (prior) return {id:prior.id,status:prior.status};
+    const item=PH_LOCAL.items.find(entry=>entry.id===body.itemId);
+    if (!item||!validated(owner(item))||item.expiresOn<=today) fail('Medication is unavailable');
+    if (item.stock<body.quantity) fail('Not enough available stock');
+    item.stock-=body.quantity;
+    const order={id:crypto.randomUUID(),requestId:body.requestId,itemId:item.id,patientId:user.id,pharmacistId:item.pharmacistId,quantity:body.quantity,total:Math.round(item.price*100)*body.quantity/100,method:body.method,address:body.address.trim(),status:'requested',prescriptionReviewed:false,createdAt:new Date().toISOString()};
+    PH_LOCAL.orders.push(order);
+    return {id:order.id,status:'requested'};
+  }
+  if (!validated(user)) fail('An administrator-validated pharmacist is required');
+  if (path==='/api/pharmacy/items'&&method==='POST') {
+    if (!['name','strength','unit','batch'].every(field=>text(body[field]))) fail(t('pharmacy_required'));
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(body.expiresOn||'')||body.expiresOn<=today) fail('A valid future expiry date is required');
+    if (!Number.isInteger(body.stock)||body.stock<0||body.stock>100000||!(body.price>=0.01&&body.price<=10000)) fail(t('pharmacy_required'));
+    const item={id:crypto.randomUUID(),pharmacistId:user.id,name:body.name.trim(),strength:body.strength.trim(),unit:body.unit.trim(),batch:body.batch.trim(),expiresOn:body.expiresOn,stock:body.stock,price:body.price,requiresPrescription:!!body.requiresPrescription};
+    PH_LOCAL.items.push(item);
+    return {id:item.id};
+  }
+  const [,kind,id]=path.match(/^\/api\/pharmacy\/(items|orders)\/([^/]+)$/)||[];
+  if (kind==='items'&&method==='PATCH') {
+    const item=PH_LOCAL.items.find(entry=>entry.id===id&&entry.pharmacistId===user.id);
+    if (!item) fail('Not found');
+    if (!Number.isInteger(body.stock)||body.stock<0||body.stock>100000) fail(t('pharmacy_required'));
+    item.stock=body.stock;
+    return {status:'updated'};
+  }
+  if (kind==='orders'&&method==='PATCH') {
+    const order=PH_LOCAL.orders.find(entry=>entry.id===id&&entry.pharmacistId===user.id);
+    if (!order) fail('Not found');
+    const transitions={requested:['ready','cancelled'],ready:order.method==='delivery'?['dispatched','cancelled']:['completed','cancelled'],dispatched:['completed']};
+    if (!transitions[order.status]?.includes(body.status)) fail('Invalid fulfillment transition');
+    const item=PH_LOCAL.items.find(entry=>entry.id===order.itemId),reviewed=order.prescriptionReviewed||body.prescriptionReviewed===true;
+    if (body.status!=='cancelled'&&item.expiresOn<=today) fail('Expired stock cannot be fulfilled');
+    if (body.status!=='cancelled'&&item.requiresPrescription&&!reviewed) fail('Verify the original prescription before fulfillment');
+    order.status=body.status;order.prescriptionReviewed=reviewed;
+    if (body.status==='cancelled') item.stock+=order.quantity;
+    return {status:body.status};
+  }
+  fail('Not found');
+}
+
+function phRequest(path,method='GET',body) {
+  return ApiState.enabled?apiRequest(path,method,body):Promise.resolve().then(()=>phLocalRequest(path,method,body));
+}
+
 function phEscape(value) {
   return String(value??'').replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
 }
@@ -60,9 +131,10 @@ async function renderPharmacy(container) {
   if (!CU||!['patient','pharmacist','admin'].includes(CU.role)) return;
   $('tbt').textContent=t(CU.role==='pharmacist'?'pharmacy_portal':'pharmacy_shop');
   container.innerHTML=`<div class="page"><div class="ph"><h2>${t('pharmacy_shop')}</h2></div><p role="status">${t('pharmacy_backend')}</p></div>`;
-  if (!ApiState.enabled) return;
+  if (ApiState.loading) await ApiState.ready;
+  if (ApiState.failed) return;
   try {
-    const data=await apiRequest('/api/pharmacy');
+    const data=await phRequest('/api/pharmacy');
     if (view!==PH_VIEW||CU?.id!==actor||!['pharmacy','dashboard'].includes(CP)) return;
     PH_DATA=data;
     const pharmacist=CU.role==='pharmacist',admin=CU.role==='admin';
@@ -93,18 +165,18 @@ function phInput(id,label,type='text',attrs='') {
 function showPharmacyItem() {
   if (CU?.role!=='pharmacist') return;
   const xaf=priceCurrency()==='XAF';
-  phForm(t('pharmacy_add'),phInput('pi-name',t('pharmacy_medication'),'text','maxlength="200"')+phInput('pi-strength',t('pharmacy_strength'),'text','maxlength="200"')+phInput('pi-unit',t('pharmacy_unit'),'text','maxlength="200"')+phInput('pi-batch',t('pharmacy_batch'),'text','maxlength="200"')+phInput('pi-expiry',t('pharmacy_expiry'),'date')+phInput('pi-stock',t('pharmacy_stock'),'number','min="0" max="100000" step="1"')+phInput('pi-price',`${t('pharmacy_price')} (${priceCurrency()})`,'number',xaf?'min="6" max="6000000" step="6"':'min="0.01" max="10000" step="0.01"')+`<label><input id="pi-rx" type="checkbox" checked> ${t('pharmacy_rx')}</label>`,()=>apiRequest('/api/pharmacy/items','POST',{name:$('pi-name').value,strength:$('pi-strength').value,unit:$('pi-unit').value,batch:$('pi-batch').value,expiresOn:$('pi-expiry').value,stock:Number($('pi-stock').value),price:Math.round(Number($('pi-price').value)/(xaf?600:1)*100)/100,requiresPrescription:$('pi-rx').checked}));
+  phForm(t('pharmacy_add'),phInput('pi-name',t('pharmacy_medication'),'text','maxlength="200"')+phInput('pi-strength',t('pharmacy_strength'),'text','maxlength="200"')+phInput('pi-unit',t('pharmacy_unit'),'text','maxlength="200"')+phInput('pi-batch',t('pharmacy_batch'),'text','maxlength="200"')+phInput('pi-expiry',t('pharmacy_expiry'),'date')+phInput('pi-stock',t('pharmacy_stock'),'number','min="0" max="100000" step="1"')+phInput('pi-price',`${t('pharmacy_price')} (${priceCurrency()})`,'number',xaf?'min="6" max="6000000" step="6"':'min="0.01" max="10000" step="0.01"')+`<label><input id="pi-rx" type="checkbox" checked> ${t('pharmacy_rx')}</label>`,()=>phRequest('/api/pharmacy/items','POST',{name:$('pi-name').value,strength:$('pi-strength').value,unit:$('pi-unit').value,batch:$('pi-batch').value,expiresOn:$('pi-expiry').value,stock:Number($('pi-stock').value),price:Math.round(Number($('pi-price').value)/(xaf?600:1)*100)/100,requiresPrescription:$('pi-rx').checked}));
 }
 
 function showPharmacyStock(id) {
   const item=PH_DATA.items.find(item=>item.id===id);if(!item||CU?.role!=='pharmacist')return;
-  phForm(t('pharmacy_adjust'),phInput('pi-stock',t('pharmacy_stock'),'number',`min="0" max="100000" step="1" value="${item.stock}"`),()=>apiRequest('/api/pharmacy/items/'+id,'PATCH',{stock:Number($('pi-stock').value)}));
+  phForm(t('pharmacy_adjust'),phInput('pi-stock',t('pharmacy_stock'),'number',`min="0" max="100000" step="1" value="${item.stock}"`),()=>phRequest('/api/pharmacy/items/'+id,'PATCH',{stock:Number($('pi-stock').value)}));
 }
 
 function showPharmacyPurchase(id) {
   const item=PH_DATA.items.find(item=>item.id===id);if(!item||CU?.role!=='patient')return;
   const requestId=crypto.randomUUID();
-  phForm(t('pharmacy_request'),`<p>${phEscape(item.name)} · ${money(item.price,item.currency)}</p><p class="mu sm">${t('pharmacy_safety')}</p>`+phInput('po-quantity',t('pharmacy_quantity'),'number',`min="1" max="${Math.min(item.stock,20)}" step="1" value="1"`)+`<p class="bo sm mb18" id="po-total" aria-live="polite"></p><div class="fg"><label class="fl" for="po-method">${t('pharmacy_method')}</label><select class="fc" id="po-method"><option value="pickup">${t('pharmacy_pickup')}</option><option value="delivery">${t('pharmacy_delivery')}</option></select></div>`+phInput('po-address',t('pharmacy_address'),'text',`maxlength="200" value="${phEscape(CU.address||item.pharmacyAddress||'')}"`),()=>apiRequest('/api/pharmacy/orders','POST',{requestId,itemId:id,quantity:Number($('po-quantity').value),method:$('po-method').value,address:$('po-address').value}));
+  phForm(t('pharmacy_request'),`<p>${phEscape(item.name)} · ${money(item.price,item.currency)}</p><p class="mu sm">${t('pharmacy_safety')}</p>`+phInput('po-quantity',t('pharmacy_quantity'),'number',`min="1" max="${Math.min(item.stock,20)}" step="1" value="1"`)+`<p class="bo sm mb18" id="po-total" aria-live="polite"></p><div class="fg"><label class="fl" for="po-method">${t('pharmacy_method')}</label><select class="fc" id="po-method"><option value="pickup">${t('pharmacy_pickup')}</option><option value="delivery">${t('pharmacy_delivery')}</option></select></div>`+phInput('po-address',t('pharmacy_address'),'text',`maxlength="200" value="${phEscape(CU.address||item.pharmacyAddress||'')}"`),()=>phRequest('/api/pharmacy/orders','POST',{requestId,itemId:id,quantity:Number($('po-quantity').value),method:$('po-method').value,address:$('po-address').value}));
   const updateTotal=()=>{$('po-total').textContent=`${t('pharmacy_total')}: ${money(item.price*Number($('po-quantity').value),item.currency)}`;};
   $('po-quantity').addEventListener('input',updateTotal);updateTotal();
   $('ph-form').querySelector('button[type="submit"]').textContent=t('pharmacy_request');
@@ -113,7 +185,7 @@ function showPharmacyPurchase(id) {
 function showPharmacyFulfillment(id) {
   const order=PH_DATA.orders.find(order=>order.id===id);if(!order||CU?.role!=='pharmacist')return;
   const options=order.status==='requested'?['ready','cancelled']:order.status==='ready'?(order.method==='delivery'?['dispatched','cancelled']:['completed','cancelled']):['completed'];
-  phForm(t('pharmacy_update'),`<p>${phEscape(order.name)} · ${order.quantity}</p><div class="fg"><label class="fl" for="po-status">${t('status')}</label><select class="fc" id="po-status">${options.map(status=>`<option value="${status}">${t('pharmacy_'+status)}</option>`).join('')}</select></div><label><input id="po-review" type="checkbox" ${order.prescriptionReviewed?'checked':''}> ${t('pharmacy_rx_review')}</label>`,()=>apiRequest('/api/pharmacy/orders/'+id,'PATCH',{status:$('po-status').value,prescriptionReviewed:$('po-review').checked}));
+  phForm(t('pharmacy_update'),`<p>${phEscape(order.name)} · ${order.quantity}</p><div class="fg"><label class="fl" for="po-status">${t('status')}</label><select class="fc" id="po-status">${options.map(status=>`<option value="${status}">${t('pharmacy_'+status)}</option>`).join('')}</select></div><label><input id="po-review" type="checkbox" ${order.prescriptionReviewed?'checked':''}> ${t('pharmacy_rx_review')}</label>`,()=>phRequest('/api/pharmacy/orders/'+id,'PATCH',{status:$('po-status').value,prescriptionReviewed:$('po-review').checked}));
 }
 
 NAV.admin[2].items.push({id:'pharmacy',l:()=>t('pharmacy_admin'),i:'clip'});

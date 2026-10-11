@@ -1789,6 +1789,7 @@ const DB = {
     {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
     {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
     {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',password:'Lab@123',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',status:'active',createdAt:'2024-02-05'},
+    {id:'pha1',role:'pharmacist',name:'Pharm. Brenda Ngum',email:'pharmacy@hfa.org',password:'Pharmacist@123',phone:'+237 677 300 202',pharmacyName:'HFA Community Pharmacy',pharmacyAddress:'Rue Joss, Bonanjo',pharmacyLocation:'Douala, Littoral, Cameroon',pharmacyLicense:'CM-PHA-2021-0107',businessRegistration:'RC/DLA/2021/B/0456',minsanteAuthorization:'MINSANTE/DPML/2021/0219',status:'active',createdAt:'2024-02-12',pharmacyValidatedBy:'adm1',pharmacyValidatedAt:'2024-02-14 10:00'},
     {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
     {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
     {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',homeVisitFee:12,status:'active',createdAt:'2024-02-20'},
@@ -2883,7 +2884,7 @@ function saveDoctorReport(appointmentId) {
 // ═══════════════════════ ADMIN ═══════════════════════
 function renderDemoCredentials() {
   if (ApiState.enabled) return '';
-  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
+  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech','pharmacist'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
 }
 
 function renderAdminDash(pc) {

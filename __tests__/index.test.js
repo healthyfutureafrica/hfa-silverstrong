@@ -76,7 +76,7 @@ describe('index.html sanity checks', () => {
       expect(user).toMatchObject({status:'active',pharmacyValidatedBy:'admin-test'});
     });
     test('converts XAF inventory entry to canonical USD exactly once',async()=>{
-      const {context,fields}=pharmacyContext();context.CU={id:'pharmacy-test',role:'pharmacist'};
+      const {context,fields}=pharmacyContext();context.CU={id:'pharmacy-test',role:'pharmacist'};context.ApiState.enabled=true;
       context.phForm=jest.fn();context.showPharmacyItem();
       expect(context.phForm.mock.calls[0][1]).toContain('pharmacy_price (XAF)');
       Object.assign(fields,{'pi-name':{value:'Test medicine'},'pi-strength':{value:'10 mg'},'pi-unit':{value:'Box'},'pi-batch':{value:'Test batch'},'pi-expiry':{value:'2099-12-31'},'pi-stock':{value:'5'},'pi-price':{value:'1200'},'pi-rx':{checked:true}});
@@ -879,7 +879,7 @@ describe('index.html sanity checks', () => {
     expect(content).not.toContain('<strong>Demo Credentials</strong>');
     expect(content).toContain('Testing Access');
     expect(content).toContain('Admin-only demo credentials');
-    expect(content).toContain("DB.users.filter(u=>['admin','doctor','nurse','patient','labtech'].includes(u.role))");
+    expect(content).toContain("DB.users.filter(u=>['admin','doctor','nurse','patient','labtech','pharmacist'].includes(u.role))");
     expect(content).toContain('${renderDemoCredentials()}');
   });
 
