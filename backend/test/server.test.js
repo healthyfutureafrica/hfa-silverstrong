@@ -7,26 +7,53 @@ const { mkdtempSync, rmSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 
-test('pharmacists require credentials and administrator validation before login',async()=>{
-  const store=new Store(),config={origin:'http://localhost:8080',ready:false};
+test('pharmacists register with uploaded documents and need administrator validation before login',async()=>{
+  const store=new Store(),config={origin:'http://localhost:8080',ready:false,fileEncryptionKey:'34'.repeat(32)};
   const server=createApp(config,store,{}).listen(0,'127.0.0.1');
   await new Promise(resolve=>server.once('listening',resolve));
   const base=`http://127.0.0.1:${server.address().port}`;
-  const request=(path,body,cookie,method='POST')=>fetch(base+path,{method,headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,...(cookie?{Cookie:cookie}:{})},body:JSON.stringify(body)});
-  const input={name:'Synthetic Pharmacist',email:'pharmacist@example.invalid',password:'Synthetic-password-123',role:'pharmacist',pharmacyName:'Synthetic Pharmacy',pharmacyAddress:'1 Test Street',pharmacyLocation:'Douala, Cameroon',pharmacyLicense:'TEST-LICENSE',businessRegistration:'TEST-RCCM',minsanteAuthorization:'TEST-MINSANTE'};
+  const request=(path,body,cookie,method='POST')=>fetch(base+path,{method,headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,...(cookie?{Cookie:cookie}:{})},body:body===undefined?undefined:JSON.stringify(body)});
+  const pdf=Buffer.from('%PDF-1.4 synthetic pharmacy document');
+  const documents=Object.fromEntries(['pharmacistLicense','businessLicense','minsanteAuthorization','ownerIdentity'].map(kind=>[kind,{fileName:kind+'.pdf',content:pdf.toString('base64')}]));
+  const input={name:'Synthetic Pharmacist',email:'pharmacist@example.invalid',password:'Synthetic-password-123',pharmacyName:'Synthetic Pharmacy',pharmacyAddress:'1 Test Street',pharmacyLocation:'Douala, Cameroon',pharmacyLicense:'TEST-LICENSE',businessRegistration:'TEST-RCCM',minsanteAuthorization:'TEST-MINSANTE',ownerName:'Synthetic Owner',ownerIdType:'passport',ownerIdNumber:'TEST-PASSPORT',documents};
   try {
-    assert.equal((await request('/api/auth/register',{...input,minsanteAuthorization:undefined})).status,400);
-    const registered=await request('/api/auth/register',input);
+    assert.equal((await request('/api/auth/register',{name:input.name,email:input.email,password:input.password,role:'pharmacist'})).status,400);
+    assert.equal((await request('/api/auth/register/pharmacist',{...input,ownerIdNumber:undefined})).status,400);
+    assert.equal((await request('/api/auth/register/pharmacist',{...input,documents:{...documents,ownerIdentity:undefined}})).status,400);
+    assert.equal((await request('/api/auth/register/pharmacist',{...input,documents:{...documents,businessLicense:{fileName:'x.html',content:Buffer.from('<html>').toString('base64')}}})).status,400);
+    assert.equal(store.credentials(input.email),undefined);
+    const registered=await request('/api/auth/register/pharmacist',input);
     assert.equal(registered.status,201);
     const {user}=await registered.json();
     assert.equal(user.status,'pending_approval');assert.equal(registered.headers.get('set-cookie'),null);
+    assert.equal(user.ownerName,'Synthetic Owner');assert.equal(user.pharmacyDocuments.ownerIdentity.mime,'application/pdf');
+    assert.equal(store.db.prepare('SELECT COUNT(*) AS total FROM uploaded_files WHERE owner_id=?').get(user.id).total,4);
+    assert.equal(store.db.prepare('SELECT encrypted FROM uploaded_files WHERE owner_id=?').all(user.id).some(row=>Buffer.from(row.encrypted).includes(pdf)),false);
+    assert.equal((await request('/api/auth/register/pharmacist',input)).status,409);
     assert.equal((await request('/api/auth/login',{email:input.email,password:input.password})).status,403);
+    const patient=store.createUser({name:'Synthetic Patient',email:'patient-docs@example.invalid',role:'patient'},'unused','active');
+    assert.equal((await request('/api/admin/users/'+user.id+'/documents/ownerIdentity',undefined,`hfa_session=${store.createSession(patient.id)}`,'GET')).status,403);
     const admin=store.createUser({name:'Synthetic Admin',email:'admin-pharmacy@example.invalid',role:'admin'},'unused','active');
     const cookie=`hfa_session=${store.createSession(admin.id)}`;
+    const downloaded=await request('/api/admin/users/'+user.id+'/documents/ownerIdentity',undefined,cookie,'GET');
+    assert.equal(downloaded.status,200);assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()),pdf);
+    assert.equal((await request('/api/admin/users/'+user.id+'/documents/unknown',undefined,cookie,'GET')).status,404);
     assert.equal((await request('/api/admin/users/'+user.id,{status:'active'},cookie,'PATCH')).status,409);
+    const incomplete=store.createUser({name:'Incomplete Pharmacy',email:'incomplete-pharmacy@example.invalid',role:'pharmacist',profile:{pharmacyName:'No documents'}},'unused','pending_approval');
+    assert.equal((await request('/api/admin/users/'+incomplete.id,{status:'active',pharmacyCredentialReview:true},cookie,'PATCH')).status,409);
     assert.equal((await request('/api/admin/users/'+user.id,{status:'active',pharmacyCredentialReview:true},cookie,'PATCH')).status,200);
     assert.equal(store.user(user.id).pharmacyValidatedBy,admin.id);
     assert.equal((await request('/api/auth/login',{email:input.email,password:input.password})).status,200);
+  } finally {await new Promise(resolve=>server.close(resolve));store.close();}
+});
+
+test('pharmacy registration is refused without encrypted document storage',async()=>{
+  const store=new Store(),config={origin:'http://localhost:8080',ready:false};
+  const server=createApp(config,store,{}).listen(0,'127.0.0.1');
+  await new Promise(resolve=>server.once('listening',resolve));
+  try {
+    const response=await fetch(`http://127.0.0.1:${server.address().port}/api/auth/register/pharmacist`,{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},body:'{}'});
+    assert.equal(response.status,503);
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
 

@@ -49,23 +49,53 @@ describe('index.html sanity checks', () => {
     });
     function pharmacyContext() {
       const fields={rn:{value:'Synthetic Pharmacist'},re:{value:'pharmacist@example.invalid'},rpa:{value:'Synthetic-password-123'},rph:{value:'+237600000000'},rtc:{checked:true},le:{value:''},'ph-credential-review':{checked:false},'ph-review-status':{textContent:''}};
-      ['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization'].forEach(name=>{fields['ph-'+name]={value:'Synthetic '+name};});
+      ['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization','ownerName','ownerIdNumber'].forEach(name=>{fields['ph-'+name]={value:'Synthetic '+name};});
+      fields['ph-ownerIdType']={value:'passport'};
+      PH_DOC_KINDS.forEach(kind=>{fields['phd-'+kind]={value:'selected',files:[{name:kind+'.pdf',type:'application/pdf',size:1024}]};});
       const context={T:{en:{},fr:{}},LANG:'en',DB:{users:[]},ApiState:{enabled:false},CU:{id:'admin-test',role:'admin'},CP:'mgr-approvals',
         $:id=>fields[id],t:key=>key,amsg:jest.fn(),swtTab:jest.fn(),todayD:()=>'2026-10-10',nextHfaId:()=>'HFA-PH-TEST',tsNow:()=>'test time',log:jest.fn(),closeMo:jest.fn(),navigate:jest.fn(),backendAdminUpdate:jest.fn(),apiRequest:jest.fn().mockResolvedValue({}),priceCurrency:()=>'XAF',G:id=>context.DB.users.find(user=>user.id===id)};
       vm.createContext(context);
       const source=fs.readFileSync(path.join(__dirname,'..','pharmacist.js'),'utf8').split('NAV.admin[2].items.push')[0];
       vm.runInContext(source,context);
+      context.phReadFile=jest.fn().mockResolvedValue('data:application/pdf;base64,JVBERi0=');
       return {context,fields};
     }
-    test.each(['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization'])('requires %s before pharmacist registration',async name=>{
+    const PH_DOC_KINDS=['pharmacistLicense','businessLicense','minsanteAuthorization','ownerIdentity'];
+    test.each(['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization','ownerName','ownerIdType','ownerIdNumber'])('requires %s before pharmacist registration',async name=>{
       const {context,fields}=pharmacyContext();fields['ph-'+name].value='';
       await context.registerPharmacist();
       expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('pharmacy_required');
     });
-    test('keeps a complete pharmacy profile pending and preserves credentials',async()=>{
+    test.each(PH_DOC_KINDS)('requires the %s document at registration',async kind=>{
+      const {context,fields}=pharmacyContext();fields['phd-'+kind].files=[];
+      await context.registerPharmacist();
+      expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('pharmacy_docs_required');
+    });
+    test.each([[{type:'text/html',size:1024}],[{type:'application/pdf',size:2*1024*1024+1}],[{type:'image/png',size:0}]])('rejects unsupported or oversized document %j',async file=>{
+      const {context,fields}=pharmacyContext();fields['phd-ownerIdentity'].files=[{name:'id',...file}];
+      await context.registerPharmacist();
+      expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('pharmacy_docs_required');
+    });
+    test('keeps a complete pharmacy profile pending with owner identity and every document',async()=>{
       const {context}=pharmacyContext();await context.registerPharmacist();
-      expect(context.DB.users[0]).toMatchObject({role:'pharmacist',status:'pending_approval',pharmacyAddress:'Synthetic pharmacyAddress',minsanteAuthorization:'Synthetic minsanteAuthorization'});
+      expect(context.DB.users[0]).toMatchObject({role:'pharmacist',status:'pending_approval',pharmacyAddress:'Synthetic pharmacyAddress',minsanteAuthorization:'Synthetic minsanteAuthorization',ownerName:'Synthetic ownerName',ownerIdType:'passport'});
+      expect(Object.keys(context.DB.users[0].pharmacyDocuments)).toEqual(PH_DOC_KINDS);
+      expect(context.DB.users[0].pharmacyDocuments.ownerIdentity).toMatchObject({fileName:'ownerIdentity.pdf',mime:'application/pdf'});
       expect(context.apiRequest).not.toHaveBeenCalled();
+    });
+    test('sends documents with the backend pharmacy registration',async()=>{
+      const {context}=pharmacyContext();context.ApiState.enabled=true;await context.registerPharmacist();
+      const [path,method,body,timeout]=context.apiRequest.mock.calls[0];
+      expect([path,method,timeout]).toEqual(['/api/auth/register/pharmacist','POST',120000]);
+      expect(body.role).toBeUndefined();expect(body.ownerIdNumber).toBe('Synthetic ownerIdNumber');
+      expect(Object.keys(body.documents)).toEqual(PH_DOC_KINDS);
+      expect(body.documents.businessLicense).toEqual({fileName:'businessLicense.pdf',content:'JVBERi0='});
+    });
+    test('blocks approval when a registration document is missing',async()=>{
+      const {context,fields}=pharmacyContext();await context.registerPharmacist();const user=context.DB.users[0];
+      delete user.pharmacyDocuments.minsanteAuthorization;fields['ph-credential-review'].checked=true;
+      context.approvePharmacist(user.id);
+      expect(user.status).toBe('pending_approval');expect(fields['ph-review-status'].textContent).toBe('pharmacy_docs_missing');
     });
     test('requires explicit admin review and blocks patient approval',async()=>{
       const {context,fields}=pharmacyContext();await context.registerPharmacist();const user=context.DB.users[0];

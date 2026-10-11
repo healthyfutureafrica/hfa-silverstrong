@@ -1,11 +1,16 @@
 const PH_COPY={
-  en:{pharmacist:'Pharmacist',pharmacy_portal:'Pharmacist Portal',pharmacy_inventory:'Inventory & Logistics',pharmacy_shop:'Pharmacy',pharmacy_name:'Pharmacy business name',pharmacy_address:'Street address',pharmacy_location:'City, region and country / location',pharmacy_license:'Pharmacist license number',pharmacy_business:'Business registration number',pharmacy_minsante:'MINSANTE authorization reference',pharmacy_note:'Provide the physical address and precise business location, pharmacist license, business registration and MINSANTE authorization. An administrator must verify the original credentials before the pharmacy can operate.',pharmacy_review:'I verified the original license, business registration, MINSANTE authorization and business location.',pharmacy_required:'Complete all pharmacy address, location and credential fields.',pharmacy_review_required:'Confirm credential review before approving.',pharmacy_backend:'A connected backend is required for persistent pharmacy inventory and purchase requests.',pharmacy_safety:'Purchase requests are not a prescription or payment confirmation. Prescription medicines require the pharmacist to review the original prescription before fulfillment. No automated dispensing or live payment is enabled.',pharmacy_items:'Medication inventory',pharmacy_orders:'Purchase requests',pharmacy_add:'Add medication batch',pharmacy_empty:'No available medication batches.',pharmacy_no_orders:'No purchase requests yet.',pharmacy_strength:'Strength / dosage form',pharmacy_unit:'Sale unit / pack size',pharmacy_batch:'Batch number',pharmacy_expiry:'Expiry date',pharmacy_stock:'Available stock',pharmacy_price:'Unit price',pharmacy_rx:'Prescription required',pharmacy_quantity:'Quantity',pharmacy_method:'Fulfillment',pharmacy_pickup:'Pickup',pharmacy_delivery:'Delivery',pharmacy_request:'Request purchase',pharmacy_requested:'Purchase request saved; awaiting pharmacist review.',pharmacy_rx_review:'I verified the original prescription and suitability for this patient.',pharmacy_ready:'Ready',pharmacy_dispatched:'Dispatched',pharmacy_completed:'Completed',pharmacy_cancelled:'Cancelled',pharmacy_update:'Update fulfillment',pharmacy_adjust:'Adjust stock',pharmacy_admin:'Pharmacist profiles',pharmacy_saved:'Saved',pharmacy_unavailable:'Pharmacy service unavailable. Reconnect and retry.'},
-  fr:{pharmacist:'Pharmacien',pharmacy_portal:'Portail Pharmacien',pharmacy_inventory:'Stock et Logistique',pharmacy_shop:'Pharmacie',pharmacy_name:'Nom commercial de la pharmacie',pharmacy_address:'Adresse physique',pharmacy_location:'Ville, région et pays / localisation',pharmacy_license:'Numéro de licence du pharmacien',pharmacy_business:'Numéro d’immatriculation de l’entreprise',pharmacy_minsante:'Référence de l’autorisation MINSANTE',pharmacy_note:'Indiquez l’adresse physique et la localisation précise, la licence du pharmacien, l’immatriculation commerciale et l’autorisation MINSANTE. Un administrateur doit vérifier les originaux avant toute opération.',pharmacy_review:'J’ai vérifié les originaux de la licence, de l’immatriculation, de l’autorisation MINSANTE et la localisation.',pharmacy_required:'Complétez l’adresse, la localisation et toutes les références réglementaires.',pharmacy_review_required:'Confirmez la vérification avant validation.',pharmacy_backend:'Un serveur connecté est requis pour le stock et les demandes d’achat persistantes.',pharmacy_safety:'Une demande d’achat n’est ni une ordonnance ni une confirmation de paiement. Le pharmacien doit vérifier l’ordonnance originale avant toute délivrance réglementée. Aucun paiement réel ou délivrance automatique.',pharmacy_items:'Stock de médicaments',pharmacy_orders:'Demandes d’achat',pharmacy_add:'Ajouter un lot',pharmacy_empty:'Aucun lot disponible.',pharmacy_no_orders:'Aucune demande d’achat.',pharmacy_strength:'Dosage / forme',pharmacy_unit:'Unité / taille de boîte',pharmacy_batch:'Numéro de lot',pharmacy_expiry:'Date de péremption',pharmacy_stock:'Stock disponible',pharmacy_price:'Prix unitaire',pharmacy_rx:'Ordonnance obligatoire',pharmacy_quantity:'Quantité',pharmacy_method:'Mode de remise',pharmacy_pickup:'Retrait',pharmacy_delivery:'Livraison',pharmacy_request:'Demander un achat',pharmacy_requested:'Demande enregistrée ; en attente de vérification.',pharmacy_rx_review:'J’ai vérifié l’ordonnance originale et l’adéquation pour ce patient.',pharmacy_ready:'Prêt',pharmacy_dispatched:'Expédié',pharmacy_completed:'Terminé',pharmacy_cancelled:'Annulé',pharmacy_update:'Mettre à jour la remise',pharmacy_adjust:'Ajuster le stock',pharmacy_admin:'Profils pharmaciens',pharmacy_saved:'Enregistré',pharmacy_unavailable:'Service indisponible. Reconnectez-vous et réessayez.'}
+  en:{pharmacist:'Pharmacist',pharmacy_portal:'Pharmacist Portal',pharmacy_inventory:'Inventory & Logistics',pharmacy_shop:'Pharmacy',pharmacy_name:'Pharmacy business name',pharmacy_address:'Street address',pharmacy_location:'City, region and country / location',pharmacy_license:'Pharmacist license number',pharmacy_business:'Business registration number',pharmacy_minsante:'MINSANTE authorization reference',pharmacy_note:'Provide the physical address and precise business location, the pharmacist license, business license, MINSANTE authorization and the owner\'s identity, and upload a copy of each document. An administrator must verify every document before the pharmacy can operate.',pharmacy_review:'I verified the uploaded pharmacist license, business license, MINSANTE authorization, the owner\'s ID card or passport, and the business location.',pharmacy_required:'Complete all pharmacy address, location, owner and credential fields.',pharmacy_review_required:'Confirm credential review before approving.',pharmacy_backend:'A connected backend is required for persistent pharmacy inventory and purchase requests.',pharmacy_safety:'Purchase requests are not a prescription or payment confirmation. Prescription medicines require the pharmacist to review the original prescription before fulfillment. No automated dispensing or live payment is enabled.',pharmacy_items:'Medication inventory',pharmacy_orders:'Purchase requests',pharmacy_add:'Add medication batch',pharmacy_empty:'No available medication batches.',pharmacy_no_orders:'No purchase requests yet.',pharmacy_strength:'Strength / dosage form',pharmacy_unit:'Sale unit / pack size',pharmacy_batch:'Batch number',pharmacy_expiry:'Expiry date',pharmacy_stock:'Available stock',pharmacy_price:'Unit price',pharmacy_rx:'Prescription required',pharmacy_quantity:'Quantity',pharmacy_method:'Fulfillment',pharmacy_pickup:'Pickup',pharmacy_delivery:'Delivery',pharmacy_request:'Request purchase',pharmacy_requested:'Purchase request saved; awaiting pharmacist review.',pharmacy_rx_review:'I verified the original prescription and suitability for this patient.',pharmacy_ready:'Ready',pharmacy_dispatched:'Dispatched',pharmacy_completed:'Completed',pharmacy_cancelled:'Cancelled',pharmacy_update:'Update fulfillment',pharmacy_adjust:'Adjust stock',pharmacy_admin:'Pharmacist profiles',pharmacy_saved:'Saved',pharmacy_unavailable:'Pharmacy service unavailable. Reconnect and retry.'},
+  fr:{pharmacist:'Pharmacien',pharmacy_portal:'Portail Pharmacien',pharmacy_inventory:'Stock et Logistique',pharmacy_shop:'Pharmacie',pharmacy_name:'Nom commercial de la pharmacie',pharmacy_address:'Adresse physique',pharmacy_location:'Ville, région et pays / localisation',pharmacy_license:'Numéro de licence du pharmacien',pharmacy_business:'Numéro d’immatriculation de l’entreprise',pharmacy_minsante:'Référence de l’autorisation MINSANTE',pharmacy_note:'Indiquez l’adresse physique et la localisation précise, la licence du pharmacien, la licence commerciale, l’autorisation MINSANTE et l’identité du propriétaire, puis téléversez une copie de chaque document. Un administrateur doit vérifier chaque document avant toute opération.',pharmacy_review:'J’ai vérifié la licence du pharmacien, la licence commerciale, l’autorisation MINSANTE, la CNI ou le passeport du propriétaire et la localisation.',pharmacy_required:'Complétez l’adresse, la localisation, le propriétaire et toutes les références réglementaires.',pharmacy_review_required:'Confirmez la vérification avant validation.',pharmacy_backend:'Un serveur connecté est requis pour le stock et les demandes d’achat persistantes.',pharmacy_safety:'Une demande d’achat n’est ni une ordonnance ni une confirmation de paiement. Le pharmacien doit vérifier l’ordonnance originale avant toute délivrance réglementée. Aucun paiement réel ou délivrance automatique.',pharmacy_items:'Stock de médicaments',pharmacy_orders:'Demandes d’achat',pharmacy_add:'Ajouter un lot',pharmacy_empty:'Aucun lot disponible.',pharmacy_no_orders:'Aucune demande d’achat.',pharmacy_strength:'Dosage / forme',pharmacy_unit:'Unité / taille de boîte',pharmacy_batch:'Numéro de lot',pharmacy_expiry:'Date de péremption',pharmacy_stock:'Stock disponible',pharmacy_price:'Prix unitaire',pharmacy_rx:'Ordonnance obligatoire',pharmacy_quantity:'Quantité',pharmacy_method:'Mode de remise',pharmacy_pickup:'Retrait',pharmacy_delivery:'Livraison',pharmacy_request:'Demander un achat',pharmacy_requested:'Demande enregistrée ; en attente de vérification.',pharmacy_rx_review:'J’ai vérifié l’ordonnance originale et l’adéquation pour ce patient.',pharmacy_ready:'Prêt',pharmacy_dispatched:'Expédié',pharmacy_completed:'Terminé',pharmacy_cancelled:'Annulé',pharmacy_update:'Mettre à jour la remise',pharmacy_adjust:'Ajuster le stock',pharmacy_admin:'Profils pharmaciens',pharmacy_saved:'Enregistré',pharmacy_unavailable:'Service indisponible. Reconnectez-vous et réessayez.'}
 };
 Object.assign(T.en,PH_COPY.en);Object.assign(T.fr,PH_COPY.fr);
 Object.assign(T.en,{pharmacy_medication:'Medication name',pharmacy_total:'Purchase total'});
 Object.assign(T.fr,{pharmacy_medication:'Nom du médicament',pharmacy_total:'Total de la demande'});
-const PH_FIELDS=[['pharmacyName','pharmacy_name'],['pharmacyAddress','pharmacy_address'],['pharmacyLocation','pharmacy_location'],['pharmacyLicense','pharmacy_license'],['businessRegistration','pharmacy_business'],['minsanteAuthorization','pharmacy_minsante']];
+Object.assign(T.en,{pharmacy_owner_name:'Owner full name',pharmacy_owner_id_type:'Owner identity document type',pharmacy_owner_id_number:'Owner national ID or passport number',pharmacy_docs_title:'Registration documents (PDF, PNG, JPEG or WebP, max 2 MB each)',pharmacy_docs_short:'Documents uploaded',pharmacy_doc_license:'Pharmacist license certificate',pharmacy_doc_business:'Business license / registration certificate',pharmacy_doc_minsante:'MINSANTE authorization (Ministry of Public Health)',pharmacy_doc_owner_id:'Owner national ID card or passport',pharmacy_docs_required:'Upload every required document as a PDF, PNG, JPEG or WebP file of 2 MB or less.',pharmacy_docs_missing:'Credentials or registration documents are missing; this pharmacy cannot be approved.',pharmacy_doc_missing:'Missing',pharmacy_view_doc:'View'});
+Object.assign(T.fr,{pharmacy_owner_name:'Nom complet du propriétaire',pharmacy_owner_id_type:'Type de pièce d’identité du propriétaire',pharmacy_owner_id_number:'Numéro de CNI ou de passeport du propriétaire',pharmacy_docs_title:'Documents d’enregistrement (PDF, PNG, JPEG ou WebP, 2 Mo max. chacun)',pharmacy_docs_short:'Documents téléversés',pharmacy_doc_license:'Certificat de licence du pharmacien',pharmacy_doc_business:'Licence commerciale / certificat d’immatriculation',pharmacy_doc_minsante:'Autorisation MINSANTE (Ministère de la Santé Publique)',pharmacy_doc_owner_id:'CNI ou passeport du propriétaire',pharmacy_docs_required:'Téléversez chaque document requis en PDF, PNG, JPEG ou WebP de 2 Mo maximum.',pharmacy_docs_missing:'Des références ou documents manquent ; cette pharmacie ne peut pas être validée.',pharmacy_doc_missing:'Manquant',pharmacy_view_doc:'Voir'});
+const PH_FIELDS=[['pharmacyName','pharmacy_name'],['pharmacyAddress','pharmacy_address'],['pharmacyLocation','pharmacy_location'],['pharmacyLicense','pharmacy_license'],['businessRegistration','pharmacy_business'],['minsanteAuthorization','pharmacy_minsante'],['ownerName','pharmacy_owner_name'],['ownerIdType','pharmacy_owner_id_type'],['ownerIdNumber','pharmacy_owner_id_number']];
+// Every document must be uploaded at registration; the admin cannot approve a pharmacy with any missing.
+const PH_DOCS=[['pharmacistLicense','pharmacy_doc_license'],['businessLicense','pharmacy_doc_business'],['minsanteAuthorization','pharmacy_doc_minsante'],['ownerIdentity','pharmacy_doc_owner_id']];
+const PH_DOC_TYPES=['application/pdf','image/png','image/jpeg','image/webp'],PH_DOC_MAX=2*1024*1024;
 let PH_DATA={items:[],orders:[]},PH_BUSY=false,PH_VIEW=0;
 
 // Static-demo pharmacy store: mirrors backend/pharmacy.js rules in browser memory and resets on reload.
@@ -83,45 +88,96 @@ function phEscape(value) {
   return String(value??'').replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
 }
 
+function phField(name,label,value) {
+  const control=name==='ownerIdType'
+    ?`<select class="fc" id="ph-${name}" required><option value="">${t('id_type_placeholder')}</option>${['national_id','passport'].map(type=>`<option value="${type}"${type===value?' selected':''}>${t('id_type_'+type)}</option>`).join('')}</select>`
+    :`<input class="fc" id="ph-${name}" maxlength="200" required value="${phEscape(value)}">`;
+  return `<div class="fg"><label class="fl" for="ph-${name}">${t(label)}</label>${control}</div>`;
+}
+
 function pharmacyRegistrationFields() {
   const container=$('phf');
   const values=Object.fromEntries(PH_FIELDS.map(([name])=>[name,$('ph-'+name)?.value||'']));
-  container.innerHTML=`<div class="alt ai">${t('pharmacy_note')}</div>${PH_FIELDS.map(([name,label])=>`<div class="fg"><label class="fl" for="ph-${name}">${t(label)}</label><input class="fc" id="ph-${name}" maxlength="200" required value="${phEscape(values[name])}"></div>`).join('')}`;
+  const chosen=PH_DOCS.map(([kind])=>$('phd-'+kind)).filter(Boolean);
+  container.innerHTML=`<div class="alt ai">${t('pharmacy_note')}</div>${PH_FIELDS.map(([name,label])=>phField(name,label,values[name])).join('')}<p class="bo sm mt18 mb12">${t('pharmacy_docs_title')}</p>${PH_DOCS.map(([kind,label])=>`<div class="fg"><label class="fl" for="phd-${kind}">${t(label)}</label><input class="fc" type="file" id="phd-${kind}" accept="${PH_DOC_TYPES.join(',')}" required></div>`).join('')}`;
+  chosen.forEach(input=>$(input.id).replaceWith(input)); // keep selected files across language re-renders
   $('rb-ph').textContent=t('pharmacist');
+}
+
+function phReadFile(file) {
+  return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(file);});
 }
 
 async function registerPharmacist() {
   if (PH_BUSY) return;
   if (!$('rtc').checked) return amsg(t('terms_required'));
-  const payload={name:$('rn').value.trim(),email:$('re').value.trim(),password:$('rpa').value,phone:$('rph').value,role:'pharmacist'};
+  const payload={name:$('rn').value.trim(),email:$('re').value.trim(),password:$('rpa').value,phone:$('rph').value};
   for (const [name] of PH_FIELDS) {payload[name]=$('ph-'+name).value.trim();if(!payload[name])return amsg(t('pharmacy_required'));}
+  if (!['national_id','passport'].includes(payload.ownerIdType)) return amsg(t('pharmacy_required'));
   if (Object.values(payload).some(value=>typeof value==='string'&&/[<>&"\u0000-\u001f]/.test(value)&&value!==payload.password)) return amsg(t('pharmacy_required'));
+  const files=PH_DOCS.map(([kind])=>[kind,$('phd-'+kind)?.files?.[0]]);
+  if (files.some(([,file])=>!file||!PH_DOC_TYPES.includes(file.type)||!file.size||file.size>PH_DOC_MAX)) return amsg(t('pharmacy_docs_required'));
   PH_BUSY=true;
   try {
-    if (ApiState.enabled) await apiRequest('/api/auth/register','POST',payload);
+    const documents={};
+    for (const [kind,file] of files) documents[kind]={fileName:file.name.replace(/[<>\u0000-\u001f/\\]/g,'_').slice(0,180),mime:file.type,size:file.size,data:await phReadFile(file)};
+    if (ApiState.enabled) await apiRequest('/api/auth/register/pharmacist','POST',{...payload,documents:Object.fromEntries(Object.entries(documents).map(([kind,doc])=>[kind,{fileName:doc.fileName,content:doc.data.slice(doc.data.indexOf(',')+1)}]))},120000);
     else {
       if (DB.users.some(user=>user.email.toLowerCase()===payload.email.toLowerCase())) return amsg(t('email_exists'));
-      DB.users.push({...payload,id:'pha'+Date.now(),status:'pending_approval',createdAt:todayD(),hfaId:nextHfaId('pharmacist')});
+      DB.users.push({...payload,role:'pharmacist',pharmacyDocuments:documents,id:'pha'+Date.now(),status:'pending_approval',createdAt:todayD(),hfaId:nextHfaId('pharmacist')});
     }
-    $('rpa').value='';swtTab('login');$('le').value=payload.email;amsg(t('pending_review_msg'),'o');
+    $('rpa').value='';PH_DOCS.forEach(([kind])=>{$('phd-'+kind).value='';});swtTab('login');$('le').value=payload.email;amsg(t('pending_review_msg'),'o');
   } catch(error) {amsg(error.message);}
   finally {PH_BUSY=false;}
 }
 
+const phDocumentsComplete=user=>PH_DOCS.every(([kind])=>user.pharmacyDocuments?.[kind]);
+
 function pharmacyCredentialSummary(user) {
-  return PH_FIELDS.map(([name,label])=>`<div class="sm"><strong>${t(label)}:</strong> ${phEscape(user[name]||'')}</div>`).join('');
+  return PH_FIELDS.map(([name,label])=>`<div class="sm"><strong>${t(label)}:</strong> ${phEscape(name==='ownerIdType'&&user[name]?t('id_type_'+user[name]):user[name]||'')}</div>`).join('')
+    +`<div class="sm"><strong>${t('pharmacy_docs_short')}:</strong> ${PH_DOCS.filter(([kind])=>user.pharmacyDocuments?.[kind]).length}/${PH_DOCS.length}</div>`;
+}
+
+function pharmacyDocumentList(user) {
+  return `<p class="bo sm mt18 mb12">${t('pharmacy_docs_title')}</p>`+PH_DOCS.map(([kind,label])=>{
+    const doc=user.pharmacyDocuments?.[kind];
+    return `<div class="pharmacy-row"><div class="sm"><strong>${t(label)}</strong><div class="mu">${doc?phEscape(doc.fileName):''}</div></div>${doc?`<button type="button" class="btn bgh bsm" onclick="phOpenDocument('${user.id}','${kind}')">${t('pharmacy_view_doc')}</button>`:`<span class="badge bwa">${t('pharmacy_doc_missing')}</span>`}</div>`;
+  }).join('');
+}
+
+function phDataBlob(data) {
+  const [head,body]=data.split(','),bytes=Uint8Array.from(atob(body),character=>character.charCodeAt(0));
+  return new Blob([bytes],{type:head.slice(5,head.indexOf(';'))});
+}
+
+async function phOpenDocument(id,kind) {
+  const doc=CU?.role==='admin'?G(id)?.pharmacyDocuments?.[kind]:null;
+  if (!doc) return;
+  const tab=window.open('','_blank'); // opened synchronously so popup blockers allow it
+  try {
+    let blob;
+    if (doc.data) blob=phDataBlob(doc.data);
+    else {
+      const response=await fetch(`/api/admin/users/${encodeURIComponent(id)}/documents/${kind}`,{credentials:'same-origin',signal:AbortSignal.timeout(30000)});
+      if (!response.ok) throw new Error(t('pharmacy_unavailable'));
+      blob=await response.blob();
+    }
+    const url=URL.createObjectURL(blob);
+    if (tab) {tab.opener=null;tab.location.href=url;} else window.location.assign(url);
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+  } catch(error) {tab?.close();alert(error.message);}
 }
 
 function showPharmacyApproval(user) {
   if (CU?.role!=='admin') return;
-  openMo(`<div class="mh"><h3 class="mt2">${t('pharmacy_admin')}</h3></div>${pharmacyCredentialSummary(user)}<div class="fg mt18"><label><input type="checkbox" id="ph-credential-review"> ${t('pharmacy_review')}</label></div><div id="ph-review-status" class="mu sm" role="status"></div><div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="approvePharmacist('${user.id}')">${t('approve')}</button></div>`);
+  openMo(`<div class="mh"><h3 class="mt2">${t('pharmacy_admin')}</h3></div>${pharmacyCredentialSummary(user)}${pharmacyDocumentList(user)}<div class="fg mt18"><label><input type="checkbox" id="ph-credential-review"> ${t('pharmacy_review')}</label></div><div id="ph-review-status" class="mu sm" role="status"></div><div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="approvePharmacist('${user.id}')">${t('approve')}</button></div>`);
 }
 
 function approvePharmacist(id) {
   if (CU?.role!=='admin') return;
   if (!$('ph-credential-review')?.checked) {const status=$('ph-review-status');if(status)status.textContent=t('pharmacy_review_required');return;}
   const user=G(id);
-  if (!user||PH_FIELDS.some(([name])=>!user[name])) return;
+  if (!user||PH_FIELDS.some(([name])=>!user[name])||!phDocumentsComplete(user)) {const status=$('ph-review-status');if(status)status.textContent=t('pharmacy_docs_missing');return;}
   if (ApiState.enabled) {backendAdminUpdate(id,{status:'active',pharmacyCredentialReview:true});return;}
   user.status='active';user.pharmacyValidatedBy=CU.id;user.pharmacyValidatedAt=tsNow();log('APPROVE_PHARMACIST','User Management');closeMo();navigate(CP);
 }

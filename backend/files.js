@@ -20,21 +20,36 @@ function fileMime(bytes) {
 
 function filesConfigured(config) { return /^[a-f0-9]{64}$/i.test(config.fileEncryptionKey||''); }
 
-function installFileRoutes(app,config,store,authenticated) {
+function ensureFileTable(store) {
   store.db.exec(`CREATE TABLE IF NOT EXISTS uploaded_files (
     owner_id TEXT NOT NULL REFERENCES users(id), upload_id TEXT NOT NULL,
     fingerprint TEXT NOT NULL, nonce BLOB NOT NULL, encrypted BLOB NOT NULL,
     tag BLOB NOT NULL, size INTEGER NOT NULL, mime TEXT NOT NULL, created_at TEXT NOT NULL,
     PRIMARY KEY(owner_id,upload_id)
   )`);
+}
+
+function decodeFile(config,row) {
+  const decipher=createDecipheriv('aes-256-gcm',Buffer.from(config.fileEncryptionKey,'hex'),row.nonce);
+  decipher.setAAD(Buffer.from(`${row.owner_id}:${row.upload_id}`));
+  decipher.setAuthTag(row.tag);
+  return JSON.parse(Buffer.concat([decipher.update(row.encrypted),decipher.final()]).toString());
+}
+
+// Encrypts and inserts one validated file; callers check size, MIME and idempotency first.
+function saveEncryptedFile(config,store,ownerId,uploadId,metadata,bytes,mime) {
+  const nonce=randomBytes(12),cipher=createCipheriv('aes-256-gcm',Buffer.from(config.fileEncryptionKey,'hex'),nonce);
+  cipher.setAAD(Buffer.from(`${ownerId}:${uploadId}`));
+  const encrypted=Buffer.concat([cipher.update(JSON.stringify({metadata,content:bytes.toString('base64')})),cipher.final()]);
+  const createdAt=new Date().toISOString();
+  store.db.prepare('INSERT INTO uploaded_files VALUES (?,?,?,?,?,?,?,?,?)').run(ownerId,uploadId,digest(JSON.stringify([metadata,digest(bytes)])),nonce,encrypted,cipher.getAuthTag(),bytes.length,mime,createdAt);
+  return createdAt;
+}
+
+function installFileRoutes(app,config,store,authenticated) {
+  ensureFileTable(store);
   const configured=(request,response,next)=>filesConfigured(config)?next():response.status(503).json({error:'Encrypted file storage is not configured'});
-  const key=()=>Buffer.from(config.fileEncryptionKey,'hex');
-  const decode=row=>{
-    const decipher=createDecipheriv('aes-256-gcm',key(),row.nonce);
-    decipher.setAAD(Buffer.from(`${row.owner_id}:${row.upload_id}`));
-    decipher.setAuthTag(row.tag);
-    return JSON.parse(Buffer.concat([decipher.update(row.encrypted),decipher.final()]).toString());
-  };
+  const decode=row=>decodeFile(config,row);
   app.post('/api/files/:id',authenticated,configured,express.raw({type:'application/octet-stream',limit:'5mb'}),(request,response)=>{
     if (request.headers['x-hfa-file-owner']!==request.user.id) return response.status(403).json({error:'Sign in to the original upload account'});
     const uploadId=z.string().uuid().parse(request.params.id);
@@ -54,11 +69,7 @@ function installFileRoutes(app,config,store,authenticated) {
     }
     const used=store.db.prepare('SELECT COALESCE(SUM(size),0) AS total FROM uploaded_files WHERE owner_id=?').get(ownerId).total;
     if (used+bytes.length>MAX_ACCOUNT) return response.status(413).json({error:'Account file storage limit reached'});
-    const nonce=randomBytes(12),cipher=createCipheriv('aes-256-gcm',key(),nonce);
-    cipher.setAAD(Buffer.from(`${ownerId}:${uploadId}`));
-    const encrypted=Buffer.concat([cipher.update(JSON.stringify({metadata,content:bytes.toString('base64')})),cipher.final()]);
-    const createdAt=new Date().toISOString();
-    store.db.prepare('INSERT INTO uploaded_files VALUES (?,?,?,?,?,?,?,?,?)').run(ownerId,uploadId,fingerprint,nonce,encrypted,cipher.getAuthTag(),bytes.length,mime,createdAt);
+    const createdAt=saveEncryptedFile(config,store,ownerId,uploadId,metadata,bytes,mime);
     response.status(201).json({id:uploadId,ownerId,status:'stored',createdAt});
   });
   app.get('/api/files',authenticated,configured,(request,response)=>{
@@ -74,4 +85,4 @@ function installFileRoutes(app,config,store,authenticated) {
   });
 }
 
-module.exports={installFileRoutes,filesConfigured,fileMime};
+module.exports={installFileRoutes,filesConfigured,fileMime,ensureFileTable,decodeFile,saveEncryptedFile};
