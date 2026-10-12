@@ -74,6 +74,11 @@ input,select,textarea,button{font-family:var(--fb)}
 .topbar{background:#fff;border-bottom:1px solid var(--bd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
 .tb-t{font-family:var(--fd);font-size:1.2rem;color:var(--na)}
 .tb-r{display:flex;align-items:center;gap:8px}
+.tb-l{display:flex;align-items:center;gap:10px;min-width:0}
+.tb-menu{display:none;align-items:center;justify-content:center;flex-shrink:0;width:42px;height:42px;border-radius:var(--r);border:1px solid var(--bd);background:#fff;color:var(--na);cursor:pointer;transition:var(--tr)}
+.tb-menu:hover,.tb-menu:focus-visible{background:var(--em-p);border-color:var(--em-l);color:var(--em-d)}
+.sb-backdrop{display:none}
+@media (prefers-reduced-motion:reduce){#sidebar,.sb-backdrop{transition:none !important}}
 
 .page{padding:28px;max-width:1180px;flex:1}
 .ph{margin-bottom:22px}
@@ -549,8 +554,14 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 @media(max-width:700px){
   .fh-nav{flex-wrap:wrap;gap:12px;padding:16px}
   .fh-nav .lnr{flex-wrap:wrap;max-width:100%}
-  #sidebar{width:210px}
-  #main{margin-left:210px}
+  /* Phones: the sidebar becomes a slide-in menu so pages get the full width */
+  #sidebar{width:min(280px,84vw);height:100vh;height:100dvh;min-height:0;overflow-y:auto;z-index:300;transform:translateX(-100%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
+  #app-wrap.sb-open #sidebar{transform:none;visibility:visible;box-shadow:var(--shl);transition:transform .25s ease}
+  #main{margin-left:0}
+  .tb-menu{display:inline-flex}
+  .sb-backdrop{display:block;position:fixed;inset:0;z-index:250;background:rgba(8,20,40,.45);opacity:0;pointer-events:none;transition:opacity .25s ease}
+  #app-wrap.sb-open .sb-backdrop{opacity:1;pointer-events:auto}
+  body.sb-lock{overflow:hidden}
   .page{padding:20px 16px}
   .topbar{padding:10px 16px;flex-wrap:wrap;gap:8px}
   .tb-r{flex-wrap:wrap;max-width:100%}
@@ -881,9 +892,13 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
       </button>
     </div>
   </div>
+  <div class="sb-backdrop" id="sb-backdrop" onclick="toggleSidebar(false)"></div>
   <div id="main">
     <div class="topbar">
-      <div class="tb-t" id="tbt">Dashboard</div>
+      <div class="tb-l">
+        <button type="button" class="tb-menu" id="tb-menu" aria-label="Menu" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <div class="tb-t" id="tbt">Dashboard</div>
+      </div>
       <div class="tb-r" id="tbr">
         <div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>
       </div>
@@ -2659,7 +2674,7 @@ const NAV = {
 };
 
 // ═══════════════════════ SCREEN NAVIGATION ═══════════════════════
-function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); }
+function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); toggleSidebar(false); }
 function goFreeHub() {
   hide('land'); hide('auth-wrap'); hide('app-wrap'); show('free-hub');
   renderFreeHub($('free-hub-content'), true);
@@ -2735,9 +2750,22 @@ function showTerms() {
 }
 function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
+  toggleSidebar(false);
   buildSidebar();
   navigate('dashboard');
 }
+
+// Phones only: the sidebar slides in over the page (CSS keeps it fixed on wider screens).
+function toggleSidebar(open) {
+  const wrap=$('app-wrap'); if (!wrap) return;
+  const next=open===undefined ? !wrap.classList.contains('sb-open') : !!open;
+  wrap.classList.toggle('sb-open', next);
+  document.body.classList.toggle('sb-lock', next);
+  const button=$('tb-menu'); if (button) button.setAttribute('aria-expanded', String(next));
+  if (!next && open===false && document.activeElement?.closest?.('#sidebar')) button?.focus();
+}
+document.addEventListener('keydown', event=>{ if (event.key==='Escape' && $('app-wrap')?.classList.contains('sb-open')) toggleSidebar(false); });
+window.matchMedia?.('(min-width:701px)').addEventListener?.('change', event=>{ if (event.matches) toggleSidebar(false); });
 
 // ═══════════════════════ AUTH ═══════════════════════
 function swtTab(tab) {
@@ -2882,6 +2910,7 @@ function navigate(page) {
   CP = page;
   document.querySelectorAll('.ni').forEach(el=>el.classList.remove('active'));
   const el = $('ni-'+page); if (el) el.classList.add('active');
+  if ($('app-wrap')?.classList.contains('sb-open')) toggleSidebar(false);
   renderPage(page);
   if (typeof HFAOffline!=='undefined') HFAOffline.saveSoon(); // keep offline work if the app is closed
 }
