@@ -165,7 +165,7 @@ describe('index.html sanity checks', () => {
     function workerContext() {
       const handlers={}, saved=new Map();
       const cache={match:jest.fn(async url=>saved.get(url)?.clone()),put:jest.fn(async(url,response)=>saved.set(url,response.clone()))};
-      const context={URL,Response,AbortSignal,
+      const context={URL,Response,AbortSignal,setTimeout,
         self:{location:{href:'https://example.invalid/hfa/service-worker.js'},addEventListener:(type,handler)=>{handlers[type]=handler;},skipWaiting:jest.fn(),clients:{claim:jest.fn()}},
         caches:{open:jest.fn(async()=>cache),keys:jest.fn(async()=>['hfa-public-old','other-app']),delete:jest.fn()},
         fetch:jest.fn(async()=>new Response('Public version one',{status:200})),
@@ -209,14 +209,34 @@ describe('index.html sanity checks', () => {
       expect(await (await pending).text()).toBe('Saved public page');
     });
 
-    test('returns cached navigation immediately without starting a stalled network fetch',async()=>{
+    test('shows the saved page after a short wait when the network stalls',async()=>{
       const {context,handlers,saved}=workerContext();
+      vm.runInContext('NETWORK_GRACE=20',context);
       saved.set('https://example.invalid/hfa/',new Response('Cached page'));
       context.fetch.mockImplementation(()=>new Promise(()=>{}));
       let pending;
       handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/'},respondWith:promise=>{pending=promise;}});
       expect(await (await pending).text()).toBe('Cached page');
-      expect(context.fetch).not.toHaveBeenCalled();
+    });
+
+    test('serves the current page when online even if an older or broken copy is saved',async()=>{
+      const {context,handlers,saved}=workerContext();
+      saved.set('https://example.invalid/hfa/',new Response('Old broken page'));
+      context.fetch.mockResolvedValue(new Response('Current page'));
+      let pending;
+      handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/',mode:'navigate'},respondWith:promise=>{pending=promise;}});
+      expect(await (await pending).text()).toBe('Current page');
+      await new Promise(resolve=>setTimeout(resolve,0));
+      expect(await saved.get('https://example.invalid/hfa/').text()).toBe('Current page');
+    });
+
+    test('falls back to the saved page when the server answers with an error',async()=>{
+      const {context,handlers,saved}=workerContext();
+      saved.set('https://example.invalid/hfa/',new Response('Saved page'));
+      context.fetch.mockResolvedValue(new Response('Bad gateway',{status:502}));
+      let pending;
+      handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/'},respondWith:promise=>{pending=promise;}});
+      expect(await (await pending).text()).toBe('Saved page');
     });
 
     test('loads the page from the network when browser storage is broken',async()=>{

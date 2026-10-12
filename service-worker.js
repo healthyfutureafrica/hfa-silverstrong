@@ -1,4 +1,4 @@
-const CACHE_NAME='hfa-public-v9';
+const CACHE_NAME='hfa-public-v10';
 const ROOT=new URL('./',self.location.href);
 // The page is stored under the directory URL: some hosts (Cloudflare) redirect /index.html to /.
 const SHELL=['./','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
@@ -41,23 +41,36 @@ self.addEventListener('activate',event=>{
   })());
 });
 
+// How long a page load waits for the network before showing the saved copy instead.
+let NETWORK_GRACE=3000;
+
+// Network first: online visitors always get the current files, so a bad saved copy can never block
+// the site. The saved copy is used only offline, when the server fails, or when the network is slow.
+async function respond(publicUrl) {
+  let cache=null;
+  try { cache=await caches.open(CACHE_NAME); } catch (error) {} // storage unavailable: network only
+  const saved=cache?cache.match(publicUrl).catch(()=>undefined):Promise.resolve(undefined);
+  // Fetch by URL: re-sending a navigation Request with options throws a TypeError in browsers.
+  const network=fetch(publicUrl,{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(15000)}).then(clean).then(response=>{
+    if (response.ok && cache) cache.put(publicUrl,response.clone()).catch(()=>{});
+    return response;
+  });
+  network.catch(()=>{});
+  const slow=new Promise(resolve=>setTimeout(resolve,NETWORK_GRACE));
+  const first=await Promise.race([network.then(response=>({response}),error=>({error})),slow.then(()=>({slow:true}))]);
+  if (first.response?.ok) return first.response;
+  const copy=await saved;
+  if (copy) return copy;
+  if (first.response) return first.response;
+  return network; // nothing saved: wait for the network (or its error)
+}
+
 self.addEventListener('fetch',event=>{
   const request=event.request, url=new URL(request.url);
   if (request.method!=='GET' || url.origin!==ROOT.origin || url.search) return;
   const publicUrl=url.href===INDEX?ROOT.href:url.href;
   if (!SHELL.includes(publicUrl)) return;
-  event.respondWith((async()=>{
-    let cache=null;
-    try {
-      cache=await caches.open(CACHE_NAME);
-      const saved=await cache.match(publicUrl);
-      if (saved) return saved;
-    } catch (error) { cache=null; } // storage unavailable: fall through to the network
-    // Fetch by URL: re-sending a navigation Request with options throws a TypeError in browsers.
-    const response=await clean(await fetch(publicUrl,{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(15000)}));
-    if (response.ok && cache) cache.put(publicUrl,response.clone()).catch(()=>{});
-    return response;
-  })());
+  event.respondWith(respond(publicUrl));
 });
 
 self.addEventListener('message',event=>{
