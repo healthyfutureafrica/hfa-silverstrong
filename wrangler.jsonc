@@ -9,6 +9,10 @@
   },
   // Keep the workers.dev address on: listing custom domains would otherwise switch it off.
   "workers_dev": true,
+  // Served on the organisation's domain (DNS managed in the same Cloudflare account).
+  "routes": [
+    { "pattern": "www.healthyfutureafrica.org", "custom_domain": true }
+  ],
   "build": {
     "command": "npm run build:static"
   },
