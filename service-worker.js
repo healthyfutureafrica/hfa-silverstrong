@@ -1,4 +1,4 @@
-const CACHE_NAME='hfa-public-v7';
+const CACHE_NAME='hfa-public-v8';
 const ROOT=new URL('./',self.location.href);
 const SHELL=['index.html','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
 
@@ -18,8 +18,10 @@ async function refreshPublicShell() {
   return changed;
 }
 
+// Caching is best-effort: a browser whose storage is blocked or corrupted must still be able to
+// install this worker, so a fixed version always replaces an older one.
 self.addEventListener('install',event=>{
-  event.waitUntil(refreshPublicShell().then(()=>self.skipWaiting()));
+  event.waitUntil(refreshPublicShell().catch(()=>{}).then(()=>self.skipWaiting()));
 });
 
 self.addEventListener('activate',event=>{
@@ -37,16 +39,16 @@ self.addEventListener('fetch',event=>{
   const publicUrl=url.href===ROOT.href?SHELL[0]:url.href;
   if (!SHELL.includes(publicUrl)) return;
   event.respondWith((async()=>{
-    const cache=await caches.open(CACHE_NAME);
-    const saved=await cache.match(publicUrl);
-    if (saved) return saved;
+    let cache=null;
     try {
-      const response=await fetch(request,{cache:'no-store',signal:AbortSignal.timeout(8000)});
-      if (response.ok) { await cache.put(publicUrl,response.clone()); return response; }
-      return response;
-    } catch (error) {
-      throw error;
-    }
+      cache=await caches.open(CACHE_NAME);
+      const saved=await cache.match(publicUrl);
+      if (saved) return saved;
+    } catch (error) { cache=null; } // storage unavailable: fall through to the network
+    // Fetch by URL: re-sending a navigation Request with options throws a TypeError in browsers.
+    const response=await fetch(publicUrl,{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(15000)});
+    if (response.ok && cache) cache.put(publicUrl,response.clone()).catch(()=>{});
+    return response;
   })());
 });
 

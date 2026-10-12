@@ -219,6 +219,37 @@ describe('index.html sanity checks', () => {
       expect(context.fetch).not.toHaveBeenCalled();
     });
 
+    test('loads the page from the network when browser storage is broken',async()=>{
+      const {context,handlers}=workerContext();
+      context.caches.open.mockRejectedValue(new Error('Unexpected internal error'));
+      context.fetch.mockResolvedValue(new Response('Network page'));
+      let pending;
+      handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/',mode:'navigate'},respondWith:promise=>{pending=promise;}});
+      expect(await (await pending).text()).toBe('Network page');
+    });
+
+    test('fetches an uncached navigation by URL instead of re-sending the navigation request',async()=>{
+      const {context,handlers,saved}=workerContext();
+      context.fetch.mockResolvedValue(new Response('Fresh page'));
+      const request={method:'GET',url:'https://example.invalid/hfa/',mode:'navigate'};
+      let pending;
+      handlers.fetch({request,respondWith:promise=>{pending=promise;}});
+      expect(await (await pending).text()).toBe('Fresh page');
+      expect(context.fetch).toHaveBeenCalledWith('https://example.invalid/hfa/index.html',expect.objectContaining({signal:expect.any(AbortSignal)}));
+      expect(context.fetch.mock.calls[0][0]).not.toBe(request);
+      await new Promise(resolve=>setTimeout(resolve,0));
+      expect(saved.has('https://example.invalid/hfa/index.html')).toBe(true);
+    });
+
+    test('still installs when caching fails, so a fixed worker can replace a broken one',async()=>{
+      const {context,handlers}=workerContext();
+      context.caches.open.mockRejectedValue(new Error('Unexpected internal error'));
+      let pending;
+      handlers.install({waitUntil:promise=>{pending=promise;}});
+      await expect(pending).resolves.toBeUndefined();
+      expect(context.self.skipWaiting).toHaveBeenCalled();
+    });
+
     test('bounds public-content refresh requests with an abort signal',async()=>{
       const {context}=workerContext();
       await context.refreshPublicShell();
