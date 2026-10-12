@@ -379,43 +379,114 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 
 /* ═══ FREE HEALTH HUB ═══ */
 #free-hub{min-height:100vh;background:var(--ow)}
-.fh-nav{background:var(--na)}
-.fh-disclaimer{display:flex;gap:14px;align-items:flex-start;background:var(--go-p);border:1px solid #f0dca8;border-radius:var(--r);padding:16px 18px;margin-bottom:20px}
+.fh-nav{background:var(--na);position:sticky;top:0;z-index:20;box-shadow:0 2px 14px rgba(8,20,40,.25)}
+.fh-shell{width:100%}
+/* Hero: the landing page's navy with emerald and gold light */
+.fh-hero{position:relative;overflow:hidden;color:#fff;padding:64px 28px 96px;
+  background:radial-gradient(circle at 88% 18%,rgba(18,160,122,.38),transparent 42%),radial-gradient(circle at 6% 100%,rgba(196,144,42,.3),transparent 38%),linear-gradient(135deg,var(--na) 0%,var(--na-m) 58%,var(--em-d) 135%)}
+.fh-hero::after{content:"";position:absolute;inset:auto -80px -140px auto;width:420px;height:420px;border-radius:50%;border:1px solid rgba(255,255,255,.08);box-shadow:0 0 0 60px rgba(255,255,255,.025),0 0 0 120px rgba(255,255,255,.02);pointer-events:none}
+.fh-hero-in{position:relative;z-index:1;max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;align-items:center}
+.fh-eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--go-l);font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+.fh-eyebrow::before{content:"";width:22px;height:2px;border-radius:2px;background:var(--go)}
+.fh-hero h2{font-family:var(--fd);font-size:2.9rem;line-height:1.08;color:#fff;letter-spacing:-.01em}
+.fh-hero h2 span{color:var(--go-l)}
+.fh-hero-sub{color:rgba(255,255,255,.72);font-size:1rem;line-height:1.7;margin-top:16px;max-width:560px}
+.fh-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.fh-stat{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--r);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(6px)}
+.fh-stat b{font-family:var(--fd);font-size:1.25rem;color:var(--go-l);line-height:1}
+.fh-stat span{font-size:.74rem;color:rgba(255,255,255,.75);line-height:1.3}
+.fh-hero-art{position:relative;justify-self:end;width:100%;max-width:340px}
+.fh-hero-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:var(--rl);padding:18px;backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.fh-hero-card+.fh-hero-card{margin:-14px 0 0 34px;background:rgba(10,107,80,.55)}
+.fh-hero-card-row{display:flex;align-items:center;gap:12px}
+.fh-hero-card strong{display:block;font-size:.86rem;color:#fff}
+.fh-hero-card small{display:block;font-size:.72rem;color:rgba(255,255,255,.65);margin-top:2px}
+.fh-hero-card .fh-icon{background:rgba(255,255,255,.12);color:#fff}
+.fh-hero-pulse{margin-top:12px;height:34px;color:var(--go-l);opacity:.9}
+.fh-shell.inapp .fh-hero{margin:24px 28px 0;border-radius:var(--rl);padding:44px 32px 84px}
+.fh-page{position:relative;max-width:1120px;margin:-56px auto 0;padding:0 28px 56px}
+.fh-shell.inapp .fh-page{padding:0 56px 40px}
+/* Shared building blocks */
+.fh-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:40px;height:40px;border-radius:12px;background:var(--em-p);color:var(--em)}
+.fh-icon svg{width:20px;height:20px}
+.fh-icon.gold{background:var(--go-p);color:var(--go)}
+.fh-section{margin-top:36px}
+.fh-sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.fh-sec-eyebrow{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--em)}
+.fh-sec-head h3{font-family:var(--fd);font-size:1.55rem;color:var(--na);line-height:1.2;margin-top:4px}
+.fh-sec-head p{font-size:.86rem;color:var(--t2);margin-top:4px;max-width:620px}
+.fh-panel{background:#fff;border:1px solid var(--bd);border-radius:var(--rl);box-shadow:var(--shm);padding:24px}
+/* Disclaimer */
+.fh-disclaimer{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #f0dca8;border-left:4px solid var(--go);border-radius:var(--r);padding:16px 18px;margin-bottom:20px;box-shadow:var(--shm)}
+.fh-disclaimer>div:first-child{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--go-p);color:var(--go);flex-shrink:0}
 .fh-disclaimer svg{flex-shrink:0}
-.fh-disclaimer strong{color:var(--na);font-size:.88rem}
-.fh-disclaimer p{font-size:.8rem;color:var(--t2);margin-top:4px;line-height:1.55}
-.fh-assistant{border-top:3px solid var(--em);margin-bottom:18px}
-.fh-assistant-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px}
-.fh-assistant-note{font-size:.72rem;color:var(--t3);max-width:340px}
-.fh-assistant-prompts{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
-.fh-assistant-prompt{padding:6px 10px;border:1px solid var(--bd);border-radius:var(--rs);background:#fff;color:var(--t2);font-size:.74rem;cursor:pointer}
-.fh-assistant-prompt:hover{border-color:var(--em-l);color:var(--em-d)}
-.fh-assistant-form{display:flex;align-items:flex-end;gap:8px}
-.fh-assistant-form textarea{min-height:64px;max-height:150px;resize:vertical}
-.fh-assistant-answer{margin-top:14px;padding:14px;background:var(--si-p);border:1px solid var(--bd);border-radius:var(--rs)}
-.fh-assistant-answer p{font-size:.8rem;color:var(--t2);line-height:1.55;margin-top:7px}
-.fh-assistant-answer ul{margin:7px 0 8px 18px;font-size:.8rem;color:var(--t2);line-height:1.6}
-.fh-assistant-answer .fh-disclaimer{margin:0;padding:10px 12px}
-.fh-assistant-answer .fh-disclaimer strong{font-size:.76rem}
-.fh-assistant-answer .fh-disclaimer p{font-size:.73rem;margin-top:2px}
+.fh-disclaimer strong{color:var(--na);font-size:.9rem}
+.fh-disclaimer p{font-size:.82rem;color:var(--t2);margin-top:4px;line-height:1.6}
+/* SLY assistant */
+.fh-assistant{padding:0;overflow:hidden;margin-bottom:0}
+.fh-assistant-head{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:20px 24px;color:#fff;background:radial-gradient(circle at 100% 0,rgba(232,184,75,.28),transparent 45%),linear-gradient(120deg,var(--em-d),var(--em) 60%,var(--em-l))}
+.fh-assistant-id{display:flex;align-items:center;gap:14px}
+.fh-avatar{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;flex-shrink:0;font-family:var(--fd);font-weight:700;font-size:.92rem;letter-spacing:.04em;color:var(--na);background:linear-gradient(135deg,var(--go-l),var(--go));box-shadow:0 0 0 4px rgba(255,255,255,.18)}
+.fh-assistant-head .ct{color:#fff;font-size:1.3rem}
+.fh-assistant-head .mu{color:rgba(255,255,255,.82)}
+.fh-assistant-note{font-size:.72rem;color:rgba(255,255,255,.78);max-width:330px;line-height:1.5;padding:8px 12px;border-radius:var(--r);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16)}
+.fh-assistant-body{padding:20px 24px 24px}
+.fh-assistant-prompts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.fh-assistant-prompt{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border:1px solid #bfe3d4;border-radius:999px;background:var(--em-p);color:var(--em-d);font-size:.78rem;font-weight:500;cursor:pointer;transition:var(--tr)}
+.fh-assistant-prompt:hover{background:var(--em);border-color:var(--em);color:#fff;transform:translateY(-1px);box-shadow:0 4px 12px rgba(10,107,80,.25)}
+.fh-assistant-form{display:flex;align-items:flex-end;gap:10px}
+.fh-assistant-form textarea{min-height:72px;max-height:160px;resize:vertical;border-radius:var(--r);background:var(--si-p)}
+.fh-assistant-form textarea:focus,.fh-search input:focus{outline:none;border-color:var(--em-l);background:#fff;box-shadow:0 0 0 4px rgba(18,160,122,.14)}
+.fh-assistant-form .btn{padding:12px 20px;border-radius:var(--r);font-size:.86rem}
+.fh-assistant-answer{margin-top:16px;padding:16px 18px;background:linear-gradient(180deg,var(--em-p),#fff);border:1px solid #bfe3d4;border-left:4px solid var(--em);border-radius:var(--r);animation:fhIn .25s ease}
+.fh-assistant-answer p{font-size:.84rem;color:var(--t2);line-height:1.6;margin-top:8px}
+.fh-assistant-answer ul{margin:8px 0 8px 18px;font-size:.84rem;color:var(--t2);line-height:1.65}
+.fh-assistant-answer li::marker{color:var(--em)}
+.fh-assistant-answer .fh-disclaimer{margin:0;padding:10px 12px;box-shadow:none}
+.fh-assistant-answer .fh-disclaimer>div:first-child{width:28px;height:28px}
+.fh-assistant-answer .fh-disclaimer strong{font-size:.78rem}
+.fh-assistant-answer .fh-disclaimer p{font-size:.75rem;margin-top:2px}
+/* Self-care library */
+.fh-search{position:relative;margin-bottom:16px}
+.fh-search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--t3);width:18px;height:18px;pointer-events:none}
+.fh-search input{height:50px;padding-left:46px;border-radius:999px;font-size:.92rem;background:var(--si-p)}
 .fh-chip-row{display:flex;flex-wrap:wrap;gap:8px}
-.fh-chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bd);background:#fff;color:var(--t2);font-size:.78rem;cursor:pointer;transition:var(--tr)}
-.fh-chip:hover{border-color:var(--em-l);color:var(--em-d);background:var(--em-p)}
-.fh-remedy-card{background:var(--em-p);border:1px solid #bfe3d4;border-radius:var(--r);padding:18px;margin-top:14px}
-.fh-remedy-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.fh-remedy-head h3{font-family:var(--fd);font-size:1.05rem;color:var(--na)}
-.fh-remedy-sec ul,.fh-redflag ul{margin:8px 0 12px 18px;font-size:.83rem;color:var(--t2);line-height:1.6}
-.fh-redflag{background:#fcdcd9;border-radius:var(--rs);padding:10px 14px}
-.fh-redflag strong{color:var(--dg);font-size:.82rem}
+.fh-chip{padding:8px 15px;border-radius:999px;border:1px solid var(--bd);background:#fff;color:var(--t2);font-size:.8rem;cursor:pointer;transition:var(--tr);box-shadow:var(--sh)}
+.fh-chip:hover{border-color:var(--em-l);color:var(--em-d);background:var(--em-p);transform:translateY(-1px)}
+.fh-chip.active{background:var(--em);border-color:var(--em);color:#fff;box-shadow:0 4px 12px rgba(10,107,80,.28)}
+.fh-remedy-card{background:#fff;border:1px solid #bfe3d4;border-radius:var(--rl);margin-top:18px;overflow:hidden;box-shadow:var(--shm);animation:fhIn .25s ease}
+.fh-remedy-head{display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(120deg,var(--em-p),#fff 75%);border-bottom:1px solid #d6ede4}
+.fh-remedy-head h3{font-family:var(--fd);font-size:1.2rem;color:var(--na)}
+.fh-remedy-head .badge{text-transform:capitalize}
+.fh-remedy-sec{padding:16px 20px 4px}
+.fh-remedy-sec strong{color:var(--em-d);font-size:.86rem}
+.fh-remedy-sec ul,.fh-redflag ul{margin:8px 0 12px 18px;font-size:.85rem;color:var(--t2);line-height:1.65}
+.fh-remedy-sec li::marker{color:var(--em)}
+.fh-redflag{margin:0 20px 16px;background:#fdf0ee;border:1px solid #f5cdc7;border-left:4px solid var(--dg);border-radius:var(--r);padding:12px 16px}
+.fh-redflag strong{color:var(--dg);font-size:.84rem}
 .fh-redflag ul{margin-bottom:0;color:#6e1a13}
-.fh-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
-.fh-tip{padding:10px 0;border-bottom:1px solid var(--bd)}
-.fh-tip:last-child{border-bottom:none}
-.fh-tip strong{font-size:.85rem;color:var(--na);display:block;margin-bottom:3px}
-.fh-tip p{font-size:.8rem;color:var(--t2);line-height:1.55}
-.fh-cta{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--na);color:#fff}
-.fh-cta strong{color:#fff}
-.fh-cta p{color:rgba(255,255,255,.6)}
+.fh-remedy-card>.btn{margin:0 20px 20px}
+/* Everyday essentials */
+.fh-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.fh-ess{position:relative;overflow:hidden;border-top:4px solid var(--em)}
+.fh-ess.gold{border-top-color:var(--go)}
+.fh-ess-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.fh-ess-head .ct{font-size:1.15rem}
+.fh-tips{counter-reset:fhtip}
+.fh-tip{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:12px 0;border-bottom:1px dashed var(--bd)}
+.fh-tip:last-child{border-bottom:none;padding-bottom:0}
+.fh-tip::before{counter-increment:fhtip;content:counter(fhtip);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--em-p);color:var(--em);font-weight:600;font-size:.78rem}
+.fh-ess.gold .fh-tip::before{background:var(--go-p);color:#a87824}
+.fh-tip strong{font-size:.88rem;color:var(--na);display:block;margin-bottom:3px}
+.fh-tip p{font-size:.82rem;color:var(--t2);line-height:1.6}
+/* Call to action */
+.fh-cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:36px;padding:32px 36px;border-radius:var(--rl);color:#fff;border:none;
+  background:radial-gradient(circle at 92% 50%,rgba(196,144,42,.35),transparent 40%),linear-gradient(120deg,var(--na),var(--na-m))}
+.fh-cta strong{display:block;font-family:var(--fd);font-size:1.4rem;color:#fff;line-height:1.25}
+.fh-cta p{color:rgba(255,255,255,.7);margin-top:6px;font-size:.88rem}
+.fh-cta .btn{padding:13px 22px;font-size:.9rem;border-radius:var(--r);box-shadow:0 8px 22px rgba(196,144,42,.35)}
+@keyframes fhIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fh-assistant-answer,.fh-remedy-card{animation:none}.fh-chip:hover,.fh-assistant-prompt:hover{transform:none}}
 
 /* ═══ LEGAL & PRIVACY PAGES ═══ */
 .legal-hero{background:linear-gradient(135deg,var(--na) 0%,var(--em-d) 100%);color:#fff;border-radius:var(--r);padding:26px;margin-bottom:18px;position:relative;overflow:hidden}
@@ -472,6 +543,8 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   .hero{grid-template-columns:1fr;padding:48px 28px}
   .service-grid{grid-template-columns:repeat(2,1fr)}
   .fh-grid{grid-template-columns:1fr}
+  .fh-hero-in{grid-template-columns:1fr}
+  .fh-hero-art{display:none}
 }
 @media(max-width:700px){
   .fh-nav{flex-wrap:wrap;gap:12px;padding:16px}
@@ -484,7 +557,27 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   .tb-t,.ph h2{overflow-wrap:anywhere;max-width:100%}
   .topbar .btn,.aac .btn{white-space:normal;line-height:1.35;max-width:100%}
   .fh-assistant-form{align-items:stretch;flex-direction:column}
-  .fh-assistant-form .btn{align-self:flex-start;min-height:40px}
+  .fh-assistant-form .btn{align-self:stretch;justify-content:center;min-height:44px}
+  .fh-hero{padding:40px 20px 84px}
+  .fh-hero h2{font-size:2.1rem}
+  .fh-hero-sub{font-size:.92rem}
+  .fh-stat{flex:1 1 140px}
+  .fh-page{padding:0 16px 40px}
+  .fh-shell.inapp .fh-hero{margin:12px 10px 0;padding:24px 14px 64px}
+  .fh-shell.inapp .fh-hero h2{font-size:1.6rem}
+  .fh-shell.inapp .fh-eyebrow::before{display:none}
+  .fh-shell.inapp .fh-page{padding:0 10px 24px}
+  .fh-shell.inapp .fh-cta{padding:20px 14px}
+  .fh-disclaimer{padding:14px;gap:10px}
+  .fh-disclaimer>div:last-child,.fh-sec-head>div,.fh-tip>div{min-width:0;overflow-wrap:anywhere}
+  .fh-panel{padding:18px}
+  .fh-assistant{padding:0}
+  .fh-assistant-head{flex-direction:column;align-items:flex-start;padding:18px}
+  .fh-assistant-note{max-width:none}
+  .fh-assistant-body{padding:16px 18px 18px}
+  .fh-sec-head h3{font-size:1.3rem}
+  .fh-cta{padding:24px 20px}
+  .fh-cta .btn{width:100%;justify-content:center}
   .ai2{max-width:100%;min-width:0}
   .ai2 .adi{min-width:0;flex-basis:100%;overflow-wrap:anywhere}
   .ai2 .aac{width:100%}
@@ -1154,6 +1247,8 @@ const T = {
 
     // Free Health Hub
     free_hub_nav:'Free Health Hub', free_hub_title:'Free Health Hub',
+    fh_hero_eyebrow:'Healthy Future Africa · Open to everyone', fh_stat_topics:'self-care topics, reviewed', fh_stat_free:'cost · no account needed', fh_stat_langs:'languages · English & Français',
+    fh_sec_library:'Self-care library', fh_sec_essentials:'Everyday essentials', fh_essentials_title:'Simple habits for a healthier life',
     free_hub_sub:'Evidence-informed nutrition, exercise, and self-care guidance — free for everyone, patient or not.',
     fh_disclaimer_title:'Educational information, not a diagnosis',
     fh_disclaimer_body:'This section shares general wellness guidance aligned with widely accepted public-health practice. It does not replace an individual medical assessment. For emergencies, contact local emergency services immediately.',
@@ -1489,6 +1584,8 @@ const T = {
 
     // Free Health Hub
     free_hub_nav:'Espace Santé Gratuit', free_hub_title:'Espace Santé Gratuit',
+    fh_hero_eyebrow:'Healthy Future Africa · Ouvert à tous', fh_stat_topics:'thèmes de soins, vérifiés', fh_stat_free:'coût · sans compte', fh_stat_langs:'langues · English & Français',
+    fh_sec_library:'Bibliothèque de soins', fh_sec_essentials:'Les essentiels du quotidien', fh_essentials_title:'Des habitudes simples pour une vie plus saine',
     free_hub_sub:'Conseils gratuits fondés sur des données probantes en nutrition, exercice et bien-être — pour tous, patient ou non.',
     fh_disclaimer_title:'Information éducative, pas un diagnostic',
     fh_disclaimer_body:'Cette section propose des conseils de bien-être généraux conformes aux pratiques de santé publique reconnues. Elle ne remplace pas une évaluation médicale individuelle. En cas d\'urgence, contactez immédiatement les services d\'urgence locaux.',
@@ -3943,8 +4040,14 @@ function fhFilter(q) {
   if (query.length >= 3) fhTrack('search', {query});
   const matches = freeHubMatches(query);
   list.innerHTML = matches.length
-    ? matches.map(top=>`<button class="fh-chip" onclick="fhShowRemedy('${top.id}')">${fhL(top.name)}</button>`).join('')
+    ? matches.map(fhChip).join('')
     : `<div class="mu sm">${t('fh_no_match')}</div>`;
+}
+
+let FH_SELECTED = null;
+function fhChip(top) {
+  const active = top.id===FH_SELECTED;
+  return `<button type="button" class="fh-chip${active?' active':''}" data-topic="${top.id}" aria-pressed="${active}" onclick="fhShowRemedy('${top.id}')">${fhL(top.name)}</button>`;
 }
 
 function fhShowRemedy(id) {
@@ -3952,6 +4055,8 @@ function fhShowRemedy(id) {
   const box = $('fh-remedy-result');
   if (!top || !box) return;
   fhTrack('view', {topicId:id});
+  FH_SELECTED = id;
+  document.querySelectorAll('.fh-chip').forEach(chip=>{ const on=chip.dataset.topic===id; chip.classList.toggle('active',on); chip.setAttribute('aria-pressed',on); });
   const catBadge = top.cat==='nutrition' ? 'bnu' : top.cat==='exercise' ? 'bdo' : 'bpa';
   box.innerHTML = `
     <div class="fh-remedy-card">
@@ -4002,52 +4107,91 @@ function fhBookConsult(topicId) {
   goAuth('register','patient');
 }
 
+const FH_ICON = {
+  leaf:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`,
+  moon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+  search:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>`,
+  book:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16H6.5A2.5 2.5 0 0 0 4 21.5Z"/><path d="M8 7h8M8 11h6"/></svg>`,
+  pulseLine:`<svg viewBox="0 0 300 34" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="100%" height="34"><path d="M0 18h70l10-12 14 24 12-30 12 30 10-12h172"/></svg>`
+};
+
 function renderFreeHub(container, standalone=false) {
   if (!container) return;
+  const title = t('free_hub_title').replace(/(\S+)$/, '<span>$1</span>');
+  const tips = list => list.map(n=>`<div class="fh-tip"><div><strong>${fhL(n.title)}</strong><p>${fhL(n.text)}</p></div></div>`).join('');
   container.innerHTML = `
-    <div class="page" style="max-width:980px">
-      ${standalone?`<div class="ph"><h2>${t('free_hub_title')}</h2><p>${t('free_hub_sub')}</p></div>`:''}
-      <div class="fh-disclaimer">
-        <div>${IC.warn}</div>
-        <div><strong>${t('fh_disclaimer_title')}</strong><p>${t('fh_disclaimer_body')}</p></div>
-      </div>
-
-      <section class="card fh-assistant" aria-labelledby="fh-assistant-title">
-        <div class="fh-assistant-head"><div><h3 class="ct" id="fh-assistant-title">${t('fh_assistant_title')}</h3><p class="mu sm">${t('fh_assistant_sub')}</p></div><p class="fh-assistant-note">${t('fh_assistant_scope')}</p></div>
-        <div class="fh-assistant-prompts" aria-label="${t('fh_assistant_suggestions')}">
-          <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('nutrition')">${t('fh_assistant_prompt_food')}</button>
-          <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('exercise')">${t('fh_assistant_prompt_fitness')}</button>
-          <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('sleep')">${t('fh_assistant_prompt_sleep')}</button>
+    <div class="fh-shell${standalone?'':' inapp'}">
+      <header class="fh-hero">
+        <div class="fh-hero-in">
+          <div>
+            <div class="fh-eyebrow">${t('fh_hero_eyebrow')}</div>
+            <h2>${title}</h2>
+            <p class="fh-hero-sub">${t('free_hub_sub')}</p>
+            <div class="fh-stats">
+              <div class="fh-stat"><b>${FREE_HEALTH_TOPICS.length}</b><span>${t('fh_stat_topics')}</span></div>
+              <div class="fh-stat"><b>0</b><span>${t('fh_stat_free')}</span></div>
+              <div class="fh-stat"><b>2</b><span>${t('fh_stat_langs')}</span></div>
+            </div>
+          </div>
+          <div class="fh-hero-art" aria-hidden="true">
+            <div class="fh-hero-card"><div class="fh-hero-card-row"><span class="fh-avatar">SLY</span><div><strong>${t('fh_assistant_title')}</strong><small>${t('fh_assistant_prompt_food')} · ${t('fh_assistant_prompt_fitness')}</small></div></div><div class="fh-hero-pulse">${FH_ICON.pulseLine}</div></div>
+            <div class="fh-hero-card"><div class="fh-hero-card-row"><span class="fh-icon">${FH_ICON.leaf}</span><div><strong>${t('fh_nutrition_title')}</strong><small>${t('fh_exercise_title')}</small></div></div></div>
+          </div>
         </div>
-        <form class="fh-assistant-form" onsubmit="fhAskAssistant(event)">
-          <div style="flex:1;min-width:0"><label class="fl" for="fh-assistant-input">${t('fh_assistant_label')}</label><textarea class="fc" id="fh-assistant-input" maxlength="280" required placeholder="${t('fh_assistant_ph')}"></textarea></div>
-          <button type="submit" class="btn bp">${t('fh_assistant_send')}</button>
-        </form>
-        <div id="fh-assistant-result" aria-live="polite"></div>
-      </section>
+      </header>
 
-      <div class="card mb18">
-        <div class="ct mb8">${t('fh_ask_title')}</div>
-        <p class="mu sm mb8">${t('fh_ask_sub')}</p>
-        <input class="fc" id="fh-search" placeholder="${t('fh_search_ph')}" oninput="fhFilter(this.value)">
-        <div class="fh-chip-row mt8" id="fh-topic-list">${FREE_HEALTH_TOPICS.map(top=>`<button class="fh-chip" onclick="fhShowRemedy('${top.id}')">${fhL(top.name)}</button>`).join('')}</div>
-        <div id="fh-remedy-result"></div>
-      </div>
-
-      <div class="fh-grid">
-        <div class="card">
-          <div class="ct mb8">${t('fh_nutrition_title')}</div>
-          ${NUTRITION_ESSENTIALS.map(n=>`<div class="fh-tip"><strong>${fhL(n.title)}</strong><p>${fhL(n.text)}</p></div>`).join('')}
+      <div class="fh-page">
+        <div class="fh-disclaimer">
+          <div>${IC.warn}</div>
+          <div><strong>${t('fh_disclaimer_title')}</strong><p>${t('fh_disclaimer_body')}</p></div>
         </div>
-        <div class="card">
-          <div class="ct mb8">${t('fh_exercise_title')}</div>
-          ${EXERCISE_ESSENTIALS.map(n=>`<div class="fh-tip"><strong>${fhL(n.title)}</strong><p>${fhL(n.text)}</p></div>`).join('')}
-        </div>
-      </div>
 
-      <div class="fh-cta card mt18">
-        <div><strong>${t('fh_cta_title')}</strong><p class="sm">${t('fh_cta_sub')}</p></div>
-        <button class="btn bg2" onclick="fhBookConsult()">${t('fh_cta_btn')}</button>
+        <section class="fh-panel fh-assistant" aria-labelledby="fh-assistant-title">
+          <div class="fh-assistant-head">
+            <div class="fh-assistant-id"><span class="fh-avatar" aria-hidden="true">SLY</span><div><h3 class="ct" id="fh-assistant-title">${t('fh_assistant_title')}</h3><p class="mu sm">${t('fh_assistant_sub')}</p></div></div>
+            <p class="fh-assistant-note">${t('fh_assistant_scope')}</p>
+          </div>
+          <div class="fh-assistant-body">
+            <div class="fh-assistant-prompts" aria-label="${t('fh_assistant_suggestions')}">
+              <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('nutrition')">${FH_ICON.leaf.replace('<svg ','<svg width="15" height="15" ')}${t('fh_assistant_prompt_food')}</button>
+              <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('exercise')">${IC.pulse}${t('fh_assistant_prompt_fitness')}</button>
+              <button type="button" class="fh-assistant-prompt" onclick="fhAskAssistantPrompt('sleep')">${FH_ICON.moon.replace('<svg ','<svg width="15" height="15" ')}${t('fh_assistant_prompt_sleep')}</button>
+            </div>
+            <form class="fh-assistant-form" onsubmit="fhAskAssistant(event)">
+              <div style="flex:1;min-width:0"><label class="fl" for="fh-assistant-input">${t('fh_assistant_label')}</label><textarea class="fc" id="fh-assistant-input" maxlength="280" required placeholder="${t('fh_assistant_ph')}"></textarea></div>
+              <button type="submit" class="btn bp">${IC.send}${t('fh_assistant_send')}</button>
+            </form>
+            <div id="fh-assistant-result" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section class="fh-section" aria-labelledby="fh-library-title">
+          <div class="fh-sec-head"><div><div class="fh-sec-eyebrow">${t('fh_sec_library')}</div><h3 id="fh-library-title">${t('fh_ask_title')}</h3><p>${t('fh_ask_sub')}</p></div><span class="fh-icon">${FH_ICON.book}</span></div>
+          <div class="fh-panel">
+            <div class="fh-search">${FH_ICON.search}<input class="fc" id="fh-search" type="search" aria-label="${t('fh_ask_title')}" placeholder="${t('fh_search_ph')}" oninput="fhFilter(this.value)"></div>
+            <div class="fh-chip-row" id="fh-topic-list">${FREE_HEALTH_TOPICS.map(fhChip).join('')}</div>
+            <div id="fh-remedy-result"></div>
+          </div>
+        </section>
+
+        <section class="fh-section" aria-labelledby="fh-essentials-title">
+          <div class="fh-sec-head"><div><div class="fh-sec-eyebrow">${t('fh_sec_essentials')}</div><h3 id="fh-essentials-title">${t('fh_essentials_title')}</h3></div></div>
+          <div class="fh-grid">
+            <div class="fh-panel fh-ess">
+              <div class="fh-ess-head"><span class="fh-icon">${FH_ICON.leaf}</span><div class="ct">${t('fh_nutrition_title')}</div></div>
+              <div class="fh-tips">${tips(NUTRITION_ESSENTIALS)}</div>
+            </div>
+            <div class="fh-panel fh-ess gold">
+              <div class="fh-ess-head"><span class="fh-icon gold">${IC.pulse}</span><div class="ct">${t('fh_exercise_title')}</div></div>
+              <div class="fh-tips">${tips(EXERCISE_ESSENTIALS)}</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="fh-cta">
+          <div><strong>${t('fh_cta_title')}</strong><p>${t('fh_cta_sub')}</p></div>
+          <button class="btn bg2" onclick="fhBookConsult()">${t('fh_cta_btn')} →</button>
+        </div>
       </div>
     </div>`;
 }
