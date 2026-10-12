@@ -2,7 +2,7 @@ const express = require('express');
 const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
 const { z } = require('zod');
-const { Store, hashPassword, verifyPassword } = require('./store');
+const { Store, hashPassword, verifyPassword, SESSION_TTL } = require('./store');
 const { configuration, validSignature, MetaProvider } = require('./provider');
 const { randomUUID } = require('node:crypto');
 const { installFileRoutes, filesConfigured, fileMime, saveEncryptedFile, decodeFile } = require('./files');
@@ -13,11 +13,14 @@ const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/)
 const personName=plain.regex(/^[\p{L}\p{M}\p{N} .'-]+$/u);
 const contactPhone=z.string().max(40).regex(/^[+0-9\s()-]*$/);
 const phone = z.string().regex(/^\+[1-9]\d{7,14}$/);
+const MAX_REGISTRATION_DOCUMENT=2*1024*1024;
+const uploadedDocument=z.object({fileName:z.string().min(1).max(180).regex(/^[^<>\u0000-\u001f/\\]+$/),content:z.string().min(4).max(Math.ceil(MAX_REGISTRATION_DOCUMENT/3)*4).regex(/^[A-Za-z0-9+/]+={0,2}$/)}).strict();
 const registration = z.object({
   name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()),
   password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']),
   phone: contactPhone.optional(), whatsappNumber: phone.optional(), whatsappNotificationsConsent: z.boolean().optional(),
   specialty: plain.optional(), hospital: plain.optional(), department: plain.optional(), consultationFee: z.number().min(5).max(20).optional(),
+  idDocumentType: z.enum(['national_id','passport']).optional(), idDocument: uploadedDocument.optional()
 }).strict().superRefine((input, context) => {
   if (input.role === 'patient' && !input.whatsappNumber) context.addIssue({ code: 'custom', message: 'Patient WhatsApp number is required' });
   if (input.role === 'pharmacist') context.addIssue({ code: 'custom', path: ['role'], message: 'Pharmacies register with their documents at /api/auth/register/pharmacist' });
@@ -25,14 +28,12 @@ const registration = z.object({
 // Pharmacies must submit every credential document with the application; activation is gated on all of them.
 const PHARMACY_FIELDS=['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization','ownerName','ownerIdType','ownerIdNumber'];
 const PHARMACY_DOCUMENTS=['pharmacistLicense','businessLicense','minsanteAuthorization','ownerIdentity'];
-const MAX_PHARMACY_DOCUMENT=2*1024*1024;
-const pharmacyDocument=z.object({fileName:z.string().min(1).max(180).regex(/^[^<>\u0000-\u001f/\\]+$/),content:z.string().min(4).max(Math.ceil(MAX_PHARMACY_DOCUMENT/3)*4).regex(/^[A-Za-z0-9+/]+={0,2}$/)}).strict();
 const pharmacyRegistration=z.object({
   name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()),
   password: z.string().min(12).max(128).regex(/\S/), phone: contactPhone.optional(),
   pharmacyName:plain,pharmacyAddress:plain,pharmacyLocation:plain,pharmacyLicense:plain,businessRegistration:plain,minsanteAuthorization:plain,
   ownerName:personName,ownerIdType:z.enum(['national_id','passport']),ownerIdNumber:plain,
-  documents:z.object(Object.fromEntries(PHARMACY_DOCUMENTS.map(kind=>[kind,pharmacyDocument]))).strict()
+  documents:z.object(Object.fromEntries(PHARMACY_DOCUMENTS.map(kind=>[kind,uploadedDocument]))).strict()
 }).strict();
 const resources = ['Account', 'Communications', 'Appointments', 'Medical Records', 'Lab Results', 'Care Notes', 'Care Coordination', 'Billing', 'Home Visits', 'Urgent Care'];
 const activity = z.object({ eventId: z.string().min(8).max(100), patientId: z.string().min(1).max(100), resource: z.enum(resources) }).strict();
@@ -42,6 +43,13 @@ const patchSchema = z.object({
   consultationFee: z.number().min(5).max(20).optional(),
   pharmacyCredentialReview:z.boolean().optional()
 }).strict();
+// Returns the decoded file, or an error message naming the field.
+function decodeDocument(field,document) {
+  const bytes=Buffer.from(document.content,'base64'),mime=fileMime(bytes);
+  if (!bytes.length||bytes.length>MAX_REGISTRATION_DOCUMENT) return {error:`${field}: File must be between 1 byte and 2 MB`};
+  if (!mime) return {error:`${field}: Only PDF, PNG, JPEG and WebP files are accepted`};
+  return {bytes,mime,fileName:document.fileName};
+}
 const pharmacyComplete=user=>PHARMACY_FIELDS.every(field=>user[field])&&PHARMACY_DOCUMENTS.every(kind=>user.pharmacyDocuments?.[kind]?.id);
 
 function cookieToken(request) {
@@ -78,7 +86,8 @@ function createApp(config, store, provider) {
   });
   app.use('/api', rateLimit({ windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false }));
   const smallJson=express.json({ limit: '32kb' });
-  app.use((request, response, next) => request.path === '/api/auth/register/pharmacist' ? next() : smallJson(request, response, next));
+  const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist'];
+  app.use((request, response, next) => documentRoutes.includes(request.path) ? next() : smallJson(request, response, next));
   app.use('/api', (request, response, next) => {
     response.set('Cache-Control', 'no-store');
     if (['POST', 'PATCH', 'DELETE'].includes(request.method) &&
@@ -97,15 +106,31 @@ function createApp(config, store, provider) {
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
   const startSession = (response, user) => response.cookie('hfa_session', store.createSession(user.id), {
-    httpOnly: true, sameSite: 'strict', secure: config.origin.startsWith('https://'), path: '/api', maxAge: 8 * 3600000
+    httpOnly: true, sameSite: 'strict', secure: config.origin.startsWith('https://'), path: '/api', maxAge: SESSION_TTL
   });
   const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
 
-  app.post('/api/auth/register', authLimit, async (request, response) => {
+  app.post('/api/auth/register', authLimit, express.json({ limit: '3mb' }), async (request, response) => {
     const input = registration.parse(request.body);
     if (input.role === 'labtech') return response.status(403).json({ error: 'Administrator provisions laboratory staff' });
+    let identity = null;
+    if (input.idDocument) {
+      if (!filesConfigured(config)) return response.status(503).json({ error: 'Encrypted document storage is not configured' });
+      if (!input.idDocumentType) return response.status(400).json({ error: 'idDocumentType: Required with an identity document' });
+      identity = decodeDocument('idDocument', input.idDocument);
+      if (identity.error) return response.status(400).json({ error: identity.error });
+    }
     if (store.credentials(input.email)) return response.status(409).json({ error: 'Email already registered' });
-    const user = store.createUser({ ...input, profile: profile(input) }, await hashPassword(input.password), input.role === 'patient' ? 'active' : 'pending_approval');
+    const passwordHash = await hashPassword(input.password);
+    const idDocument = identity && { id: randomUUID(), fileName: identity.fileName, mime: identity.mime, size: identity.bytes.length };
+    store.db.exec('BEGIN IMMEDIATE');
+    let user;
+    try {
+      if (store.credentials(input.email)) { store.db.exec('ROLLBACK'); return response.status(409).json({ error: 'Email already registered' }); }
+      user = store.createUser({ ...input, profile: { ...profile(input), ...(idDocument ? { idDocumentType: input.idDocumentType, idDocument, idVerificationStatus: 'pending' } : {}) } }, passwordHash, input.role === 'patient' ? 'active' : 'pending_approval');
+      if (idDocument) saveEncryptedFile(config, store, user.id, idDocument.id, { fileName: idDocument.fileName, category: 'registration:identity', notes: '', relatedApptId: '' }, identity.bytes, identity.mime);
+      store.db.exec('COMMIT');
+    } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     if (user.status === 'active') startSession(response, user);
     response.status(201).json({ user, users: user.status === 'active' ? store.visibleUsers(user) : [] });
   });
@@ -114,10 +139,8 @@ function createApp(config, store, provider) {
     const input = pharmacyRegistration.parse(request.body);
     const documents = {};
     for (const kind of PHARMACY_DOCUMENTS) {
-      const bytes = Buffer.from(input.documents[kind].content, 'base64'), mime = fileMime(bytes);
-      if (!bytes.length || bytes.length > MAX_PHARMACY_DOCUMENT) return response.status(400).json({ error: `documents.${kind}: File must be between 1 byte and 2 MB` });
-      if (!mime) return response.status(400).json({ error: `documents.${kind}: Only PDF, PNG, JPEG and WebP files are accepted` });
-      documents[kind] = { bytes, mime, fileName: input.documents[kind].fileName };
+      documents[kind] = decodeDocument(`documents.${kind}`, input.documents[kind]);
+      if (documents[kind].error) return response.status(400).json({ error: documents[kind].error });
     }
     if (store.credentials(input.email)) return response.status(409).json({ error: 'Email already registered' });
     const passwordHash = await hashPassword(input.password);
@@ -195,7 +218,8 @@ function createApp(config, store, provider) {
     response.json({ user: updated });
   });
   app.get('/api/admin/users/:id/documents/:kind', authenticated, admin, (request, response) => {
-    const user = store.user(request.params.id), document = user?.role === 'pharmacist' && PHARMACY_DOCUMENTS.includes(request.params.kind) ? user.pharmacyDocuments?.[request.params.kind] : null;
+    const user = store.user(request.params.id), kind = request.params.kind;
+    const document = kind === 'identity' ? user?.idDocument : user?.role === 'pharmacist' && PHARMACY_DOCUMENTS.includes(kind) ? user.pharmacyDocuments?.[kind] : null;
     const row = document && filesConfigured(config) && store.db.prepare('SELECT * FROM uploaded_files WHERE owner_id=? AND upload_id=?').get(user.id, document.id);
     if (!row) return response.sendStatus(404);
     const file = decodeFile(config, row);

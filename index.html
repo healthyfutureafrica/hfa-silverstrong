@@ -2119,7 +2119,7 @@ const EXERCISE_ESSENTIALS = [
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
-const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false};
+const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false,offline:false};
 async function apiRequest(path, method='GET', body, timeout=15000) {
   const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});
   if (response.status===204) return {};
@@ -2140,37 +2140,57 @@ async function initializeBackend() {
   if (location.protocol==='file:' || location.hostname==='github.io' || location.hostname.endsWith('.github.io')) return;
   ApiState.loading=true;
   try {
-    const response=await fetch('/api/config',{signal:AbortSignal.timeout(5000)});
-    if (response.status===404) return;
-    if (!response.ok) throw new Error('Backend unavailable');
-    const config=await response.json();
-    if (!config.backend) throw new Error('Invalid backend');
-    ApiState.enabled=true; ApiState.providerConfigured=config.providerConfigured;
+    let config=null;
+    try {
+      const response=await fetch('/api/config',{signal:AbortSignal.timeout(5000)});
+      if (response.status===404) return;
+      if (!response.ok) throw new Error('Backend unavailable');
+      config=await response.json();
+      if (!config.backend) throw new Error('Invalid backend');
+      try { localStorage.setItem('hfa-backend','1'); } catch (error) {}
+    } catch (error) {
+      // A device that has reached this server before keeps working offline (see offline-session.js).
+      let known=false;
+      try { known=localStorage.getItem('hfa-backend')==='1'; } catch (storageError) {}
+      if (!known) throw error;
+      ApiState.offline=true;
+    }
+    ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
     $('lnd-demo').classList.add('hid');
     updateStaticHTML();
+    if (ApiState.offline) return;
     const session=await fetch('/api/session',{credentials:'same-origin'});
-    if (session.ok) { installBackendSession(await session.json()); LANG_RETURN_SCREEN='app'; }
+    if (session.ok) { const data=await session.json(); installBackendSession(data); await HFAOffline.afterSessionRestore(data.user); LANG_RETURN_SCREEN='app'; }
   } catch (error) { ApiState.failed=true; }
   finally { ApiState.loading=false; }
 }
 async function backendLogin(email, password) {
   if (ApiState.busy) return;
   ApiState.busy=true;
-  try { installBackendSession(await apiRequest('/api/auth/login','POST',{email,password})); $('lp').value='';goApp(); }
-  catch(error) { $('amsg').textContent=error.message; }
+  try {
+    if (ApiState.offline) throw new TypeError('offline');
+    const data=await apiRequest('/api/auth/login','POST',{email,password});
+    installBackendSession(data); $('lp').value=''; await HFAOffline.afterOnlineLogin(data.user,password); goApp();
+  } catch(error) {
+    if (error.status) { $('amsg').textContent=error.message; return; }
+    try { await HFAOffline.offlineLogin(email,password); $('lp').value=''; goApp(); }
+    catch(offlineError) { $('amsg').textContent=offlineError.message; }
+  }
   finally { ApiState.busy=false; }
 }
 async function backendRegister(localUser) {
   if (ApiState.busy) return;
   ApiState.busy=true;
   const payload={};
-  ['name','email','password','role','phone','whatsappNumber','whatsappNotificationsConsent','specialty','hospital','department','consultationFee'].forEach(key=>{if(localUser[key]!==undefined&&localUser[key]!=='')payload[key]=localUser[key];});
+  ['name','email','password','role','phone','whatsappNumber','whatsappNotificationsConsent','specialty','hospital','department','consultationFee','idDocumentType'].forEach(key=>{if(localUser[key]!==undefined&&localUser[key]!=='')payload[key]=localUser[key];});
+  if (localUser.idDocumentData) payload.idDocument={fileName:localUser.idDocumentName.replace(/[<>\u0000-\u001f/\\]/g,'_').slice(0,180),content:localUser.idDocumentData.slice(localUser.idDocumentData.indexOf(',')+1)};
   try {
-    const data=await apiRequest('/api/auth/register','POST',payload);
+    const {data,queued}=await HFAOffline.submitRegistration('/api/auth/register',payload);
     $('rpa').value='';
-    if (data.user.role==='patient') { installBackendSession(data,localUser); goApp(); }
+    if (queued) { swtTab('login'); $('le').value=localUser.email; amsg(t('offline_registration_queued'),'i'); }
+    else if (data.user.role==='patient') { installBackendSession(data,localUser); await HFAOffline.afterOnlineLogin(data.user,localUser.password); goApp(); }
     else { swtTab('login'); $('le').value=localUser.email; $('amsg').textContent=t('pending_review_msg'); }
   } catch(error) { $('amsg').textContent=error.message; }
   finally { ApiState.busy=false; }
@@ -2721,7 +2741,11 @@ function finishReg(idInput, idDocumentType, whatsappNumber) {
 
 function doLogout() {
   if (typeof OfflineUploads!=='undefined') OfflineUploads.lock();
-  if (ApiState.enabled) { apiRequest('/api/auth/logout','POST',{}).then(()=>{ApiState.authenticated=false;log('LOGOUT','System');CU=null;SC=null;goLand();}).catch(error=>alert(error.message));return; }
+  if (ApiState.enabled) {
+    const finish=()=>{ApiState.authenticated=false;log('LOGOUT','System');CU=null;SC=null;HFAOffline.clear();goLand();};
+    HFAOffline.signOut().then(()=>ApiState.offline?null:apiRequest('/api/auth/logout','POST',{})).then(finish).catch(error=>alert(error.message));
+    return;
+  }
   ApiState.authenticated=false;log('LOGOUT','System');CU=null;SC=null;goLand();
 }
 
@@ -2758,6 +2782,7 @@ function navigate(page) {
   document.querySelectorAll('.ni').forEach(el=>el.classList.remove('active'));
   const el = $('ni-'+page); if (el) el.classList.add('active');
   renderPage(page);
+  if (typeof HFAOffline!=='undefined') HFAOffline.saveSoon(); // keep offline work if the app is closed
 }
 
 // ═══════════════════════ PAGE ROUTER ═══════════════════════
@@ -3221,12 +3246,17 @@ function showIdUpload() {
     <div id="pf-id-status" class="mu sm" role="alert"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveIdUpload()">${t('upload_id_document')}</button></div>`);
 }
-function saveIdUpload() {
+function queueAccountDocuments(files, metadata) {
+  return ApiState.enabled && typeof OfflineUploads!=='undefined' ? OfflineUploads.queue(files, metadata) : Promise.resolve();
+}
+async function saveIdUpload() {
   const input = $('pf-id');
   const idDocumentType = $('pf-id-type').value;
   if (!['national_id','passport'].includes(idDocumentType)) { $('pf-id-status').textContent=t('id_type_required'); return; }
   if (!input || !input.files.length) { $('pf-id-status').textContent=t('id_required'); return; }
   const file = input.files[0];
+  try { await queueAccountDocuments([file],{category:'Identity document ('+idDocumentType+')',notes:'',relatedApptId:''}); }
+  catch (error) { $('pf-id-status').textContent=error.message; return; }
   const reader = new FileReader();
   reader.onload = () => {
     CU.idDocumentType = idDocumentType;
@@ -3587,10 +3617,12 @@ function showLabUpload() {
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveLabResult()">${t('upload_lab_result')}</button></div>`);
 }
 
-function saveLabResult() {
+async function saveLabResult() {
   const patientId=$('lr-patient').value, specialistDoctorId=$('lr-specialist').value, testType=$('lr-test').value.trim(), fileInput=$('lr-file'), notes=$('lr-notes').value.trim();
   if(!patientId||!specialistDoctorId||!testType||!fileInput.files.length){ const s=$('lr-status'); if(s) s.textContent=t('fill_required'); return; }
   const file=fileInput.files[0], reader=new FileReader();
+  try { await queueAccountDocuments([file],{category:('Lab result: '+testType).slice(0,100),notes,relatedApptId:''}); }
+  catch (error) { $('lr-status').textContent=error.message; return; }
   reader.onload=()=>{
     const result={id:'lr'+Date.now(),patientId,specialistDoctorId,labTechId:CU.id,testType,fileName:file.name,fileData:reader.result,notes,status:'pending',uploadedAt:tsNow(),openedAt:null,releasedAt:null};
     DB.labResults.unshift(result);
@@ -4136,10 +4168,12 @@ function showUploadDocument() {
     <div id="ud-status" class="mu sm"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveUploadDocument()">${t('upload_document')}</button></div>`);
 }
-function saveUploadDocument() {
+async function saveUploadDocument() {
   const input=$('ud-file'); if(!input||!input.files.length){ const s=$('ud-status'); if(s) s.textContent=t('document_required'); return; }
   const patientId=CU.id;
   const files=Array.from(input.files), category=$('ud-cat').value, relatedApptId=$('ud-apt')?$('ud-apt').value:'', notes=$('ud-notes').value.trim(), uploadedAt=tsNow();
+  try { await queueAccountDocuments(files,{category,notes,relatedApptId}); }
+  catch (error) { $('ud-status').textContent=error.message; return; }
   let remaining=files.length;
   files.forEach((file,index)=>{
     const reader=new FileReader();
@@ -4672,8 +4706,9 @@ window.addEventListener('load',()=>{
   else setTimeout(loadFonts,0);
 },{once:true});
 </script>
-<script src="pharmacist.js"></script>
 <script src="offline-uploads.js"></script>
+<script src="offline-session.js"></script>
+<script src="pharmacist.js"></script>
 <script src="offline.js"></script>
 </body>
 </html>

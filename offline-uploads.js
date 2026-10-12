@@ -1,12 +1,11 @@
 class UploadQueueStorage {
-  constructor() { this.connection=null; }
+  constructor(name='hfa-encrypted-uploads',stores=[['accounts','ownerId'],['files','id']]) { this.name=name;this.stores=stores;this.connection=null; }
   async open() {
     if (this.connection) return this.connection;
     this.connection=await new Promise((resolve,reject)=>{
-      const request=indexedDB.open('hfa-encrypted-uploads',1);
+      const request=indexedDB.open(this.name,1);
       request.onupgradeneeded=()=>{
-        request.result.createObjectStore('accounts',{keyPath:'ownerId'});
-        request.result.createObjectStore('files',{keyPath:'id'});
+        for (const [store,keyPath] of this.stores) request.result.createObjectStore(store,{keyPath});
       };
       request.onsuccess=()=>resolve(request.result);
       request.onerror=()=>reject(request.error);
@@ -25,10 +24,11 @@ class UploadQueueStorage {
   }
   async write(store,records,remove=false) {
     const database=await this.open();
+    const keyPath=this.stores.find(([name])=>name===store)[1];
     return new Promise((resolve,reject)=>{
       const transaction=database.transaction(store,'readwrite');
       for (const record of records) {
-        if (remove) transaction.objectStore(store).delete(record.id);
+        if (remove) transaction.objectStore(store).delete(record[keyPath]);
         else transaction.objectStore(store).put(record);
       }
       transaction.oncomplete=()=>resolve();
@@ -38,14 +38,12 @@ class UploadQueueStorage {
   }
 }
 
+// Encrypted on-device queue of files waiting for the server. The key is the signed-in
+// account's device key (see offline-session.js), so files queue offline and upload by themselves.
 class OfflineFileVault {
   constructor({storage=new UploadQueueStorage(),cryptography=crypto,fetcher=(...args)=>fetch(...args),now=()=>Date.now()}={}) {
     this.storage=storage;this.crypto=cryptography;this.fetcher=fetcher;this.now=now;
     this.key=null;this.ownerId=null;this.syncing=false;
-  }
-  async derive(passphrase,salt) {
-    const material=await this.crypto.subtle.importKey('raw',new TextEncoder().encode(passphrase),'PBKDF2',false,['deriveKey']);
-    return this.crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
   }
   async encrypt(key,bytes,context) {
     const iv=this.crypto.getRandomValues(new Uint8Array(12));
@@ -55,29 +53,17 @@ class OfflineFileVault {
   async decrypt(key,record,context) {
     return this.crypto.subtle.decrypt({name:'AES-GCM',iv:record.iv,additionalData:new TextEncoder().encode(context)},key,record.encrypted);
   }
-  async unlock(ownerId,passphrase,create=false) {
-    if (this.syncing) throw new Error('Wait for synchronization to finish');
-    if (!passphrase || passphrase.length<12) throw new Error('Use a device passphrase of at least 12 characters');
-    let account=await this.storage.read('accounts',ownerId);
-    if (!account && !create) throw new Error('No offline vault exists for that account');
-    const salt=account?account.salt:this.crypto.getRandomValues(new Uint8Array(16));
-    const key=await this.derive(passphrase,salt);
-    if (account) {
-      try { await this.decrypt(key,account.check,`${ownerId}:vault`); }
-      catch (error) { throw new Error('Incorrect device passphrase'); }
-    } else {
-      account={ownerId,salt,check:await this.encrypt(key,new TextEncoder().encode('HFA offline vault'),`${ownerId}:vault`)};
-      await this.storage.write('accounts',[account]);
-    }
+  attach(ownerId,key) {
+    if (this.syncing && ownerId!==this.ownerId) throw new Error('Wait for synchronization to finish');
     this.key=key;this.ownerId=ownerId;
   }
   lock() { this.key=null;this.ownerId=null; }
   async entries(ownerId=this.ownerId) {
-    return (await this.storage.read('files')).filter(record=>record.ownerId===ownerId).sort((first,second)=>first.queuedAt-second.queuedAt);
+    return (await this.storage.read('files')).filter(record=>record.ownerId===ownerId&&record.device).sort((first,second)=>first.queuedAt-second.queuedAt);
   }
   async stage(files,metadata={category:'Other',notes:'',relatedApptId:''}) {
     const ownerId=this.ownerId,key=this.key;
-    if (!key || !ownerId) throw new Error('Unlock your offline file vault first');
+    if (!key || !ownerId) throw new Error('Sign in to save files on this device');
     if (!files.length || files.length>20) throw new Error('Select between 1 and 20 files');
     const existing=await this.storage.read('files');
     if (existing.length+files.length>100 || existing.reduce((total,file)=>total+file.size,0)+files.reduce((total,file)=>total+file.size,0)>50*1024*1024) throw new Error('Offline storage limit reached (50 MB or 100 pending files)');
@@ -88,25 +74,25 @@ class OfflineFileVault {
       const prefix=new TextDecoder().decode(header);
       const accepted=prefix.startsWith('%PDF-') || header.slice(0,8).join(',')==='137,80,78,71,13,10,26,10' || (header[0]===255&&header[1]===216&&header[2]===255) || (prefix.startsWith('RIFF')&&prefix.slice(8,12)==='WEBP');
       if (!accepted) throw new Error('Only PDF, PNG, JPEG and WebP files are accepted');
-      const details={...metadata,fileName:file.name};
-      if (!file.name || file.name.length>180 || /[<>\u0000-\u001f/\\]/.test(file.name) || details.category.length>100 || details.notes.length>1000 || details.relatedApptId.length>100) throw new Error('File name or notes are too long or invalid');
+      const details={category:String(metadata.category||'Other').slice(0,100),notes:String(metadata.notes||'').slice(0,1000),relatedApptId:String(metadata.relatedApptId||'').slice(0,100),fileName:file.name};
+      if (!file.name || file.name.length>180 || /[<>\u0000-\u001f/\\]/.test(file.name)) throw new Error('File name is too long or invalid');
       const id=this.crypto.randomUUID();
-      staged.push({id,ownerId,size:file.size,queuedAt:this.now(),nextAttempt:0,attempts:0,status:'pending',
+      staged.push({id,ownerId,device:true,size:file.size,queuedAt:this.now(),nextAttempt:0,attempts:0,status:'pending',
         metadata:await this.encrypt(key,new TextEncoder().encode(JSON.stringify(details)),`${ownerId}:${id}:metadata`),
         file:await this.encrypt(key,await file.arrayBuffer(),`${ownerId}:${id}:file`)});
     }
-    if (this.ownerId!==ownerId || this.key!==key) throw new Error('Vault was locked before files could be saved');
+    if (this.ownerId!==ownerId || this.key!==key) throw new Error('Signed out before files could be saved');
     await this.storage.write('files',staged);
     return staged.length;
   }
   async details(record) {
-    if (!this.key || record.ownerId!==this.ownerId) throw new Error('Unlock the correct account vault');
+    if (!this.key || record.ownerId!==this.ownerId) throw new Error('Sign in to the account that saved this file');
     return JSON.parse(new TextDecoder().decode(await this.decrypt(this.key,record.metadata,`${record.ownerId}:${record.id}:metadata`)));
   }
   async remove(id) {
     if (this.syncing) throw new Error('Wait for synchronization to finish');
     const record=await this.storage.read('files',id);
-    if (!this.key || record?.ownerId!==this.ownerId) throw new Error('Unlock the correct account vault');
+    if (!this.key || record?.ownerId!==this.ownerId) throw new Error('Sign in to the account that saved this file');
     await this.storage.write('files',[record],true);
   }
   async sync() {
@@ -150,12 +136,12 @@ globalThis.OfflineFileVault=OfflineFileVault;
 (() => {
   const vault=new OfflineFileVault();
   const labels={
-    en:{title:'Offline files',account:'Account vault',passphrase:'Device passphrase (12+ characters)',consent:'Store encrypted file copies on this device',unlock:'Unlock / Set up',lock:'Lock vault',files:'Files (PDF, PNG, JPEG, WebP; up to 5 MB each)',category:'Category',notes:'Notes',save:'Save on device',sync:'Sync now',remove:'Remove pending file',close:'Close',pending:'Pending on this device',stored:'Server-confirmed files',locked:'Vault locked. Pending files are retained.',saved:'Files saved securely on this device.',warning:'Keep your device passphrase. It cannot be recovered. Pending files remain until confirmed by the server, but clearing browser data can delete them. Reopen this app and unlock to resume after days offline.',persisted:'Browser persistent storage granted.',bestEffort:'Browser storage is best-effort. Do not delete your original files.',signin:'Sign in to the original account to resume synchronization.',wrong:'A different account is signed in. Files were not sent.',unconfigured:'Server file encryption is not configured. Files remain pending.',offline:'Offline or server unavailable. Files remain pending.',synced:'All pending files are confirmed by the server.',retry:'Some files remain pending. Network failures retry automatically; rejected files need review.',newVault:'Sign in online before setting up a new account vault.',consentRequired:'Confirm encrypted storage on this device before setting up a vault.'},
-    fr:{title:'Fichiers hors ligne',account:'Compte du coffre',passphrase:'Phrase secr\u00e8te du dispositif (12+ caract\u00e8res)',consent:'Conserver des copies chiffr\u00e9es sur cet appareil',unlock:'D\u00e9verrouiller / Configurer',lock:'Verrouiller',files:'Fichiers (PDF, PNG, JPEG, WebP ; 5 Mo maximum)',category:'Cat\u00e9gorie',notes:'Notes',save:'Enregistrer sur cet appareil',sync:'Synchroniser',remove:'Supprimer le fichier en attente',close:'Fermer',pending:'En attente sur cet appareil',stored:'Fichiers confirm\u00e9s par le serveur',locked:'Coffre verrouill\u00e9. Fichiers en attente conserv\u00e9s.',saved:'Fichiers enregistr\u00e9s et chiffr\u00e9s sur cet appareil.',warning:'Conservez la phrase secr\u00e8te : elle ne peut pas \u00eatre r\u00e9cup\u00e9r\u00e9e. Les fichiers restent en attente jusqu\u0027\u00e0 confirmation du serveur. Effacer les donn\u00e9es du navigateur peut les supprimer. Rouvrez et d\u00e9verrouillez pour reprendre apr\u00e8s plusieurs jours.',persisted:'Stockage persistant accord\u00e9 par le navigateur.',bestEffort:'Stockage non garanti par le navigateur. Conservez les fichiers originaux.',signin:'Connectez-vous au compte d\u0027origine pour reprendre.',wrong:'Un autre compte est connect\u00e9. Aucun fichier envoy\u00e9.',unconfigured:'Chiffrement des fichiers serveur non configur\u00e9. Fichiers conserv\u00e9s en attente.',offline:'Hors ligne ou serveur indisponible. Fichiers conserv\u00e9s.',synced:'Tous les fichiers sont confirm\u00e9s par le serveur.',retry:'Certains fichiers restent en attente. Les erreurs r\u00e9seau seront r\u00e9essay\u00e9es ; les rejets n\u00e9cessitent une v\u00e9rification.',newVault:'Connectez-vous en ligne avant de configurer un coffre.',consentRequired:'Confirmez le stockage chiffr\u00e9 sur cet appareil.'}
+    en:{title:'Offline files',files:'Files (PDF, PNG, JPEG, WebP; up to 5 MB each)',category:'Category',notes:'Notes',save:'Save on device',sync:'Sync now',remove:'Remove pending file',close:'Close',pending:'Waiting to upload from this device',stored:'Server-confirmed files',signedOut:'Sign in to save files on this device.',saved:'Files saved securely on this device.',warning:'Files you upload are encrypted on this device and sent to the server automatically when you are connected. You can keep working offline for up to 7 days. Clearing browser data deletes files that have not been uploaded yet.',persisted:'Browser persistent storage granted.',bestEffort:'Browser storage is best-effort. Do not delete your original files.',signin:'Sign in again to resume uploading.',wrong:'A different account is signed in. Files were not sent.',unconfigured:'Server file encryption is not configured. Files remain pending.',offline:'Offline or server unavailable. Files will upload when you reconnect.',synced:'All files are confirmed by the server.',retry:'Some files are still waiting. Network failures retry automatically; rejected files need review.',locked:'Sign in to save files on this device.'},
+    fr:{title:'Fichiers hors ligne',files:'Fichiers (PDF, PNG, JPEG, WebP ; 5 Mo maximum)',category:'Catégorie',notes:'Notes',save:'Enregistrer sur cet appareil',sync:'Synchroniser',remove:'Supprimer le fichier en attente',close:'Fermer',pending:"En attente d'envoi depuis cet appareil",stored:'Fichiers confirmés par le serveur',signedOut:'Connectez-vous pour enregistrer des fichiers sur cet appareil.',saved:'Fichiers enregistrés et chiffrés sur cet appareil.',warning:"Les fichiers téléversés sont chiffrés sur cet appareil et envoyés automatiquement au serveur dès que vous êtes connecté. Vous pouvez travailler hors ligne jusqu'à 7 jours. Effacer les données du navigateur supprime les fichiers non encore envoyés.",persisted:'Stockage persistant accordé par le navigateur.',bestEffort:'Stockage non garanti par le navigateur. Conservez les fichiers originaux.',signin:"Reconnectez-vous pour reprendre l'envoi.",wrong:'Un autre compte est connecté. Aucun fichier envoyé.',unconfigured:'Chiffrement des fichiers serveur non configuré. Fichiers conservés en attente.',offline:'Hors ligne ou serveur indisponible. Envoi automatique à la reconnexion.',synced:'Tous les fichiers sont confirmés par le serveur.',retry:'Certains fichiers restent en attente. Les erreurs réseau seront réessayées ; les rejets nécessitent une vérification.',locked:'Connectez-vous pour enregistrer des fichiers sur cet appareil.'}
   };
   const words=()=>labels[typeof LANG!=='undefined'?LANG:'en']||labels.en;
   const field=id=>document.getElementById(id);
-  let lastActivity=Date.now(),message='locked',storageMessage='',renderVersion=0;
+  let message='offline',storageMessage='',renderVersion=0;
   const notify=text=>{const status=field('vault-status');if(status)status.textContent=text;};
 
   async function renderFiles() {
@@ -163,7 +149,7 @@ globalThis.OfflineFileVault=OfflineFileVault;
     const list=field('vault-list'),cloud=field('vault-cloud');
     if (!list || !cloud) return;
     list.replaceChildren();cloud.replaceChildren();
-    if (!vault.key) { notify(words().locked); return; }
+    if (!vault.key) { notify(words().signedOut); return; }
     for (const record of await vault.entries()) {
       if (version!==renderVersion || vault.key!==key || vault.ownerId!==ownerId || !field('vault-list')) return;
       const metadata=await vault.details(record);
@@ -191,21 +177,23 @@ globalThis.OfflineFileVault=OfflineFileVault;
   }
 
   async function synchronize() {
-    if (!vault.key || vault.syncing || navigator.onLine===false) return;
+    if (!vault.key || vault.syncing || navigator.onLine===false || (typeof ApiState!=='undefined'&&ApiState.offline)) return;
     const status=await vault.sync();
-    message=({'wrong-account':'wrong',pending:'retry',locked:'locked'})[status]||status;
+    message=({'wrong-account':'wrong',pending:'retry'})[status]||status;
     await renderFiles();
+  }
+
+  async function queue(files,metadata) {
+    await vault.stage(files,metadata);
+    message='saved';
+    synchronize().catch(()=>{});
   }
 
   async function open() {
     if (!window.isSecureContext || !('indexedDB' in window) || !crypto.subtle) throw new Error('Encrypted offline files need HTTPS or localhost and a supported browser');
-    const text=words(),accounts=await vault.storage.read('accounts');
+    const text=words();
     openMo(`<div class="mh"><h3 class="mt2">${text.title}</h3></div>
       <p class="mu sm mb18">${text.warning}</p>
-      <div class="fg"><label class="fl" for="vault-owner">${text.account}</label><select class="fc" id="vault-owner"></select></div>
-      <div class="fg"><label class="fl" for="vault-passphrase">${text.passphrase}</label><input class="fc" type="password" id="vault-passphrase" minlength="12" autocomplete="off"></div>
-      <label class="sm"><input type="checkbox" id="vault-consent"> ${text.consent}</label>
-      <div class="vault-actions mt8"><button type="button" class="btn bp" id="vault-unlock">${text.unlock}</button><button type="button" class="btn bs" id="vault-lock">${text.lock}</button></div>
       <div class="fg mt18"><label class="fl" for="vault-files">${text.files}</label><input class="fc" id="vault-files" type="file" accept="application/pdf,image/png,image/jpeg,image/webp" multiple></div>
       <div class="fg"><label class="fl" for="vault-category">${text.category}</label><input class="fc" id="vault-category" maxlength="100" value="Other"></div>
       <div class="fg"><label class="fl" for="vault-notes">${text.notes}</label><textarea class="fc" id="vault-notes" maxlength="1000"></textarea></div>
@@ -214,37 +202,12 @@ globalThis.OfflineFileVault=OfflineFileVault;
       <h4 class="sm mt18">${text.pending}</h4><div id="vault-list"></div>
       <h4 class="sm mt18">${text.stored}</h4><div id="vault-cloud"></div>
       <div class="mf"><button type="button" class="btn bs" id="vault-close">${text.close}</button></div>`);
-    const accountSelect=field('vault-owner');
-    const owners=new Set(accounts.map(account=>account.ownerId));
-    if (typeof CU!=='undefined' && CU && ApiState.enabled && ApiState.authenticated) owners.add(CU.id);
-    for (const ownerId of owners) {const option=document.createElement('option');option.value=ownerId;option.textContent=ownerId;accountSelect.append(option);}
-    if (vault.ownerId) accountSelect.value=vault.ownerId;
-    else if (typeof CU!=='undefined' && CU) accountSelect.value=CU.id;
     field('vault-close').addEventListener('click',closeMo);
-    field('vault-lock').addEventListener('click',()=>{vault.lock();renderFiles().catch(error=>notify(error.message));});
-    field('vault-unlock').addEventListener('click',async()=>{
-      const button=field('vault-unlock'),ownerId=accountSelect.value,passphrase=field('vault-passphrase').value;
-      field('vault-passphrase').value='';button.disabled=true;
-      try {
-        if (!ownerId) throw new Error(text.newVault);
-        const account=await vault.storage.read('accounts',ownerId);
-        if (!account) {
-          if (!field('vault-consent').checked) throw new Error(text.consentRequired);
-          const session=await fetch('/api/session',{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(15000)});
-          if (!session.ok || (await session.json()).user.id!==ownerId) throw new Error(text.newVault);
-        }
-        await vault.unlock(ownerId,passphrase,!account);lastActivity=Date.now();
-        const persistent=await navigator.storage?.persist?.().catch(()=>false);
-        storageMessage=text[persistent?'persisted':'bestEffort'];
-        message='saved';await renderFiles();await synchronize();
-      } catch(error) {notify(error.message);}
-      finally {button.disabled=false;}
-    });
     field('vault-save').addEventListener('click',async()=>{
       const button=field('vault-save');button.disabled=true;
       try {
-        await vault.stage(Array.from(field('vault-files').files),{category:field('vault-category').value,notes:field('vault-notes').value,relatedApptId:''});
-        field('vault-files').value='';message='saved';await renderFiles();await synchronize();
+        await queue(Array.from(field('vault-files').files),{category:field('vault-category').value,notes:field('vault-notes').value,relatedApptId:''});
+        field('vault-files').value='';await renderFiles();
       } catch(error) {notify(error.message);}
       finally {button.disabled=false;}
     });
@@ -252,16 +215,24 @@ globalThis.OfflineFileVault=OfflineFileVault;
     await renderFiles();
   }
 
-  globalThis.OfflineUploads={open:()=>open().catch(error=>alert(error.message)),lock:()=>{vault.lock();renderFiles().catch(()=>{});}};
+  async function attach(ownerId,key) {
+    vault.attach(ownerId,key);
+    const persistent=await navigator.storage?.persist?.().catch(()=>false);
+    storageMessage=words()[persistent?'persisted':'bestEffort'];
+    synchronize().catch(()=>{});
+  }
+
+  globalThis.OfflineUploads={
+    open:()=>open().catch(error=>alert(error.message)),
+    attach,queue,
+    sync:()=>synchronize(),
+    pending:async()=>vault.key?(await vault.entries()).length:0,
+    lock:()=>{vault.lock();renderFiles().catch(()=>{});}
+  };
   window.addEventListener('online',()=>synchronize().catch(()=>{}));
   window.addEventListener('hfa-session',()=>{
     if (vault.ownerId && (typeof CU==='undefined' || CU?.id!==vault.ownerId)) {vault.lock();renderFiles().catch(()=>{});}
     else synchronize().catch(()=>{});
   });
-  window.addEventListener('pointerdown',()=>{lastActivity=Date.now();});
-  window.addEventListener('keydown',()=>{lastActivity=Date.now();});
-  setInterval(()=>{
-    if (Date.now()-lastActivity>15*60000) {vault.lock();renderFiles().catch(()=>{});return;}
-    synchronize().catch(()=>{});
-  },30000);
+  setInterval(()=>synchronize().catch(()=>{}),30000);
 })();

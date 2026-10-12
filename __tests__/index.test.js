@@ -84,9 +84,10 @@ describe('index.html sanity checks', () => {
       expect(context.apiRequest).not.toHaveBeenCalled();
     });
     test('sends documents with the backend pharmacy registration',async()=>{
-      const {context}=pharmacyContext();context.ApiState.enabled=true;await context.registerPharmacist();
-      const [path,method,body,timeout]=context.apiRequest.mock.calls[0];
-      expect([path,method,timeout]).toEqual(['/api/auth/register/pharmacist','POST',120000]);
+      const {context}=pharmacyContext();context.ApiState.enabled=true;
+      context.HFAOffline={submitRegistration:jest.fn().mockResolvedValue({data:{}})};await context.registerPharmacist();
+      const [path,body]=context.HFAOffline.submitRegistration.mock.calls[0];
+      expect(path).toBe('/api/auth/register/pharmacist');
       expect(body.role).toBeUndefined();expect(body.ownerIdNumber).toBe('Synthetic ownerIdNumber');
       expect(Object.keys(body.documents)).toEqual(PH_DOC_KINDS);
       expect(body.documents.businessLicense).toEqual({fileName:'businessLicense.pdf',content:'JVBERi0='});
@@ -104,6 +105,29 @@ describe('index.html sanity checks', () => {
       context.approvePharmacist(user.id);expect(user.status).toBe('pending_approval');
       context.CU={id:'admin-test',role:'admin'};context.approvePharmacist(user.id);
       expect(user).toMatchObject({status:'active',pharmacyValidatedBy:'admin-test'});
+    });
+    test('queues pharmacist changes offline and applies them to the saved inventory',async()=>{
+      const {context}=pharmacyContext();
+      context.CU={id:'pha-1',role:'pharmacist',pharmacyName:'Synthetic Pharmacy'};Object.assign(context.ApiState,{enabled:true,offline:true});
+      context.HFAOffline={enqueue:jest.fn().mockResolvedValue(),save:jest.fn().mockResolvedValue()};context.crypto=require('node:crypto').webcrypto;context.structuredClone=structuredClone;
+      vm.runInContext("PH_DATA={items:[{id:'item-1',name:'Amlodipine',price:4.5,stock:5,pharmacistId:'pha-1'}],orders:[{id:'order-1',itemId:'item-1',quantity:2,status:'requested',method:'pickup'}]}",context);
+      await context.phRequest('/api/pharmacy/items/item-1','PATCH',{stock:9});
+      await context.phRequest('/api/pharmacy/orders/order-1','PATCH',{status:'cancelled'});
+      const added=await context.phRequest('/api/pharmacy/items','POST',{name:'Paracetamol',price:1,stock:3});
+      expect(added).toEqual({status:'queued'});
+      const data=await context.phRequest('/api/pharmacy');
+      expect(data.items.map(item=>[item.name,item.stock])).toEqual([['Amlodipine',11],['Paracetamol',3]]);
+      expect(data.orders[0].status).toBe('cancelled');
+      expect(context.HFAOffline.enqueue.mock.calls[2][0].body.id).toBe(data.items[1].id);
+      expect(context.HFAOffline.enqueue.mock.calls.map(([request])=>request.method)).toEqual(['PATCH','PATCH','POST']);
+      expect(context.apiRequest).not.toHaveBeenCalled();
+    });
+    test('saves a pharmacy registration on the device when the server is unreachable',async()=>{
+      const {context}=pharmacyContext();context.ApiState.enabled=true;
+      context.HFAOffline={submitRegistration:jest.fn().mockResolvedValue({queued:true})};
+      await context.registerPharmacist();
+      expect(context.HFAOffline.submitRegistration).toHaveBeenCalledWith('/api/auth/register/pharmacist',expect.objectContaining({ownerName:'Synthetic ownerName',documents:expect.objectContaining({ownerIdentity:{fileName:'ownerIdentity.pdf',content:'JVBERi0='}})}));
+      expect(context.amsg).toHaveBeenCalledWith('offline_registration_queued','i');
     });
     test('converts XAF inventory entry to canonical USD exactly once',async()=>{
       const {context,fields}=pharmacyContext();context.CU={id:'pharmacy-test',role:'pharmacist'};context.ApiState.enabled=true;
@@ -156,7 +180,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/index.html','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/index.html','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;
@@ -249,29 +273,31 @@ describe('index.html sanity checks', () => {
         vm.runInContext(source.split('globalThis.OfflineFileVault=OfflineFileVault;')[0]+'globalThis.OfflineFileVault=OfflineFileVault;',context);
         const makeVault=()=>new context.OfflineFileVault({storage,cryptography:webcrypto,fetcher,now:()=>clock.now});
         const file=new File(['%PDF-1.4\nPrivate synthetic content'],'synthetic-private.pdf',{type:'application/pdf'});
-        return {makeVault,clock,fetcher,received,tables,file};
+        const deviceKey=()=>webcrypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+        return {makeVault,clock,fetcher,received,tables,file,deviceKey};
       }
 
       test('reopens encrypted files after seven offline days and syncs with the same account',async()=>{
-        const {makeVault,clock,tables,file}=uploadVaultContext();
-        const first=makeVault();
-        await first.unlock('owner-one','Synthetic-device-passphrase',true);
+        const {makeVault,clock,tables,file,deviceKey}=uploadVaultContext();
+        const key=await deviceKey(),first=makeVault();
+        first.attach('owner-one',key);
         await first.stage([file]);
         const record=[...tables.files.values()][0];
         expect(new TextDecoder().decode(record.file.encrypted)).not.toContain('Private synthetic');
         expect(new TextDecoder().decode(record.metadata.encrypted)).not.toContain(file.name);
         first.lock();clock.now+=7*86400000;
         const reopened=makeVault();
-        await expect(reopened.unlock('owner-one','Wrong-device-passphrase')).rejects.toThrow('Incorrect device passphrase');
-        await reopened.unlock('owner-one','Synthetic-device-passphrase');
+        reopened.attach('owner-one',await deviceKey());
+        await expect(reopened.details((await reopened.entries())[0])).rejects.toThrow();
+        reopened.attach('owner-one',key);
         expect(await reopened.details((await reopened.entries())[0])).toMatchObject({fileName:file.name});
         expect(await reopened.sync()).toBe('synced');
         expect(tables.files.size).toBe(0);
       });
 
       test('keeps the queue through session expiry and blocks a different account',async()=>{
-        const {makeVault,fetcher,tables,file}=uploadVaultContext();
-        const vault=makeVault();await vault.unlock('owner-one','Synthetic-device-passphrase',true);await vault.stage([file]);
+        const {makeVault,fetcher,tables,file,deviceKey}=uploadVaultContext();
+        const vault=makeVault();vault.attach('owner-one',await deviceKey());await vault.stage([file]);
         fetcher.mockResolvedValueOnce(new Response('',{status:401}));
         expect(await vault.sync()).toBe('signin');
         expect(tables.files.size).toBe(1);
@@ -283,8 +309,8 @@ describe('index.html sanity checks', () => {
       });
 
       test('retries a lost acknowledgement with the same upload ID, even days later',async()=>{
-        const {makeVault,fetcher,clock,tables,file,received}=uploadVaultContext();
-        const vault=makeVault();await vault.unlock('owner-one','Synthetic-device-passphrase',true);await vault.stage([file]);
+        const {makeVault,fetcher,clock,tables,file,received,deviceKey}=uploadVaultContext();
+        const vault=makeVault();vault.attach('owner-one',await deviceKey());await vault.stage([file]);
         const id=[...tables.files.keys()][0];
         fetcher.mockImplementationOnce(async()=>new Response(JSON.stringify({user:{id:'owner-one'}})))
           .mockImplementationOnce(async url=>{received.add(url.split('/').pop());throw new Error('Acknowledgement lost');});
@@ -296,15 +322,102 @@ describe('index.html sanity checks', () => {
       });
 
       test('rejects unsupported files and never removes an invalid receipt',async()=>{
-        const {makeVault,file,fetcher,tables}=uploadVaultContext();
+        const {makeVault,file,fetcher,tables,deviceKey}=uploadVaultContext();
         const {File}=require('node:buffer');
-        const vault=makeVault();await vault.unlock('owner-one','Synthetic-device-passphrase',true);
+        const vault=makeVault();vault.attach('owner-one',await deviceKey());
         await expect(vault.stage([new File(['<html>invalid</html>'],'invalid.pdf')])).rejects.toThrow('Only PDF');
         await vault.stage([file]);
         fetcher.mockImplementationOnce(async()=>new Response(JSON.stringify({user:{id:'owner-one'}})))
           .mockResolvedValueOnce(new Response(JSON.stringify({id:'wrong-receipt',ownerId:'owner-one',status:'stored'})));
         expect(await vault.sync()).toBe('pending');
         expect(tables.files.size).toBe(1);
+      });
+
+      test('refuses to queue files when no account is signed in',async()=>{
+        const {makeVault,file}=uploadVaultContext();
+        await expect(makeVault().stage([file])).rejects.toThrow('Sign in to save files on this device');
+      });
+    });
+
+    describe('seven-day offline accounts',()=>{
+      function offlineContext() {
+        const {webcrypto}=require('node:crypto');
+        const {TextEncoder,TextDecoder}=require('node:util');
+        const tables={profiles:new Map(),outbox:new Map(),registrations:new Map()},keys={profiles:'userId',outbox:'id',registrations:'id'};
+        const storage={
+          read:async(store,key)=>key===undefined?[...tables[store].values()].map(record=>({...record})):tables[store].has(key)?{...tables[store].get(key)}:undefined,
+          write:async(store,records,remove)=>records.forEach(record=>remove?tables[store].delete(record[keys[store]]):tables[store].set(record[keys[store]],{...record})),
+        };
+        const clock={now:Date.UTC(2026,9,1)};
+        const context={crypto:webcrypto,TextEncoder,TextDecoder,Uint8Array,JSON};
+        vm.createContext(context);
+        const source=fs.readFileSync(path.join(__dirname,'..','offline-session.js'),'utf8');
+        vm.runInContext(source.split('globalThis.OfflineSession=OfflineSession;')[0]+'globalThis.OfflineSession=OfflineSession;',context);
+        const make=()=>new context.OfflineSession({storage,cryptography:webcrypto,now:()=>clock.now});
+        return {make,clock,tables};
+      }
+      const user={id:'pha-1',email:'Pharmacy@Example.invalid'};
+
+      test('signs in offline for up to seven days after the last connection',async()=>{
+        const {make,clock}=offlineContext();
+        await make().remember(user,'Synthetic-password-123');
+        clock.now+=7*86400000-60000;
+        await expect(make().signIn('pharmacy@example.invalid','Wrong-password-123')).rejects.toThrow('invalid_creds');
+        await expect(make().signIn('other@example.invalid','Synthetic-password-123')).rejects.toThrow('offline_no_account');
+        const device=make();
+        expect((await device.signIn(' PHARMACY@example.invalid ','Synthetic-password-123')).userId).toBe('pha-1');
+        expect(device.expired()).toBe(false);
+        clock.now+=120000;
+        expect(device.expired()).toBe(true);
+        await expect(make().signIn('pharmacy@example.invalid','Synthetic-password-123')).rejects.toThrow('offline_expired');
+      });
+
+      test('a restored online session renews the seven-day window',async()=>{
+        const {make,clock}=offlineContext();
+        await make().remember(user,'Synthetic-password-123');
+        clock.now+=6*86400000;
+        await make().resume('pha-1');
+        clock.now+=6*86400000;
+        expect((await make().signIn(user.email,'Synthetic-password-123')).userId).toBe('pha-1');
+        expect(await make().resume('unknown-user')).toBeNull();
+      });
+
+      test('keeps offline work in an encrypted snapshot that survives a password change',async()=>{
+        const {make,tables}=offlineContext();
+        const {TextDecoder}=require('node:util');
+        const device=make();await device.remember(user,'Synthetic-password-123');
+        await device.saveSnapshot({user,db:{medicalDocuments:[{fileName:'private-scan.pdf'}]}});
+        expect(new TextDecoder().decode(tables.profiles.get('pha-1').snapshot.encrypted)).not.toContain('private-scan');
+        await make().remember(user,'Changed-password-456');
+        const reopened=make();await reopened.signIn(user.email,'Changed-password-456');
+        expect((await reopened.loadSnapshot()).db.medicalDocuments[0].fileName).toBe('private-scan.pdf');
+      });
+
+      test('replays queued changes in order, stops on network loss and drops refused ones',async()=>{
+        const {make,tables}=offlineContext();
+        const device=make();await device.remember(user,'Synthetic-password-123');
+        for (const stock of [1,2,3]) await device.enqueue({path:'/api/pharmacy/items/a',method:'PATCH',body:{stock}});
+        const sent=[];
+        let result=await device.flush(async request=>{if(request.body.stock===2)throw new TypeError('Failed to fetch');sent.push(request.body.stock);});
+        expect(result).toMatchObject({sent:1,stopped:true});expect(tables.outbox.size).toBe(2);
+        result=await device.flush(async request=>{if(request.body.stock===2)throw Object.assign(new Error('Invalid fulfillment transition'),{status:409});sent.push(request.body.stock);});
+        expect(result).toMatchObject({sent:1,failures:['Invalid fulfillment transition']});
+        expect(sent).toEqual([1,3]);expect(tables.outbox.size).toBe(0);
+      });
+
+      test('submits registrations saved offline once and removes them from the device',async()=>{
+        const {make,tables}=offlineContext();
+        const {TextDecoder}=require('node:util');
+        const device=make();
+        await device.queueRegistration('/api/auth/register/pharmacist',{email:'New@Example.invalid',password:'Synthetic-password-123',documents:{ownerIdentity:{content:'JVBERi0='}}});
+        expect(new TextDecoder().decode([...tables.registrations.values()][0].payload.encrypted)).not.toContain('Synthetic-password');
+        expect(await device.submitRegistrations(async()=>{throw new TypeError('Failed to fetch');})).toEqual([]);
+        expect(tables.registrations.size).toBe(1);
+        const send=jest.fn().mockResolvedValue({user:{status:'pending_approval'}});
+        const results=await device.submitRegistrations(send);
+        expect(send).toHaveBeenCalledWith('/api/auth/register/pharmacist',expect.objectContaining({email:'New@Example.invalid'}));
+        expect(results).toEqual([expect.objectContaining({email:'new@example.invalid',ok:true})]);
+        expect(tables.registrations.size).toBe(0);
       });
     });
 
@@ -373,8 +486,8 @@ describe('index.html sanity checks', () => {
         })),
       };
       vm.createContext(context);
-      ['normalizeWhatsAppNumber','doReg','finishReg','saveIdUpload','idDocumentTypeOptions','idVerificationCard'].forEach(name => {
-        const source = content.match(new RegExp(`^function ${name}\\([^]*?^}`, 'm'));
+      ['normalizeWhatsAppNumber','doReg','finishReg','queueAccountDocuments','saveIdUpload','idDocumentTypeOptions','idVerificationCard'].forEach(name => {
+        const source = content.match(new RegExp(`^(?:async )?function ${name}\\([^]*?^}`, 'm'));
         expect(source).not.toBeNull();
         vm.runInContext(source[0], context);
       });
@@ -419,10 +532,10 @@ describe('index.html sanity checks', () => {
       expect(context.CU.idDocumentType).toBeUndefined();
     });
 
-    test.each(['national_id','passport'])('saves and displays profile ID type %s', documentType => {
+    test.each(['national_id','passport'])('saves and displays profile ID type %s', async documentType => {
       const {context} = uploadContext('patient', documentType);
       context.CU.idDocumentType = 'passport';
-      context.saveIdUpload();
+      await context.saveIdUpload();
       expect(context.CU).toMatchObject({idDocumentType:documentType,idDocumentName:'synthetic-id.pdf',idVerificationStatus:'pending'});
       expect(context.idVerificationCard()).toContain('id_type_'+documentType);
       expect(context.idDocumentTypeOptions(documentType)).toContain(`value="${documentType}" selected`);

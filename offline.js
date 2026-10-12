@@ -1,9 +1,9 @@
 (() => {
   const copy={
-    en:{offline:'Offline - Free Health Hub and SLY remain available. Account changes, consultations and payments need a connection.',ready:'Offline Health Hub ready',preparing:'Preparing offline Health Hub...',unsupported:'Offline reopening needs HTTPS and a supported browser.',failed:'Offline content could not be saved. Reconnect and try again.',refreshing:'Connected - checking for updated health content...',update:'Updated health content is ready. Reload when you have finished your current work.',reload:'Reload',retry:'Retry'},
-    fr:{offline:'Hors ligne - Espace Sant\u00e9 et SLY restent disponibles. Comptes, consultations et paiements n\u00e9cessitent une connexion.',ready:'Espace Sant\u00e9 disponible hors ligne',preparing:'Pr\u00e9paration de l\u0027Espace Sant\u00e9 hors ligne...',unsupported:'La r\u00e9ouverture hors ligne n\u00e9cessite HTTPS et un navigateur compatible.',failed:'Impossible de sauvegarder le contenu hors ligne. Reconnectez-vous et r\u00e9essayez.',refreshing:'Connexion r\u00e9tablie - recherche de contenu de sant\u00e9 actualis\u00e9...',update:'Du contenu actualis\u00e9 est disponible. Rechargez apr\u00e8s avoir termin\u00e9 votre travail.',reload:'Recharger',retry:'R\u00e9essayer'}
+    en:{offline:'Offline - you can keep working for up to 7 days after your last connection. Uploads and changes are saved on this device and synchronize automatically when you reconnect. Consultations and payments need a connection.',ready:'Offline Health Hub ready',preparing:'Preparing offline Health Hub...',unsupported:'Offline reopening needs HTTPS and a supported browser.',failed:'Offline content could not be saved. Reconnect and try again.',refreshing:'Connected - checking for updated health content...',update:'Updated health content is ready. Reload when you have finished your current work.',reload:'Reload',retry:'Retry'},
+    fr:{offline:"Hors ligne - vous pouvez continuer à travailler jusqu'à 7 jours après votre dernière connexion. Téléversements et modifications sont enregistrés sur cet appareil et synchronisés automatiquement à la reconnexion. Consultations et paiements nécessitent une connexion.",ready:'Espace Sant\u00e9 disponible hors ligne',preparing:'Pr\u00e9paration de l\u0027Espace Sant\u00e9 hors ligne...',unsupported:'La r\u00e9ouverture hors ligne n\u00e9cessite HTTPS et un navigateur compatible.',failed:'Impossible de sauvegarder le contenu hors ligne. Reconnectez-vous et r\u00e9essayez.',refreshing:'Connexion r\u00e9tablie - recherche de contenu de sant\u00e9 actualis\u00e9...',update:'Du contenu actualis\u00e9 est disponible. Rechargez apr\u00e8s avoir termin\u00e9 votre travail.',reload:'Recharger',retry:'R\u00e9essayer'}
   };
-  let registration=null, status='preparing', updateAvailable=false, attempts=0;
+  let registration=null, status='preparing', updateAvailable=false, attempts=0, notice='', noticeTimer=null;
   const banner=document.createElement('div');
   banner.className='offline-status';
   banner.setAttribute('role','status');
@@ -31,8 +31,8 @@
 
   function render() {
     const labels=copy[typeof LANG!=='undefined'?LANG:'en']||copy.en;
-    const offline=navigator.onLine===false;
-    text.textContent=labels[offline?'offline':updateAvailable?'update':status];
+    const offline=navigator.onLine===false||(typeof ApiState!=='undefined'&&ApiState.offline);
+    text.textContent=notice||labels[offline?'offline':updateAvailable?'update':status];
     banner.dataset.offline=String(offline);
     action.hidden=offline||(!updateAvailable&&status!=='failed');
     action.textContent=labels[updateAvailable?'reload':'retry'];
@@ -55,7 +55,8 @@
         ApiState.failed=false;
         ApiState.ready=initializeBackend();
         await ApiState.ready;
-      } else await refreshBackendNotifications();
+      } else if (ApiState.offline) { if (typeof HFAOffline!=='undefined') await HFAOffline.reconnect(); render(); }
+      else await refreshBackendNotifications();
     }
   }
 
@@ -80,6 +81,8 @@
   });
   window.addEventListener('online',()=>{attempts=0;reconnect();});
   window.addEventListener('offline',render);
+  window.addEventListener('hfa-offline-notice',event=>{notice=event.detail;render();clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>{notice='';render();},20000);});
+  window.addEventListener('hfa-session',render);
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message',event=>{
     if (event.data?.type==='PUBLIC_REFRESHED') {
       updateAvailable=updateAvailable||event.data.changed;

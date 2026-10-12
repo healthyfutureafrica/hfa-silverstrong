@@ -1,6 +1,6 @@
-const CACHE_NAME='hfa-public-v6';
+const CACHE_NAME='hfa-public-v7';
 const ROOT=new URL('./',self.location.href);
-const SHELL=['index.html','offline.js','offline-uploads.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
+const SHELL=['index.html','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
 
 async function refreshPublicShell() {
   const cache=await caches.open(CACHE_NAME);

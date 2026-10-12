@@ -6,6 +6,8 @@ const { dirname } = require('node:path');
 
 const deriveKey = promisify(scrypt);
 const digest = value => createHash('sha256').update(value).digest('hex');
+// Sessions outlive a 7-day offline period so queued work can sync without signing in again.
+const SESSION_TTL = 7 * 86400000;
 
 async function hashPassword(password) {
   const salt = randomBytes(16).toString('hex');
@@ -99,7 +101,7 @@ class Store {
 
   createSession(userId) {
     const token = randomBytes(32).toString('hex');
-    this.db.prepare('INSERT INTO sessions VALUES (?,?,?)').run(digest(token), userId, Date.now() + 8 * 3600000);
+    this.db.prepare('INSERT INTO sessions VALUES (?,?,?)').run(digest(token), userId, Date.now() + SESSION_TTL);
     return token;
   }
 
@@ -161,4 +163,4 @@ class Store {
   close() { this.db.close(); }
 }
 
-module.exports = { Store, digest, hashPassword, verifyPassword };
+module.exports = { Store, digest, hashPassword, verifyPassword, SESSION_TTL };

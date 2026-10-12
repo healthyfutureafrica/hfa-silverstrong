@@ -168,10 +168,44 @@ test('pharmacy orders reserve stock once and enforce ownership, expiry and presc
     assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'ready',prescriptionReviewed:true},pc,'PATCH')).status,200);
     assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'cancelled'},pc,'PATCH')).status,200);
     assert.equal(store.db.prepare('SELECT stock FROM pharmacy_items WHERE id=?').get(id).stock,5);
-    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'cancelled'},pc,'PATCH')).status,409);
+    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'cancelled'},pc,'PATCH')).status,200);
+    assert.equal(store.db.prepare('SELECT stock FROM pharmacy_items WHERE id=?').get(id).stock,5);
+    assert.equal((await request('/api/pharmacy/orders/'+order.id,{status:'ready',prescriptionReviewed:true},pc,'PATCH')).status,409);
+    const offlineId=randomUUID();
+    assert.equal((await request('/api/pharmacy/items',{...item,id:offlineId},pc)).status,201);
+    const replayed=await request('/api/pharmacy/items',{...item,id:offlineId},pc);
+    assert.equal(replayed.status,200);assert.equal((await replayed.json()).id,offlineId);
+    assert.equal(store.db.prepare('SELECT COUNT(*) AS total FROM pharmacy_items WHERE id=?').get(offlineId).total,1);
+    assert.equal((await request('/api/pharmacy/items',{...item,id:offlineId},`hfa_session=${store.createSession(unrelated.id)}`)).status,409);
     store.db.prepare('UPDATE pharmacy_items SET expires_on=? WHERE id=?').run('2020-01-01',id);
     assert.equal((await request('/api/pharmacy/orders',{...purchase,requestId:randomUUID()},uc)).status,409);
     store.updateUser(pharmacy.id,{status:'suspended'});
     assert.equal((await request('/api/pharmacy/orders',{...purchase,requestId:randomUUID()},uc)).status,409);
+  } finally {await new Promise(resolve=>server.close(resolve));store.close();}
+});
+test('registration stores the identity document encrypted and sessions last seven days',async()=>{
+  const store=new Store(),config={origin:'http://localhost:8080',ready:false,fileEncryptionKey:'56'.repeat(32)};
+  const server=createApp(config,store,{}).listen(0,'127.0.0.1');
+  await new Promise(resolve=>server.once('listening',resolve));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const post=(path,body)=>fetch(base+path,{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin},body:JSON.stringify(body)});
+  const png=Buffer.from([137,80,78,71,13,10,26,10,1,2,3]);
+  const input={name:'Synthetic Patient',email:'identity@example.invalid',password:'Synthetic-password-123',role:'patient',whatsappNumber:'+237600000001',idDocumentType:'passport',idDocument:{fileName:'passport.png',content:png.toString('base64')}};
+  try {
+    assert.equal((await post('/api/auth/register',{...input,idDocumentType:undefined})).status,400);
+    assert.equal((await post('/api/auth/register',{...input,idDocument:{fileName:'x.txt',content:Buffer.from('plain text').toString('base64')}})).status,400);
+    const registered=await post('/api/auth/register',input);
+    assert.equal(registered.status,201);
+    const {user}=await registered.json();
+    assert.equal(user.idDocument.mime,'image/png');assert.equal(user.idVerificationStatus,'pending');
+    const row=store.db.prepare('SELECT * FROM uploaded_files WHERE owner_id=?').get(user.id);
+    assert.equal(Buffer.from(row.encrypted).includes(png),false);
+    const cookie=registered.headers.get('set-cookie');
+    assert.match(cookie,/Max-Age=604800/);
+    const expires=store.db.prepare('SELECT expires_at FROM sessions WHERE user_id=?').get(user.id).expires_at;
+    assert.ok(expires-Date.now()>6.9*86400000);
+    const admin=store.createUser({name:'Synthetic Admin',email:'admin-identity@example.invalid',role:'admin'},'unused','active');
+    const downloaded=await fetch(`${base}/api/admin/users/${user.id}/documents/identity`,{headers:{Cookie:`hfa_session=${store.createSession(admin.id)}`}});
+    assert.equal(downloaded.status,200);assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()),png);
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });

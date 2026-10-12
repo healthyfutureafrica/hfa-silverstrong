@@ -3,7 +3,7 @@ const { randomUUID } = require('node:crypto');
 const { digest } = require('./store');
 
 const text=z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
-const itemSchema=z.object({name:text,strength:text,unit:text,batch:text,expiresOn:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),stock:z.number().int().min(0).max(100000),price:z.number().min(0.01).max(10000).refine(value=>Math.abs(value*100-Math.round(value*100))<0.000001),requiresPrescription:z.boolean()}).strict();
+const itemSchema=z.object({id:z.string().uuid().optional(),name:text,strength:text,unit:text,batch:text,expiresOn:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),stock:z.number().int().min(0).max(100000),price:z.number().min(0.01).max(10000).refine(value=>Math.abs(value*100-Math.round(value*100))<0.000001),requiresPrescription:z.boolean()}).strict();
 const orderSchema=z.object({requestId:z.string().uuid(),itemId:z.string().uuid(),quantity:z.number().int().min(1).max(20),method:z.enum(['pickup','delivery']),address:text}).strict();
 
 function installPharmacyRoutes(app,store,authenticated) {
@@ -35,7 +35,9 @@ function installPharmacyRoutes(app,store,authenticated) {
     const input=itemSchema.parse(request.body);
     const parsed=new Date(input.expiresOn+'T00:00:00Z');
     if (!Number.isFinite(parsed.getTime())||parsed.toISOString().slice(0,10)!==input.expiresOn||input.expiresOn<=new Date().toISOString().slice(0,10)) return response.status(400).json({error:'A valid future expiry date is required'});
-    const id=randomUUID();
+    // Offline devices send their own item ID so a replayed request does not create a duplicate batch.
+    const id=input.id||randomUUID(),prior=input.id&&store.db.prepare('SELECT pharmacist_id FROM pharmacy_items WHERE id=?').get(id);
+    if (prior) return prior.pharmacist_id===request.user.id?response.json({id}):response.status(409).json({error:'Item ID already exists'});
     store.db.prepare('INSERT INTO pharmacy_items VALUES (?,?,?,?,?,?,?,?,?,?)').run(id,request.user.id,input.name,input.strength,input.unit,input.batch,input.expiresOn,input.stock,Math.round(input.price*100),input.requiresPrescription?1:0);
     response.status(201).json({id});
   });
@@ -66,6 +68,7 @@ function installPharmacyRoutes(app,store,authenticated) {
     const input=z.object({status:z.enum(['ready','dispatched','completed','cancelled']),prescriptionReviewed:z.boolean().optional()}).strict().parse(request.body);
     const order=store.db.prepare('SELECT * FROM pharmacy_orders WHERE id=? AND pharmacist_id=?').get(request.params.id,request.user.id);
     if (!order) return response.sendStatus(404);
+    if (order.status===input.status) return response.json({status:input.status}); // replayed offline update
     const transitions={requested:['ready','cancelled'],ready:order.method==='delivery'?['dispatched','cancelled']:['completed','cancelled'],dispatched:['completed']};
     if (!transitions[order.status]?.includes(input.status)) return response.status(409).json({error:'Invalid fulfillment transition'});
     const item=store.db.prepare('SELECT * FROM pharmacy_items WHERE id=?').get(order.item_id);

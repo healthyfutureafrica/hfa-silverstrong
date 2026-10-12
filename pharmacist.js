@@ -80,8 +80,35 @@ function phLocalRequest(path,method='GET',body={}) {
   fail('Not found');
 }
 
+// Offline with a backend: read the saved copy, apply the change to it, and queue the request for the server.
+function phOfflineRequest(path,method,body={}) {
+  if (method==='GET') return structuredClone(PH_DATA);
+  const fail=message=>{throw new Error(message);};
+  const [,kind,id]=path.match(/^\/api\/pharmacy\/(items|orders)(?:\/([^/]+))?$/)||[];
+  const request={path,method,body:{...body}};
+  if (kind==='items'&&method==='POST'&&!id) {
+    request.body.id=crypto.randomUUID();
+    PH_DATA.items.push({...request.body,pharmacistId:CU.id,currency:'USD',pharmacyName:CU.pharmacyName,pharmacyAddress:CU.pharmacyAddress,pharmacyLocation:CU.pharmacyLocation});
+  } else if (kind==='items'&&method==='PATCH') {
+    const item=PH_DATA.items.find(entry=>entry.id===id)||fail('Not found');
+    item.stock=body.stock;
+  } else if (kind==='orders'&&method==='POST'&&!id) {
+    const item=PH_DATA.items.find(entry=>entry.id===body.itemId)||fail('Medication is unavailable');
+    if (item.stock<body.quantity) fail('Not enough available stock');
+    item.stock-=body.quantity;
+    PH_DATA.orders.unshift({id:'queued-'+body.requestId,requestId:body.requestId,itemId:item.id,name:item.name,patientId:CU.id,pharmacistId:item.pharmacistId,quantity:body.quantity,total:Math.round(item.price*100)*body.quantity/100,currency:'USD',method:body.method,address:body.address.trim(),status:'requested',prescriptionReviewed:false,createdAt:new Date().toISOString(),queued:true});
+  } else if (kind==='orders'&&method==='PATCH') {
+    const order=PH_DATA.orders.find(entry=>entry.id===id&&!entry.queued)||fail('Not found');
+    order.status=body.status;order.prescriptionReviewed=order.prescriptionReviewed||body.prescriptionReviewed===true;
+    const item=PH_DATA.items.find(entry=>entry.id===order.itemId);
+    if (body.status==='cancelled'&&item) item.stock+=order.quantity;
+  } else fail('Not found');
+  return HFAOffline.enqueue(request).then(()=>HFAOffline.save()).then(()=>({status:'queued'}));
+}
+
 function phRequest(path,method='GET',body) {
-  return ApiState.enabled?apiRequest(path,method,body):Promise.resolve().then(()=>phLocalRequest(path,method,body));
+  if (!ApiState.enabled) return Promise.resolve().then(()=>phLocalRequest(path,method,body));
+  return ApiState.offline?Promise.resolve().then(()=>phOfflineRequest(path,method,body)):apiRequest(path,method,body);
 }
 
 function phEscape(value) {
@@ -121,8 +148,10 @@ async function registerPharmacist() {
   try {
     const documents={};
     for (const [kind,file] of files) documents[kind]={fileName:file.name.replace(/[<>\u0000-\u001f/\\]/g,'_').slice(0,180),mime:file.type,size:file.size,data:await phReadFile(file)};
-    if (ApiState.enabled) await apiRequest('/api/auth/register/pharmacist','POST',{...payload,documents:Object.fromEntries(Object.entries(documents).map(([kind,doc])=>[kind,{fileName:doc.fileName,content:doc.data.slice(doc.data.indexOf(',')+1)}]))},120000);
-    else {
+    if (ApiState.enabled) {
+      const {queued}=await HFAOffline.submitRegistration('/api/auth/register/pharmacist',{...payload,documents:Object.fromEntries(Object.entries(documents).map(([kind,doc])=>[kind,{fileName:doc.fileName,content:doc.data.slice(doc.data.indexOf(',')+1)}]))});
+      if (queued) {$('rpa').value='';PH_DOCS.forEach(([kind])=>{$('phd-'+kind).value='';});swtTab('login');$('le').value=payload.email;amsg(t('offline_registration_queued'),'i');return;}
+    } else {
       if (DB.users.some(user=>user.email.toLowerCase()===payload.email.toLowerCase())) return amsg(t('email_exists'));
       DB.users.push({...payload,role:'pharmacist',pharmacyDocuments:documents,id:'pha'+Date.now(),status:'pending_approval',createdAt:todayD(),hfaId:nextHfaId('pharmacist')});
     }
@@ -253,4 +282,5 @@ const labelPharmacyEntry=()=>{
 };
 labelPharmacyEntry();
 pharmacyRegistrationFields();
+if (typeof HFAOffline!=='undefined') HFAOffline.register('pharmacy',{save:()=>PH_DATA,load:value=>{PH_DATA=value;},clear:()=>{PH_DATA={items:[],orders:[]};}});
 new MutationObserver(()=>{pharmacyRegistrationFields();labelPharmacyEntry();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-lang']});
