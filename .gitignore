@@ -23,3 +23,7 @@ backend/data/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+
+# Static demo build output and Cloudflare Wrangler state
+dist/
+.wrangler/

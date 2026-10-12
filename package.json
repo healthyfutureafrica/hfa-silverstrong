@@ -12,7 +12,8 @@
     "ci": "npm run lint && npm test && npm run test:backend",
     "test:backend": "node --test backend/test/*.test.js",
     "backend": "node --env-file-if-exists=.env backend/server.js",
-    "docker:build": "docker build -t hfa-silverstrong:latest ."
+    "docker:build": "docker build -t hfa-silverstrong:latest .",
+    "build:static": "node scripts/build-static.js"
   },
   "devDependencies": {
     "html-validate": "^8.4.0",

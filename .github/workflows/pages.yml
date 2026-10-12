@@ -34,10 +34,7 @@ jobs:
           exit 1
 
       - name: Prepare Pages artifact
-        run: |
-          mkdir -p dist
-          cp index.html offline.js offline-uploads.js offline-session.js pharmacist.js service-worker.js dist/
-          cp -R assets dist/assets
+        run: node scripts/build-static.js
 
       - name: Upload demo artifact
         uses: actions/upload-pages-artifact@v3

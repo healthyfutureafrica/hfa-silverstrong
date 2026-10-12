@@ -1,0 +1,17 @@
+// Cloudflare Workers static demo. Only dist/ (built from the public files) is uploaded.
+// Unknown paths must return 404 (not index.html) so the app detects there is no backend.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hfa-silverstrong",
+  "compatibility_date": "2026-10-06",
+  "observability": {
+    "enabled": true
+  },
+  "build": {
+    "command": "npm run build:static"
+  },
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "none"
+  }
+}
