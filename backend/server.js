@@ -7,6 +7,7 @@ const { configuration, validSignature, MetaProvider } = require('./provider');
 const { randomUUID } = require('node:crypto');
 const { installFileRoutes, filesConfigured, fileMime, saveEncryptedFile, decodeFile } = require('./files');
 const { installPharmacyRoutes } = require('./pharmacy');
+const { seedDemoAccounts } = require('./demo-accounts');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -74,7 +75,7 @@ function createApp(config, store, provider) {
   app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
   app.use(helmet());
   app.get('/api/healthz', (request, response) => response.json({ status: 'ok' }));
-  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config) }));
+  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), demoAccounts: !!config.demoAccounts }));
   app.get('/api/whatsapp/webhook', (request, response) => {
     if (!config.verifyToken || request.query['hub.mode'] !== 'subscribe' || request.query['hub.verify_token'] !== config.verifyToken || typeof request.query['hub.challenge'] !== 'string') return response.sendStatus(403);
     response.type('text/plain').send(request.query['hub.challenge']);
@@ -103,7 +104,8 @@ function createApp(config, store, provider) {
   const admin = (request, response, next) => request.user.role === 'admin' ? next() : response.status(403).json({ error: 'Administrator required' });
   installFileRoutes(app,config,store,authenticated);
   installPharmacyRoutes(app,store,authenticated);
-  const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, standardHeaders: 'draft-8', legacyHeaders: false });
+  // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
+  const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
   const startSession = (response, user) => response.cookie('hfa_session', store.createSession(user.id), {
     httpOnly: true, sameSite: 'strict', secure: config.origin.startsWith('https://'), path: '/api', maxAge: SESSION_TTL
@@ -245,9 +247,10 @@ function createApp(config, store, provider) {
 async function start() {
   const config = configuration(), store = new Store(config.database);
   await bootstrap(config, store);
+  if (config.demoAccounts) await seedDemoAccounts(store);
   const provider = new MetaProvider(config, store);
   const server = createApp(config, store, provider).listen(config.port, '0.0.0.0', () => {
-    console.log(`HFA backend listening on port ${config.port}; WhatsApp delivery ${config.ready ? 'configured' : 'disabled'}`);
+    console.log(`HFA backend listening on port ${config.port}; WhatsApp delivery ${config.ready ? 'configured' : 'disabled'}${config.demoAccounts ? '; demo accounts enabled' : ''}`);
   });
   const worker = setInterval(() => provider.deliverNext().catch(() => console.error('WhatsApp worker failed')), 1000);
   worker.unref();

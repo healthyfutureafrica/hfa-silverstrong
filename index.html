@@ -2119,7 +2119,7 @@ const EXERCISE_ESSENTIALS = [
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
-const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false,offline:false};
+const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false,offline:false,demoLogins:[]};
 async function apiRequest(path, method='GET', body, timeout=15000) {
   const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});
   if (response.status===204) return {};
@@ -2156,9 +2156,11 @@ async function initializeBackend() {
       ApiState.offline=true;
     }
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
+    // Servers started with DEMO_ACCOUNTS=true hold the same test accounts as the static demo.
+    ApiState.demoLogins=config?.demoAccounts?DB.users.filter(user=>user.status==='active'&&user.role!=='admin').map(({role,email,password})=>({role,email,password})):[];
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
-    $('lnd-demo').classList.add('hid');
+    if (!ApiState.demoLogins.length) $('lnd-demo').classList.add('hid');
     updateStaticHTML();
     if (ApiState.offline) return;
     const session=await fetch('/api/session',{credentials:'same-origin'});
@@ -2575,6 +2577,8 @@ function goAuth(tab, role) {
 }
 function startDemo(role='patient') {
   if (ApiState.loading) { ApiState.ready.then(()=>startDemo(role)); return; }
+  const serverDemo=ApiState.enabled&&ApiState.demoLogins?.find(user=>user.role===role);
+  if (serverDemo) { goAuth('login'); backendLogin(serverDemo.email,serverDemo.password); return; }
   if (ApiState.enabled||ApiState.failed) { goAuth('login'); return; }
   if(!['patient','doctor','nurse','labtech'].includes(role)) return goAuth('login');
   const demo=DB.users.find(user=>user.role===role&&user.status==='active');

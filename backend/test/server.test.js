@@ -209,3 +209,48 @@ test('registration stores the identity document encrypted and sessions last seve
     assert.equal(downloaded.status,200);assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()),png);
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
+
+test('demo accounts are created active only when enabled and match the static demo',async()=>{
+  const { DEMO_ACCOUNTS, seedDemoAccounts } = require('../demo-accounts');
+  const html=require('node:fs').readFileSync(join(__dirname,'..','..','index.html'),'utf8');
+  for (const account of DEMO_ACCOUNTS) assert.ok(html.includes(`email:'${account.email}',password:'${account.password}'`),account.email+' differs from index.html');
+  const store=new Store();
+  const off=createApp({origin:'http://localhost:8080',ready:false},store,{}).listen(0,'127.0.0.1');
+  await new Promise(resolve=>off.once('listening',resolve));
+  try { assert.equal((await (await fetch(`http://127.0.0.1:${off.address().port}/api/config`)).json()).demoAccounts,false); }
+  finally { await new Promise(resolve=>off.close(resolve)); }
+  await seedDemoAccounts(store);
+  const pharmacist=store.user(store.credentials('pharmacy@hfa.org').id);
+  store.updateUser(pharmacist.id,{status:'suspended'});
+  await seedDemoAccounts(store);
+  assert.equal(store.db.prepare('SELECT COUNT(*) AS total FROM users').get().total,DEMO_ACCOUNTS.length);
+  const config={origin:'http://localhost:8080',ready:false,demoAccounts:true};
+  const server=createApp(config,store,{}).listen(0,'127.0.0.1');
+  await new Promise(resolve=>server.once('listening',resolve));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  try {
+    assert.equal((await (await fetch(base+'/api/config')).json()).demoAccounts,true);
+    for (const account of DEMO_ACCOUNTS) {
+      const response=await fetch(base+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,'X-Forwarded-For':account.email},body:JSON.stringify({email:account.email,password:account.password})});
+      assert.equal(response.status,200,account.email);
+      const {user}=await response.json();
+      assert.equal(user.role,account.role);assert.equal(user.status,'active');
+    }
+    const patient=store.user(store.credentials('jfon@gmail.com').id);
+    assert.equal(store.user(patient.assignedDoctor).email,'kasante@hfa.org');
+    assert.ok(store.user(store.credentials('pharmacy@hfa.org').id).pharmacyValidatedAt);
+  } finally {await new Promise(resolve=>server.close(resolve));store.close();}
+});
+
+test('sign-in rate limit counts failed attempts only',async()=>{
+  const store=new Store(),config={origin:'http://localhost:8080',ready:false};
+  store.createUser({name:'Synthetic Patient',email:'limit@example.invalid',role:'patient'},await hashPassword('Synthetic-password-123'),'active');
+  const server=createApp(config,store,{}).listen(0,'127.0.0.1');
+  await new Promise(resolve=>server.once('listening',resolve));
+  const login=password=>fetch(`http://127.0.0.1:${server.address().port}/api/auth/login`,{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin},body:JSON.stringify({email:'limit@example.invalid',password})});
+  try {
+    for (let attempt=0;attempt<12;attempt++) assert.equal((await login('Synthetic-password-123')).status,200);
+    for (let attempt=0;attempt<10;attempt++) assert.equal((await login('Wrong-password-000')).status,401);
+    assert.equal((await login('Wrong-password-000')).status,429);
+  } finally {await new Promise(resolve=>server.close(resolve));store.close();}
+});
