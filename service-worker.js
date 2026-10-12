@@ -1,11 +1,19 @@
-const CACHE_NAME='hfa-public-v8';
+const CACHE_NAME='hfa-public-v9';
 const ROOT=new URL('./',self.location.href);
-const SHELL=['index.html','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
+// The page is stored under the directory URL: some hosts (Cloudflare) redirect /index.html to /.
+const SHELL=['./','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
+const INDEX=new URL('index.html',ROOT).href;
+
+// Browsers refuse a redirected response for a page load (ERR_FAILED), so drop the redirect marker.
+async function clean(response) {
+  if (!response.redirected) return response;
+  return new Response(await response.blob(),{status:response.status,statusText:response.statusText,headers:response.headers});
+}
 
 async function refreshPublicShell() {
   const cache=await caches.open(CACHE_NAME);
   const responses=await Promise.all(SHELL.map(async url=>{
-    const response=await fetch(url,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(8000)});
+    const response=await clean(await fetch(url,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(8000)}));
     if (!response.ok) throw new Error('Public content unavailable');
     return {url,response};
   }));
@@ -36,7 +44,7 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   const request=event.request, url=new URL(request.url);
   if (request.method!=='GET' || url.origin!==ROOT.origin || url.search) return;
-  const publicUrl=url.href===ROOT.href?SHELL[0]:url.href;
+  const publicUrl=url.href===INDEX?ROOT.href:url.href;
   if (!SHELL.includes(publicUrl)) return;
   event.respondWith((async()=>{
     let cache=null;
@@ -46,7 +54,7 @@ self.addEventListener('fetch',event=>{
       if (saved) return saved;
     } catch (error) { cache=null; } // storage unavailable: fall through to the network
     // Fetch by URL: re-sending a navigation Request with options throws a TypeError in browsers.
-    const response=await fetch(publicUrl,{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(15000)});
+    const response=await clean(await fetch(publicUrl,{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(15000)}));
     if (response.ok && cache) cache.put(publicUrl,response.clone()).catch(()=>{});
     return response;
   })());

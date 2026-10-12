@@ -180,7 +180,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/index.html','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;
@@ -202,7 +202,7 @@ describe('index.html sanity checks', () => {
 
     test('reopens the scoped app from cache without connectivity',async()=>{
       const {context,handlers,saved}=workerContext();
-      saved.set('https://example.invalid/hfa/index.html',new Response('Saved public page'));
+      saved.set('https://example.invalid/hfa/',new Response('Saved public page'));
       context.fetch.mockRejectedValue(new Error('Offline'));
       let pending;
       handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/'},respondWith:promise=>{pending=promise;}});
@@ -211,7 +211,7 @@ describe('index.html sanity checks', () => {
 
     test('returns cached navigation immediately without starting a stalled network fetch',async()=>{
       const {context,handlers,saved}=workerContext();
-      saved.set('https://example.invalid/hfa/index.html',new Response('Cached page'));
+      saved.set('https://example.invalid/hfa/',new Response('Cached page'));
       context.fetch.mockImplementation(()=>new Promise(()=>{}));
       let pending;
       handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/'},respondWith:promise=>{pending=promise;}});
@@ -235,10 +235,24 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.fetch({request,respondWith:promise=>{pending=promise;}});
       expect(await (await pending).text()).toBe('Fresh page');
-      expect(context.fetch).toHaveBeenCalledWith('https://example.invalid/hfa/index.html',expect.objectContaining({signal:expect.any(AbortSignal)}));
+      expect(context.fetch).toHaveBeenCalledWith('https://example.invalid/hfa/',expect.objectContaining({signal:expect.any(AbortSignal)}));
       expect(context.fetch.mock.calls[0][0]).not.toBe(request);
       await new Promise(resolve=>setTimeout(resolve,0));
-      expect(saved.has('https://example.invalid/hfa/index.html')).toBe(true);
+      expect(saved.has('https://example.invalid/hfa/')).toBe(true);
+    });
+
+    test('serves a redirected page without the redirect flag and maps index.html to the app root',async()=>{
+      const {context,handlers,saved}=workerContext();
+      const redirected=new Response('Redirected page');Object.defineProperty(redirected,'redirected',{value:true});
+      context.fetch.mockResolvedValue(redirected);
+      let pending;
+      handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/index.html',mode:'navigate'},respondWith:promise=>{pending=promise;}});
+      const response=await pending;
+      expect(response.redirected).toBe(false);
+      expect(await response.text()).toBe('Redirected page');
+      expect(context.fetch).toHaveBeenCalledWith('https://example.invalid/hfa/',expect.anything());
+      await new Promise(resolve=>setTimeout(resolve,0));
+      expect(saved.has('https://example.invalid/hfa/')).toBe(true);
     });
 
     test('still installs when caching fails, so a fixed worker can replace a broken one',async()=>{
@@ -258,25 +272,25 @@ describe('index.html sanity checks', () => {
 
     test('refreshes public content on reconnection and announces the update',async()=>{
       const {context,handlers,saved}=workerContext();
-      saved.set('https://example.invalid/hfa/index.html',new Response('Old public page'));
+      saved.set('https://example.invalid/hfa/',new Response('Old public page'));
       context.fetch.mockResolvedValue(new Response('New public page'));
       const source={postMessage:jest.fn()};
       let pending;
       handlers.message({data:{type:'REFRESH_PUBLIC'},source,waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect(await saved.get('https://example.invalid/hfa/index.html').text()).toBe('New public page');
+      expect(await saved.get('https://example.invalid/hfa/').text()).toBe('New public page');
       expect(source.postMessage).toHaveBeenCalledWith({type:'PUBLIC_REFRESHED',changed:true});
     });
 
     test('retains the saved version when a refresh fails',async()=>{
       const {context,handlers,saved}=workerContext();
-      saved.set('https://example.invalid/hfa/index.html',new Response('Old public page'));
+      saved.set('https://example.invalid/hfa/',new Response('Old public page'));
       context.fetch.mockRejectedValue(new Error('Unavailable'));
       const source={postMessage:jest.fn()};
       let pending;
       handlers.message({data:{type:'REFRESH_PUBLIC'},source,waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect(await saved.get('https://example.invalid/hfa/index.html').text()).toBe('Old public page');
+      expect(await saved.get('https://example.invalid/hfa/').text()).toBe('Old public page');
       expect(source.postMessage).toHaveBeenCalledWith({type:'PUBLIC_REFRESH_FAILED'});
     });
   });
