@@ -995,6 +995,8 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 if (typeof AbortSignal!=='undefined' && !AbortSignal.timeout) AbortSignal.timeout=ms=>{ const controller=new AbortController(); setTimeout(()=>controller.abort(),ms); return controller.signal; };
 if (window.crypto && !crypto.randomUUID) crypto.randomUUID=()=>'10000000-1000-4000-8000-100000000000'.replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
 if (!window.structuredClone) window.structuredClone=value=>JSON.parse(JSON.stringify(value));
+// "/?refresh" opens the site past an outdated offline helper; tidy the address so bookmarks stay clean.
+if (location.search==='?refresh' && history.replaceState) history.replaceState(null,'',location.pathname+location.hash);
 
 // ═══════════════════════ LANGUAGE SYSTEM (must be first) ═══════════════════════
 
