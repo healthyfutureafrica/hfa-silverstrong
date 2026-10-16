@@ -275,6 +275,29 @@ describe('index.html sanity checks', () => {
       expect(saved.has('https://example.invalid/hfa/')).toBe(true);
     });
 
+    test('loads the page normally if anything in the worker fails',async()=>{
+      const {context,handlers}=workerContext();
+      const request={method:'GET',url:'https://example.invalid/hfa/',mode:'navigate'};
+      context.caches.open.mockRejectedValue(new Error('Unexpected internal error'));
+      context.fetch.mockImplementation(async input=>{ if (input===request) return new Response('Plain page'); throw new TypeError('Failed to fetch'); });
+      let pending;
+      handlers.fetch({request,respondWith:promise=>{pending=promise;}});
+      expect(await (await pending).text()).toBe('Plain page');
+    });
+
+    test('works in older browsers without AbortSignal.timeout',async()=>{
+      const handlers={};
+      const context={URL,Response,AbortController,setTimeout,AbortSignal:{},
+        self:{location:{href:'https://example.invalid/hfa/service-worker.js'},addEventListener:(type,handler)=>{handlers[type]=handler;},skipWaiting:jest.fn(),clients:{claim:jest.fn()}},
+        caches:{open:jest.fn(async()=>({match:async()=>undefined,put:async()=>{}})),keys:jest.fn(async()=>[]),delete:jest.fn()},
+        fetch:jest.fn(async(url,options)=>{ expect(options.signal).toBeDefined(); return new Response('Page'); })};
+      vm.createContext(context);
+      vm.runInContext(fs.readFileSync(path.join(__dirname,'..','service-worker.js'),'utf8'),context);
+      let pending;
+      handlers.fetch({request:{method:'GET',url:'https://example.invalid/hfa/',mode:'navigate'},respondWith:promise=>{pending=promise;}});
+      expect(await (await pending).text()).toBe('Page');
+    });
+
     test('still installs when caching fails, so a fixed worker can replace a broken one',async()=>{
       const {context,handlers}=workerContext();
       context.caches.open.mockRejectedValue(new Error('Unexpected internal error'));

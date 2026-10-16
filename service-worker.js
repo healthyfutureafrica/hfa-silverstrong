@@ -1,8 +1,16 @@
-const CACHE_NAME='hfa-public-v10';
+const CACHE_NAME='hfa-public-v11';
 const ROOT=new URL('./',self.location.href);
 // The page is stored under the directory URL: some hosts (Cloudflare) redirect /index.html to /.
 const SHELL=['./','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
 const INDEX=new URL('index.html',ROOT).href;
+
+// Browsers released before 2022 have no AbortSignal.timeout.
+function timeoutSignal(ms) {
+  if (AbortSignal.timeout) return AbortSignal.timeout(ms);
+  const controller=new AbortController();
+  setTimeout(()=>controller.abort(),ms);
+  return controller.signal;
+}
 
 // Browsers refuse a redirected response for a page load (ERR_FAILED), so drop the redirect marker.
 async function clean(response) {
@@ -13,7 +21,7 @@ async function clean(response) {
 async function refreshPublicShell() {
   const cache=await caches.open(CACHE_NAME);
   const responses=await Promise.all(SHELL.map(async url=>{
-    const response=await clean(await fetch(url,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(8000)}));
+    const response=await clean(await fetch(url,{cache:'no-store',credentials:'omit',signal:timeoutSignal(8000)}));
     if (!response.ok) throw new Error('Public content unavailable');
     return {url,response};
   }));
@@ -51,7 +59,7 @@ async function respond(publicUrl) {
   try { cache=await caches.open(CACHE_NAME); } catch (error) {} // storage unavailable: network only
   const saved=cache?cache.match(publicUrl).catch(()=>undefined):Promise.resolve(undefined);
   // Fetch by URL: re-sending a navigation Request with options throws a TypeError in browsers.
-  const network=fetch(publicUrl,{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(15000)}).then(clean).then(response=>{
+  const network=fetch(publicUrl,{cache:'no-store',credentials:'same-origin',signal:timeoutSignal(15000)}).then(clean).then(response=>{
     if (response.ok && cache) cache.put(publicUrl,response.clone()).catch(()=>{});
     return response;
   });
@@ -70,7 +78,8 @@ self.addEventListener('fetch',event=>{
   if (request.method!=='GET' || url.origin!==ROOT.origin || url.search) return;
   const publicUrl=url.href===INDEX?ROOT.href:url.href;
   if (!SHELL.includes(publicUrl)) return;
-  event.respondWith(respond(publicUrl));
+  // Safety net: if anything above fails, load the page exactly as if there were no service worker.
+  event.respondWith(respond(publicUrl).catch(()=>fetch(request)));
 });
 
 self.addEventListener('message',event=>{
