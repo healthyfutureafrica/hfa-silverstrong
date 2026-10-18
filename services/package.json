@@ -1,0 +1,26 @@
+{
+  "name": "hfa-services",
+  "private": true,
+  "description": "HFA Tele Healthcare Platform microservices (npm workspace)",
+  "workspaces": [
+    "shared",
+    "auth-service",
+    "user-service",
+    "pharmacy-service",
+    "payment-service",
+    "admin-service"
+  ],
+  "scripts": {
+    "test": "jest --runInBand",
+    "test:mobile": "jest --config ../mobile/chw-app/jest.config.js --runInBand",
+    "db:test:start": "docker run -d --name hfa-services-test-db -p 55432:5432 -e POSTGRES_PASSWORD=test postgres:16-alpine",
+    "db:test:stop": "docker rm -f hfa-services-test-db"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.0"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "hfa-chw-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HFA Community Health Worker app: offline-first structured consultations with encrypted local storage and automatic sync",
+  "main": "index.js",
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.1.2",
+    "@react-native-community/netinfo": "^11.4.1",
+    "react": "18.3.1",
+    "react-native": "0.76.9",
+    "react-native-keychain": "^9.2.3",
+    "react-native-quick-crypto": "^0.7.12"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

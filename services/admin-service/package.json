@@ -1,0 +1,17 @@
+{
+  "name": "@hfa/admin-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Public health surveillance aggregation and Ministry-facing reporting API (port 4008)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "migrate": "node src/migrate.js"
+  },
+  "dependencies": {
+    "@hfa/shared": "1.0.0",
+    "ioredis": "^5.6.1",
+    "sequelize": "^6.37.7",
+    "zod": "^3.25.0"
+  }
+}

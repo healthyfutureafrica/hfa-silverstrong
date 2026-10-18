@@ -1,0 +1,80 @@
+# Local development / integration stack for the HFA microservices.
+#   1. node scripts/generate-dev-env.js     (creates .env with fresh development keys)
+#   2. docker compose up -d --build
+#   3. API gateway: http://localhost:8090   (the only published port)
+# Production runs the same images on AWS ECS behind an Application Load Balancer, with RDS
+# PostgreSQL and ElastiCache Redis instead of the containers below.
+
+x-service: &service
+  env_file: .env
+  restart: unless-stopped
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run scripts/generate-dev-env.js first}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 20
+
+  auth-service:
+    <<: *service
+    build: { context: ., dockerfile: auth-service/Dockerfile }
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/hfa_auth
+
+  user-service:
+    <<: *service
+    build: { context: ., dockerfile: user-service/Dockerfile }
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/hfa_user
+
+  pharmacy-service:
+    <<: *service
+    build: { context: ., dockerfile: pharmacy-service/Dockerfile }
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/hfa_pharmacy
+
+  payment-service:
+    <<: *service
+    build: { context: ., dockerfile: payment-service/Dockerfile }
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/hfa_payment
+
+  admin-service:
+    <<: *service
+    build: { context: ., dockerfile: admin-service/Dockerfile }
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/hfa_admin
+      REDIS_URL: redis://redis:6379
+
+  gateway:
+    image: nginxinc/nginx-unprivileged:stable-alpine
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "127.0.0.1:8090:8080"
+    depends_on: [auth-service, user-service, pharmacy-service, payment-service, admin-service]
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:

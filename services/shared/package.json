@@ -1,0 +1,17 @@
+{
+  "name": "@hfa/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared building blocks for HFA services: response envelope, errors, validation, encryption, JWT verification, database and migrations",
+  "main": "src/index.js",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.7",
+    "zod": "^3.25.0"
+  }
+}

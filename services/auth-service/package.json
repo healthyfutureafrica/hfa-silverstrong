@@ -1,0 +1,18 @@
+{
+  "name": "@hfa/auth-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Authentication: login, RS256 access tokens, rotating refresh tokens in HttpOnly cookies (port 4001)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "migrate": "node src/migrate.js"
+  },
+  "dependencies": {
+    "@hfa/shared": "1.0.0",
+    "express-rate-limit": "^7.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "sequelize": "^6.37.7",
+    "zod": "^3.25.0"
+  }
+}
