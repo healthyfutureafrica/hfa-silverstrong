@@ -3,23 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{if(localStorage.getItem('hfa-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 <title>HFA SilverStrong — Healthcare Telehealth Platform</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --em:#0a6b50;--em-l:#12a07a;--em-d:#074d38;--em-p:#eaf6f2;
-  --go:#c4902a;--go-l:#e8b84b;--go-p:#fdf6e3;
-  --na:#0e2240;--na-m:#1b3558;--na-l:#264d7a;
-  --si:#8a9bb0;--si-l:#dde4ed;--si-p:#f5f7fa;
-  --w:#ffffff;--ow:#f8fafb;
-  --t1:#0e2240;--t2:#3d5068;--t3:#8a9bb0;
-  --bd:#dde4ed;--bd2:#c8d4e3;
-  --dg:#c0392b;--wn:#d68910;--su:#1e8449;--in:#1a6fa3;
-  --fd:'Lora',serif;--fb:'Inter',sans-serif;--fm:'JetBrains Mono',monospace;
-  --r:10px;--rs:6px;--rl:16px;--rx:24px;
-  --sh:0 1px 3px rgba(14,34,64,.07);
-  --shm:0 4px 16px rgba(14,34,64,.1);
-  --shl:0 12px 40px rgba(14,34,64,.14);
+  /* HFA design system — keep in sync with packages/hfa-ui/src/tokens.js */
+  --em:#006B3F;--em-l:#2A8F5C;--em-d:#005833;--em-p:#E6F2EC;
+  --go:#B08F00;--go-l:#FCD116;--go-p:#FFFBE6;
+  --hl:#FCD116;--ac:#CE1126;
+  --na:#111827;--na-m:#1F2937;--na-l:#374151;
+  --si:#6B7280;--si-l:#E5E7EB;--si-p:#F9FAFB;
+  --w:#ffffff;--ow:#F9FAFB;--sf:#ffffff;
+  --t1:#111827;--t2:#374151;--t3:#6B7280;
+  --bd:#E5E7EB;--bd2:#D1D5DB;
+  --dg:#CE1126;--wn:#D97706;--su:#006B3F;--in:#1a6fa3;
+  --fd:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;--fb:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --fc:'Merriweather',Georgia,'Times New Roman',serif;--fm:'JetBrains Mono',monospace;
+  --r:12px;--rs:8px;--rl:16px;--rx:24px;
+  --sh:0 2px 12px rgba(0,107,63,.08);
+  --shm:0 4px 16px rgba(0,107,63,.1);
+  --shl:0 12px 40px rgba(17,24,39,.16);
   --tr:all .18s ease;
 }
 body{font-family:var(--fb);background:var(--ow);color:var(--t1);line-height:1.6;font-size:14px}
@@ -29,7 +33,7 @@ input,select,textarea,button{font-family:var(--fb)}
 .offline-status .btn{flex-shrink:0}
 .offline-status .btn[hidden]{display:none}
 .offline-actions,.vault-actions{display:flex;flex-wrap:wrap;gap:8px}
-.price-country{max-width:210px;min-width:0;border:1px solid var(--bd);border-radius:var(--rs);padding:5px;background:#fff;color:var(--t2);font-size:.74rem}
+.price-country{max-width:210px;min-width:0;border:1px solid var(--bd);border-radius:var(--rs);padding:5px;background:var(--sf);color:var(--t2);font-size:.74rem}
 .rbs{flex-wrap:wrap}
 .pharmacy-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--bd);overflow-wrap:anywhere}
 .pharmacy-row>div{min-width:0}
@@ -53,7 +57,7 @@ input,select,textarea,button{font-family:var(--fb)}
 .sb-tg{font-size:.62rem;color:var(--go);letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
 .sb-rb{display:inline-block;margin-top:8px;padding:2px 9px;border-radius:20px;font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em}
 .ra{background:rgba(196,144,42,.25);color:#e8c06a}
-.rd{background:rgba(10,107,80,.35);color:#6ddbb8}
+.rd{background:rgba(0,107,63,.35);color:#6ddbb8}
 .rn{background:rgba(26,111,163,.3);color:#7ec9ed}
 .rp{background:rgba(138,155,176,.2);color:#c0d0e0}
 .rl{background:rgba(108,52,131,.3);color:#d6a8ee}
@@ -68,44 +72,44 @@ input,select,textarea,button{font-family:var(--fb)}
 .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--em-l),var(--go));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;color:#fff;flex-shrink:0}
 .un{font-size:.8rem;font-weight:600;color:#fff;line-height:1.2}
 .ue{font-size:.68rem;color:var(--si);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
-.btn-lo{width:100%;padding:7px;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.25);border-radius:var(--rs);color:#e08080;font-size:.75rem;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:5px}
-.btn-lo:hover{background:rgba(192,57,43,.3)}
+.btn-lo{width:100%;padding:7px;background:rgba(206,17,38,.15);border:1px solid rgba(206,17,38,.25);border-radius:var(--rs);color:#e08080;font-size:.75rem;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-lo:hover{background:rgba(206,17,38,.3)}
 
-.topbar{background:#fff;border-bottom:1px solid var(--bd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
-.tb-t{font-family:var(--fd);font-size:1.2rem;color:var(--na)}
+.topbar{background:var(--sf);border-bottom:1px solid var(--bd);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
+.tb-t{font-family:var(--fd);font-size:1.2rem;color:var(--t1)}
 .tb-r{display:flex;align-items:center;gap:8px}
 .tb-l{display:flex;align-items:center;gap:10px;min-width:0}
-.tb-menu{display:none;align-items:center;justify-content:center;flex-shrink:0;width:42px;height:42px;border-radius:var(--r);border:1px solid var(--bd);background:#fff;color:var(--na);cursor:pointer;transition:var(--tr)}
+.tb-menu{display:none;align-items:center;justify-content:center;flex-shrink:0;width:42px;height:42px;border-radius:var(--r);border:1px solid var(--bd);background:var(--sf);color:var(--t1);cursor:pointer;transition:var(--tr)}
 .tb-menu:hover,.tb-menu:focus-visible{background:var(--em-p);border-color:var(--em-l);color:var(--em-d)}
 .sb-backdrop{display:none}
 @media (prefers-reduced-motion:reduce){#sidebar,.sb-backdrop{transition:none !important}}
 
 .page{padding:28px;max-width:1180px;flex:1}
 .ph{margin-bottom:22px}
-.ph h2{font-family:var(--fd);font-size:1.5rem;color:var(--na)}
+.ph h2{font-family:var(--fd);font-size:1.5rem;color:var(--t1)}
 .ph p{color:var(--t3);font-size:.85rem;margin-top:3px}
 
-.card{background:#fff;border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh);padding:20px}
+.card{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh);padding:20px}
 .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.ct{font-family:var(--fd);font-size:1rem;color:var(--na)}
+.ct{font-family:var(--fd);font-size:1rem;color:var(--t1)}
 
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;margin-bottom:22px}
-.sc{background:#fff;border-radius:var(--r);border:1px solid var(--bd);padding:18px 20px;position:relative;overflow:hidden}
+.sc{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);padding:18px 20px;position:relative;overflow:hidden}
 .sc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .ce::after{background:linear-gradient(90deg,var(--em),var(--em-l))}
 .cg::after{background:linear-gradient(90deg,var(--go),var(--go-l))}
 .cb::after{background:linear-gradient(90deg,#1a6fa3,#2e8bc0)}
 .cr::after{background:linear-gradient(90deg,var(--dg),#e74c3c)}
 .cp::after{background:linear-gradient(90deg,#6c3483,#9b59b6)}
-.sv{font-family:var(--fd);font-size:1.9rem;font-weight:700;color:var(--na);line-height:1}
+.sv{font-family:var(--fd);font-size:1.9rem;font-weight:700;color:var(--t1);line-height:1}
 .sl{font-size:.68rem;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-top:5px}
 .si2{position:absolute;right:16px;top:50%;transform:translateY(-50%);opacity:.07}
 
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rs);font-size:.82rem;font-weight:500;cursor:pointer;transition:var(--tr);border:none;white-space:nowrap;line-height:1}
-.bp{background:var(--em);color:#fff}.bp:hover{background:var(--em-d);transform:translateY(-1px);box-shadow:0 4px 12px rgba(10,107,80,.3)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rx);font-size:.82rem;font-weight:500;cursor:pointer;transition:var(--tr);border:none;white-space:nowrap;line-height:1}
+.bp{background:var(--em);color:#fff}.bp:hover{background:var(--em-d);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,107,63,.3)}
 .bg2{background:var(--go);color:#fff}.bg2:hover{background:#a87824}
 .bs{background:var(--si-p);color:var(--t2);border:1px solid var(--bd)}.bs:hover{background:var(--bd)}
-.bd2{background:var(--dg);color:#fff}.bd2:hover{background:#a93226}
+.bd2{background:var(--dg);color:#fff}.bd2:hover{background:#A80E1F}
 .bgh{background:transparent;color:var(--t2);border:1px solid var(--bd)}.bgh:hover{background:var(--si-p)}
 .bsm{padding:5px 11px;font-size:.76rem}
 .blg{padding:11px 22px;font-size:.9rem}
@@ -113,7 +117,7 @@ input,select,textarea,button{font-family:var(--fb)}
 
 .fg{margin-bottom:14px}
 .fl{display:block;font-size:.72rem;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
-.fc{width:100%;padding:9px 13px;border:1.5px solid var(--bd);border-radius:var(--rs);font-size:.85rem;color:var(--t1);transition:var(--tr);background:#fff;outline:none}
+.fc{width:100%;padding:9px 13px;border:1.5px solid var(--bd);border-radius:var(--rs);font-size:.85rem;color:var(--t1);transition:var(--tr);background:var(--sf);outline:none}
 .fc:focus{border-color:var(--em-l);box-shadow:0 0 0 3px rgba(18,160,122,.1)}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 textarea.fc{resize:vertical;min-height:80px}
@@ -136,10 +140,10 @@ tbody tr:hover{background:#fcfdfe}
 .bpa{background:var(--si-l);color:var(--t2)}
 .bad{background:#fdecc8;color:#7d5800}
 
-.ov{position:fixed;inset:0;background:rgba(14,34,64,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
-.mo{background:#fff;border-radius:var(--rl);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:28px;box-shadow:var(--shl)}
+.ov{position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.mo{background:var(--sf);border-radius:var(--rl);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:28px;box-shadow:var(--shl)}
 .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.mt2{font-family:var(--fd);font-size:1.2rem;color:var(--na)}
+.mt2{font-family:var(--fd);font-size:1.2rem;color:var(--t1)}
 .mc{background:none;border:none;cursor:pointer;color:var(--t3);padding:3px;border-radius:4px;display:flex}
 .mc:hover{background:var(--si-p)}
 .mf{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--bd)}
@@ -159,18 +163,18 @@ tbody tr:hover{background:#fcfdfe}
 .dmb strong{color:var(--go-l)}
 .dmb .dr{margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
 .dmb code{font-family:var(--fm);font-size:.7rem;background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,.8)}
-.ar{width:460px;background:#fff;display:flex;flex-direction:column;justify-content:center;padding:56px 44px;overflow-y:auto}
+.ar{width:460px;background:var(--sf);display:flex;flex-direction:column;justify-content:center;padding:56px 44px;overflow-y:auto}
 .auth-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.ar h2{font-family:var(--fd);font-size:1.7rem;color:var(--na);margin-bottom:6px}
+.ar h2{font-family:var(--fd);font-size:1.7rem;color:var(--t1);margin-bottom:6px}
 .asb{color:var(--t3);font-size:.85rem;margin-bottom:24px}
 .atbs{display:flex;gap:3px;background:var(--si-p);border-radius:var(--rs);padding:3px;margin-bottom:22px}
 .atb{flex:1;padding:7px 10px;border:none;background:transparent;border-radius:5px;font-size:.78rem;font-weight:500;cursor:pointer;transition:var(--tr);color:var(--t3)}
-.atb.active{background:#fff;color:var(--na);box-shadow:var(--sh)}
+.atb.active{background:var(--sf);color:var(--t1);box-shadow:var(--sh)}
 .afo{margin-top:16px;text-align:center;font-size:.78rem;color:var(--t3)}
 .alk{color:var(--em);font-weight:600;cursor:pointer}.alk:hover{text-decoration:underline}
 .rbs{display:flex;gap:6px;margin-bottom:14px}
 .rb{flex:1;padding:7px 10px;border:2px solid var(--bd);border-radius:var(--rs);background:transparent;font-size:.75rem;font-weight:500;cursor:pointer;transition:var(--tr);color:var(--t2);text-transform:capitalize}
-.rb.active{border-color:var(--na);background:var(--na);color:#fff}
+.rb.active{border-color:var(--t1);background:var(--na);color:#fff}
 .eb{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--t3);display:flex}
 .iw{position:relative}
 
@@ -209,9 +213,9 @@ tbody tr:hover{background:#fcfdfe}
 .lfd{color:var(--go)}
 
 .cw{display:grid;grid-template-columns:290px 1fr;height:calc(100vh - 57px)}
-.cl{border-right:1px solid var(--bd);overflow-y:auto;background:#fff}
+.cl{border-right:1px solid var(--bd);overflow-y:auto;background:var(--sf)}
 .clh{padding:14px 14px 10px;border-bottom:1px solid var(--bd)}
-.clh h3{font-family:var(--fd);font-size:.95rem;color:var(--na);margin-bottom:8px}
+.clh h3{font-family:var(--fd);font-size:.95rem;color:var(--t1);margin-bottom:8px}
 .cit{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;transition:var(--tr);border-bottom:1px solid var(--bd)}
 .cit:hover{background:var(--ow)}
 .cit.active{background:var(--em-p);border-left:3px solid var(--em)}
@@ -219,17 +223,17 @@ tbody tr:hover{background:#fcfdfe}
 .cn2{font-weight:600;font-size:.82rem}
 .cs2{font-size:.72rem;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
 .ca{display:flex;flex-direction:column;background:var(--ow)}
-.cahdr{background:#fff;border-bottom:1px solid var(--bd);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+.cahdr{background:var(--sf);border-bottom:1px solid var(--bd);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
 .canm{font-weight:600;font-size:.9rem}
 .carl{font-size:.73rem;color:var(--t3)}
 .cam{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
 .msg2{display:flex;gap:8px;max-width:70%}
 .msg2.snt{margin-left:auto;flex-direction:row-reverse}
 .mb2{padding:9px 13px;border-radius:14px;font-size:.83rem;line-height:1.5}
-.msg2.rcv .mb2{background:#fff;border:1px solid var(--bd);border-bottom-left-radius:3px}
+.msg2.rcv .mb2{background:var(--sf);border:1px solid var(--bd);border-bottom-left-radius:3px}
 .msg2.snt .mb2{background:var(--em);color:#fff;border-bottom-right-radius:3px}
 .mt3{font-size:.65rem;color:var(--t3);margin-top:3px;text-align:right}
-.cai{background:#fff;border-top:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;gap:8px}
+.cai{background:var(--sf);border-top:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;gap:8px}
 .cai input{flex:1;padding:9px 13px;border:1.5px solid var(--bd);border-radius:20px;font-size:.83rem;outline:none}
 .cai input:focus{border-color:var(--em-l)}
 .cemp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--t3)}
@@ -247,15 +251,15 @@ tbody tr:hover{background:#fcfdfe}
 .vcro{font-size:.78rem;color:rgba(255,255,255,.4)}
 .vct{font-family:var(--fm);font-size:1rem;color:var(--go-l);margin-top:6px}
 .vcs{position:absolute;bottom:22px;right:22px;width:190px;height:115px;background:#162030;border-radius:10px;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:.75rem}
-.vcc{background:rgba(14,34,64,.8);padding:18px;display:flex;align-items:center;justify-content:center;gap:14px}
+.vcc{background:rgba(17,24,39,.8);padding:18px;display:flex;align-items:center;justify-content:center;gap:14px}
 .vcb{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr)}
 .vcm,.vcv{background:rgba(255,255,255,.12);color:#fff}
 .vcm:hover,.vcv:hover{background:rgba(255,255,255,.22)}
 .vce2{background:var(--dg);color:#fff;width:58px;height:58px}
 .vce2:hover{background:#a93226;transform:scale(1.05)}
-.vcof{background:rgba(192,57,43,.5)!important}
+.vcof{background:rgba(206,17,38,.5)!important}
 
-.ai2{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:14px 18px;transition:var(--tr)}
+.ai2{display:flex;align-items:center;gap:14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px 18px;transition:var(--tr)}
 .ai2:hover{box-shadow:var(--shm)}
 .adb{background:var(--na);color:#fff;border-radius:var(--rs);padding:6px 12px;text-align:center;min-width:52px;flex-shrink:0}
 .add{font-family:var(--fd);font-size:1.3rem;font-weight:700;line-height:1}
@@ -270,7 +274,7 @@ tbody tr:hover{background:#fcfdfe}
 .doctor-photo-preview{width:96px;height:96px;border-radius:6px;object-fit:cover}
 
 .cc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.ccd{background:#fff;border:2px solid var(--bd);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:var(--tr)}
+.ccd{background:var(--sf);border:2px solid var(--bd);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:var(--tr)}
 .ccd:hover{border-color:var(--em);box-shadow:var(--shm)}
 .ccd.gc:hover{border-color:var(--go)}
 .cci{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
@@ -281,12 +285,12 @@ tbody tr:hover{background:#fcfdfe}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .service-item{padding:12px;border:1px solid var(--bd);border-radius:var(--rs);background:var(--ow)}
-.service-item h4{font-family:var(--fd);font-size:.84rem;color:var(--na);margin-bottom:3px}
+.service-item h4{font-family:var(--fd);font-size:.84rem;color:var(--t1);margin-bottom:3px}
 .service-item p{font-size:.72rem;color:var(--t3);line-height:1.45;margin-bottom:9px}
 .code-list{display:grid;gap:9px}
 .code-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
 .code-item:last-child{border-bottom:none}
-.code-chip{font-family:var(--fm);font-size:.67rem;background:var(--si-p);color:var(--na);border:1px solid var(--bd);border-radius:3px;padding:3px 5px;white-space:nowrap}
+.code-chip{font-family:var(--fm);font-size:.67rem;background:var(--si-p);color:var(--t1);border:1px solid var(--bd);border-radius:3px;padding:3px 5px;white-space:nowrap}
 .code-item strong{display:block;font-size:.8rem}
 .code-item span{display:block;color:var(--t3);font-size:.72rem;margin-top:2px}
 .activity-notifications .code-item > div{min-width:0;flex:1;overflow-wrap:anywhere}
@@ -333,15 +337,15 @@ tbody tr:hover{background:#fcfdfe}
 .mu{color:var(--t3)}
 .bo{font-weight:600}
 .hid{display:none!important}
-code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2px 6px;border-radius:3px;color:var(--na)}
+code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2px 6px;border-radius:3px;color:var(--t1)}
 
-.cn3{background:#fff;border-left:3px solid var(--em-l);border:1px solid var(--bd);border-left:3px solid var(--em-l);border-radius:var(--r);padding:14px 16px;margin-bottom:10px}
+.cn3{background:var(--sf);border-left:3px solid var(--em-l);border:1px solid var(--bd);border-left:3px solid var(--em-l);border-radius:var(--r);padding:14px 16px;margin-bottom:10px}
 .cnh{display:flex;justify-content:space-between;margin-bottom:6px}
 .cnp{font-weight:600;font-size:.85rem}
 .cnt2{font-size:.72rem;color:var(--t3)}
 .cnb{font-size:.83rem;color:var(--t2)}
 
-.ptc{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.ptc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:10px}
 .pch{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .pca{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#1a6fa3,#0d3d63);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff;flex-shrink:0}
 .pcm{font-size:.75rem;color:var(--t3);margin-top:2px}
@@ -350,7 +354,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .pf span{font-size:.82rem}
 .aw{color:var(--dg);font-weight:600}
 
-.ib{width:34px;height:34px;border-radius:50%;border:1px solid var(--bd);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t2);transition:var(--tr);position:relative}
+.ib{width:34px;height:34px;border-radius:50%;border:1px solid var(--bd);background:var(--sf);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t2);transition:var(--tr);position:relative}
 .ib:hover{background:var(--si-p)}
 .nd{width:7px;height:7px;background:var(--dg);border-radius:50%;position:absolute;top:-1px;right:-1px;border:1.5px solid #fff}
 
@@ -367,12 +371,12 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .vor{font-size:.78rem;color:rgba(255,255,255,.4)}
 .vot{font-family:var(--fm);font-size:1.1rem;color:var(--go-l);margin-top:4px}
 .vow{font-size:.8rem;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-top:6px}
-.voc2{background:rgba(14,34,64,.8);padding:22px;display:flex;align-items:center;justify-content:center;gap:18px}
+.voc2{background:rgba(17,24,39,.8);padding:22px;display:flex;align-items:center;justify-content:center;gap:18px}
 .vob{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr)}
 .vob-mu{background:rgba(255,255,255,.12);color:#fff}.vob-mu:hover{background:rgba(255,255,255,.22)}
 .vob-sp{background:rgba(255,255,255,.12);color:#fff}.vob-sp:hover{background:rgba(255,255,255,.22)}
 .vob-en{background:var(--dg);color:#fff;width:62px;height:62px}.vob-en:hover{background:#a93226;transform:scale(1.05)}
-.vob-of{background:rgba(192,57,43,.5)!important}
+.vob-of{background:rgba(206,17,38,.5)!important}
 .vo-bars{display:flex;align-items:flex-end;gap:3px;height:28px;margin-top:8px}
 .vo-bar{width:5px;background:var(--go-l);border-radius:3px;animation:vobar 1s infinite}
 .vo-bar:nth-child(1){animation-delay:0s}
@@ -402,7 +406,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .fh-stat span{font-size:.74rem;color:rgba(255,255,255,.75);line-height:1.3}
 .fh-hero-art{position:relative;justify-self:end;width:100%;max-width:340px}
 .fh-hero-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:var(--rl);padding:18px;backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,.25)}
-.fh-hero-card+.fh-hero-card{margin:-14px 0 0 34px;background:rgba(10,107,80,.55)}
+.fh-hero-card+.fh-hero-card{margin:-14px 0 0 34px;background:rgba(0,107,63,.55)}
 .fh-hero-card-row{display:flex;align-items:center;gap:12px}
 .fh-hero-card strong{display:block;font-size:.86rem;color:#fff}
 .fh-hero-card small{display:block;font-size:.72rem;color:rgba(255,255,255,.65);margin-top:2px}
@@ -418,30 +422,30 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .fh-section{margin-top:36px}
 .fh-sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
 .fh-sec-eyebrow{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--em)}
-.fh-sec-head h3{font-family:var(--fd);font-size:1.55rem;color:var(--na);line-height:1.2;margin-top:4px}
+.fh-sec-head h3{font-family:var(--fd);font-size:1.55rem;color:var(--t1);line-height:1.2;margin-top:4px}
 .fh-sec-head p{font-size:.86rem;color:var(--t2);margin-top:4px;max-width:620px}
-.fh-panel{background:#fff;border:1px solid var(--bd);border-radius:var(--rl);box-shadow:var(--shm);padding:24px}
+.fh-panel{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);box-shadow:var(--shm);padding:24px}
 /* Disclaimer */
-.fh-disclaimer{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #f0dca8;border-left:4px solid var(--go);border-radius:var(--r);padding:16px 18px;margin-bottom:20px;box-shadow:var(--shm)}
+.fh-disclaimer{display:flex;gap:14px;align-items:flex-start;background:var(--sf);border:1px solid #f0dca8;border-left:4px solid var(--go);border-radius:var(--r);padding:16px 18px;margin-bottom:20px;box-shadow:var(--shm)}
 .fh-disclaimer>div:first-child{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--go-p);color:var(--go);flex-shrink:0}
 .fh-disclaimer svg{flex-shrink:0}
-.fh-disclaimer strong{color:var(--na);font-size:.9rem}
+.fh-disclaimer strong{color:var(--t1);font-size:.9rem}
 .fh-disclaimer p{font-size:.82rem;color:var(--t2);margin-top:4px;line-height:1.6}
 /* SLY assistant */
 .fh-assistant{padding:0;overflow:hidden;margin-bottom:0}
 .fh-assistant-head{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:20px 24px;color:#fff;background:radial-gradient(circle at 100% 0,rgba(232,184,75,.28),transparent 45%),linear-gradient(120deg,var(--em-d),var(--em) 60%,var(--em-l))}
 .fh-assistant-id{display:flex;align-items:center;gap:14px}
-.fh-avatar{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;flex-shrink:0;font-family:var(--fd);font-weight:700;font-size:.92rem;letter-spacing:.04em;color:var(--na);background:linear-gradient(135deg,var(--go-l),var(--go));box-shadow:0 0 0 4px rgba(255,255,255,.18)}
+.fh-avatar{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;flex-shrink:0;font-family:var(--fd);font-weight:700;font-size:.92rem;letter-spacing:.04em;color:var(--t1);background:linear-gradient(135deg,var(--go-l),var(--go));box-shadow:0 0 0 4px rgba(255,255,255,.18)}
 .fh-assistant-head .ct{color:#fff;font-size:1.3rem}
 .fh-assistant-head .mu{color:rgba(255,255,255,.82)}
 .fh-assistant-note{font-size:.72rem;color:rgba(255,255,255,.78);max-width:330px;line-height:1.5;padding:8px 12px;border-radius:var(--r);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16)}
 .fh-assistant-body{padding:20px 24px 24px}
 .fh-assistant-prompts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .fh-assistant-prompt{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border:1px solid #bfe3d4;border-radius:999px;background:var(--em-p);color:var(--em-d);font-size:.78rem;font-weight:500;cursor:pointer;transition:var(--tr)}
-.fh-assistant-prompt:hover{background:var(--em);border-color:var(--em);color:#fff;transform:translateY(-1px);box-shadow:0 4px 12px rgba(10,107,80,.25)}
+.fh-assistant-prompt:hover{background:var(--em);border-color:var(--em);color:#fff;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,107,63,.25)}
 .fh-assistant-form{display:flex;align-items:flex-end;gap:10px}
 .fh-assistant-form textarea{min-height:72px;max-height:160px;resize:vertical;border-radius:var(--r);background:var(--si-p)}
-.fh-assistant-form textarea:focus,.fh-search input:focus{outline:none;border-color:var(--em-l);background:#fff;box-shadow:0 0 0 4px rgba(18,160,122,.14)}
+.fh-assistant-form textarea:focus,.fh-search input:focus{outline:none;border-color:var(--em-l);background:var(--sf);box-shadow:0 0 0 4px rgba(18,160,122,.14)}
 .fh-assistant-form .btn{padding:12px 20px;border-radius:var(--r);font-size:.86rem}
 .fh-assistant-answer{margin-top:16px;padding:16px 18px;background:linear-gradient(180deg,var(--em-p),#fff);border:1px solid #bfe3d4;border-left:4px solid var(--em);border-radius:var(--r);animation:fhIn .25s ease}
 .fh-assistant-answer p{font-size:.84rem;color:var(--t2);line-height:1.6;margin-top:8px}
@@ -456,12 +460,12 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .fh-search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--t3);width:18px;height:18px;pointer-events:none}
 .fh-search input{height:50px;padding-left:46px;border-radius:999px;font-size:.92rem;background:var(--si-p)}
 .fh-chip-row{display:flex;flex-wrap:wrap;gap:8px}
-.fh-chip{padding:8px 15px;border-radius:999px;border:1px solid var(--bd);background:#fff;color:var(--t2);font-size:.8rem;cursor:pointer;transition:var(--tr);box-shadow:var(--sh)}
+.fh-chip{padding:8px 15px;border-radius:999px;border:1px solid var(--bd);background:var(--sf);color:var(--t2);font-size:.8rem;cursor:pointer;transition:var(--tr);box-shadow:var(--sh)}
 .fh-chip:hover{border-color:var(--em-l);color:var(--em-d);background:var(--em-p);transform:translateY(-1px)}
-.fh-chip.active{background:var(--em);border-color:var(--em);color:#fff;box-shadow:0 4px 12px rgba(10,107,80,.28)}
-.fh-remedy-card{background:#fff;border:1px solid #bfe3d4;border-radius:var(--rl);margin-top:18px;overflow:hidden;box-shadow:var(--shm);animation:fhIn .25s ease}
+.fh-chip.active{background:var(--em);border-color:var(--em);color:#fff;box-shadow:0 4px 12px rgba(0,107,63,.28)}
+.fh-remedy-card{background:var(--sf);border:1px solid #bfe3d4;border-radius:var(--rl);margin-top:18px;overflow:hidden;box-shadow:var(--shm);animation:fhIn .25s ease}
 .fh-remedy-head{display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(120deg,var(--em-p),#fff 75%);border-bottom:1px solid #d6ede4}
-.fh-remedy-head h3{font-family:var(--fd);font-size:1.2rem;color:var(--na)}
+.fh-remedy-head h3{font-family:var(--fd);font-size:1.2rem;color:var(--t1)}
 .fh-remedy-head .badge{text-transform:capitalize}
 .fh-remedy-sec{padding:16px 20px 4px}
 .fh-remedy-sec strong{color:var(--em-d);font-size:.86rem}
@@ -482,7 +486,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .fh-tip:last-child{border-bottom:none;padding-bottom:0}
 .fh-tip::before{counter-increment:fhtip;content:counter(fhtip);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--em-p);color:var(--em);font-weight:600;font-size:.78rem}
 .fh-ess.gold .fh-tip::before{background:var(--go-p);color:#a87824}
-.fh-tip strong{font-size:.88rem;color:var(--na);display:block;margin-bottom:3px}
+.fh-tip strong{font-size:.88rem;color:var(--t1);display:block;margin-bottom:3px}
 .fh-tip p{font-size:.82rem;color:var(--t2);line-height:1.6}
 /* Call to action */
 .fh-cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:36px;padding:32px 36px;border-radius:var(--rl);color:#fff;border:none;
@@ -499,27 +503,27 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .legal-hero h2{font-family:var(--fd);font-size:1.7rem;line-height:1.2;position:relative;z-index:1}
 .legal-hero p{max-width:720px;color:rgba(255,255,255,.72);font-size:.88rem;margin-top:8px;position:relative;z-index:1}
 .legal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:18px}
-.legal-card{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
-.legal-card h3{font-family:var(--fd);font-size:1rem;color:var(--na);margin:9px 0 5px}
+.legal-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.legal-card h3{font-family:var(--fd);font-size:1rem;color:var(--t1);margin:9px 0 5px}
 .legal-card p,.legal-card li{font-size:.8rem;color:var(--t2);line-height:1.55}
 .legal-badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:4px 9px;background:var(--em-p);color:var(--em-d);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
 .issue-list{display:grid;gap:12px;margin-bottom:18px}
-.issue-pair{border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;background:#fff;box-shadow:var(--sh)}
+.issue-pair{border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;background:var(--sf);box-shadow:var(--sh)}
 .problem-block,.solution-block{padding:13px 15px}
 .problem-block{background:#fff4f3;border-bottom:1px solid #f5c6c6;color:#6e1a13}
 .solution-block{background:#eefaf3;color:#145a32}
 .problem-block strong,.solution-block strong{display:block;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 .legal-numbered{counter-reset:duty;display:grid;gap:10px;margin-bottom:18px}
-.legal-duty{counter-increment:duty;background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px 13px 50px;position:relative;font-size:.82rem;color:var(--t2)}
+.legal-duty{counter-increment:duty;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px 13px 50px;position:relative;font-size:.82rem;color:var(--t2)}
 .legal-duty::before{content:counter(duty);position:absolute;left:15px;top:12px;width:24px;height:24px;border-radius:50%;background:var(--na);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;font-size:.82rem}
 .retention-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd);font-size:.82rem}
 .retention-row:last-child{border-bottom:none}
-.retention-row strong{color:var(--na)}
+.retention-row strong{color:var(--t1)}
 .retention-row span{font-family:var(--fm);font-size:.75rem;color:var(--em-d);background:var(--em-p);padding:3px 8px;border-radius:20px;white-space:nowrap}
 .pledge-box{background:var(--go-p);border:1px solid #f0dca8;border-radius:var(--r);padding:18px;margin-bottom:18px}
 .pledge-box p{font-size:.83rem;color:var(--t2);margin:8px 0 14px;line-height:1.6}
-.contact-card{display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
-.contact-card h3{font-family:var(--fd);font-size:1rem;color:var(--na);margin-bottom:4px}
+.contact-card{display:flex;align-items:flex-start;gap:12px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.contact-card h3{font-family:var(--fd);font-size:1rem;color:var(--t1);margin-bottom:4px}
 .contact-card p{font-size:.8rem;color:var(--t2);line-height:1.55}
 
 .creator-credit{display:flex;align-items:center;justify-content:center;gap:14px;padding:22px 24px;background:var(--na);border-top:1px solid rgba(232,184,75,.22);color:#fff;text-align:left}
@@ -650,6 +654,130 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   border-color: rgba(200,146,26,.4); color: var(--go-l); }
 .sb-lang-btn:hover:not(.active) { background: rgba(255,255,255,.08); color: #fff; }
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+
+/* ── HFA dark mode ── */
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --sf:#1F2937;--ow:#0B1220;--w:#1F2937;
+  --t1:#F3F4F6;--t2:#D1D5DB;--t3:#9CA3AF;
+  --bd:#374151;--bd2:#4B5563;
+  --si-p:#111827;--si-l:#374151;
+  --em:#2A8F5C;--em-l:#57AA7E;--em-d:#007A48;--em-p:rgba(42,143,92,.16);
+  --go:#FDDD4D;--go-p:rgba(252,209,22,.12);
+  --na:#030712;--na-m:#111827;
+  --sh:0 2px 12px rgba(0,0,0,.35);--shm:0 4px 16px rgba(0,0,0,.4);--shl:0 12px 40px rgba(0,0,0,.5);
+}
+:root[data-theme="dark"] body{background:var(--ow);color:var(--t1)}
+:root[data-theme="dark"] .ae{background:rgba(206,17,38,.16);color:#F9C5CA;border-color:rgba(206,17,38,.4)}
+:root[data-theme="dark"] .ao{background:rgba(42,143,92,.18);color:#C2E0D0;border-color:rgba(42,143,92,.4)}
+:root[data-theme="dark"] .ai{background:rgba(26,111,163,.18);color:#BFE0F5;border-color:rgba(26,111,163,.4)}
+:root[data-theme="dark"] .offline-status{background:#111827;color:#C2E0D0;border-color:#374151}
+:root[data-theme="dark"] img.logo-mark{filter:none}
+.theme-toggle{padding:7px 10px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.clinical{font-family:var(--fc);line-height:1.7}
+
+/* ── Profile picture (avatar) with completion ring ── */
+.av-slot{flex-shrink:0;display:flex}
+.hav{position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%;padding:0;border:0;background:none;color:inherit}
+.hav-edit{cursor:pointer}
+.hav-edit:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.hav-ring{position:absolute;inset:0}
+.hav-face{position:relative;border-radius:50%;overflow:hidden;background:var(--em);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;letter-spacing:.02em}
+.hav-face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hav-badge{position:absolute;right:0;bottom:0;width:26px;height:26px;border-radius:50%;background:var(--em);color:#fff;border:2px solid var(--sf);display:flex;align-items:center;justify-content:center;box-shadow:var(--sh)}
+.hav-editor{display:flex;flex-direction:column;gap:12px}
+.hav-current{display:flex;justify-content:center}
+.hav-drop{border:2px dashed var(--bd2);border-radius:var(--r);padding:22px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;color:var(--t2);cursor:pointer;transition:var(--tr);background:var(--si-p)}
+.hav-drop:hover,.hav-drop:focus-visible,.hav-drop.active{border-color:var(--em);color:var(--em);background:var(--em-p);outline:none}
+.hav-rules{text-align:center}
+.hav-buttons{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.hav-remove{color:var(--dg)}
+.hav-error{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:0}
+.hav-crop{position:relative;width:280px;height:280px;margin:0 auto;border-radius:var(--r);overflow:hidden;touch-action:none}
+.hav-crop canvas{display:block;width:280px;height:280px;cursor:grab;touch-action:none}
+.hav-crop canvas:active{cursor:grabbing}
+.hav-crop canvas:focus-visible{outline:3px solid var(--hl);outline-offset:-3px}
+.hav-mask{position:absolute;inset:0;pointer-events:none;border-radius:50%;box-shadow:0 0 0 400px rgba(17,24,39,.6);border:2px solid rgba(255,255,255,.85)}
+.hav-zoom{width:100%;accent-color:var(--em);min-height:44px}
+.hav-progress{height:8px;border-radius:99px;background:var(--bd);overflow:hidden}
+.hav-progress span{display:block;height:100%;background:var(--em);border-radius:99px;transition:width .2s ease}
+.hav-status{text-align:center}
+
+/* ── Profile completion ── */
+.pc-card{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.pc-body{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
+.pc-percent{font-weight:600;font-size:.95rem}
+.pc-bar{height:8px;border-radius:99px;background:var(--bd);overflow:hidden}
+.pc-bar span{display:block;height:100%;border-radius:99px}
+.pc-missing{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.76rem;color:var(--t2)}
+.pc-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.pc-block{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+
+/* ── Patient registration wizard ── */
+.wz{display:flex;flex-direction:column;gap:14px}
+.wz-steps{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:0;padding:0}
+.wz-step>span,.wz-step>button{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;background:none;border:0;padding:0;font:inherit;color:var(--t3);text-align:center}
+.wz-step>button{cursor:pointer}
+.wz-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:600;border:2px solid var(--bd2);background:var(--sf)}
+.wz-lbl{font-size:.66rem;line-height:1.25}
+.wz-step.current .wz-num{background:var(--em);border-color:var(--em);color:#fff}
+.wz-step.current .wz-lbl{color:var(--t1);font-weight:600}
+.wz-step.done .wz-num{background:var(--em-p);border-color:var(--em);color:var(--em)}
+.wz-h{font-size:1.05rem;color:var(--t1);outline:none}
+.wz-body{display:flex;flex-direction:column}
+.wz-fieldset{border:0;padding:0;margin:0 0 14px;min-width:0}
+.wz-fieldset>legend{padding:0;margin-bottom:6px}
+.wz-seg{display:flex;flex-wrap:wrap;gap:8px}
+.wz-chip{position:relative;display:inline-flex}
+.wz-chip input{position:absolute;opacity:0;width:1px;height:1px}
+.wz-chip span{display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;border:1.5px solid var(--bd);border-radius:var(--rx);font-size:.82rem;cursor:pointer;background:var(--sf);color:var(--t2);transition:var(--tr)}
+.wz-chip input:checked+span{border-color:var(--em);background:var(--em-p);color:var(--em);font-weight:600}
+.wz-chip input:focus-visible+span{outline:3px solid var(--hl);outline-offset:2px}
+.wz-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px 12px}
+.wz-check{display:flex;align-items:flex-start;gap:8px;font-size:.82rem;color:var(--t2);min-height:32px;cursor:pointer;line-height:1.45}
+.wz-check input{margin-top:3px;width:18px;height:18px;accent-color:var(--em);flex-shrink:0}
+.wz-consent{padding:10px 12px;border:1px solid var(--bd);border-radius:var(--rs);background:var(--si-p)}
+.wz-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;align-items:end;padding:10px;border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:8px;background:var(--si-p)}
+.wz-cell .fl{font-size:.7rem}
+.wz-remove{justify-self:start;color:var(--dg)}
+.wz-err{color:var(--dg);font-size:.74rem;margin-top:4px}
+.has-error .fc{border-color:var(--dg)}
+.req{color:var(--dg)}
+.wz-opt{font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0}
+.wz-hint{margin-top:4px}
+.wz-note{background:var(--em-p);border-radius:var(--rs);padding:10px 12px;color:var(--t2);margin-bottom:12px}
+.wz-photo-row{display:flex;align-items:center;gap:14px}
+.wz-gps .btn{margin-top:6px}
+.wz-nav{display:flex;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid var(--bd)}
+.wz-nav .btn{min-height:44px;padding:10px 22px}
+.wz-saved{text-align:center}
+.wz-link{background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline}
+.wz-file{margin-top:4px;color:var(--em);display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow-wrap:anywhere}
+/* Phones: the sign-up form uses the full width (the brand panel would squeeze it). */
+@media (max-width:700px){#auth-wrap .al{display:none}#auth-wrap .ar{width:100%;padding:24px 16px}}
+@media (max-width:520px){.wz-lbl{display:none}.wz-steps{gap:4px}.wz-nav .btn{flex:1;justify-content:center}}
+
+/* ── Vital Health Card ── */
+.vhc{border-left:4px solid var(--em)}
+.vhc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.vhc-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:var(--rs);background:var(--si-p);border:1px solid var(--bd)}
+.vhc-icon{font-size:1.25rem;line-height:1}
+.vhc-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)}
+.vhc-value{font-weight:600;color:var(--t1);overflow-wrap:anywhere}
+.vhc-alert{border-color:rgba(206,17,38,.45);background:rgba(206,17,38,.06)}
+.vhc-severe{color:var(--dg)}
+
+/* ── Facilities & stakeholder numbers ── */
+.pc-id{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.fac-head{flex-wrap:wrap;gap:10px}
+.fac-search{flex:1 1 220px;max-width:320px}
+@media (max-width:520px){.fac-search{max-width:none}}
+.fac-table-wrap{overflow-x:auto}
+.fac-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.fac-table th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);padding:8px 10px;border-bottom:1px solid var(--bd)}
+.fac-table td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t1);vertical-align:middle}
+.fac-table tr:last-child td{border-bottom:0}
 </style>
 </head>
 <body>
@@ -722,7 +850,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
         <div class="pa" id="lnd-pharmacist-access">Access Portal</div>
       </a>
       <div class="pc2" onclick="goAuth('register','doctor')">
-        <div class="pi" style="background:rgba(10,107,80,.2)"><svg width="22" height="22" fill="none" stroke="#6ddbb8" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="pi" style="background:rgba(0,107,63,.2)"><svg width="22" height="22" fill="none" stroke="#6ddbb8" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
         <h3 id="lnd-doc-t">Doctor Portal</h3><p id="lnd-doc-p">Manage patients, consultations &amp; records</p>
         <div class="pa">Access Portal →</div>
       </div>
@@ -789,6 +917,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
     <div class="auth-top-actions">
       <button type="button" class="btn bgh bsm" onclick="goLand()" id="back-home-btn">← Back to Home</button>
       <button type="button" class="btn bgh bsm" onclick="openLangPicker()" id="auth-lang-btn">Language</button>
+      <button type="button" class="btn bgh bsm theme-toggle" data-theme-toggle onclick="HFATheme.toggle()" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">🌙</button>
     </div>
     <h2 id="atitle">Welcome Back</h2>
     <p class="asb" id="asub">Sign in to your HFA SilverStrong account</p>
@@ -799,7 +928,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
     <div id="amsg"></div>
     <!-- LOGIN -->
     <div id="fl">
-      <div class="fg"><label class="fl" id="lbl-email">Email Address</label><input class="fc" type="email" id="le" placeholder="your@email.com"></div>
+      <div class="fg"><label class="fl" id="lbl-email" for="le">Email or phone number</label><input class="fc" type="text" id="le" autocomplete="username" inputmode="email" placeholder="your@email.com / +237 6XX XX XX XX"></div>
       <div class="fg"><label class="fl" id="lbl-pass">Password</label>
         <div class="iw"><input class="fc" type="password" id="lp" placeholder="Enter password"><button type="button" class="eb" onclick="tpw('lp')" aria-label="Toggle password visibility"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
@@ -817,46 +946,38 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
           <button type="button" class="rb" id="rb-ph" onclick="setRole('pharmacist')">Pharmacist</button>
         </div>
       </div>
+      <div id="reg-common" class="hid">
       <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" type="text" id="rn" placeholder="Full legal name"></div>
       <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="re" placeholder="your@email.com"></div>
       <div class="fg"><label class="fl">Phone</label><input class="fc" type="tel" id="rph" placeholder="+237 6XX XXX XXX"></div>
       <div class="fg"><label class="fl">Password</label>
         <div class="iw"><input class="fc" type="password" id="rpa" placeholder="Min. 6 characters"><button type="button" class="eb" onclick="tpw('rpa')" aria-label="Toggle password visibility"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
+      </div>
       <div id="phf" class="hid"></div>
       <div id="df">
         <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
-        <div class="fr"><div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
+        <div class="fr"><div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name" list="hfa-hospitals" autocomplete="organization"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
         <div class="fg"><label class="fl" for="rid-type-d" id="lbl-id-type-d">ID Document Type</label><select class="fc" id="rid-type-d" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option></select></div>
         <div class="fg"><label class="fl" for="rid-d" id="lbl-id-doc-d">National ID Card or Passport</label><input class="fc" type="file" id="rid-d" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-d" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
       </div>
       <div id="nf" class="hid">
         <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="" id="rde-def">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="rns" required><option value="" id="rns-def">Select...</option><option>General Nursing</option><option>Critical Care Nursing</option><option>Emergency Nursing</option><option>Pediatric Nursing</option><option>Neonatal Nursing</option><option>Oncology Nursing</option><option>Surgical and Perioperative Nursing</option><option>Maternal and Midwifery Care</option><option>Psychiatric and Mental Health Nursing</option><option>Community and Public Health Nursing</option><option>Geriatric Nursing</option><option>Renal Nursing</option><option>Cardiac Nursing</option><option>Infection Prevention and Control</option><option>Nurse Anesthesia</option><option>Rehabilitation Nursing</option><option>Occupational Health Nursing</option></select></div></div>
         <div class="fg"><label class="fl">Nurse ID</label><input class="fc" type="text" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div>
-        <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhn" placeholder="Institution name"></div>
+        <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhn" placeholder="Institution name" list="hfa-hospitals" autocomplete="organization"></div>
         <div class="fg"><label class="fl">Qualifications</label><input class="fc" type="text" id="rqu" placeholder="e.g. BSN, ICU Certified"></div>
         <div class="fg"><label class="fl" for="rid-type-n" id="lbl-id-type-n">ID Document Type</label><select class="fc" id="rid-type-n" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option></select></div>
         <div class="fg"><label class="fl" for="rid-n" id="lbl-id-doc-n">National ID Card or Passport</label><input class="fc" type="file" id="rid-n" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-n" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
       </div>
-      <div id="pf">
-        <div class="fg"><label class="fl" for="rwa" id="lbl-whatsapp">WhatsApp Number</label><input class="fc" type="tel" id="rwa" inputmode="tel" autocomplete="tel" placeholder="+237600000000" required></div>
-        <div class="fg" style="display:flex;align-items:flex-start;gap:8px"><input type="checkbox" id="rwa-consent" style="margin-top:3px"><label for="rwa-consent" id="lbl-whatsapp-consent" style="font-size:.78rem">I agree to receive account updates and new-message alerts on WhatsApp.</label></div>
-        <div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="rdb"></div><div class="fg"><label class="fl">Gender</label><select class="fc" id="rge"><option value="" id="rge-def">Select...</option><option>Male</option><option>Female</option><option>Other</option></select></div></div>
-        <div class="fr"><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="rbl"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div><div class="fg"><label class="fl">Allergies</label><input class="fc" type="text" id="ral" placeholder="None, or list them"></div></div>
-        <div class="fg"><label class="fl">Address</label><input class="fc" type="text" id="rad" placeholder="City, Country"></div>
-        <div class="fg"><label class="fl">Emergency Contact</label><input class="fc" type="text" id="rec" placeholder="Name — Phone number"></div>
-        <div class="fg"><label class="fl" for="rid-type-p" id="lbl-id-type-p">ID Document Type</label><select class="fc" id="rid-type-p" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option></select></div>
-        <div class="fg"><label class="fl" for="rid-p" id="lbl-id-doc-p">National ID Card or Passport</label><input class="fc" type="file" id="rid-p" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-p" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
-        <div class="fg" style="display:flex;align-items:flex-start;gap:8px;background:var(--si-p);border:1px solid var(--bd);border-radius:var(--rs);padding:12px">
-          <input type="checkbox" id="rpc" style="margin-top:3px">
-          <label class="fl" for="rpc" id="lbl-patient-commitment" style="font-weight:400;line-height:1.5;text-transform:none;letter-spacing:0;margin-bottom:0">I confirm that all information I provide is truthful, accurate, and complete. I agree not to falsify records, impersonate anyone, upload misleading documents, misuse the platform, harass staff or clinicians, or engage in any misconduct that could endanger patient safety or breach HFA SilverStrong policies.</label>
-        </div>
-      </div>
+      <datalist id="hfa-hospitals"></datalist>
+      <div id="pf"><div id="pwz" aria-live="polite"></div></div>
+      <div id="reg-submit" class="hid">
       <div class="fg" style="display:flex;align-items:flex-start;gap:8px">
         <input type="checkbox" id="rtc" style="margin-top:3px">
         <label class="fl" for="rtc" style="font-weight:400"><span id="lbl-agree-terms">I have read and agree to the</span> <span class="alk" onclick="showTerms()" id="lbl-read-terms">Terms &amp; Conditions</span></label>
       </div>
       <button type="button" class="btn bp w100 mt8" onclick="doReg()">Create Account</button>
+      </div>
       <div class="afo" id="afo-reg">Have an account? <span class="alk" onclick="swtTab('login')">Sign in</span></div>
     </div>
   </div>
@@ -990,6 +1111,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 <!-- MODAL -->
 <div id="movr" class="ov hid" onclick="cmbg(event)"><div class="mo" id="mbox"></div></div>
 
+<script src="hfa-numbering.js"></script>
 <script>
 // Compatibility for older phone browsers (released before 2022) that lack these newer features.
 if (typeof AbortSignal!=='undefined' && !AbortSignal.timeout) AbortSignal.timeout=ms=>{ const controller=new AbortController(); setTimeout(()=>controller.abort(),ms); return controller.signal; };
@@ -1906,7 +2028,7 @@ const DB = {
   users: [
     {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
     {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
-    {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',password:'Lab@123',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',status:'active',createdAt:'2024-02-05'},
+    {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',password:'Lab@123',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',labRegion:'littoral',labTown:'Douala',status:'active',createdAt:'2024-02-05'},
     {id:'pha1',role:'pharmacist',name:'Pharm. Brenda Ngum',email:'pharmacy@hfa.org',password:'Pharmacist@123',phone:'+237 677 300 202',pharmacyName:'HFA Community Pharmacy',pharmacyAddress:'Rue Joss, Bonanjo',pharmacyLocation:'Douala, Littoral, Cameroon',pharmacyLicense:'CM-PHA-2021-0107',businessRegistration:'RC/DLA/2021/B/0456',minsanteAuthorization:'MINSANTE/DPML/2021/0219',ownerName:'Brenda Ngum',ownerIdType:'national_id',ownerIdNumber:'CM-CNI-114502387',status:'active',createdAt:'2024-02-12',pharmacyValidatedBy:'adm1',pharmacyValidatedAt:'2024-02-14 10:00'},
     {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
     {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
@@ -2249,6 +2371,7 @@ function installBackendSession(data, localProfile={}) {
   const previous=DB.users;
   DB.users=data.users.map(user=>({...previous.find(item=>item.id===user.id),...(user.id===data.user.id?localProfile:{}),...user}));
   DB.users.forEach(user=>{delete user.password;});
+  if (typeof HFAPatientRegistration!=='undefined') DB.users.forEach(HFAPatientRegistration.applyLegacy);
   CU=DB.users.find(user=>user.id===data.user.id);
   if (data.notifications) DB.notifications=data.notifications;
   ApiState.authenticated=true;
@@ -2415,40 +2538,59 @@ function notifyPatientActivity(patientId, resource, metadata={}) {
 }
 
 // ── HFA ID: role-legible identifier, e.g. HFA-DR-24-00001-7 (Doctor), HFA-NS-24-00001-3 (Nurse), HFA-PT-24-00001-5 (Patient) ──
-const ROLE_CODE = {doctor:'DR', nurse:'NS', patient:'PT', admin:'AD', labtech:'LT', pharmacist:'PH'};
-function luhnCheckDigit(digits) {
-  let sum=0, alt=false;
-  for (let i=digits.length-1;i>=0;i--) {
-    let d = +digits[i];
-    if (alt) { d*=2; if (d>9) d-=9; }
-    sum+=d; alt=!alt;
+// Stakeholder numbers (see hfa-numbering.js): portal + hospital for doctors, nurses and patients;
+// portal + region/town for pharmacies and laboratories. The server issues them when it is connected;
+// this keeps the browser-only demo identical.
+const STATIC_FACILITIES = [];   // {id, name, key, code}
+const STATIC_TOWNS = {};        // region -> {townKey: code}
+function staticHospital(name) {
+  const key = HFANumbering.nameKey(name);
+  if (!key) return null;
+  let facility = STATIC_FACILITIES.find(item => item.key === key);
+  if (!facility) {
+    facility = {id:'fac-'+key.replace(/\s+/g,'-'), name:String(name).trim(), key, code:HFANumbering.facilityCode(name, STATIC_FACILITIES.map(item=>item.code))};
+    STATIC_FACILITIES.push(facility);
   }
-  return (10 - (sum%10))%10;
+  return facility;
 }
-function genHfaId(role, seq, yy) {
-  const code = ROLE_CODE[role] || 'US';
-  const seqStr = String(seq).padStart(5,'0');
-  const check = luhnCheckDigit(yy+seqStr);
-  return `HFA-${code}-${yy}-${seqStr}-${check}`;
+function staticTownCode(region, town) {
+  const key = HFANumbering.nameKey(town);
+  if (!region || !key) return HFANumbering.UNKNOWN_TOWN;
+  const towns = STATIC_TOWNS[region] || (STATIC_TOWNS[region] = {});
+  if (!towns[key]) towns[key] = HFANumbering.townCode(town, Object.values(towns));
+  return towns[key];
 }
-function nextHfaId(role) {
-  const yy = String(new Date().getFullYear()).slice(-2);
-  const seq = DB.users.filter(u=>u.role===role).length + 1;
-  return genHfaId(role, seq, yy);
+// Hospitals patients can register under: those with at least one active doctor or nurse.
+function listedHospitals() {
+  return STATIC_FACILITIES.filter(facility => DB.users.some(user => user.facilityId===facility.id && ['doctor','nurse'].includes(user.role) && user.status==='active'))
+    .map(({id,name,code}) => ({id,name,code})).sort((a,b) => a.name.localeCompare(b.name));
 }
-function isValidHfaId(str) {
-  const m = /^HFA-(DR|NS|PT|AD|LT)-(\d{2})-(\d{5})-(\d)$/.exec(str||'');
-  if (!m) return false;
-  return luhnCheckDigit(m[2]+m[3]) === +m[4];
+// Issues the next number for a user (call with the complete user object) and records its hospital link.
+function nextHfaId(role, user={}) {
+  const parts = {};
+  if (role==='doctor' || role==='nurse') {
+    const facility = staticHospital(user.hospital);
+    Object.assign(user, {facilityId:facility?.id||null, facilityName:facility?.name||null, facilityCode:facility?.code||null});
+    parts.facilityCode = facility?.code;
+  } else if (role==='patient') {
+    let facility = STATIC_FACILITIES.find(item => item.id===user.facilityId);
+    if (!facility && user.assignedDoctor) facility = STATIC_FACILITIES.find(item => item.id===DB.users.find(doctor=>doctor.id===user.assignedDoctor)?.facilityId);
+    Object.assign(user, {facilityId:facility?.id||null, facilityName:facility?.name||null, facilityCode:facility?.code||null});
+    parts.facilityCode = facility?.code;
+  } else if (role==='pharmacist' || role==='labtech') {
+    const {region, town} = HFANumbering.locationOf(user);
+    parts.regionCode = HFANumbering.REGIONS[region];
+    parts.townCode = region && town ? staticTownCode(region, town) : undefined;
+  }
+  const scope = HFANumbering.scope(role, parts), prefix = `HFA-${scope}-`;
+  const last = DB.users.map(item => item.hfaId?.startsWith(prefix) ? HFANumbering.parse(item.hfaId)?.sequence||0 : 0).reduce((a,b) => Math.max(a,b), 0);
+  return HFANumbering.format(scope, last + 1);
 }
+function isValidHfaId(str) { return HFANumbering.isValid(str); }
 (function seedHfaIds() {
-  const seq = {doctor:0, nurse:0, patient:0, admin:0, labtech:0, pharmacist:0};
-  DB.users.forEach(u => {
-    if (!ROLE_CODE[u.role] || u.hfaId) return;
-    seq[u.role]++;
-    const yy = (u.createdAt||'2024').slice(2,4);
-    u.hfaId = genHfaId(u.role, seq[u.role], yy);
-  });
+  // Clinicians first so their hospitals exist when patients are numbered.
+  const order = user => ['doctor','nurse'].includes(user.role) ? 0 : 1;
+  [...DB.users].sort((a,b) => order(a)-order(b)).forEach(user => { if (!user.hfaId) user.hfaId = nextHfaId(user.role, user); });
 })();
 
 function myContacts() {
@@ -2644,20 +2786,20 @@ const IC = {
 const NAV = {
   admin:[
     {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'admin-control',l:()=>t('control_center'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
-    {s:()=>t('user'),items:[{id:'mgr-approvals',l:()=>pendingApprovalsLabel(),i:'shield'},{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'}]},
+    {s:()=>t('user'),items:[{id:'mgr-approvals',l:()=>pendingApprovalsLabel(),i:'shield'},{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'},{id:'facilities',l:()=>t('facilities_nav'),i:'grid'}]},
     {s:()=>t('administration'),items:[{id:'mgr-a',l:'Administrators',i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
     {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'fh-analytics',l:()=>t('fh_analytics_nav'),i:'heart'}]},
   ],
   doctor:[
-    {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
+    {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'hospital-patients',l:()=>t('hospital_patients_nav'),i:'shield'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consultations'),i:'vid'}]},
     {s:()=>t('medical_records'),items:[{id:'records',l:()=>t('medical_records'),i:'file'}]},
     {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
   ],
   nurse:[
-    {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
+    {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'hospital-patients',l:()=>t('hospital_patients_nav'),i:'shield'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consultations'),i:'vid'}]},
     {s:()=>t('care_notes'),items:[{id:'carenotes',l:()=>t('care_notes'),i:'clip'}]},
     {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
@@ -2672,7 +2814,7 @@ const NAV = {
     {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'}]},
   ],
   patient:[
-    {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'},{id:'subscriptions',l:()=>t('subscriptions'),i:'go'}]},
+    {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'},{id:'subscriptions',l:()=>t('subscriptions'),i:'go'},{id:'complete-profile',l:()=>t('wz_my_profile'),i:'user'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'},{id:'pharmacy',l:()=>t('pharmacy_shop'),i:'clip'}]},
     {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'freehub',l:()=>t('free_hub_nav'),i:'heart'}]},
@@ -2750,7 +2892,7 @@ function showTerms() {
   ];
   openMo(`<div class="mh"><div class="mt2">${t('terms_and_conditions')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div style="max-height:55vh;overflow-y:auto;padding-right:4px">
-      ${sections.map(sec=>`<div style="margin-bottom:14px"><h3 style="font-size:.88rem;color:var(--na);margin-bottom:4px">${lt(sec.title)}</h3><p class="mu sm" style="line-height:1.6">${lt(sec.text)}</p></div>`).join('')}
+      ${sections.map(sec=>`<div style="margin-bottom:14px"><h3 style="font-size:.88rem;color:var(--t1);margin-bottom:4px">${lt(sec.title)}</h3><p class="mu sm" style="line-height:1.6">${lt(sec.text)}</p></div>`).join('')}
     </div>
     <div class="mf"><button class="btn bp w100" onclick="closeMo()">${t('terms_accept_btn')}</button></div>`);
 }
@@ -2783,6 +2925,8 @@ function swtTab(tab) {
   $('tl').textContent = t('sign_in');
   $('tr').textContent = t('register');
   $('amsg').innerHTML = '';
+  if (tab==='register' && RROLE==='patient' && typeof HFAPatientRegistration!=='undefined') HFAPatientRegistration.mount();
+  if (tab==='register' && typeof HFAFacilities!=='undefined') HFAFacilities.fillDatalist();
 }
 
 function setRole(r) {
@@ -2793,6 +2937,9 @@ function setRole(r) {
   $('pf').classList.toggle('hid', r!=='patient');
   $('rb-ph').classList.toggle('active',r==='pharmacist');
   $('phf').classList.toggle('hid',r!=='pharmacist');
+  $('reg-common').classList.toggle('hid', r==='patient');
+  $('reg-submit').classList.toggle('hid', r==='patient');
+  if (typeof HFAPatientRegistration!=='undefined') { if (r==='patient' && !$('fr').classList.contains('hid')) HFAPatientRegistration.mount(); else if (r!=='patient') HFAPatientRegistration.unmount(); }
 }
 
 function tpw(id) { const e=$(id); e.type = e.type==='password' ? 'text' : 'password'; }
@@ -2803,8 +2950,9 @@ function doLogin() {
   if (ApiState.loading) { ApiState.ready.then(()=>doLogin()); return; }
   if (ApiState.failed) return amsg(t('backend_unavailable'));
   const email = $('le').value.trim().toLowerCase(), pass = ApiState.enabled?$('lp').value:$('lp').value.trim();
-  if (ApiState.enabled) { backendLogin(email,pass); return; }
-  const u = DB.users.find(u => u.email.toLowerCase()===email && u.password===pass);
+  if (ApiState.enabled) { backendLogin(!email.includes('@')&&typeof HFAPatientRegistration!=='undefined'?HFAPatientRegistration.normPhone(email):email,pass); return; }
+  const phoneId = typeof HFAPatientRegistration!=='undefined' && !email.includes('@') ? HFAPatientRegistration.normPhone(email) : null;
+  const u = DB.users.find(u => (phoneId ? (u.phone && HFAPatientRegistration.normPhone(u.phone)===phoneId) : u.email.toLowerCase()===email) && u.password===pass);
   if (!u) { log('LOGIN_FAILED','System','failed'); return amsg(t('invalid_creds')); }
   if (u.status==='suspended') return amsg(t('suspended_msg'));
   if (u.status==='pending_approval') return amsg(t('pending_review_msg'));
@@ -2844,13 +2992,15 @@ function finishReg(idInput, idDocumentType, whatsappNumber) {
   const id = RROLE.slice(0,3)+Date.now();
   // Doctors and nurses require admin verification before they may access the platform.
   const initialStatus = (RROLE==='doctor'||RROLE==='nurse') ? 'pending_approval' : 'active';
-  const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:initialStatus,createdAt:todayD(),hfaId:nextHfaId(RROLE)};
+  const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:initialStatus,createdAt:todayD()};
   const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value,consultationFee:parseFloat($('rcf').value)||0}
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {whatsappNumber,whatsappNotificationsConsent:$('rwa-consent').checked,whatsappConsentAt:$('rwa-consent').checked?tsNow():null,dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   const finalize = (idFields) => {
     if (ApiState.enabled) { backendRegister({...base,...extra,...idFields}); return; }
-    DB.users.push({...base,...extra,...idFields,termsAcceptedAt:tsNow(),patientCommitmentAt:RROLE==='patient'?tsNow():null});
+    const created = {...base,...extra,...idFields,termsAcceptedAt:tsNow(),patientCommitmentAt:RROLE==='patient'?tsNow():null};
+    created.hfaId = nextHfaId(RROLE, created);
+    DB.users.push(created);
     DB.consents.push({id:'con'+Date.now(),patientId:id,type:'Terms and Conditions',status:'active',version:'2025.1',recordedAt:todayD()});
     if (RROLE==='patient') {
       CU = DB.users[DB.users.length-1];
@@ -2889,7 +3039,8 @@ function buildSidebar() {
   const r = CU.role;
   $('srb').textContent = (r==='admin' && CU.adminRole) ? CU.adminRole.toUpperCase() : r.toUpperCase();
   $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp',labtech:'rl',pharmacist:'rd'}[r];
-  $('sav').textContent = ini(CU.name);
+  if (typeof HFAAvatar!=='undefined') { $('sav').className='av-slot'; $('sav').innerHTML=HFAAvatar.html(CU,{size:'sm',ring:true,editable:true}); }
+  else $('sav').textContent = ini(CU.name);
   $('snm').textContent = CU.name;
   $('sem').textContent = CU.email;
   $('shfa').textContent = CU.hfaId || '';
@@ -2926,7 +3077,28 @@ function renderPage(page) {
   const r = CU.role, pc = $('pgc');
   pc.style.padding = '';
   const signOutBtn = `<button type="button" class="btn bd2 bsm" onclick="doLogout()" title="${t('sign_out')}">${IC.x} ${t('sign_out')}</button>`;
-  $('tbr').innerHTML = `${signOutBtn}<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
+  $('tbr').innerHTML = `${typeof HFATheme!=='undefined'?HFATheme.button():''}${signOutBtn}<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
+  if (page==='complete-profile' && r==='patient' && typeof HFAPatientRegistration!=='undefined') return HFAPatientRegistration.renderPage(pc);
+  if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
+  if (page==='facilities' && r==='admin' && typeof HFAFacilities!=='undefined') return HFAFacilities.renderRegister(pc);
+  if (page==='dashboard' && typeof HFACompletion!=='undefined') {
+    const result = renderRolePage(page, r, pc);
+    // Profile card (avatar + completion ring) on every dashboard; patients also get the Vital Health Card.
+    const insert = () => {
+      if (CP!=='dashboard' || pc.querySelector('#pc-card')) return;
+      const host = pc.querySelector('.page') || pc;
+      const intro = host.querySelector(':scope > .ph');
+      const extra = HFACompletion.card(CU) + (r==='patient' && typeof HFAPatientRegistration!=='undefined' ? HFAPatientRegistration.vitalCard(CU) : '');
+      if (intro) intro.insertAdjacentHTML('afterend', extra); else host.insertAdjacentHTML('afterbegin', extra);
+    };
+    insert();
+    if (result && typeof result.then==='function') result.then(insert);
+    return;
+  }
+  renderRolePage(page, r, pc);
+}
+
+function renderRolePage(page, r, pc) {
   if (page==='pharmacy'||(r==='pharmacist'&&page==='dashboard')) return renderPharmacy(pc);
   if (page==='messages') return renderMessages(pc);
   if (page==='consult')  return renderConsult(pc);
@@ -4660,6 +4832,7 @@ function saveApt() {
 }
 
 function showBookApt(serviceCode='PC-VIRTUAL') {
+  if (CU?.role==='patient' && typeof HFACompletion!=='undefined' && !HFACompletion.require('book')) return;
   const myDoc=G(CU.assignedDoctor);
   const referral=activeSpecialistReferral(CU.id), mySpec=referral?.status==='accepted'?G(referral.specialistDoctorId):null;
   const docs=DB.users.filter(u=>u.role==='doctor'&&u.status==='active');
@@ -4760,12 +4933,14 @@ function saveAddUser(role) {
   const id=role.slice(0,3)+Date.now();
   const adminRole = role==='admin' ? ($('au-ar')?.value||'Support Administrator') : null;
   const adminStatus = role==='admin' ? (isSuperAdmin(CU)?'active':'pending_approval') : 'active';
-  const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:adminStatus,createdAt:todayD(),hfaId:nextHfaId(role)};
+  const base={id,role,name:n,email:e,password:pw,phone:$('au-ph')?.value||'',status:adminStatus,createdAt:todayD()};
   const extra=role==='admin'?{adminRole:adminRole,permissions:adminRole==='Super Admin'?['all']:['users','audit'],createdAt:todayD()}
     :role==='doctor'?{specialty:$('au-sp')?.value||'',licenseNo:$('au-li')?.value||'',hospital:$('au-ho')?.value||'',consultationFee:parseFloat($('au-cf')?.value)||0}
     :role==='nurse'?{department:$('au-de')?.value||'',specialty:$('au-ns')?.value||'',nurseId:$('au-ni')?.value||'',hospital:$('au-ho')?.value||'',qualifications:''}
     :{dateOfBirth:$('au-db')?.value||'',bloodType:$('au-bt')?.value||'',assignedDoctor:$('au-dc')?.value||null,assignedNurse:$('au-nr')?.value||null,allergies:'None',address:'',emergencyContact:'',medicalHistory:''};
-  DB.users.push({...base,...extra});
+  const created={...base,...extra};
+  created.hfaId=nextHfaId(role, created);
+  DB.users.push(created);
   log('ADMIN_ADD_USER','User Management'); closeMo();
   navigate(CP);
 }
@@ -4882,7 +5057,7 @@ window.addEventListener('load',()=>{
     if (navigator.onLine===false) return;
     const stylesheet=document.createElement('link');
     stylesheet.rel='stylesheet';
-    stylesheet.href='https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap';
+    stylesheet.href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap';
     document.head.append(stylesheet);
   };
   if ('requestIdleCallback' in window) window.requestIdleCallback(loadFonts,{timeout:2000});
@@ -4892,6 +5067,8 @@ window.addEventListener('load',()=>{
 <script src="offline-uploads.js"></script>
 <script src="offline-session.js"></script>
 <script src="pharmacist.js"></script>
+<script src="hfa-ui.js"></script>
+<script src="patient-registration.js"></script>
 <script src="offline.js"></script>
 </body>
 </html>

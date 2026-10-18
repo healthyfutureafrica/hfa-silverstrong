@@ -122,11 +122,21 @@ function phField(name,label,value) {
   return `<div class="fg"><label class="fl" for="ph-${name}">${t(label)}</label>${control}</div>`;
 }
 
+// Region and town give the pharmacy its number (HFA-PH-<region>-<town>-0001).
+const PH_REGIONS=[['adamawa','Adamawa','Adamaoua'],['centre','Centre','Centre'],['east','East','Est'],['far_north','Far North','Extrême-Nord'],['littoral','Littoral','Littoral'],['north','North','Nord'],['north_west','North West','Nord-Ouest'],['west','West','Ouest'],['south','South','Sud'],['south_west','South West','Sud-Ouest']];
+function phLocationFields(region,town) {
+  const fr=LANG==='fr';
+  return `<div class="fr"><div class="fg"><label class="fl" for="ph-pharmacyRegion">${fr?'Région de la pharmacie':'Pharmacy region'}</label><select class="fc" id="ph-pharmacyRegion" required><option value="">${fr?'Choisir…':'Select…'}</option>${PH_REGIONS.map(([code,en,frLabel])=>`<option value="${code}"${code===region?' selected':''}>${fr?frLabel:en}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl" for="ph-pharmacyTown">${fr?'Ville de la pharmacie':'Pharmacy town'}</label><input class="fc" id="ph-pharmacyTown" maxlength="120" required value="${phEscape(town)}"></div></div>
+    <p class="mu sm" style="margin-top:-6px;margin-bottom:12px">${fr?'Votre numéro de pharmacie HFA est créé à partir de la région et de la ville, par ex. HFA-PH-LT-DLA-0001.':'Your HFA pharmacy number is created from the region and town, e.g. HFA-PH-LT-DLA-0001.'}</p>`;
+}
+
 function pharmacyRegistrationFields() {
   const container=$('phf');
   const values=Object.fromEntries(PH_FIELDS.map(([name])=>[name,$('ph-'+name)?.value||'']));
   const chosen=PH_DOCS.map(([kind])=>$('phd-'+kind)).filter(Boolean);
-  container.innerHTML=`<div class="alt ai">${t('pharmacy_note')}</div>${PH_FIELDS.map(([name,label])=>phField(name,label,values[name])).join('')}<p class="bo sm mt18 mb12">${t('pharmacy_docs_title')}</p>${PH_DOCS.map(([kind,label])=>`<div class="fg"><label class="fl" for="phd-${kind}">${t(label)}</label><input class="fc" type="file" id="phd-${kind}" accept="${PH_DOC_TYPES.join(',')}" required></div>`).join('')}`;
+  const region=$('ph-pharmacyRegion')?.value||'',town=$('ph-pharmacyTown')?.value||'';
+  container.innerHTML=`<div class="alt ai">${t('pharmacy_note')}</div>${PH_FIELDS.map(([name,label])=>phField(name,label,values[name])).join('')}${phLocationFields(region,town)}<p class="bo sm mt18 mb12">${t('pharmacy_docs_title')}</p>${PH_DOCS.map(([kind,label])=>`<div class="fg"><label class="fl" for="phd-${kind}">${t(label)}</label><input class="fc" type="file" id="phd-${kind}" accept="${PH_DOC_TYPES.join(',')}" required></div>`).join('')}`;
   chosen.forEach(input=>$(input.id).replaceWith(input)); // keep selected files across language re-renders
   $('rb-ph').textContent=t('pharmacist');
 }
@@ -141,6 +151,11 @@ async function registerPharmacist() {
   const payload={name:$('rn').value.trim(),email:$('re').value.trim(),password:$('rpa').value,phone:$('rph').value};
   for (const [name] of PH_FIELDS) {payload[name]=$('ph-'+name).value.trim();if(!payload[name])return amsg(t('pharmacy_required'));}
   if (!['national_id','passport'].includes(payload.ownerIdType)) return amsg(t('pharmacy_required'));
+  const regionInput=$('ph-pharmacyRegion'),townInput=$('ph-pharmacyTown');
+  if (regionInput&&townInput) {
+    payload.pharmacyRegion=regionInput.value;payload.pharmacyTown=townInput.value.trim();
+    if (!PH_REGIONS.some(([code])=>code===payload.pharmacyRegion)||!payload.pharmacyTown) return amsg(t('pharmacy_required'));
+  }
   if (Object.values(payload).some(value=>typeof value==='string'&&/[<>&"\u0000-\u001f]/.test(value)&&value!==payload.password)) return amsg(t('pharmacy_required'));
   const files=PH_DOCS.map(([kind])=>[kind,$('phd-'+kind)?.files?.[0]]);
   if (files.some(([,file])=>!file||!PH_DOC_TYPES.includes(file.type)||!file.size||file.size>PH_DOC_MAX)) return amsg(t('pharmacy_docs_required'));
@@ -153,7 +168,9 @@ async function registerPharmacist() {
       if (queued) {$('rpa').value='';PH_DOCS.forEach(([kind])=>{$('phd-'+kind).value='';});swtTab('login');$('le').value=payload.email;amsg(t('offline_registration_queued'),'i');return;}
     } else {
       if (DB.users.some(user=>user.email.toLowerCase()===payload.email.toLowerCase())) return amsg(t('email_exists'));
-      DB.users.push({...payload,role:'pharmacist',pharmacyDocuments:documents,id:'pha'+Date.now(),status:'pending_approval',createdAt:todayD(),hfaId:nextHfaId('pharmacist')});
+      const pharmacy={...payload,role:'pharmacist',pharmacyDocuments:documents,id:'pha'+Date.now(),status:'pending_approval',createdAt:todayD()};
+      pharmacy.hfaId=nextHfaId('pharmacist',pharmacy);
+      DB.users.push(pharmacy);
     }
     $('rpa').value='';PH_DOCS.forEach(([kind])=>{$('phd-'+kind).value='';});swtTab('login');$('le').value=payload.email;amsg(t('pending_review_msg'),'o');
   } catch(error) {amsg(error.message);}

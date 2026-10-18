@@ -8,6 +8,9 @@ const { randomUUID } = require('node:crypto');
 const { installFileRoutes, filesConfigured, fileMime, saveEncryptedFile, decodeFile } = require('./files');
 const { installPharmacyRoutes } = require('./pharmacy');
 const { seedDemoAccounts } = require('./demo-accounts');
+const { installAvatarRoutes, saveHealthRecord, withHealth } = require('./records');
+const { healthProfile, recordWithConsentTimes, REGIONS } = require('./patient-profile');
+const { installFacilityRoutes } = require('./facilities');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -17,13 +20,21 @@ const phone = z.string().regex(/^\+[1-9]\d{7,14}$/);
 const MAX_REGISTRATION_DOCUMENT=2*1024*1024;
 const uploadedDocument=z.object({fileName:z.string().min(1).max(180).regex(/^[^<>\u0000-\u001f/\\]+$/),content:z.string().min(4).max(Math.ceil(MAX_REGISTRATION_DOCUMENT/3)*4).regex(/^[A-Za-z0-9+/]+={0,2}$/)}).strict();
 const registration = z.object({
-  name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()),
+  name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()).optional(),
   password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']),
   phone: contactPhone.optional(), whatsappNumber: phone.optional(), whatsappNotificationsConsent: z.boolean().optional(),
   specialty: plain.optional(), hospital: plain.optional(), department: plain.optional(), consultationFee: z.number().min(5).max(20).optional(),
-  idDocumentType: z.enum(['national_id','passport']).optional(), idDocument: uploadedDocument.optional()
+  idDocumentType: z.enum(['national_id','passport']).optional(), idDocument: uploadedDocument.optional(),
+  preferredLanguage: z.enum(['en','fr']).optional(), healthProfile: healthProfile.optional(), vaccinationDocument: uploadedDocument.optional(),
+  hospitalId: z.string().max(100).optional(), hospitalOther: plain.optional(),
+  laboratory: plain.optional(), labRegion: z.enum(REGIONS).optional(), labTown: plain.optional()
 }).strict().superRefine((input, context) => {
-  if (input.role === 'patient' && !input.whatsappNumber) context.addIssue({ code: 'custom', message: 'Patient WhatsApp number is required' });
+  if (input.role !== 'patient' && (input.hospitalId || input.hospitalOther)) context.addIssue({ code: 'custom', path: ['hospitalId'], message: 'Only patients register under a hospital' });
+  // Only patients may register without an email; they then sign in with their primary phone number.
+  if (input.role !== 'patient' && !input.email) context.addIssue({ code: 'custom', path: ['email'], message: 'Required' });
+  if (input.role === 'patient' && !input.whatsappNumber && !phone.safeParse(input.phone).success) context.addIssue({ code: 'custom', path: ['phone'], message: 'Patient phone number is required in international format, e.g. +237677123456' });
+  if (input.role === 'patient' && !input.email && !phone.safeParse(input.phone).success) context.addIssue({ code: 'custom', path: ['phone'], message: 'A phone number in international format is required when no email is given' });
+  if (input.role !== 'patient' && (input.healthProfile || input.vaccinationDocument)) context.addIssue({ code: 'custom', path: ['healthProfile'], message: 'Only patients have a health profile' });
   if (input.role === 'pharmacist') context.addIssue({ code: 'custom', path: ['role'], message: 'Pharmacies register with their documents at /api/auth/register/pharmacist' });
 });
 // Pharmacies must submit every credential document with the application; activation is gated on all of them.
@@ -34,6 +45,7 @@ const pharmacyRegistration=z.object({
   password: z.string().min(12).max(128).regex(/\S/), phone: contactPhone.optional(),
   pharmacyName:plain,pharmacyAddress:plain,pharmacyLocation:plain,pharmacyLicense:plain,businessRegistration:plain,minsanteAuthorization:plain,
   ownerName:personName,ownerIdType:z.enum(['national_id','passport']),ownerIdNumber:plain,
+  pharmacyRegion:z.enum(REGIONS).optional(),pharmacyTown:plain.optional(),
   documents:z.object(Object.fromEntries(PHARMACY_DOCUMENTS.map(kind=>[kind,uploadedDocument]))).strict()
 }).strict();
 const resources = ['Account', 'Communications', 'Appointments', 'Medical Records', 'Lab Results', 'Care Notes', 'Care Coordination', 'Billing', 'Home Visits', 'Urgent Care'];
@@ -88,7 +100,7 @@ function createApp(config, store, provider) {
   app.use('/api', rateLimit({ windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false }));
   const smallJson=express.json({ limit: '32kb' });
   const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist'];
-  app.use((request, response, next) => documentRoutes.includes(request.path) ? next() : smallJson(request, response, next));
+  app.use((request, response, next) => documentRoutes.includes(request.path) || /^\/api\/v1\/users\/[^/]+\/health-profile$/.test(request.path) ? next() : smallJson(request, response, next));
   app.use('/api', (request, response, next) => {
     response.set('Cache-Control', 'no-store');
     if (['POST', 'PATCH', 'DELETE'].includes(request.method) &&
@@ -104,17 +116,28 @@ function createApp(config, store, provider) {
   const admin = (request, response, next) => request.user.role === 'admin' ? next() : response.status(403).json({ error: 'Administrator required' });
   installFileRoutes(app,config,store,authenticated);
   installPharmacyRoutes(app,store,authenticated);
+  installAvatarRoutes(app,config,store,authenticated);
+  installFacilityRoutes(app,store,authenticated,admin);
   // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
   const startSession = (response, user) => response.cookie('hfa_session', store.createSession(user.id), {
     httpOnly: true, sameSite: 'strict', secure: config.origin.startsWith('https://'), path: '/api', maxAge: SESSION_TTL
   });
-  const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
+  const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee', 'laboratory', 'labRegion', 'labTown', 'hospitalOther'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
+  // A patient may only register under a hospital that is on the public list (has active clinicians).
+  const listedHospital = id => id ? store.listedHospitals().find(hospital => hospital.id === id) : null;
 
-  app.post('/api/auth/register', authLimit, express.json({ limit: '3mb' }), async (request, response) => {
+  app.post('/api/auth/register', authLimit, express.json({ limit: '7mb' }), async (request, response) => {
     const input = registration.parse(request.body);
     if (input.role === 'labtech') return response.status(403).json({ error: 'Administrator provisions laboratory staff' });
+    if ((input.healthProfile || input.vaccinationDocument) && !filesConfigured(config)) return response.status(503).json({ error: 'Encrypted health record storage is not configured' });
+    if (input.hospitalId && !listedHospital(input.hospitalId)) return response.status(400).json({ error: 'hospitalId: Choose a hospital from the list' });
+    let vaccination = null;
+    if (input.vaccinationDocument) {
+      vaccination = decodeDocument('vaccinationDocument', input.vaccinationDocument);
+      if (vaccination.error) return response.status(400).json({ error: vaccination.error });
+    }
     let identity = null;
     if (input.idDocument) {
       if (!filesConfigured(config)) return response.status(503).json({ error: 'Encrypted document storage is not configured' });
@@ -122,19 +145,67 @@ function createApp(config, store, provider) {
       identity = decodeDocument('idDocument', input.idDocument);
       if (identity.error) return response.status(400).json({ error: identity.error });
     }
-    if (store.credentials(input.email)) return response.status(409).json({ error: 'Email already registered' });
+    const taken = () => (input.email && store.credentials(input.email)) ? 'Email already registered'
+      : (input.role === 'patient' && phone.safeParse(input.phone).success && store.credentialsByPhone(input.phone)) ? 'Phone number already registered' : null;
+    if (taken()) return response.status(409).json({ error: taken() });
     const passwordHash = await hashPassword(input.password);
     const idDocument = identity && { id: randomUUID(), fileName: identity.fileName, mime: identity.mime, size: identity.bytes.length };
+    const vaccinationDocument = vaccination && { id: randomUUID(), fileName: vaccination.fileName, mime: vaccination.mime, size: vaccination.bytes.length };
+    const { healthProfile: health, vaccinationDocument: unusedDocument, hospitalId, ...account } = input;
+    account.facilityId = hospitalId || undefined;
     store.db.exec('BEGIN IMMEDIATE');
     let user;
     try {
-      if (store.credentials(input.email)) { store.db.exec('ROLLBACK'); return response.status(409).json({ error: 'Email already registered' }); }
-      user = store.createUser({ ...input, profile: { ...profile(input), ...(idDocument ? { idDocumentType: input.idDocumentType, idDocument, idVerificationStatus: 'pending' } : {}) } }, passwordHash, input.role === 'patient' ? 'active' : 'pending_approval');
+      if (taken()) { const error = taken(); store.db.exec('ROLLBACK'); return response.status(409).json({ error }); }
+      user = store.createUser({ ...account, profile: { ...profile(input), ...(input.preferredLanguage ? { preferredLanguage: input.preferredLanguage } : {}),
+        ...(idDocument ? { idDocumentType: input.idDocumentType, idDocument, idVerificationStatus: 'pending' } : {}),
+        ...(vaccinationDocument ? { vaccinationDocument } : {}), ...(health ? { registrationCompletedAt: new Date().toISOString() } : {}) } }, passwordHash, input.role === 'patient' ? 'active' : 'pending_approval');
       if (idDocument) saveEncryptedFile(config, store, user.id, idDocument.id, { fileName: idDocument.fileName, category: 'registration:identity', notes: '', relatedApptId: '' }, identity.bytes, identity.mime);
+      if (vaccinationDocument) saveEncryptedFile(config, store, user.id, vaccinationDocument.id, { fileName: vaccinationDocument.fileName, category: 'Vaccination record', notes: 'Uploaded at registration', relatedApptId: '' }, vaccination.bytes, vaccination.mime);
+      if (health) saveHealthRecord(config, store, user.id, recordWithConsentTimes(health));
       store.db.exec('COMMIT');
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     if (user.status === 'active') startSession(response, user);
-    response.status(201).json({ user, users: user.status === 'active' ? store.visibleUsers(user) : [] });
+    const [own] = withHealth(config, store, user, [user]);
+    response.status(201).json({ user: own, users: user.status === 'active' ? withHealth(config, store, user, store.visibleUsers(user)) : [] });
+  });
+  // "Complete my profile": a signed-in patient saves or updates the 5-step health profile.
+  const healthUpdate = z.object({
+    preferredLanguage: z.enum(['en','fr']).optional(), healthProfile, vaccinationDocument: uploadedDocument.optional(),
+    idDocumentType: z.enum(['national_id','passport']).optional(), idDocument: uploadedDocument.optional(),
+    hospitalId: z.string().max(100).nullable().optional(), hospitalOther: plain.nullable().optional()
+  }).strict();
+  app.put('/api/v1/users/:id/health-profile', authenticated, express.json({ limit: '7mb' }), (request, response) => {
+    if (request.params.id !== request.user.id || request.user.role !== 'patient') return response.status(403).json({ error: 'Only the patient can update this health profile' });
+    if (!filesConfigured(config)) return response.status(503).json({ error: 'Encrypted health record storage is not configured' });
+    const input = healthUpdate.parse(request.body);
+    if (!!input.idDocument !== !!input.idDocumentType) return response.status(400).json({ error: 'idDocumentType: Required with an identity document' });
+    if (input.hospitalId && !listedHospital(input.hospitalId)) return response.status(400).json({ error: 'hospitalId: Choose a hospital from the list' });
+    const vaccination = input.vaccinationDocument && decodeDocument('vaccinationDocument', input.vaccinationDocument);
+    if (vaccination?.error) return response.status(400).json({ error: vaccination.error });
+    const identity = input.idDocument && decodeDocument('idDocument', input.idDocument);
+    if (identity?.error) return response.status(400).json({ error: identity.error });
+    const patch = { ...(input.preferredLanguage ? { preferredLanguage: input.preferredLanguage } : {}), healthProfileUpdatedAt: new Date().toISOString() };
+    const userId = request.user.id;
+    store.db.exec('BEGIN IMMEDIATE');
+    try {
+      if (vaccination) {
+        patch.vaccinationDocument = { id: randomUUID(), fileName: vaccination.fileName, mime: vaccination.mime, size: vaccination.bytes.length };
+        saveEncryptedFile(config, store, userId, patch.vaccinationDocument.id, { fileName: vaccination.fileName, category: 'Vaccination record', notes: 'Uploaded with health profile', relatedApptId: '' }, vaccination.bytes, vaccination.mime);
+      }
+      if (identity) {
+        patch.idDocumentType = input.idDocumentType; patch.idVerificationStatus = 'pending';
+        patch.idDocument = { id: randomUUID(), fileName: identity.fileName, mime: identity.mime, size: identity.bytes.length };
+        saveEncryptedFile(config, store, userId, patch.idDocument.id, { fileName: identity.fileName, category: 'registration:identity', notes: '', relatedApptId: '' }, identity.bytes, identity.mime);
+      }
+      saveHealthRecord(config, store, userId, recordWithConsentTimes(input.healthProfile));
+      if (input.hospitalId !== undefined) store.setPatientFacility(userId, input.hospitalId || null);
+      if (input.hospitalOther !== undefined) patch.hospitalOther = input.hospitalOther || null;
+      store.updateUser(userId, { profile: patch });
+      store.db.exec('COMMIT');
+    } catch (error) { store.db.exec('ROLLBACK'); throw error; }
+    const user = store.user(userId);
+    response.json({ user: withHealth(config, store, user, [user])[0] });
   });
   app.post('/api/auth/register/pharmacist', authLimit, express.json({ limit: '12mb' }), async (request, response) => {
     if (!filesConfigured(config)) return response.status(503).json({ error: 'Encrypted document storage is not configured; pharmacy registration is unavailable' });
@@ -150,26 +221,27 @@ function createApp(config, store, provider) {
     store.db.exec('BEGIN IMMEDIATE');
     try {
       if (store.credentials(input.email)) { store.db.exec('ROLLBACK'); return response.status(409).json({ error: 'Email already registered' }); }
-      const user = store.createUser({ ...input, role: 'pharmacist', profile: { ...Object.fromEntries(PHARMACY_FIELDS.map(field => [field, input[field]])), pharmacyDocuments } }, passwordHash, 'pending_approval');
+      const user = store.createUser({ ...input, role: 'pharmacist', profile: { ...Object.fromEntries(PHARMACY_FIELDS.map(field => [field, input[field]])), ...(input.pharmacyRegion ? { pharmacyRegion: input.pharmacyRegion } : {}), ...(input.pharmacyTown ? { pharmacyTown: input.pharmacyTown } : {}), pharmacyDocuments } }, passwordHash, 'pending_approval');
       for (const kind of PHARMACY_DOCUMENTS) saveEncryptedFile(config, store, user.id, pharmacyDocuments[kind].id, { fileName: documents[kind].fileName, category: 'pharmacy_registration:' + kind, notes: '', relatedApptId: '' }, documents[kind].bytes, documents[kind].mime);
       store.db.exec('COMMIT');
       response.status(201).json({ user, users: [] });
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
   });
   app.post('/api/auth/login', authLimit, async (request, response) => {
-    const input = z.object({ email: z.string().email(), password: z.string().min(1).max(128) }).strict().parse(request.body);
-    const credentials = store.credentials(input.email);
+    // "email" carries either an email address or a primary phone number (patients without email).
+    const input = z.object({ email: z.string().trim().min(3).max(254), password: z.string().min(1).max(128) }).strict().parse(request.body);
+    const credentials = input.email.includes('@') ? store.credentials(input.email) : store.credentialsByPhone(input.email);
     const valid=await verifyPassword(input.password,credentials?.password_hash||`00000000000000000000000000000000:${'0'.repeat(128)}`);
     if (!credentials || !valid) return response.status(401).json({ error: 'Invalid email or password' });
     const user = store.user(credentials.id);
     if (user.status !== 'active') return response.status(403).json({ error: 'Account is not active; administrator review may be required' });
     startSession(response, user);
-    response.json({ user, users: store.visibleUsers(user), notifications: store.notifications(user.id) });
+    response.json({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
   });
   app.post('/api/auth/logout', (request, response) => {
     store.logout(cookieToken(request)); response.clearCookie('hfa_session', { path: '/api' }).sendStatus(204);
   });
-  app.get('/api/session', authenticated, (request, response) => response.json({ user: request.user, users: store.visibleUsers(request.user), notifications: store.notifications(request.user.id) }));
+  app.get('/api/session', authenticated, (request, response) => response.json({ user: withHealth(config, store, request.user, [request.user])[0], users: withHealth(config, store, request.user, store.visibleUsers(request.user)), notifications: store.notifications(request.user.id) }));
   app.get('/api/notifications', authenticated, (request, response) => response.json({ notifications: store.notifications(request.user.id) }));
   app.post('/api/activities', authenticated, eventLimit, (request, response) => {
     const input = activity.parse(request.body);
@@ -202,7 +274,7 @@ function createApp(config, store, provider) {
   });
   app.post('/api/admin/users', authenticated, admin, async (request, response) => {
     const input = registration.parse(request.body);
-    if (store.credentials(input.email)) return response.status(409).json({ error: 'Email already registered' });
+    if ((input.email && store.credentials(input.email)) || (!input.email && store.credentialsByPhone(input.phone))) return response.status(409).json({ error: 'Email or phone already registered' });
     const user = store.createUser({ ...input, profile: profile(input) }, await hashPassword(input.password), 'active');
     response.status(201).json({ user });
   });

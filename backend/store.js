@@ -2,12 +2,19 @@ const { DatabaseSync } = require('node:sqlite');
 const { randomBytes, randomUUID, createHash, scrypt, timingSafeEqual } = require('node:crypto');
 const { promisify } = require('node:util');
 const { mkdirSync, chmodSync } = require('node:fs');
-const { dirname } = require('node:path');
+const { dirname, join } = require('node:path');
+// Shared with the site so both always produce the same number format.
+const Numbering = require(join(__dirname, '..', 'hfa-numbering.js'));
 
 const deriveKey = promisify(scrypt);
 const digest = value => createHash('sha256').update(value).digest('hex');
 // Sessions outlive a 7-day offline period so queued work can sync without signing in again.
 const SESSION_TTL = 7 * 86400000;
+// Patients may register without an email (many rural patients have none). The NOT NULL UNIQUE email
+// column then holds a reserved, undeliverable address derived from the phone; it is never shown.
+const PHONE_EMAIL_DOMAIN = '@phone.hfa.invalid';
+const phoneEmail = phone => `${String(phone).replace(/[^0-9]/g, '')}${PHONE_EMAIL_DOMAIN}`;
+const normalizePhone = value => String(value || '').replace(/[\s()-]/g, '');
 
 async function hashPassword(password) {
   const salt = randomBytes(16).toString('hex');
@@ -61,34 +68,165 @@ class Store {
     if (!this.db.prepare('PRAGMA table_info(users)').all().some(column=>column.name==='whatsapp_consent_at')) this.db.exec('ALTER TABLE users ADD COLUMN whatsapp_consent_at TEXT');
     if (!this.db.prepare('PRAGMA table_info(deliveries)').all().some(column=>column.name==='recipient_phone')) this.db.exec('ALTER TABLE deliveries ADD COLUMN recipient_phone TEXT');
     this.db.prepare("UPDATE deliveries SET status='delivery_unknown' WHERE status='sending'").run();
+    // Stakeholder numbering: hospitals register, town codes, one counter per portal + hospital / region + town.
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS facilities (
+        id TEXT PRIMARY KEY, kind TEXT NOT NULL, name TEXT NOT NULL, name_key TEXT NOT NULL, code TEXT NOT NULL, created_at TEXT NOT NULL,
+        UNIQUE(kind, name_key), UNIQUE(kind, code)
+      );
+      CREATE TABLE IF NOT EXISTS places (
+        region TEXT NOT NULL, town_key TEXT NOT NULL, town TEXT NOT NULL, code TEXT NOT NULL, PRIMARY KEY(region, town_key), UNIQUE(region, code)
+      );
+      CREATE TABLE IF NOT EXISTS hfa_sequences (scope TEXT PRIMARY KEY, last INTEGER NOT NULL);
+    `);
+    const columns = this.db.prepare('PRAGMA table_info(users)').all().map(column => column.name);
+    if (!columns.includes('hfa_number')) this.db.exec('ALTER TABLE users ADD COLUMN hfa_number TEXT');
+    if (!columns.includes('facility_id')) this.db.exec('ALTER TABLE users ADD COLUMN facility_id TEXT REFERENCES facilities(id)');
+    this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_hfa_number ON users(hfa_number) WHERE hfa_number IS NOT NULL');
+    this.db.exec('CREATE INDEX IF NOT EXISTS users_facility ON users(facility_id)');
+    this.backfillNumbers();
+  }
+
+  // ───── Facilities and stakeholder numbers ─────
+
+  /** Finds or registers a hospital by name ("Hôpital Général de Douala" = "Hopital General Douala"). */
+  hospital(name) {
+    const key = Numbering.nameKey(name);
+    if (!key) return null;
+    const existing = this.db.prepare("SELECT * FROM facilities WHERE kind='hospital' AND name_key=?").get(key);
+    if (existing) return existing;
+    const taken = this.db.prepare("SELECT code FROM facilities WHERE kind='hospital'").all().map(row => row.code);
+    const row = { id: `fac-${randomUUID()}`, kind: 'hospital', name: String(name).trim().slice(0, 200), name_key: key, code: Numbering.facilityCode(name, taken), created_at: new Date().toISOString() };
+    this.db.prepare('INSERT INTO facilities (id,kind,name,name_key,code,created_at) VALUES (?,?,?,?,?,?)').run(row.id, row.kind, row.name, row.name_key, row.code, row.created_at);
+    return row;
+  }
+
+  facility(id) { return id ? this.db.prepare('SELECT * FROM facilities WHERE id=?').get(id) || null : null; }
+
+  /** Hospitals patients can register under: those with at least one active doctor or nurse. */
+  listedHospitals() {
+    return this.db.prepare(`SELECT f.id, f.name, f.code FROM facilities f WHERE f.kind='hospital'
+      AND EXISTS (SELECT 1 FROM users u WHERE u.facility_id=f.id AND u.role IN ('doctor','nurse') AND u.status='active') ORDER BY f.name`).all();
+  }
+
+  /** Stable 3-letter code for a town within a region (DLA, YDE, … or generated). */
+  townCode(region, town) {
+    const key = Numbering.nameKey(town);
+    if (!region || !key) return Numbering.UNKNOWN_TOWN;
+    const existing = this.db.prepare('SELECT code FROM places WHERE region=? AND town_key=?').get(region, key);
+    if (existing) return existing.code;
+    const taken = this.db.prepare('SELECT code FROM places WHERE region=?').all(region).map(row => row.code);
+    const code = Numbering.townCode(town, taken);
+    this.db.prepare('INSERT INTO places VALUES (?,?,?,?)').run(region, key, String(town).trim().slice(0, 120), code);
+    return code;
+  }
+
+  /** Issues the user's number once; it never changes afterwards (it is printed and shared). */
+  assignNumber(id) {
+    const row = this.db.prepare('SELECT id,role,profile,hfa_number,facility_id,assigned_doctor FROM users WHERE id=?').get(id);
+    if (!row || row.hfa_number) return row?.hfa_number;
+    const profile = JSON.parse(row.profile);
+    let facilityId = row.facility_id, parts = {};
+    if (row.role === 'doctor' || row.role === 'nurse') {
+      const hospital = this.hospital(profile.hospital);
+      facilityId = hospital?.id || null;
+      parts.facilityCode = hospital?.code;
+    } else if (row.role === 'patient') {
+      // Registered under the chosen hospital; older accounts take their assigned doctor's hospital.
+      if (!facilityId && row.assigned_doctor) facilityId = this.db.prepare('SELECT facility_id FROM users WHERE id=?').get(row.assigned_doctor)?.facility_id || null;
+      parts.facilityCode = this.facility(facilityId)?.code;
+    } else if (row.role === 'pharmacist' || row.role === 'labtech') {
+      const { region, town } = Numbering.locationOf(profile);
+      parts.regionCode = Numbering.REGIONS[region];
+      parts.townCode = region && town ? this.townCode(region, town) : undefined;
+    }
+    const scope = Numbering.scope(row.role, parts);
+    const { last } = this.db.prepare('INSERT INTO hfa_sequences (scope,last) VALUES (?,1) ON CONFLICT(scope) DO UPDATE SET last=last+1 RETURNING last').get(scope);
+    const number = Numbering.format(scope, last);
+    this.db.prepare('UPDATE users SET hfa_number=?, facility_id=? WHERE id=?').run(number, facilityId, id);
+    return number;
+  }
+
+  // Accounts created before numbering get theirs at startup: clinicians first, so their hospitals exist for patients.
+  backfillNumbers() {
+    const pending = this.db.prepare(`SELECT id FROM users WHERE hfa_number IS NULL
+      ORDER BY CASE role WHEN 'doctor' THEN 0 WHEN 'nurse' THEN 0 ELSE 1 END, created_at, id`).all();
+    for (const { id } of pending) this.assignNumber(id);
+  }
+
+  /** Changes the hospital a patient is registered under. The number stays the same. */
+  setPatientFacility(userId, facilityId) {
+    this.db.prepare("UPDATE users SET facility_id=? WHERE id=? AND role='patient'").run(facilityId, userId);
+  }
+
+  /** Patients registered under a hospital — names and numbers only, no health data. */
+  facilityPatients(facilityId) {
+    return this.db.prepare("SELECT id,name,hfa_number AS hfaId,status,created_at AS createdAt FROM users WHERE facility_id=? AND role='patient' AND status!='deleted' ORDER BY hfa_number").all(facilityId);
+  }
+
+  /** Register of every hospital and every pharmacy/laboratory location, with counts (administrators). */
+  facilityRegister() {
+    const hospitals = this.db.prepare(`SELECT f.id, f.name, f.code, f.created_at AS createdAt,
+        SUM(u.role='doctor') AS doctors, SUM(u.role='nurse') AS nurses, SUM(u.role='patient') AS patients
+      FROM facilities f LEFT JOIN users u ON u.facility_id=f.id AND u.status!='deleted' WHERE f.kind='hospital' GROUP BY f.id ORDER BY f.code`).all()
+      .map(row => ({ ...row, doctors: row.doctors || 0, nurses: row.nurses || 0, patients: row.patients || 0 }));
+    const places = new Map(this.db.prepare('SELECT region,code,town FROM places').all().map(row => [`${Numbering.REGIONS[row.region]}-${row.code}`, { region: row.region, town: row.town }]));
+    const locations = new Map();
+    for (const row of this.db.prepare("SELECT role,hfa_number FROM users WHERE role IN ('pharmacist','labtech') AND status!='deleted'").all()) {
+      const parsed = Numbering.parse(row.hfa_number);
+      if (!parsed) continue;
+      const key = `${parsed.regionCode}-${parsed.townCode}`;
+      const entry = locations.get(key) || { code: key, ...(places.get(key) || { region: null, town: null }), pharmacies: 0, laboratories: 0 };
+      if (row.role === 'pharmacist') entry.pharmacies++; else entry.laboratories++;
+      locations.set(key, entry);
+    }
+    const unregistered = this.db.prepare("SELECT COUNT(*) AS total FROM users WHERE role='patient' AND facility_id IS NULL AND status!='deleted'").get().total;
+    return { hospitals, locations: [...locations.values()].sort((a, b) => a.code.localeCompare(b.code)), patientsWithoutHospital: unregistered };
   }
 
   user(id) {
     const row = this.db.prepare('SELECT * FROM users WHERE id=?').get(id);
     if (!row) return null;
+    const profile = JSON.parse(row.profile);
     return {
-      ...JSON.parse(row.profile), id: row.id, email: row.email, name: row.name, role: row.role,
+      ...profile, id: row.id, email: row.email.endsWith(PHONE_EMAIL_DOMAIN) ? '' : row.email,
+      avatarUrl: profile.avatarKey ? `/api/v1/users/${encodeURIComponent(row.id)}/avatar?v=${encodeURIComponent(profile.avatarUploadedAt || '')}` : null, name: row.name, role: row.role,
       status: row.status, phone: row.phone, whatsappNumber: row.whatsapp_number,
       whatsappNotificationsConsent: !!row.whatsapp_consent, whatsappVerifiedAt: row.whatsapp_verified_at,
       whatsappConsentAt: row.whatsapp_consent_at,
       assignedDoctor: row.assigned_doctor, assignedNurse: row.assigned_nurse,
-      createdAt: row.created_at, hfaId: `HFA-${row.role.slice(0, 3).toUpperCase()}-${row.id.slice(-8)}`,
+      createdAt: row.created_at, hfaId: row.hfa_number || `HFA-${row.role.slice(0, 3).toUpperCase()}-${row.id.slice(-8)}`,
+      facilityId: row.facility_id || null, ...this.facilityFields(row.facility_id),
       ...(row.role === 'admin' ? { adminRole: 'Super Admin', permissions: ['all'] } : {})
     };
+  }
+
+  facilityFields(facilityId) {
+    const facility = this.facility(facilityId);
+    return facility ? { facilityName: facility.name, facilityCode: facility.code } : { facilityName: null, facilityCode: null };
   }
 
   credentials(email) {
     return this.db.prepare('SELECT id,password_hash FROM users WHERE email=?').get(email.toLowerCase());
   }
 
+  // Sign-in by primary phone number (E.164, e.g. +237677123456), ignoring spaces and dashes stored earlier.
+  credentialsByPhone(phone) {
+    const number = normalizePhone(phone);
+    if (!/^\+[1-9]\d{7,14}$/.test(number)) return undefined;
+    return this.db.prepare("SELECT id,password_hash FROM users WHERE status!='deleted' AND REPLACE(REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'(',''),')','')=? ORDER BY created_at LIMIT 1").get(number);
+  }
+
   createUser(input, passwordHash, status) {
     const id = `${input.role.slice(0, 3)}-${randomUUID()}`;
     this.db.prepare(`INSERT INTO users
       (id,email,password_hash,name,role,status,phone,whatsapp_number,whatsapp_consent,profile,created_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(id, input.email.toLowerCase(), passwordHash, input.name, input.role,
+      VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(id, (input.email || phoneEmail(input.phone)).toLowerCase(), passwordHash, input.name, input.role,
       status, input.phone || '', input.whatsappNumber || '', input.whatsappNotificationsConsent ? 1 : 0,
       JSON.stringify(input.profile || {}), new Date().toISOString());
     if (input.whatsappNotificationsConsent) this.db.prepare('UPDATE users SET whatsapp_consent_at=? WHERE id=?').run(new Date().toISOString(),id);
+    if (input.role === 'patient' && input.facilityId) this.db.prepare('UPDATE users SET facility_id=? WHERE id=?').run(input.facilityId, id);
+    this.assignNumber(id);
     return this.user(id);
   }
 
@@ -163,4 +301,4 @@ class Store {
   close() { this.db.close(); }
 }
 
-module.exports = { Store, digest, hashPassword, verifyPassword, SESSION_TTL };
+module.exports = { Store, digest, hashPassword, verifyPassword, SESSION_TTL, normalizePhone, phoneEmail };

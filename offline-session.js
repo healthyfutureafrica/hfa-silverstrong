@@ -23,7 +23,7 @@ class OfflineSession {
   // Online password sign-in: (re)create the offline verifier and keep the account's device key.
   async remember(user,password) {
     const existing=await this.storage.read('profiles',user.id),salt=this.crypto.getRandomValues(new Uint8Array(16));
-    const profile={userId:user.id,email:user.email.toLowerCase(),salt,verifier:await this.verifier(password,salt),key:existing?.key||await this.newKey(),snapshot:existing?.snapshot||null,lastOnlineAt:this.now()};
+    const profile={userId:user.id,email:(user.email||'').toLowerCase(),phone:OfflineSession.phone(user.phone||user.whatsappNumber),salt,verifier:await this.verifier(password,salt),key:existing?.key||await this.newKey(),snapshot:existing?.snapshot||null,lastOnlineAt:this.now()};
     await this.storage.write('profiles',[profile]);
     return this.active=profile;
   }
@@ -35,8 +35,17 @@ class OfflineSession {
     await this.storage.write('profiles',[profile]);
     return this.active=profile;
   }
+  // Patients without email sign in with their primary phone number, offline too.
+  static phone(value) {
+    let number=String(value||'').replace(/[\s().-]/g,'');
+    if (/^00[1-9]/.test(number)) number='+'+number.slice(2);
+    if (/^237\d{9}$/.test(number)) number='+'+number;
+    if (/^[26]\d{8}$/.test(number)) number='+237'+number; // Cameroon numbers typed without the country code
+    return number;
+  }
   async signIn(email,password) {
-    const profile=(await this.storage.read('profiles')).find(entry=>entry.email===email.trim().toLowerCase());
+    const id=email.trim().toLowerCase(),phone=OfflineSession.phone(id);
+    const profile=(await this.storage.read('profiles')).find(entry=>id.includes('@')?entry.email===id:(!!entry.phone&&entry.phone===phone));
     if (!profile) throw new Error('offline_no_account');
     const candidate=await this.verifier(password,profile.salt);
     let difference=candidate.length^profile.verifier.length;
@@ -88,7 +97,7 @@ class OfflineSession {
   }
   async queueRegistration(path,payload) {
     const key=await this.newKey(),id=this.crypto.randomUUID();
-    await this.storage.write('registrations',[{id,path,email:payload.email.toLowerCase(),queuedAt:this.now(),key,payload:await this.seal(key,payload,`${id}:registration`)}]);
+    await this.storage.write('registrations',[{id,path,email:(payload.email||payload.phone||'').toLowerCase(),queuedAt:this.now(),key,payload:await this.seal(key,payload,`${id}:registration`)}]);
     return id;
   }
   async submitRegistrations(send) {

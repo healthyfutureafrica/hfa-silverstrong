@@ -1,7 +1,7 @@
-const CACHE_NAME='hfa-public-v11';
+const CACHE_NAME='hfa-public-v13';
 const ROOT=new URL('./',self.location.href);
 // The page is stored under the directory URL: some hosts (Cloudflare) redirect /index.html to /.
-const SHELL=['./','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
+const SHELL=['./','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','hfa-numbering.js','hfa-ui.js','patient-registration.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
 const INDEX=new URL('index.html',ROOT).href;
 
 // Browsers released before 2022 have no AbortSignal.timeout.
