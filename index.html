@@ -814,10 +814,10 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 
 <!-- LANDING -->
 <div id="land" class="hid">
-  <nav class="lnav" aria-label="Public site navigation">
+  <nav class="lnav" aria-label="Public site navigation" data-i18n-aria="i_public_nav">
     <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span id="land-hero-title">HFA <span>SilverStrong</span></span></div>
     <div class="lnr">
-      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goFreeHub()" id="lnd-freehub">Free Health Hub</button>
+      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goFreeHub()" id="lnd-freehub" data-i18n="free_hub_title">Free Health Hub</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="startDemo('patient')" id="lnd-demo">Try Demo</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
       <button type="button" class="btn bgh land-nav-btn nav-ghost" onclick="openLangPicker()" id="lnd-lang">Language</button>
@@ -831,11 +831,11 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--go)"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
         <span style="color:var(--go);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase">Healthy Future Africa</span>
       </div>
-      <h2>Advanced <span>Telehealth</span><br>for Every Patient</h2>
-      <p>Connecting patients, nurses, and doctors across Africa with encrypted video consultations, real-time messaging, and comprehensive care management — all in one secure platform.</p>
+      <h2 data-i18n-html="i_hero_title">Advanced <span>Telehealth</span><br>for Every Patient</h2>
+      <p data-i18n="i_hero_text">Connecting patients, nurses, and doctors across Africa with encrypted video consultations, real-time messaging, and comprehensive care management — all in one secure platform.</p>
       <div class="hcta">
-        <button type="button" class="btn bg2 blg" onclick="goAuth('register')">Get Started →</button>
-        <button type="button" class="btn blg" onclick="goAuth('login')" style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)">Sign In</button>
+        <button type="button" class="btn bg2 blg" onclick="goAuth('register')" data-i18n="i_get_started">Get Started →</button>
+        <button type="button" class="btn blg" onclick="goAuth('login')" style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)" data-i18n="sign_in">Sign In</button>
       </div>
       <div class="hst">
         <div><div class="hsv">500+</div><div class="hsl hs-lbl" id="hs-l1">Patients Served</div></div>
@@ -852,27 +852,27 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
       <div class="pc2" onclick="goAuth('register','doctor')">
         <div class="pi" style="background:rgba(0,107,63,.2)"><svg width="22" height="22" fill="none" stroke="#6ddbb8" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
         <h3 id="lnd-doc-t">Doctor Portal</h3><p id="lnd-doc-p">Manage patients, consultations &amp; records</p>
-        <div class="pa">Access Portal →</div>
+        <div class="pa" data-i18n="i_access_portal">Access Portal →</div>
       </div>
       <div class="pc2" onclick="goAuth('register','nurse')">
         <div class="pi" style="background:rgba(26,111,163,.2)"><svg width="22" height="22" fill="none" stroke="#7ec9ed" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
         <h3 id="lnd-nur-t">Nurse Portal</h3><p id="lnd-nur-p">Patient care &amp; coordination tools</p>
-        <div class="pa">Access Portal →</div>
+        <div class="pa" data-i18n="i_access_portal">Access Portal →</div>
       </div>
       <div class="pc2" onclick="showPortalChoice('patient')">
         <div class="pi" style="background:rgba(138,155,176,.15)"><svg width="22" height="22" fill="none" stroke="#c0d0e0" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <h3 id="lnd-pat-t">Patient Portal</h3><p id="lnd-pat-p">Book consultations &amp; view health records</p>
-        <div class="pa">Access Portal →</div>
+        <div class="pa" data-i18n="i_access_portal">Access Portal →</div>
       </div>
       <div class="pc2" onclick="goAuth('login')">
         <div class="pi" style="background:rgba(196,144,42,.15)"><svg width="22" height="22" fill="none" stroke="#e8c06a" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
         <h3 id="lnd-adm-t">Admin Panel</h3><p id="lnd-adm-p">Audit, manage &amp; oversee all users</p>
-        <div class="pa">Access Panel →</div>
+        <div class="pa" data-i18n="i_access_panel">Access Panel →</div>
       </div>
       <div class="pc2" onclick="goAuth('login')">
         <div class="pi" style="background:rgba(108,52,131,.18)"><svg width="22" height="22" fill="none" stroke="#d6a8ee" stroke-width="2" viewBox="0 0 24 24"><path d="M10 2v6.5L4.4 19A2 2 0 0 0 6.2 22h11.6a2 2 0 0 0 1.8-3L14 8.5V2"/><path d="M8 2h8"/><path d="M7 16h10"/></svg></div>
         <h3 id="lnd-lab-t">Lab Portal</h3><p id="lnd-lab-p">Upload lab results for specialist review</p>
-        <div class="pa">Access Portal →</div>
+        <div class="pa" data-i18n="i_access_portal">Access Portal →</div>
       </div>
     </div>
   </div>
@@ -887,7 +887,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 
 <!-- FREE HEALTH HUB (public, no login required) -->
 <div id="free-hub" class="hid">
-  <nav class="lnav fh-nav" aria-label="Free Health Hub navigation">
+  <nav class="lnav fh-nav" aria-label="Free Health Hub navigation" data-i18n-aria="i_fh_nav">
     <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span>HFA <span>SilverStrong</span></span></div>
     <div class="lnr">
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goLand()" id="fh-back">← Back to Home</button>
@@ -903,14 +903,14 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
     <div class="abr">
       <img class="logo-mark auth-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo">
       <h1>HFA<br><span class="go">SilverStrong</span></h1>
-      <p>Healthcare Telehealth Platform</p>
+      <p data-i18n="i_auth_tagline">Healthcare Telehealth Platform</p>
     </div>
     <div class="afl">
-      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Secure video &amp; text consultations</div>
-      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Role-based portals for all users</div>
-      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Real-time patient-doctor communication</div>
-      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Full admin audit trail &amp; control</div>
-      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Add, suspend, or remove any user</div>
+      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span data-i18n="i_auth_f1">Secure video &amp; text consultations</span></div>
+      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span data-i18n="i_auth_f2">Role-based portals for all users</span></div>
+      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span data-i18n="i_auth_f3">Real-time patient-doctor communication</span></div>
+      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span data-i18n="i_auth_f4">Full admin audit trail &amp; control</span></div>
+      <div class="af"><div class="afd"><svg width="10" height="10" fill="none" stroke="var(--go)" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span data-i18n="i_auth_f5">Add, suspend, or remove any user</span></div>
     </div>
   </div>
   <div class="ar">
@@ -928,11 +928,11 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
     <div id="amsg"></div>
     <!-- LOGIN -->
     <div id="fl">
-      <div class="fg"><label class="fl" id="lbl-email" for="le">Email or phone number</label><input class="fc" type="text" id="le" autocomplete="username" inputmode="email" placeholder="your@email.com / +237 6XX XX XX XX"></div>
+      <div class="fg"><label class="fl" id="lbl-email" for="le">Email or phone number</label><input class="fc" type="text" id="le" autocomplete="username" inputmode="email" placeholder="your@email.com / +237 6XX XX XX XX" data-i18n-ph="i_login_ph"></div>
       <div class="fg"><label class="fl" id="lbl-pass">Password</label>
-        <div class="iw"><input class="fc" type="password" id="lp" placeholder="Enter password"><button type="button" class="eb" onclick="tpw('lp')" aria-label="Toggle password visibility"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <div class="iw"><input class="fc" type="password" id="lp" placeholder="Enter password" data-i18n-ph="enter_password"><button type="button" class="eb" onclick="tpw('lp')" aria-label="Toggle password visibility" data-i18n-aria="i_toggle_pw"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
-      <button type="button" class="btn bp w100 mt8" onclick="doLogin()">Sign In</button>
+      <button type="button" class="btn bp w100 mt8" onclick="doLogin()" data-i18n="sign_in">Sign In</button>
       <div class="afo" id="afo-login">No account? <span class="alk" onclick="swtTab('register')">Register here</span></div>
     </div>
     <!-- REGISTER -->
@@ -947,25 +947,25 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
         </div>
       </div>
       <div id="reg-common" class="hid">
-      <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" type="text" id="rn" placeholder="Full legal name"></div>
-      <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="re" placeholder="your@email.com"></div>
-      <div class="fg"><label class="fl">Phone</label><input class="fc" type="tel" id="rph" placeholder="+237 6XX XXX XXX"></div>
-      <div class="fg"><label class="fl">Password</label>
-        <div class="iw"><input class="fc" type="password" id="rpa" placeholder="Min. 6 characters"><button type="button" class="eb" onclick="tpw('rpa')" aria-label="Toggle password visibility"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" type="text" id="rn" placeholder="Full legal name" data-i18n-ph="i_full_legal_name_ph"></div>
+      <div class="fg"><label class="fl" data-i18n="email_lbl">Email</label><input class="fc" type="email" id="re" placeholder="your@email.com" data-i18n-ph="i_email_ph"></div>
+      <div class="fg"><label class="fl" data-i18n="phone_lbl">Phone</label><input class="fc" type="tel" id="rph" placeholder="+237 6XX XXX XXX"></div>
+      <div class="fg"><label class="fl" data-i18n="password">Password</label>
+        <div class="iw"><input class="fc" type="password" id="rpa" placeholder="Min. 6 characters"><button type="button" class="eb" onclick="tpw('rpa')" aria-label="Toggle password visibility" data-i18n-aria="i_toggle_pw"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
       </div>
       <div id="phf" class="hid"></div>
       <div id="df">
-        <div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="rsp" required><option value="" id="rsp-def">Select...</option><option>General Medicine</option><option>Family Medicine</option><option>Internal Medicine</option><option>Emergency Medicine</option><option>Cardiology</option><option>Endocrinology</option><option>Gastroenterology</option><option>Nephrology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Geriatrics</option><option>Obstetrics and Gynecology</option><option>Dermatology</option><option>Ophthalmology</option><option>Otolaryngology (ENT)</option><option>Orthopedics</option><option>Urology</option><option>General Surgery</option><option>Anesthesiology</option><option>Radiology</option><option>Pathology</option><option>Infectious Disease</option><option>Pulmonology</option><option>Rheumatology</option><option>Physiotherapy</option><option>Physical Medicine and Rehabilitation</option><option>Psychiatry</option><option>Mental Health</option><option>Clinical Psychology</option><option>Counseling Psychology</option><option>Behavioral Health</option><option>Psychotherapy</option><option>Public Health</option></select></div><div class="fg"><label class="fl">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
-        <div class="fr"><div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name" list="hfa-hospitals" autocomplete="organization"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
+        <div class="fr"><div class="fg"><label class="fl" data-i18n="specialty">Specialty</label><select class="fc" id="rsp" required data-i18n-values><option value="" id="rsp-def">Select...</option><option value="General Medicine">General Medicine</option><option value="Family Medicine">Family Medicine</option><option value="Internal Medicine">Internal Medicine</option><option value="Emergency Medicine">Emergency Medicine</option><option value="Cardiology">Cardiology</option><option value="Endocrinology">Endocrinology</option><option value="Gastroenterology">Gastroenterology</option><option value="Nephrology">Nephrology</option><option value="Neurology">Neurology</option><option value="Oncology">Oncology</option><option value="Pediatrics">Pediatrics</option><option value="Geriatrics">Geriatrics</option><option value="Obstetrics and Gynecology">Obstetrics and Gynecology</option><option value="Dermatology">Dermatology</option><option value="Ophthalmology">Ophthalmology</option><option value="Otolaryngology (ENT)">Otolaryngology (ENT)</option><option value="Orthopedics">Orthopedics</option><option value="Urology">Urology</option><option value="General Surgery">General Surgery</option><option value="Anesthesiology">Anesthesiology</option><option value="Radiology">Radiology</option><option value="Pathology">Pathology</option><option value="Infectious Disease">Infectious Disease</option><option value="Pulmonology">Pulmonology</option><option value="Rheumatology">Rheumatology</option><option value="Physiotherapy">Physiotherapy</option><option value="Physical Medicine and Rehabilitation">Physical Medicine and Rehabilitation</option><option value="Psychiatry">Psychiatry</option><option value="Mental Health">Mental Health</option><option value="Clinical Psychology">Clinical Psychology</option><option value="Counseling Psychology">Counseling Psychology</option><option value="Behavioral Health">Behavioral Health</option><option value="Psychotherapy">Psychotherapy</option><option value="Public Health">Public Health</option></select></div><div class="fg"><label class="fl" data-i18n="license_no">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
+        <div class="fr"><div class="fg"><label class="fl" data-i18n="hospital">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name" data-i18n-ph="i_institution_ph" list="hfa-hospitals" autocomplete="organization"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
         <div class="fg"><label class="fl" for="rid-type-d" id="lbl-id-type-d">ID Document Type</label><select class="fc" id="rid-type-d" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option></select></div>
         <div class="fg"><label class="fl" for="rid-d" id="lbl-id-doc-d">National ID Card or Passport</label><input class="fc" type="file" id="rid-d" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-d" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
       </div>
       <div id="nf" class="hid">
-        <div class="fr"><div class="fg"><label class="fl">Department</label><select class="fc" id="rde"><option value="" id="rde-def">Select...</option><option>Emergency Care</option><option>Pediatrics</option><option>ICU</option><option>General Ward</option><option>Operating Room</option><option>Outpatient</option><option>Oncology</option><option>Maternity</option></select></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="rns" required><option value="" id="rns-def">Select...</option><option>General Nursing</option><option>Critical Care Nursing</option><option>Emergency Nursing</option><option>Pediatric Nursing</option><option>Neonatal Nursing</option><option>Oncology Nursing</option><option>Surgical and Perioperative Nursing</option><option>Maternal and Midwifery Care</option><option>Psychiatric and Mental Health Nursing</option><option>Community and Public Health Nursing</option><option>Geriatric Nursing</option><option>Renal Nursing</option><option>Cardiac Nursing</option><option>Infection Prevention and Control</option><option>Nurse Anesthesia</option><option>Rehabilitation Nursing</option><option>Occupational Health Nursing</option></select></div></div>
-        <div class="fg"><label class="fl">Nurse ID</label><input class="fc" type="text" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div>
-        <div class="fg"><label class="fl">Hospital / Clinic</label><input class="fc" type="text" id="rhn" placeholder="Institution name" list="hfa-hospitals" autocomplete="organization"></div>
-        <div class="fg"><label class="fl">Qualifications</label><input class="fc" type="text" id="rqu" placeholder="e.g. BSN, ICU Certified"></div>
+        <div class="fr"><div class="fg"><label class="fl" data-i18n="department">Department</label><select class="fc" id="rde" data-i18n-values><option value="" id="rde-def">Select...</option><option value="Emergency Care">Emergency Care</option><option value="Pediatrics">Pediatrics</option><option value="ICU">ICU</option><option value="General Ward">General Ward</option><option value="Operating Room">Operating Room</option><option value="Outpatient">Outpatient</option><option value="Oncology">Oncology</option><option value="Maternity">Maternity</option></select></div><div class="fg"><label class="fl" data-i18n="i_nursing_specialty">Nursing Specialty</label><select class="fc" id="rns" required data-i18n-values><option value="" id="rns-def">Select...</option><option value="General Nursing">General Nursing</option><option value="Critical Care Nursing">Critical Care Nursing</option><option value="Emergency Nursing">Emergency Nursing</option><option value="Pediatric Nursing">Pediatric Nursing</option><option value="Neonatal Nursing">Neonatal Nursing</option><option value="Oncology Nursing">Oncology Nursing</option><option value="Surgical and Perioperative Nursing">Surgical and Perioperative Nursing</option><option value="Maternal and Midwifery Care">Maternal and Midwifery Care</option><option value="Psychiatric and Mental Health Nursing">Psychiatric and Mental Health Nursing</option><option value="Community and Public Health Nursing">Community and Public Health Nursing</option><option value="Geriatric Nursing">Geriatric Nursing</option><option value="Renal Nursing">Renal Nursing</option><option value="Cardiac Nursing">Cardiac Nursing</option><option value="Infection Prevention and Control">Infection Prevention and Control</option><option value="Nurse Anesthesia">Nurse Anesthesia</option><option value="Rehabilitation Nursing">Rehabilitation Nursing</option><option value="Occupational Health Nursing">Occupational Health Nursing</option></select></div></div>
+        <div class="fg"><label class="fl" data-i18n="pc_nurse_id">Nurse ID</label><input class="fc" type="text" id="rni" placeholder="CM-NUR-YYYY-XXXX"></div>
+        <div class="fg"><label class="fl" data-i18n="hospital">Hospital / Clinic</label><input class="fc" type="text" id="rhn" placeholder="Institution name" data-i18n-ph="i_institution_ph" list="hfa-hospitals" autocomplete="organization"></div>
+        <div class="fg"><label class="fl" data-i18n="qualifications">Qualifications</label><input class="fc" type="text" id="rqu" placeholder="e.g. BSN, ICU Certified" data-i18n-ph="quals_ph"></div>
         <div class="fg"><label class="fl" for="rid-type-n" id="lbl-id-type-n">ID Document Type</label><select class="fc" id="rid-type-n" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option></select></div>
         <div class="fg"><label class="fl" for="rid-n" id="lbl-id-doc-n">National ID Card or Passport</label><input class="fc" type="file" id="rid-n" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-n" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
       </div>
@@ -976,7 +976,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
         <input type="checkbox" id="rtc" style="margin-top:3px">
         <label class="fl" for="rtc" style="font-weight:400"><span id="lbl-agree-terms">I have read and agree to the</span> <span class="alk" onclick="showTerms()" id="lbl-read-terms">Terms &amp; Conditions</span></label>
       </div>
-      <button type="button" class="btn bp w100 mt8" onclick="doReg()">Create Account</button>
+      <button type="button" class="btn bp w100 mt8" onclick="doReg()" data-i18n="create_btn">Create Account</button>
       </div>
       <div class="afo" id="afo-reg">Have an account? <span class="alk" onclick="swtTab('login')">Sign in</span></div>
     </div>
@@ -993,7 +993,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
       </div>
       <span id="srb" class="sb-rb"></span>
     </div>
-    <nav class="sb-nav" id="snav" aria-label="Application sidebar navigation"></nav>
+    <nav class="sb-nav" id="snav" aria-label="Application sidebar navigation" data-i18n-aria="i_sidebar_nav"></nav>
     <div class="sb-ft">
       <div class="sb-us">
         <div class="av" id="sav"></div>
@@ -1017,7 +1017,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   <div id="main">
     <div class="topbar">
       <div class="tb-l">
-        <button type="button" class="tb-menu" id="tb-menu" aria-label="Menu" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button type="button" class="tb-menu" id="tb-menu" aria-label="Menu" data-i18n-aria="i_menu" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <div class="tb-t" id="tbt">Dashboard</div>
       </div>
       <div class="tb-r" id="tbr">
@@ -1028,7 +1028,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   </div>
 </div>
 
-<footer class="creator-credit" aria-label="App creator">
+<footer class="creator-credit" aria-label="App creator" data-i18n-aria="i_app_creator">
   <span class="creator-monogram" aria-hidden="true">CSN</span>
   <div>
     <span class="creator-label">&copy; Healthy Future Africa (HFA)</span>
@@ -1041,7 +1041,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   <div class="vch">
     <div class="vcl"><div class="vcd"></div><span id="vc-live-lbl">LIVE</span></div>
     <span style="color:#fff;font-family:var(--fd);font-size:.9rem;margin-left:10px" id="vc-type-label">Video Consultation — HFA SilverStrong</span>
-    <div class="vce" style="margin-left:auto">🔒 End-to-End Encrypted</div>
+    <div class="vce" style="margin-left:auto" data-i18n="encrypted_call">🔒 End-to-End Encrypted</div>
   </div>
   <div class="vca">
     <div class="vcr">
@@ -1050,16 +1050,16 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
       <div class="vcro" id="vcro">Physician</div>
       <div class="vct" id="vctm">00:00</div>
     </div>
-    <div class="vcs"><div style="text-align:center"><div style="width:8px;height:8px;border-radius:50%;background:#5bc07a;margin:0 auto 4px"></div><div>You</div></div></div>
+    <div class="vcs"><div style="text-align:center"><div style="width:8px;height:8px;border-radius:50%;background:#5bc07a;margin:0 auto 4px"></div><div data-i18n="i_you">You</div></div></div>
   </div>
   <div class="vcc">
-    <button type="button" class="vcb vcm" id="vcmb" onclick="togMute()" aria-label="Toggle microphone">
+    <button type="button" class="vcb vcm" id="vcmb" onclick="togMute()" aria-label="Toggle microphone" data-i18n-aria="i_toggle_mic">
       <svg id="mico" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
     </button>
-    <button type="button" class="vcb vcv" id="vcvb" onclick="togVid()" aria-label="Toggle camera">
+    <button type="button" class="vcb vcv" id="vcvb" onclick="togVid()" aria-label="Toggle camera" data-i18n-aria="i_toggle_cam">
       <svg id="vico" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
     </button>
-    <button type="button" class="vcb vce2" onclick="endCall()" aria-label="End call">
+    <button type="button" class="vcb vce2" onclick="endCall()" aria-label="End call" data-i18n-aria="i_end_call">
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.42 19.42 0 0 1 4.26 9.91 2 2 0 0 1 5.26 8.5l3-.79a2 2 0 0 1 2 .56 12.84 12.84 0 0 0 .74 2.8 2 2 0 0 1-.43 2.11L9.9 14.31z" transform="rotate(135 12 12)"/></svg>
     </button>
   </div>
@@ -1070,7 +1070,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   <div class="voh">
     <div class="vol"><div class="vold"></div><span id="vo-live-lbl">LIVE</span></div>
     <span style="color:#fff;font-family:var(--fd);font-size:.9rem;margin-left:10px" id="vo-type-label">Voice Consultation — HFA SilverStrong</span>
-    <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-left:auto">🔒 End-to-End Encrypted</div>
+    <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-left:auto" data-i18n="encrypted_call">🔒 End-to-End Encrypted</div>
   </div>
   <div class="voa">
     <div class="voav" id="voav">DR</div>
@@ -1088,22 +1088,22 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   </div>
   <div class="voc2">
     <div style="text-align:center">
-      <button type="button" class="vob vob-mu" id="vomb" onclick="togVoiceMute()" aria-label="Toggle voice microphone">
+      <button type="button" class="vob vob-mu" id="vomb" onclick="togVoiceMute()" aria-label="Toggle voice microphone" data-i18n-aria="i_toggle_mic">
         <svg id="vomic" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
       </button>
-      <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px">Mute</div>
+      <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px" data-i18n="mute">Mute</div>
     </div>
     <div style="text-align:center">
-      <button type="button" class="vob vob-sp" id="vospb" onclick="togSpeaker()" aria-label="Toggle speaker">
+      <button type="button" class="vob vob-sp" id="vospb" onclick="togSpeaker()" aria-label="Toggle speaker" data-i18n-aria="i_toggle_speaker">
         <svg id="vosp" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </button>
-      <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px">Speaker</div>
+      <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px" data-i18n="speaker">Speaker</div>
     </div>
     <div style="text-align:center">
-      <button type="button" class="vob vob-en" onclick="endVoiceCall()" aria-label="End voice call">
+      <button type="button" class="vob vob-en" onclick="endVoiceCall()" aria-label="End voice call" data-i18n-aria="i_end_call">
         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.42 19.42 0 0 1 4.26 9.91 2 2 0 0 1 5.26 8.5l3-.79a2 2 0 0 1 2 .56 12.84 12.84 0 0 0 .74 2.8 2 2 0 0 1-.43 2.11L9.9 14.31z" transform="rotate(135 12 12)"/></svg>
       </button>
-      <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px">End Call</div>
+      <div style="font-size:.62rem;color:rgba(255,255,255,.4);margin-top:5px" data-i18n="end_call">End Call</div>
     </div>
   </div>
 </div>
@@ -1824,6 +1824,10 @@ function localPriceText(text) {
 }
 
 function t(key) { return localPriceText((T[LANG] && T[LANG][key]) || T.en[key] || key); }
+// t() with {placeholders}: tfmt('i_stars', {n: 3}).
+function tfmt(key, values={}) { return t(key).replace(/\{(\w+)\}/g, (match, name) => name in values ? values[name] : match); }
+// French label for a value stored in English (specialty, department, status, role…); see VALUE_FR in i18n.js.
+function tv(value) { return LANG==='fr' && value!=null && window.VALUE_FR && Object.prototype.hasOwnProperty.call(VALUE_FR, value) ? VALUE_FR[value] : value; }
 
 function chooseLang(lang) {
   LANG = lang;
@@ -1900,7 +1904,7 @@ function updateStaticHTML() {
     'lnd-doc-t': LANG==='fr'?'Portail Médecin':'Doctor Portal',
     'lnd-nur-t': LANG==='fr'?'Portail Infirmier':'Nurse Portal',
     'lnd-pat-t': LANG==='fr'?'Portail Patient':'Patient Portal',
-    'lnd-adm-t': LANG==='fr'?'Panneau Admin':'Admin Panel',
+    'lnd-adm-t': LANG==='fr'?'Panneau d’administration':'Admin Panel',
     'lnd-lab-t': t('lab_portal'),
     'lbl-name':  t('full_name'),
     'lbl-email': t('email'),
@@ -1935,7 +1939,8 @@ function updateStaticHTML() {
     const select = $('rid-type-'+role);
     if (select) select.innerHTML = idDocumentTypeOptions(select.value);
   });
-  if (ApiState.enabled) { $('rpa').placeholder=t('backend_password_hint');$('rpa').minLength=12;$('rpa').maxLength=128; }
+  $('rpa').placeholder = ApiState.enabled ? t('backend_password_hint') : t('min_password');
+  if (ApiState.enabled) { $('rpa').minLength=12;$('rpa').maxLength=128; }
   // Auth footer lines
   const afoLogin = $('afo-login');
   if(afoLogin) afoLogin.innerHTML = LANG==='fr'
@@ -1993,7 +1998,7 @@ function updateStaticHTML() {
     'lf2': LANG==='fr'?'Appels Vidéo Chiffrés':'Encrypted Video Calls',
     'lf3': LANG==='fr'?'Accès par les Rôles':'Role-Based Access',
     'lf4': LANG==='fr'?'Piste d\'Audit Complète':'Full Audit Trail',
-    'lf5': LANG==='fr'?'Contrôle Admin':'Admin User Control',
+    'lf5': LANG==='fr'?'Contrôle des utilisateurs':'Admin User Control',
   };
   Object.entries(lfmap).forEach(([id,val])=>{ const el=$(id); if(el) el.innerHTML='<span class="lfd">●</span> '+val; });
   // Landing hero stat labels
@@ -2364,7 +2369,7 @@ async function apiRequest(path, method='GET', body, timeout=15000) {
   const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});
   if (response.status===204) return {};
   const data=await response.json().catch(()=>({}));
-  if (!response.ok) { const error=new Error(data.error||t('backend_unavailable'));error.status=response.status;throw error; }
+  if (!response.ok) { const error=new Error(tv(data.error)||t('backend_unavailable'));error.status=response.status;throw error; }
   return data;
 }
 function installBackendSession(data, localProfile={}) {
@@ -2500,7 +2505,7 @@ const hide = id => $(id).classList.add('hid');
 const G = id => DB.users.find(u => u.id === id);
 const isSuperAdmin = u => !!u && u.role==='admin' && u.adminRole==='Super Admin';
 const ini = n => ((n||'?').split(' ').filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?');
-const fmtD = d => { try{if(!d)return{day:'--',mon:'---'};const p=d.split('-'),m=p[1],dd=p[2];const ms=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return{day:dd||'--',mon:ms[+m-1]||'---'};}catch(e){return{day:'--',mon:'---'};} };
+const fmtD = d => { try{if(!d)return{day:'--',mon:'---'};const p=d.split('-'),m=p[1],dd=p[2];const ms=LANG==='fr'?['Janv','Févr','Mars','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return{day:dd||'--',mon:ms[+m-1]||'---'};}catch(e){return{day:'--',mon:'---'};} };
 const nowT = () => new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 const todayD = () => new Date().toISOString().slice(0,10);
 const tsNow = () => new Date().toISOString().replace('T',' ').slice(0,19);
@@ -2510,7 +2515,7 @@ const lt = value => value[LANG] || value.en;
 const convBetween = (a,b) => DB.messages.filter(m=>(m.from===a&&m.to===b)||(m.from===b&&m.to===a));
 const validConsultationFee = value => Number(value)>=5 && Number(value)<=20;
 function consultationFeeOptions(selected='') {
-  return '<option value="">Select fee...</option>' + Array.from({length:16},(_,i)=>i+5).map(fee=>`<option value="${fee}" ${Number(selected)===fee?'selected':''}>${money(fee)}</option>`).join('');
+  return `<option value="">${t('i_select_fee')}</option>` + Array.from({length:16},(_,i)=>i+5).map(fee=>`<option value="${fee}" ${Number(selected)===fee?'selected':''}>${money(fee)}</option>`).join('');
 }
 const GENERALIST_SPECIALTIES = ['General Medicine','Family Medicine','Internal Medicine'];
 const isGeneralistDoctor = user => !!user && user.role==='doctor' && GENERALIST_SPECIALTIES.includes(user.specialty);
@@ -2669,7 +2674,7 @@ class PaymentRequestBuilder {
       request.status = result.success ? 'completed' : 'failed';
       request.reference = result.reference || null;
       request.completedAt = tsNow();
-      log(`PAYMENT_${request.status.toUpperCase()}`, 'Billing', {amount:request.amount, currency:request.currency, purpose:request.purpose});
+      log(`PAYMENT_${String(request.status).toUpperCase()}`, 'Billing', {amount:request.amount, currency:request.currency, purpose:request.purpose});
       return request;
     } catch (err) {
       request.status='failed'; request.error=err.message; request.completedAt=tsNow();
@@ -2684,7 +2689,7 @@ const Payment = { create: () => new PaymentRequestBuilder() };
 function payConsultationFee(doctorId) {
   const doc = G(doctorId); if (!doc || !doc.consultationFee) return;
   openMo(`<div class="mh"><div class="mt2">${t('pay_now')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="fg"><div class="mu sm">${doc.name} — ${doc.specialty||''}</div>
+    <div class="fg"><div class="mu sm">${doc.name} — ${tv(doc.specialty||'')}</div>
       <div style="font-size:24px;font-weight:600;margin-top:8px">${money(doc.consultationFee)}</div>
     </div>
     <div class="fg"><label class="fl">${t('payment_method')}</label><select class="fc" id="pay-md"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>
@@ -2787,7 +2792,7 @@ const NAV = {
   admin:[
     {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'admin-control',l:()=>t('control_center'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
     {s:()=>t('user'),items:[{id:'mgr-approvals',l:()=>pendingApprovalsLabel(),i:'shield'},{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'},{id:'facilities',l:()=>t('facilities_nav'),i:'grid'}]},
-    {s:()=>t('administration'),items:[{id:'mgr-a',l:'Administrators',i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
+    {s:()=>t('administration'),items:[{id:'mgr-a',l:()=>t('administrators'),i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
     {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'fh-analytics',l:()=>t('fh_analytics_nav'),i:'heart'}]},
@@ -3037,7 +3042,7 @@ function doLogout() {
 // ═══════════════════════ SIDEBAR ═══════════════════════
 function buildSidebar() {
   const r = CU.role;
-  $('srb').textContent = (r==='admin' && CU.adminRole) ? CU.adminRole.toUpperCase() : r.toUpperCase();
+  $('srb').textContent = String(tv((r==='admin' && CU.adminRole) ? CU.adminRole : r)).toUpperCase();
   $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp',labtech:'rl',pharmacist:'rd'}[r];
   if (typeof HFAAvatar!=='undefined') { $('sav').className='av-slot'; $('sav').innerHTML=HFAAvatar.html(CU,{size:'sm',ring:true,editable:true}); }
   else $('sav').textContent = ini(CU.name);
@@ -3110,10 +3115,10 @@ function renderRolePage(page, r, pc) {
     else if (page==='admin-control') renderAdminControl(pc);
     else if (page==='audit') renderAudit(pc);
     else if (page==='mgr-approvals') renderApprovals(pc);
-    else if (page==='mgr-d') renderManage(pc,'doctor','Doctors');
-    else if (page==='mgr-n') renderManage(pc,'nurse','Nurses');
-    else if (page==='mgr-p') renderManage(pc,'patient','Patients');
-    else if (page==='mgr-a') { if (isSuperAdmin(CU)) renderManage(pc,'admin','Administrators'); else renderRestricted(pc); }
+    else if (page==='mgr-d') renderManage(pc,'doctor',t('doctors'));
+    else if (page==='mgr-n') renderManage(pc,'nurse',t('nurses'));
+    else if (page==='mgr-p') renderManage(pc,'patient',t('patients'));
+    else if (page==='mgr-a') { if (isSuperAdmin(CU)) renderManage(pc,'admin',t('administrators')); else renderRestricted(pc); }
     else if (page==='appointments') renderAllApts(pc);
     else if (page==='integrations') renderIntegrations(pc);
     else if (page==='triage-queue') renderTriageQueue(pc);
@@ -3167,13 +3172,13 @@ function aptBadge(s) {
 function aptCard(a) {
   const pat=G(a.patientId), doc=G(a.doctorId), fd=fmtD(a.date);
   const report=DB.doctorReports.find(r=>r.appointmentId===a.id);
-  const who = CU.role==='patient' ? (doc?.name||'Doctor') : (pat?.name||'Patient');
+  const who = CU.role==='patient' ? (doc?.name||t('doctor')) : (pat?.name||t('patient'));
   return `<div class="ai2" style="margin-bottom:10px">
     ${CU.role==='patient'?doctorPortrait(doc):''}
     <div class="adb"><div class="add">${fd.day}</div><div class="adm">${fd.mon}</div></div>
     <div class="adi" style="flex:1">
       <div class="ain">${who}</div>
-      <div class="ame">${a.time} · ${a.durationMinutes||30} ${t('minutes_short')} · ${a.serviceName||a.type} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
+      <div class="ame">${a.time} · ${a.durationMinutes||30} ${t('minutes_short')} · ${tv(a.serviceName||a.type)} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
       ${a.notes ? `<div class="ame">${a.notes}</div>` : ''}
       ${report ? `<div class="ame"><strong>${t('doctor_report')}:</strong> ${report.summary}</div>` : ''}
     </div>
@@ -3196,7 +3201,7 @@ function showDoctorReport(appointmentId) {
   const apt=DB.appointments.find(a=>a.id===appointmentId), patient=G(apt?.patientId);
   if(!apt||!patient) return;
   openMo(`<div class="mh"><div><div class="mt2">${t('add_doctor_report')}</div><div class="mu sm">${patient.name} · ${apt.date} ${t('at')} ${apt.time}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="fg"><label class="fl">${t('diagnosis_summary')}</label><input class="fc" id="dr-summary" placeholder="e.g. Hypertension follow-up, diabetes review, cardiology concern"></div>
+    <div class="fg"><label class="fl">${t('diagnosis_summary')}</label><input class="fc" id="dr-summary" placeholder="${t('i_report_summary_ph')}"></div>
     <div class="fg"><label class="fl">${t('treatment_plan')}</label><textarea class="fc" id="dr-plan" placeholder="${t('report_notes_ph')}"></textarea></div>
     <div id="dr-status" class="mu sm"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveDoctorReport('${appointmentId}')">${t('done')}</button></div>`);
@@ -3217,7 +3222,7 @@ function saveDoctorReport(appointmentId) {
 // ═══════════════════════ ADMIN ═══════════════════════
 function renderDemoCredentials() {
   if (ApiState.enabled) return '';
-  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech','pharmacist'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${user.role.toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
+  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech','pharmacist'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${String(tv(user.role)).toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
 }
 
 function renderAdminDash(pc) {
@@ -3243,7 +3248,7 @@ function renderAdminDash(pc) {
       <tbody>${DB.auditLogs.slice(0,10).map(l=>`<tr style="${l.status==='failed'?'background:#fff8f8':''}">
         <td class="bo" style="font-size:.82rem">${l.userName}</td>
         <td><code class="tg" style="${l.status==='failed'?'background:#fce8e8;color:#6e1a13':''}">${auditActionLabel(l.action)}</code></td>
-        <td class="mu sm">${l.resource}</td>
+        <td class="mu sm">${tv(l.resource)}</td>
         <td class="mu sm">${l.timestamp}</td>
         <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}${t('success')}</span>`:`<span class="badge bda">${IC.x}${t('failed')}</span>`}</td>
       </tr>`).join('')}</tbody></table></div>
@@ -3259,29 +3264,29 @@ function renderAdminControl(pc) {
   const activeConsents=DB.consents.filter(c=>c.status==='active').length;
   pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('admin_control_title')}</h2><p>${t('admin_control_sub')}</p></div>
     <div class="stats"><div class="sc ce"><div class="sv">${DB.users.filter(u=>u.role==='admin'&&u.status==='active').length}</div><div class="sl">${t('active_admins')}</div></div><div class="sc cb"><div class="sv">${verified}</div><div class="sl">${t('verified_clinicians')}</div></div><div class="sc cr"><div class="sv">${openAlerts}</div><div class="sl">${t('open_safety_alerts')}</div></div><div class="sc cg"><div class="sv">${activeConsents}</div><div class="sl">${t('active_consents')}</div></div></div>
-    <div class="g2"><div class="card"><div class="ch"><div class="ct">${t('access_governance')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">RBAC</code><div><strong>${t('rbac_title')}</strong><span>${t('rbac_desc')}</span></div></div><div class="code-item"><code class="code-chip">CONSENT</code><div><strong>${t('consent_registry_title')}</strong><span>${activeConsents} active telehealth consent record(s).</span></div></div><div class="code-item"><code class="code-chip">VERIFY</code><div><strong>${t('verify_title')}</strong><span>${verified} verified provider credential record(s).</span></div></div></div><button class="btn bp bsm w100 mt8" onclick="navigate('mgr-a')">${t('manage_admins_btn')}</button></div>
-      <div class="card"><div class="ch"><div class="ct">${t('safety_integrations')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">FHIR R4</code><div><strong>${t('fhir_title')}</strong><span>Configuration status: ${DB.integrations[0].status}.</span></div></div><div class="code-item"><code class="code-chip">MED SAFE</code><div><strong>${t('med_safety_title')}</strong><span>${openAlerts} open allergy or medication review alert(s).</span></div></div><div class="code-item"><code class="code-chip">TRIAGE</code><div><strong>${t('triage_title')}</strong><span>${DB.triageCases.filter(c=>c.status!=='closed').length} active triage request(s).</span></div></div></div><button class="btn bgh bsm w100 mt8" onclick="navigate('integrations')">${t('review_integrations_btn')}</button></div></div>
+    <div class="g2"><div class="card"><div class="ch"><div class="ct">${t('access_governance')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">RBAC</code><div><strong>${t('rbac_title')}</strong><span>${t('rbac_desc')}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_consent')}</code><div><strong>${t('consent_registry_title')}</strong><span>${tfmt('i_consent_records',{n:activeConsents})}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_verify')}</code><div><strong>${t('verify_title')}</strong><span>${tfmt('i_verified_records',{n:verified})}</span></div></div></div><button class="btn bp bsm w100 mt8" onclick="navigate('mgr-a')">${t('manage_admins_btn')}</button></div>
+      <div class="card"><div class="ch"><div class="ct">${t('safety_integrations')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">FHIR R4</code><div><strong>${t('fhir_title')}</strong><span>${tfmt('i_config_status',{status:tv(DB.integrations[0].status)})}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_med_safe')}</code><div><strong>${t('med_safety_title')}</strong><span>${tfmt('i_open_alerts',{n:openAlerts})}</span></div></div><div class="code-item"><code class="code-chip">TRIAGE</code><div><strong>${t('triage_title')}</strong><span>${tfmt('i_triage_requests',{n:DB.triageCases.filter(c=>c.status!=='closed').length})}</span></div></div></div><button class="btn bgh bsm w100 mt8" onclick="navigate('integrations')">${t('review_integrations_btn')}</button></div></div>
     ${renderDemoCredentials()}
   </div>`;
 }
 
 function renderIntegrations(pc) {
   $('tbt').textContent=t('integrations_title');
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('integrations_title')}</h2><p>${t('integrations_sub')}</p></div><div class="card"><div class="code-list">${DB.integrations.map(item=>`<div class="code-item"><code class="code-chip">${item.name}</code><div style="flex:1"><strong>${item.purpose}</strong><span>Environment: ${item.environment} · Status: ${item.status}</span></div><span class="badge ${item.status==='connected'?'bsu':'bwa'}">${item.status}</span></div>`).join('')}</div><div class="safety-banner mt18"><div>i</div><div><strong>${t('demo_config_title')}</strong><p>${t('demo_config_desc')}</p></div></div></div></div>`;
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('integrations_title')}</h2><p>${t('integrations_sub')}</p></div><div class="card"><div class="code-list">${DB.integrations.map(item=>`<div class="code-item"><code class="code-chip">${tv(item.name)}</code><div style="flex:1"><strong>${tv(item.purpose)}</strong><span>${tfmt('i_env_status',{env:tv(item.environment),status:tv(item.status)})}</span></div><span class="badge ${item.status==='connected'?'bsu':'bwa'}">${tv(item.status)}</span></div>`).join('')}</div><div class="safety-banner mt18"><div>i</div><div><strong>${t('demo_config_title')}</strong><p>${t('demo_config_desc')}</p></div></div></div></div>`;
 }
 
 function renderTriageQueue(pc) {
   $('tbt').textContent=t('triage_queue_nav');
   const cases=DB.triageCases.filter(item=>item.status!=='closed');
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('triage_queue_title')}</h2><p>${t('triage_queue_sub')}</p></div><div class="card">${cases.length?cases.map(item=>{const patient=G(item.patientId);return`<div class="code-item"><span class="badge ${item.priority==='emergency'?'bda':item.priority==='urgent'?'bwa':'bin'}">${item.priority}</span><div style="flex:1"><strong>${patient?.name||'Patient'} · ${item.location}</strong><span>${item.symptoms} · ${item.createdAt}</span></div><button class="btn bs bsm" onclick="closeTriage('${item.id}')">${t('close_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_open_triage')}</div>`}</div></div>`;
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('triage_queue_title')}</h2><p>${t('triage_queue_sub')}</p></div><div class="card">${cases.length?cases.map(item=>{const patient=G(item.patientId);return`<div class="code-item"><span class="badge ${item.priority==='emergency'?'bda':item.priority==='urgent'?'bwa':'bin'}">${tv(item.priority)}</span><div style="flex:1"><strong>${patient?.name||t('patient')} · ${item.location}</strong><span>${item.symptoms} · ${item.createdAt}</span></div><button class="btn bs bsm" onclick="closeTriage('${item.id}')">${t('close_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_open_triage')}</div>`}</div></div>`;
 }
 function closeTriage(id) { const item=DB.triageCases.find(item=>item.id===id); if(item){item.status='closed';log('CLOSE_TRIAGE','Urgent Care');} navigate('triage-queue'); }
 
 function renderSafety(pc) {
   $('tbt').textContent=t('safety_nav');
   pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('safety_title')}</h2><p>${t('safety_sub')}</p></div>
-    <div class="card mb18"><div class="ch"><div class="ct">${t('med_alerts_title')}</div></div>${DB.medicationSafetyAlerts.length?DB.medicationSafetyAlerts.map(alert=>{const patient=G(alert.patientId);return`<div class="code-item"><span class="badge ${alert.severity==='critical'?'bda':'bwa'}">${alert.severity}</span><div style="flex:1"><strong>${patient?.name||'Patient'}</strong><span>${alert.message}</span></div><button class="btn bs bsm" onclick="resolveSafetyAlert('${alert.id}')">${t('resolve_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_med_alerts')}</div>`}</div>
-    <div class="card"><div class="ch"><div class="ct">${t('consent_registry')}</div></div>${DB.consents.map(consent=>{const patient=G(consent.patientId);return`<div class="code-item"><code class="code-chip">v${consent.version}</code><div><strong>${patient?.name||'Patient'} · ${consent.type}</strong><span>Status: ${consent.status} · Recorded ${consent.recordedAt}</span></div><span class="badge ${consent.status==='active'?'bsu':'bse'}">${consent.status}</span></div>`}).join('')}</div>
+    <div class="card mb18"><div class="ch"><div class="ct">${t('med_alerts_title')}</div></div>${DB.medicationSafetyAlerts.length?DB.medicationSafetyAlerts.map(alert=>{const patient=G(alert.patientId);return`<div class="code-item"><span class="badge ${alert.severity==='critical'?'bda':'bwa'}">${tv(alert.severity)}</span><div style="flex:1"><strong>${patient?.name||t('patient')}</strong><span>${tv(alert.message)}</span></div><button class="btn bs bsm" onclick="resolveSafetyAlert('${alert.id}')">${t('resolve_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_med_alerts')}</div>`}</div>
+    <div class="card"><div class="ch"><div class="ct">${t('consent_registry')}</div></div>${DB.consents.map(consent=>{const patient=G(consent.patientId);return`<div class="code-item"><code class="code-chip">v${consent.version}</code><div><strong>${patient?.name||t('patient')} · ${tv(consent.type)}</strong><span>${tfmt('i_status_recorded',{status:tv(consent.status),date:consent.recordedAt})}</span></div><span class="badge ${consent.status==='active'?'bsu':'bse'}">${tv(consent.status)}</span></div>`}).join('')}</div>
   </div>`;
 }
 function resolveSafetyAlert(id) { const alert=DB.medicationSafetyAlerts.find(item=>item.id===id); if(alert){alert.status='resolved';log('RESOLVE_MEDICATION_ALERT','Clinical Safety');} navigate('safety'); }
@@ -3296,7 +3301,7 @@ function renderAudit(pc) {
         <td class="mu sm">${DB.auditLogs.length-i}</td>
         <td><div class="bo" style="font-size:.82rem">${l.userName}</div><div class="mu sm">${l.userId}</div></td>
         <td><code class="tg" style="${l.status==='failed'?'background:#fce8e8;color:#6e1a13':''}">${l.action}</code></td>
-        <td class="sm">${l.resource}</td>
+        <td class="sm">${tv(l.resource)}</td>
         <td class="mu sm" style="white-space:nowrap">${l.timestamp}</td>
         <td><code style="font-family:var(--fm);font-size:.72rem;color:var(--t3)">${l.ip}</code></td>
         <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}${t('success')}</span>`:`<span class="badge bda">${IC.x}${t('failed')}</span>`}</td>
@@ -3357,7 +3362,7 @@ function renderPrivacy(pc) {
     {title:{en:'Right to Object',fr:'Droit d\'Opposition'},text:{en:'You can object to certain processing activities and ask for a review.',fr:'Vous pouvez vous opposer à certains traitements et demander une révision.'}},
   ];
   const retention = [
-    [{en:'Medical Records',fr:'Dossiers Médicaux'},'10 yr'],[{en:'Audit Logs',fr:'Journaux d\'Audit'},'7 yr'],[{en:'Communication Records',fr:'Enregistrements de Communication'},'5 yr'],[{en:'Account Data',fr:'Données de Compte'},{en:'deletion + 1 yr',fr:'suppression + 1 an'}],
+    [{en:'Medical Records',fr:'Dossiers Médicaux'},{en:'10 yr',fr:'10 ans'}],[{en:'Audit Logs',fr:'Journaux d\'Audit'},{en:'7 yr',fr:'7 ans'}],[{en:'Communication Records',fr:'Enregistrements de Communication'},{en:'5 yr',fr:'5 ans'}],[{en:'Account Data',fr:'Données de Compte'},{en:'deletion + 1 yr',fr:'suppression + 1 an'}],
   ];
   const issues = [
     {p:{en:'A patient asks for a copy of all data held about them.',fr:'Un patient demande une copie de toutes les données détenues à son sujet.'},s:{en:'Verify identity, route the request to the Data Protection Officer, and log the response timeline.',fr:'Vérifiez l\'identité, transmettez la demande au délégué à la protection des données et journalisez le délai de réponse.'}},
@@ -3366,7 +3371,7 @@ function renderPrivacy(pc) {
   ];
   pc.innerHTML=`<div class="page">
     <div class="legal-hero"><h2>${t('privacy_nav')}</h2><p>${LANG==='fr'?'Cette page explique quelles données HFA SilverStrong collecte, comment elles sont protégées, les droits des personnes concernées et les durées de conservation appliquées.':'This page explains what HFA SilverStrong collects, how data is protected, the rights available to data subjects, and the retention periods applied.'}</p></div>
-    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Données collectées':'What data is collected'}</div></div><div class="legal-grid">${collected.map(item=>`<div class="legal-card"><span class="legal-badge">DATA</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Données collectées':'What data is collected'}</div></div><div class="legal-grid">${collected.map(item=>`<div class="legal-card"><span class="legal-badge">${LANG==='fr'?'DONNÉES':'DATA'}</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Protection des données':'How it is protected'}</div></div><div class="legal-grid">${protectedBy.map(item=>`<div class="legal-card"><span class="legal-badge">SAFE</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Droits sur les données':'Data rights'}</div></div><div class="g2">${rights.map(item=>`<div class="legal-card"><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Durées de conservation':'Data retention periods'}</div></div>${retention.map(item=>`<div class="retention-row"><strong>${lt(item[0])}</strong><span>${typeof item[1]==='string'?item[1]:lt(item[1])}</span></div>`).join('')}</div>
@@ -3429,7 +3434,7 @@ function renderManage(pc, roleFilter, title) {
   topBtn(canAddAdmin?`<button class="btn bp bsm" onclick="showAddUser('${roleFilter}')">${IC.plus} ${roleFilter==='doctor'?t('add_doctor'):roleFilter==='nurse'?t('add_nurse'):roleFilter==='admin'?t('add_admin'):t('add_patient')}</button>`:'');
   const users = DB.users.filter(u=>u.role===roleFilter);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${title}</h2><p>${LANG==='fr'?'Gérer sur la plateforme':'Manage all '+title.toLowerCase()+' on the platform'}</p></div>
+    <div class="ph"><h2>${title}</h2><p>${tfmt('i_manage_all',{what:title.toLowerCase()})}</p></div>
     ${roleFilter==='admin'?`<div class="alt ai mb18">${t('admin_pending_note')}</div>`:''}
     <div class="card"><div class="tw"><table>
       <thead><tr><th>${t('user')}</th><th>${roleFilter==='doctor'?t('specialty'):roleFilter==='nurse'?t('department'):roleFilter==='admin'?t('admin_role_lbl'):t('dob_lbl')}</th><th>${t('phone_lbl')}</th><th>${t('status')}</th><th>${t('joined')}</th><th>${t('actions')}</th></tr></thead>
@@ -3440,7 +3445,7 @@ function renderManage(pc, roleFilter, title) {
           <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
           <div><div class="bo sm">${u.name} ${protectedSuper?`<span class="badge bwa" style="margin-left:4px">${t('super_admin_badge')}</span>`:''}</div><div class="mu sm">${u.email}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${u.hfaId||'—'}</code></div>
         </div></td>
-        <td class="sm">${roleFilter==='admin'?(u.adminRole||'Administrator'):(u.specialty||u.department||u.dateOfBirth||'—')}</td>
+        <td class="sm">${tv(roleFilter==='admin'?(u.adminRole||'Administrator'):(u.specialty||u.department||u.dateOfBirth||'—'))}</td>
         <td class="mu sm">${u.phone||'—'}</td>
         <td>${userStatusBadge(u)}</td>
         <td class="mu sm">${u.createdAt}</td>
@@ -3475,7 +3480,7 @@ function renderApprovals(pc) {
           <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email} · ${u.role==='pharmacist'?t('pharmacist'):u.role==='doctor'?t('doctor'):u.role==='nurse'?t('nurse'):t('admin_role_lbl')}</div></div>
         </div></td>
         <td class="mu sm">${u.phone||'—'}</td>
-        <td class="sm">${u.role==='pharmacist'?pharmacyCredentialSummary(u):u.specialty||u.adminRole||'—'}</td>
+        <td class="sm">${tv(u.role==='pharmacist'?pharmacyCredentialSummary(u):u.specialty||u.adminRole||'—')}</td>
         <td class="mu sm">${u.createdAt}</td>
         <td><span class="badge bwa">${t('awaiting_review')}</span></td>
         <td><div style="display:flex;gap:4px">
@@ -3525,7 +3530,7 @@ function renderAllApts(pc) {
         <td class="bo sm">${pat?.name||'—'}</td>
         <td class="sm">${doc?.name||'—'}</td>
         <td class="mu sm">${a.date} @ ${a.time} · ${a.durationMinutes||30} ${t('minutes_short')}</td>
-        <td><span class="badge bse">${a.type}</span></td>
+        <td><span class="badge bse">${tv(a.type)}</span></td>
         <td><span class="badge ${a.mode==='video'?'bwa':'bin'}">${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</span></td>
         <td>${aptBadge(a.status)}</td>
       </tr>`;}).join('')}</tbody>
@@ -3625,7 +3630,7 @@ function saveDoctorPhoto() {
 function doctorPhotoReviewPanel() {
   if (CU.role!=='admin') return '';
   const doctors=DB.users.filter(user=>user.role==='doctor'&&user.doctorPhotoSubmission?.status==='pending');
-  return `<section class="mt18"><h3 class="ct mb12">${t('doctor_photo_reviews')}</h3>${doctors.length?doctors.map(doctor=>`<div class="ai2 mb12"><img class="doctor-photo-preview" src="${doctor.doctorPhotoSubmission.data}" alt="${t('photo_pending')}"><div class="adi"><strong>${doctor.name}</strong><div class="mu sm">${doctor.specialty||''}</div></div><div class="aac"><button class="btn bp bsm" onclick="reviewDoctorPhoto('${doctor.id}',true)">${IC.chk} ${t('approve')}</button><button class="btn bd2 bsm" onclick="reviewDoctorPhoto('${doctor.id}',false)">${IC.x} ${t('reject')}</button></div></div>`).join(''):`<p class="mu sm">${t('no_photo_reviews')}</p>`}</section>`;
+  return `<section class="mt18"><h3 class="ct mb12">${t('doctor_photo_reviews')}</h3>${doctors.length?doctors.map(doctor=>`<div class="ai2 mb12"><img class="doctor-photo-preview" src="${doctor.doctorPhotoSubmission.data}" alt="${t('photo_pending')}"><div class="adi"><strong>${doctor.name}</strong><div class="mu sm">${tv(doctor.specialty||'')}</div></div><div class="aac"><button class="btn bp bsm" onclick="reviewDoctorPhoto('${doctor.id}',true)">${IC.chk} ${t('approve')}</button><button class="btn bd2 bsm" onclick="reviewDoctorPhoto('${doctor.id}',false)">${IC.x} ${t('reject')}</button></div></div>`).join(''):`<p class="mu sm">${t('no_photo_reviews')}</p>`}</section>`;
 }
 function reviewDoctorPhoto(doctorId, approve) {
   if (CU.role!=='admin') return;
@@ -3656,7 +3661,7 @@ function renderDrDash(pc) {
   const myA=DB.appointments.filter(a=>a.doctorId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${CU.specialty||''} · ${CU.hospital||''} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${tv(CU.specialty||'')} · ${CU.hospital||''} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">${t('my_patients_lbl')}</div></div>
       <div class="sc cg"><div class="sv">${up.length}</div><div class="sl">${t('upcoming')}</div></div>
@@ -3673,8 +3678,8 @@ function renderDrDash(pc) {
         ${filterPatientsByInitial(myP,CU.patientInitialFilter).length===0 ? `<div class="emp"><p>${t(myP.length?'no_matching_patients':'no_patients')}</p></div>` : filterPatientsByInitial(myP,CU.patientInitialFilter).map(p=>`
           <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
             <div class="pca">${ini(p.name)}</div>
-            <div style="flex:1"><div class="bo sm">${p.name}</div><div class="mu sm">${p.bloodType||'—'} · ${p.gender||'—'}</div></div>
-            ${p.allergies&&p.allergies!=='None'?`<span class="badge bda" title="Allergy">!</span>`:''}
+            <div style="flex:1"><div class="bo sm">${p.name}</div><div class="mu sm">${p.bloodType||'—'} · ${tv(p.gender||'—')}</div></div>
+            ${p.allergies&&p.allergies!=='None'?`<span class="badge bda" title="${t('allergies')}">!</span>`:''}
           </div>`).join('')}
       </div>
     </div>
@@ -3696,13 +3701,13 @@ function renderPatients(pc) {
       <div class="pch">
         <div class="pca">${ini(p.name)}</div>
         <div style="flex:1"><div class="bo">${p.name}</div><div class="pcm">${p.email} · ${p.phone||''}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${p.hfaId||'—'}</code></div>
-        <span class="badge bsu">Active</span>
+        <span class="badge bsu">${t('active')}</span>
       </div>
       <div class="pcg">
         <div class="pf"><label>${t('dob_lbl')}</label><span>${p.dateOfBirth||'—'}</span></div>
-        <div class="pf"><label>${t('gender_lbl')}</label><span>${p.gender||'—'}</span></div>
+        <div class="pf"><label>${t('gender_lbl')}</label><span>${tv(p.gender||'—')}</span></div>
         <div class="pf"><label>${t('blood_type_lbl')}</label><span class="badge bin">${p.bloodType||'—'}</span></div>
-        <div class="pf"><label>${t('allergies')}</label><span class="${p.allergies&&p.allergies!=='None'?'aw':''}">${p.allergies||'None'}</span></div>
+        <div class="pf"><label>${t('allergies')}</label><span class="${p.allergies&&p.allergies!=='None'?'aw':''}">${tv(p.allergies||'None')}</span></div>
         <div class="pf" style="grid-column:span 2"><label>${t('medical_history')}</label><span>${p.medicalHistory||t('none_recorded')}</span></div>
         <div class="pf"><label>${t('address')}</label><span>${p.address||'—'}</span></div>
         <div class="pf"><label>${t('emergency_contact')}</label><span>${p.emergencyContact||'—'}</span></div>
@@ -3719,10 +3724,10 @@ function renderRecords(pc) {
     <div class="ph"><h2>${t('medical_records')}</h2><p>${LANG==='fr'?'Dossiers complets pour vos patients':'Complete records for your patients'}</p></div>
     ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_records')}</p></div></div>` : myP.map(p=>`
     <div class="card mb18">
-      <div class="ch"><div><div class="ct">${p.name}</div><div class="mu sm">DOB: ${p.dateOfBirth||'—'} · ${p.gender||'—'} · ${p.bloodType||'—'}</div></div><span class="badge bsu">Active</span></div>
+      <div class="ch"><div><div class="ct">${p.name}</div><div class="mu sm">DOB: ${p.dateOfBirth||'—'} · ${tv(p.gender||'—')} · ${p.bloodType||'—'}</div></div><span class="badge bsu">${t('active')}</span></div>
       <div class="g2">
         <div><div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin-top:4px">${p.medicalHistory||t('none_recorded')}</p></div>
-        <div><div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin-top:4px;color:${p.allergies&&p.allergies!=='None'?'var(--dg)':'inherit'}">${p.allergies||'None'}</p></div>
+        <div><div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin-top:4px;color:${p.allergies&&p.allergies!=='None'?'var(--dg)':'inherit'}">${tv(p.allergies||'None')}</p></div>
         <div><div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${p.emergencyContact||'—'}</p></div>
         <div><div class="fl">${t('address')}</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
       </div>
@@ -3739,14 +3744,14 @@ function doctorReportList(patientId) {
   return reports.length===0?`<p class="mu sm" style="margin-top:4px">${t('none_recorded')}</p>`:reports.map(r=>{const doc=G(r.doctorId);return`
     <div style="padding:10px 0;border-bottom:1px solid var(--bd)">
       <div style="display:flex;justify-content:space-between;gap:12px"><div class="bo sm">${r.summary}</div><span class="badge bin">${r.consultationDate} ${t('at')} ${r.consultationTime}</span></div>
-      <div class="mu sm">${doc?.name||t('doctor')} · ${doc?.specialty||''}</div>
+      <div class="mu sm">${doc?.name||t('doctor')} · ${tv(doc?.specialty||'')}</div>
       <div class="sm" style="margin-top:4px">${r.plan}</div>
     </div>`;}).join('');
 }
 
 function notificationList(userId) {
   const notes=userNotifications(userId).slice(0,6);
-  return `<div class="card mb18 activity-notifications"><div class="ch"><div class="ct">${t('notifications')}</div></div>${notes.length?notes.map(n=>`<div class="code-item"><code class="code-chip">${n.resource}</code><div><strong>${n.message}</strong><span>${n.createdAt}</span></div></div>`).join(''):`<div class="rating-empty">${t('no_notifications')}</div>`}</div>`;
+  return `<div class="card mb18 activity-notifications"><div class="ch"><div class="ct">${t('notifications')}</div></div>${notes.length?notes.map(n=>`<div class="code-item"><code class="code-chip">${tv(n.resource)}</code><div><strong>${tv(n.message)}</strong><span>${n.createdAt}</span></div></div>`).join(''):`<div class="rating-empty">${t('no_notifications')}</div>`}</div>`;
 }
 
 function labResultStatusBadge(status) {
@@ -3765,7 +3770,7 @@ function labResultList(scope='patient', patientId=null) {
   return results.length?results.map(result=>{const patient=G(result.patientId), specialist=G(result.specialistDoctorId), lab=G(result.labTechId);const canOpen=scope==='specialist'&&result.status==='pending';const canRelease=scope==='specialist'&&result.status==='opened';const canView=scope==='specialist'||(scope==='patient'&&result.status==='released');return`
     <div class="code-item">
       <code class="code-chip">${result.testType}</code>
-      <div style="flex:1"><strong>${patient?.name||'Patient'} · ${specialist?.name||t('doctor')}</strong><span>${result.fileName} · ${result.uploadedAt} · ${lab?.laboratory||lab?.name||t('laboratory')}</span>${result.notes?`<span>${result.notes}</span>`:''}</div>
+      <div style="flex:1"><strong>${patient?.name||t('patient')} · ${specialist?.name||t('doctor')}</strong><span>${result.fileName} · ${result.uploadedAt} · ${lab?.laboratory||lab?.name||t('laboratory')}</span>${result.notes?`<span>${result.notes}</span>`:''}</div>
       ${labResultStatusBadge(result.status)}
       ${canOpen?`<button class="btn bp bsm" onclick="openLabResultFirst('${result.id}')">${t('open_lab_result')}</button>`:''}
       ${canRelease?`<button class="btn bg2 bsm" onclick="releaseLabResult('${result.id}')">${t('release_result')}</button>`:''}
@@ -3795,12 +3800,12 @@ function showPatientDocuments(patientId) {
 
 function showSpecialistReferral(patientId) {
   const p=G(patientId); if(!p||!isGeneralistDoctor(CU)) return;
-  const specialistOptions=SPECIALTIES.filter(s=>!GENERALIST_SPECIALTIES.includes(s)).map(s=>`<option>${s}</option>`).join('');
+  const specialistOptions=SPECIALTIES.filter(s=>!GENERALIST_SPECIALTIES.includes(s)).map(s=>`<option value="${s}">${tv(s)}</option>`).join('');
   openMo(`<div class="mh"><div><div class="mt2">${t('refer_specialist')}</div><div class="mu sm">${p.name}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div class="alt ai">${t('specialist_referral_desc')}</div>
-    <div class="fg"><label class="fl">${t('illness_detected')}</label><input class="fc" id="sr-illness" placeholder="e.g. chest pain, abnormal ECG, skin lesion"></div>
+    <div class="fg"><label class="fl">${t('illness_detected')}</label><input class="fc" id="sr-illness" placeholder="${t('i_referral_illness_ph')}"></div>
     <div class="fg"><label class="fl">${t('recommended_specialty')}</label><select class="fc" id="sr-spec"><option value="">${t('select')}</option>${specialistOptions}</select></div>
-    <div class="fg"><label class="fl">${t('referral_reason')}</label><textarea class="fc" id="sr-reason" placeholder="Clinical findings, suspected illness, and why specialist care is needed..."></textarea></div>
+    <div class="fg"><label class="fl">${t('referral_reason')}</label><textarea class="fc" id="sr-reason" placeholder="${t('i_referral_reason_ph')}"></textarea></div>
     <div id="sr-status" class="mu sm"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveSpecialistReferral('${patientId}')">${t('confirm')}</button></div>`);
 }
@@ -3817,9 +3822,9 @@ function saveSpecialistReferral(patientId) {
 function showChooseSpecialist(referralId) {
   const ref=DB.specialistReferrals.find(r=>r.id===referralId); if(!ref) return;
   const doctors=specialistsForReferral(ref);
-  openMo(`<div class="mh"><div><div class="mt2">${t('choose_specialist')}</div><div class="mu sm">${ref.specialty}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+  openMo(`<div class="mh"><div><div class="mt2">${t('choose_specialist')}</div><div class="mu sm">${tv(ref.specialty)}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div class="alt ai"><strong>${t('illness_detected')}:</strong> ${ref.illness||'—'}<br>${ref.reason}</div>
-    ${doctors.length?doctors.map(doc=>`<div class="code-item"><code class="code-chip">${doc.specialty}</code><div style="flex:1"><strong>${doc.name}</strong><span>${doc.hospital||''}${doc.consultationFee?` · ${t('consultation_fee')}: ${money(doc.consultationFee)}`:''}</span></div><button class="btn bp bsm" onclick="confirmSpecialistChoice('${referralId}','${doc.id}')">${t('choose_specialist')}</button></div>`).join(''):`<div class="emp"><p>${t('no_specialists_available')}</p></div>`}
+    ${doctors.length?doctors.map(doc=>`<div class="code-item"><code class="code-chip">${tv(doc.specialty)}</code><div style="flex:1"><strong>${doc.name}</strong><span>${doc.hospital||''}${doc.consultationFee?` · ${t('consultation_fee')}: ${money(doc.consultationFee)}`:''}</span></div><button class="btn bp bsm" onclick="confirmSpecialistChoice('${referralId}','${doc.id}')">${t('choose_specialist')}</button></div>`).join(''):`<div class="emp"><p>${t('no_specialists_available')}</p></div>`}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button></div>`);
 }
 
@@ -3854,14 +3859,14 @@ function renderNsDash(pc) {
   const myA=DB.appointments.filter(a=>a.nurseId===CU.id&&a.status==='scheduled');
   const notes=DB.careNotes.filter(n=>n.nurseId===CU.id);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${CU.department||''} · ${CU.hospital||''} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${tv(CU.department||'')} · ${CU.hospital||''} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">${t('assigned_patients')}</div></div>
       <div class="sc cg"><div class="sv">${myA.length}</div><div class="sl">${t('upcoming_tasks')}</div></div>
       <div class="sc cb"><div class="sv">${notes.length}</div><div class="sl">${t('care_notes')}</div></div>
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">My Patients</div></div>
+      <div class="card"><div class="ch"><div class="ct">${t('my_patients_lbl')}</div></div>
         ${myP.length===0 ? `<div class="emp"><p>${t('no_patients')}</p></div>` : myP.map(p=>`
           <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
             <div class="pca">${ini(p.name)}</div>
@@ -3869,12 +3874,12 @@ function renderNsDash(pc) {
             ${p.allergies&&p.allergies!=='None'?`<span class="badge bda">!</span>`:''}
           </div>`).join('')}
       </div>
-      <div class="card"><div class="ch"><div class="ct">Recent Care Notes</div></div>
+      <div class="card"><div class="ch"><div class="ct">${t('i_recent_care_notes')}</div></div>
         ${notes.slice(0,3).map(n=>{const p=G(n.patientId);return`<div class="cn3">
-          <div class="cnh"><div class="cnp">${p?.name||'Patient'}</div><div class="cnt2">${n.date}</div></div>
+          <div class="cnh"><div class="cnp">${p?.name||t('patient')}</div><div class="cnt2">${n.date}</div></div>
           <div class="cnb">${n.text}</div>
         </div>`;}).join('')}
-        ${notes.length===0?`<div class="emp"><p>No care notes yet</p></div>`:''}
+        ${notes.length===0?`<div class="emp"><p>${t('no_notes')}</p></div>`:''}
       </div>
     </div>
     ${idVerificationCard()}
@@ -3917,8 +3922,8 @@ function showLabUpload() {
   const specialists=DB.users.filter(u=>u.role==='doctor'&&u.status==='active'&&!isGeneralistDoctor(u));
   openMo(`<div class="mh"><div class="mt2">${t('upload_lab_result')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div class="fg"><label class="fl">${t('tag_patient')}</label><select class="fc" id="lr-patient"><option value="">${t('select')}</option>${patients.map(p=>`<option value="${p.id}">${p.name} · ${p.hfaId||''}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">${t('tag_specialist')}</label><select class="fc" id="lr-specialist"><option value="">${t('select')}</option>${specialists.map(d=>`<option value="${d.id}">${d.name} — ${d.specialty}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">${t('test_type')}</label><input class="fc" id="lr-test" placeholder="CBC, malaria test, lipid panel, X-ray report..."></div>
+    <div class="fg"><label class="fl">${t('tag_specialist')}</label><select class="fc" id="lr-specialist"><option value="">${t('select')}</option>${specialists.map(d=>`<option value="${d.id}">${d.name} — ${tv(d.specialty)}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('test_type')}</label><input class="fc" id="lr-test" placeholder="${t('i_lab_test_ph')}"></div>
     <div class="fg"><label class="fl">${t('lab_result_file')}</label><input class="fc" type="file" id="lr-file" accept="image/*,.pdf"></div>
     <div class="fg"><label class="fl">${t('lab_result_notes')}</label><textarea class="fc" id="lr-notes" placeholder="${t('lab_result_notes_ph')}"></textarea></div>
     <div id="lr-status" class="mu sm"></div>
@@ -3973,8 +3978,8 @@ function renderPatDash(pc) {
     ${whatsAppSettingsCard()}
     <div class="safety-banner"><div>!</div><div><strong>${t('virtual_care_safety')}</strong><p>${t('virtual_care_safety_desc')}</p></div></div>
     <div class="alt ai mb12">${t('generalist_first_notice')}</div>
-    ${referral&&referral.status==='pending_choice'?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('specialist_referral_title')}</div><div class="rating-note">${t('specialist_pending_choice')}</div></div><button class="btn bp bsm" onclick="showChooseSpecialist('${referral.id}')">${t('choose_specialist')}</button></div><div class="mu sm"><strong>${t('recommended_specialty')}:</strong> ${referral.specialty} · <strong>${t('illness_detected')}:</strong> ${referral.illness||'—'}</div><div class="mu sm" style="margin-top:4px">${referral.reason}</div></div>`:''}
-    ${mySpec?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('assigned_specialist')}</div><div class="rating-note">${referral.specialty} · ${referral.illness||''}</div></div><button class="btn bp bsm" onclick="showBookApt('SPECIALIST-REFERRAL')">${t('book_specialist_consult')}</button></div><div class="bo sm">${mySpec.name}</div><div class="mu sm">${mySpec.hospital||''}${mySpec.consultationFee?` · ${t('consultation_fee')}: ${money(mySpec.consultationFee)}`:''}</div></div>`:''}
+    ${referral&&referral.status==='pending_choice'?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('specialist_referral_title')}</div><div class="rating-note">${t('specialist_pending_choice')}</div></div><button class="btn bp bsm" onclick="showChooseSpecialist('${referral.id}')">${t('choose_specialist')}</button></div><div class="mu sm"><strong>${t('recommended_specialty')}:</strong> ${tv(referral.specialty)} · <strong>${t('illness_detected')}:</strong> ${referral.illness||'—'}</div><div class="mu sm" style="margin-top:4px">${referral.reason}</div></div>`:''}
+    ${mySpec?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('assigned_specialist')}</div><div class="rating-note">${tv(referral.specialty)} · ${referral.illness||''}</div></div><button class="btn bp bsm" onclick="showBookApt('SPECIALIST-REFERRAL')">${t('book_specialist_consult')}</button></div><div class="bo sm">${mySpec.name}</div><div class="mu sm">${mySpec.hospital||''}${mySpec.consultationFee?` · ${t('consultation_fee')}: ${money(mySpec.consultationFee)}`:''}</div></div>`:''}
     <div class="card mb18"><div class="ch"><div><div class="ct">${t('medical_upload_cta_title')}</div><div class="rating-note">${t('medical_upload_cta_desc')}</div></div><button class="btn bp bsm" onclick="showUploadDocument()">${IC.plus} ${t('upload_document')}</button></div></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${up.length}</div><div class="sl">${t('upcoming_apts')}</div></div>
@@ -3982,22 +3987,22 @@ function renderPatDash(pc) {
       <div class="sc cb"><div class="sv">${CU.bloodType||'—'}</div><div class="sl">${t('blood_type_lbl')}</div></div>
     </div>
     <div class="card mb18"><div class="ch"><div><div class="ct">${t('virtual_services_title')}</div><div class="rating-note">${t('virtual_services_sub')}</div></div></div>
-      <div class="service-grid">${VIRTUAL_SERVICES.map(service=>`<div class="service-item"><h4>${service.name}</h4><p>${service.description}<br><strong>${service.roles}</strong></p><button class="btn bp bsm w100" onclick="showBookApt('${service.code}')">${t('book_service')}</button></div>`).join('')}</div>
+      <div class="service-grid">${VIRTUAL_SERVICES.map(service=>`<div class="service-item"><h4>${tv(service.name)}</h4><p>${tv(service.description)}<br><strong>${tv(service.roles)}</strong></p><button class="btn bp bsm w100" onclick="showBookApt('${service.code}')">${t('book_service')}</button></div>`).join('')}</div>
     </div>
-    ${CU.allergies&&CU.allergies!=='None'?`<div class="alt ae mb12">${t('allergy_alert')} <strong>${CU.allergies}</strong> — ${t('ensure_informed')}</div>`:''}
+    ${CU.allergies&&CU.allergies!=='None'?`<div class="alt ae mb12">${t('allergy_alert')} <strong>${tv(CU.allergies)}</strong> — ${t('ensure_informed')}</div>`:''}
     <div class="g2">
       <div class="card"><div class="ch"><div class="ct">${t('care_team')}</div></div>
         ${myDoc?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--em-p);border-radius:var(--rs);margin-bottom:8px">
           <div class="av">${ini(myDoc.name)}</div>
-          <div style="flex:1"><div class="bo sm">${myDoc.name}</div><div class="mu sm">${myDoc.specialty||''} · ${myDoc.hospital||''}</div>${myDoc.consultationFee?`<div class="mu sm">${t('consultation_fee')}: ${money(myDoc.consultationFee)} <button class="btn bp bsm" style="margin-left:6px" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>
+          <div style="flex:1"><div class="bo sm">${myDoc.name}</div><div class="mu sm">${tv(myDoc.specialty||'')} · ${myDoc.hospital||''}</div>${myDoc.consultationFee?`<div class="mu sm">${t('consultation_fee')}: ${money(myDoc.consultationFee)} <button class="btn bp bsm" style="margin-left:6px" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>
           <span class="badge bdo">${t('doctor')}</span></div>`:''}
         ${mySpec?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--go-p);border-radius:var(--rs);margin-bottom:8px">
           <div class="av" style="background:linear-gradient(135deg,var(--go),var(--go-l))">${ini(mySpec.name)}</div>
-          <div style="flex:1"><div class="bo sm">${mySpec.name}</div><div class="mu sm">${mySpec.specialty||''} · ${mySpec.hospital||''}</div></div>
+          <div style="flex:1"><div class="bo sm">${mySpec.name}</div><div class="mu sm">${tv(mySpec.specialty||'')} · ${mySpec.hospital||''}</div></div>
           <span class="badge bwa">${t('assigned_specialist')}</span></div>`:''}
         ${myNur?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:#eaf3fb;border-radius:var(--rs)">
           <div class="av" style="background:linear-gradient(135deg,#2e8bc0,#1a5f8f)">${ini(myNur.name)}</div>
-          <div style="flex:1"><div class="bo sm">${myNur.name}</div><div class="mu sm">${myNur.department||''} · ${myNur.hospital||''}</div></div>
+          <div style="flex:1"><div class="bo sm">${myNur.name}</div><div class="mu sm">${tv(myNur.department||'')} · ${myNur.hospital||''}</div></div>
           <span class="badge bnu">${t('nurse')}</span></div>`:''}
         ${!myDoc&&!myNur?`<div class="emp"><p>${t('no_team')}</p></div>`:''}
         <button class="btn bgh bsm w100 mt8" onclick="navigate('messages')">${t('message_team')}</button>
@@ -4019,7 +4024,7 @@ function renderCarePlan(pc) {
   const plans=DB.carePlans.filter(plan=>plan.patientId===CU.id);
   pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('care_plan_title')}</h2><p>${t('care_plan_sub')}</p></div>
     <div class="safety-banner"><div>i</div><div><strong>${t('keep_team_informed')}</strong><p>${t('keep_team_informed_desc')}</p></div></div>
-    ${plans.length?plans.map(plan=>{const owner=G(plan.ownerId);return`<div class="card mb18"><div class="ch"><div><div class="ct">${plan.title}</div><div class="mu sm">${t('led_by')} ${owner?.name||'Care team'} · ${t('next_review')} ${plan.nextReview}</div></div><span class="badge bsu">${plan.status}</span></div>
+    ${plans.length?plans.map(plan=>{const owner=G(plan.ownerId);return`<div class="card mb18"><div class="ch"><div><div class="ct">${plan.title}</div><div class="mu sm">${t('led_by')} ${owner?.name||'Care team'} · ${t('next_review')} ${plan.nextReview}</div></div><span class="badge bsu">${tv(plan.status)}</span></div>
       ${plan.goals.map(goal=>`<div class="goal-row"><div style="flex:1"><div class="bo sm">${goal.label}</div><div class="goal-progress"><span style="width:${goal.progress}%"></span></div></div><span class="mu sm">${goal.progress}%</span></div>`).join('')}
     </div>`}).join(''):`<div class="card"><div class="emp"><p>${t('no_care_plan')}</p><button class="btn bp bsm mt8" onclick="navigate('messages')">${t('message_team')}</button></div></div>`}
   </div>`;
@@ -4127,7 +4132,7 @@ function renderSubscriptions(pc) {
             ${hv.premiumIncluded?`<div class="mu sm">${t('home_visit_included')}</div>`:hv.fee?`<div class="mu sm">${t('home_visit_fee')}: ${money(hv.fee,hv.currency||'USD')} · ${t('payment_success')}</div>`:''}
             ${hv.notes ? `<div class="mu sm" style="color:#666;margin-top:4px">${hv.notes}</div>` : ''}
           </div>
-          <span class="badge ${hv.status==='scheduled'?'bsu':hv.status==='completed'?'bin':'bda'}">${hv.status}</span>
+          <span class="badge ${hv.status==='scheduled'?'bsu':hv.status==='completed'?'bin':'bda'}">${tv(hv.status)}</span>
         </div>
       `).join('') : `<div class="emp"><p>${t('no_upcoming_visits')}</p></div>`}
       <button class="btn bp bsm w100 mt8" onclick="scheduleHomeVisit()">${t('schedule_visit')}</button>
@@ -4184,7 +4189,7 @@ function scheduleHomeVisit() {
   const nurses=DB.users.filter(u=>u.role==='nurse'&&u.status==='active');
   const defaultDate=new Date(new Date().setDate(new Date().getDate()+3)).toISOString().split('T')[0];
   openMo(`<div class="mh"><div class="mt2">${t('schedule_visit')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="fg"><label class="fl">${t('choose_nurse')}</label><select class="fc" id="hv-nurse" onchange="renderHomeVisitFee()">${nurses.map(n=>`<option value="${n.id}">${n.name} — ${n.specialty||n.department||''}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('choose_nurse')}</label><select class="fc" id="hv-nurse" onchange="renderHomeVisitFee()">${nurses.map(n=>`<option value="${n.id}">${n.name} — ${tv(n.specialty||n.department||'')}</option>`).join('')}</select></div>
     <div class="fr"><div class="fg"><label class="fl">${t('visit_date')}</label><input class="fc" type="date" id="hv-date" value="${defaultDate}" onchange="renderHomeVisitFee()"></div><div class="fg"><label class="fl">${t('visit_time')}</label><input class="fc" type="time" id="hv-time" value="14:00"></div></div>
     <div class="fg"><label class="fl">${t('visit_location')}</label><input class="fc" id="hv-location" value="${CU.address||`${CU.name}'s home`}"></div>
     <div class="fg"><label class="fl">${t('visit_notes')}</label><textarea class="fc" id="hv-notes" placeholder="${t('home_visit_notes_ph')}"></textarea></div>
@@ -4447,8 +4452,8 @@ function renderProviderRatings(providers) {
     const stars=review ? '★'.repeat(review.rating)+'☆'.repeat(5-review.rating) : '☆☆☆☆☆';
     return `<div class="rating-row">
       <div class="av" style="background:${color}">${ini(provider.name)}</div>
-      <div class="rating-info"><div class="bo sm">${provider.name}</div><div class="mu sm">${role} · ${provider.specialty||provider.department||''}</div></div>
-      <div class="rating-stars" aria-label="${review?`Rated ${review.rating} out of 5 stars`:'Not yet rated'}">${stars}</div>
+      <div class="rating-info"><div class="bo sm">${provider.name}</div><div class="mu sm">${role} · ${tv(provider.specialty||provider.department||'')}</div></div>
+      <div class="rating-stars" aria-label="${review?tfmt('i_rated',{n:review.rating}):t('i_not_rated')}">${stars}</div>
       <button class="btn ${review?'bs':'bp'} bsm" onclick="showRating('${provider.id}')">${review?t('edit_rating'):t('rate_btn')}</button>
     </div>`;
   }).join('')}</div>`;
@@ -4459,10 +4464,10 @@ function showRating(providerId) {
   const review=DB.reviews.find(r=>r.patientId===CU.id&&r.providerId===providerId);
   const selected=review?.rating||0;
   openMo(`<div class="mh"><div class="mt2">${t('rate_btn')} ${provider.name}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <p class="mu sm">${t('how_experience')} ${provider.role}?</p>
+    <p class="mu sm">${tfmt('i_how_experience',{role:tv(provider.role)})}</p>
     <div class="fg" style="margin-top:16px"><span class="fl" id="rating-label">${t('rating_label')}</span>
       <div class="star-picker" role="radiogroup" aria-labelledby="rating-label">
-        ${[5,4,3,2,1].map(value=>`<input type="radio" id="rating-${value}" name="provider-rating" value="${value}" ${selected===value?'checked':''}><label for="rating-${value}" aria-label="${value} star${value===1?'':'s'}">★</label>`).join('')}
+        ${[5,4,3,2,1].map(value=>`<input type="radio" id="rating-${value}" name="provider-rating" value="${value}" ${selected===value?'checked':''}><label for="rating-${value}" aria-label="${value===1?t('i_star'):tfmt('i_stars',{n:value})}">★</label>`).join('')}
       </div>
     </div>
     <div class="fg"><label class="fl" for="rating-comment">${t('comment_optional')}</label><textarea class="fc" id="rating-comment" maxlength="500" placeholder="${t('comment_ph')}">${review?.comment||''}</textarea></div>
@@ -4486,12 +4491,12 @@ function renderPatRecords(pc) {
     <div class="ph"><h2>${t('health_records')}</h2></div>
     <div class="g2">
       <div class="card"><div class="ct mb18">${t('personal_info')}</div>
-        ${[['HFA ID',u.hfaId||'—'],['Full Name',u.name],['Date of Birth',u.dateOfBirth||'—'],['Gender',u.gender||'—'],['Blood Type',u.bloodType||'—'],['Phone',u.phone||'—'],['Address',u.address||'—']]
-          .map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.85rem"><span class="mu bo" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em">${l}</span><span class="bo">${l==='HFA ID'?`<code class="code-chip">${v}</code>`:v}</span></div>`).join('')}
+        ${[[t('hfa_number'),u.hfaId||'—','id'],[t('full_name_lbl'),u.name],[t('dob_lbl'),u.dateOfBirth||'—'],[t('wz_gender'),tv(u.gender||'—')],[t('blood_type_lbl'),u.bloodType||'—'],[t('phone_lbl'),u.phone||'—'],[t('address_lbl'),u.address||'—']]
+          .map(([l,v,kind])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.85rem"><span class="mu bo" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em">${l}</span><span class="bo">${kind==='id'?`<code class="code-chip">${v}</code>`:v}</span></div>`).join('')}
       </div>
       <div class="card"><div class="ct mb18">${t('medical_info')}</div>
         <div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin:4px 0 16px">${u.medicalHistory||t('none_recorded')}</p>
-        <div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin:4px 0 16px;color:${u.allergies&&u.allergies!=='None'?'var(--dg)':'inherit'};font-weight:${u.allergies&&u.allergies!=='None'?600:400}">${u.allergies||'None'}</p>
+        <div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin:4px 0 16px;color:${u.allergies&&u.allergies!=='None'?'var(--dg)':'inherit'};font-weight:${u.allergies&&u.allergies!=='None'?600:400}">${tv(u.allergies||'None')}</p>
         <div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${u.emergencyContact||'—'}</p>
       </div>
     </div>
@@ -4518,7 +4523,7 @@ function showUploadDocument() {
       <option value="${t('document_category_other')}">${t('document_category_other')}</option>
     </select></div>
     <div class="fg"><label class="fl">${t('document_file')}</label><input class="fc" type="file" id="ud-file" accept="image/*,.pdf" multiple></div>
-    ${myApts.length?`<div class="fg"><label class="fl">${t('document_related_apt')}</label><select class="fc" id="ud-apt"><option value="">${t('none_lbl')}</option>${myApts.map(a=>`<option value="${a.id}">${a.date} · ${a.serviceName||a.type}</option>`).join('')}</select></div>`:''}
+    ${myApts.length?`<div class="fg"><label class="fl">${t('document_related_apt')}</label><select class="fc" id="ud-apt"><option value="">${t('none_lbl')}</option>${myApts.map(a=>`<option value="${a.id}">${a.date} · ${tv(a.serviceName||a.type)}</option>`).join('')}</select></div>`:''}
     <div class="fg"><label class="fl">${t('document_notes')}</label><textarea class="fc" id="ud-notes" placeholder="${t('document_notes_ph')}"></textarea></div>
     <div id="ud-status" class="mu sm"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveUploadDocument()">${t('upload_document')}</button></div>`);
@@ -4562,7 +4567,7 @@ function ctItem(c,selId) {
   return `<div class="cit ${selId===c.id?'active':''}" onclick="selCt('${c.id}')">
     <div class="cav" style="background:${col}22;border-color:${col}44;color:${col}">${ini(c.name)}</div>
     <div style="flex:1;min-width:0"><div class="cn2">${c.name}</div>
-      <div class="cs2">${last?last.text:(c.specialty||c.department||c.role)}</div>
+      <div class="cs2">${tv(last?last.text:(c.specialty||c.department||c.role))}</div>
     </div>
   </div>`;
 }
@@ -4573,7 +4578,7 @@ function chatView() {
   return `<div class="cahdr">
     <div style="display:flex;align-items:center;gap:10px">
       <div class="cav" style="background:${col}22;border-color:${col}44;color:${col};width:36px;height:36px">${ini(c.name)}</div>
-      <div><div class="canm">${c.name}</div><div class="carl">${c.specialty||c.department||c.role}${c.hospital?' · '+c.hospital:''}</div></div>
+      <div><div class="canm">${c.name}</div><div class="carl">${tv(c.specialty||c.department||c.role)}${c.hospital?' · '+c.hospital:''}</div></div>
     </div>
   </div>
   <div class="cam" id="chatmsgs">
@@ -4659,7 +4664,7 @@ function joinAppointment(appointmentId) {
 function startVC(contactId, appointmentId) {
   if (!appointmentCallAllowed(appointmentId,contactId,'video')) return alert(t('appointment_call_only'));
   const c=G(contactId); if(!c)return;
-  $('vcav').innerHTML=c.role==='doctor'?doctorPortrait(c):ini(c.name); $('vcn').textContent=c.name; $('vcro').textContent=c.specialty||c.department||c.role;
+  $('vcav').innerHTML=c.role==='doctor'?doctorPortrait(c):ini(c.name); $('vcn').textContent=c.name; $('vcro').textContent=tv(c.specialty||c.department||c.role);
   VCS=0; MUT=false; VIDOFF=false;
   $('vcmb').className='vcb vcm'; $('mico').outerHTML=`<span id="mico">${IC.micOn}</span>`;
   $('vcvb').className='vcb vcv'; $('vico').outerHTML=`<span id="vico">${IC.vidOn}</span>`;
@@ -4679,8 +4684,8 @@ function startVoiceCall(contactId, appointmentId) {
   const c = G(contactId); if(!c) return;
   $('voav').innerHTML = c.role==='doctor'?doctorPortrait(c):ini(c.name);
   $('von').textContent  = c.name;
-  $('vor').textContent  = c.specialty||c.department||c.role;
-  $('vo-status').textContent = 'Connected';
+  $('vor').textContent  = tv(c.specialty||c.department||c.role);
+  $('vo-status').textContent = t('connected');
   VCS2=0; VOICE_MUT=false; VOICE_SPK=true;
   $('vomb').className='vob vob-mu';
   $('vomic').innerHTML=IC.micOn;
@@ -4772,7 +4777,7 @@ async function confirmReschedule(appointmentId) {
   try {
     const receipt=actor.role==='patient'?await Payment.create().from(actor.id).amount(ReschedulePolicy.patientFee).currency(ReschedulePolicy.currency)
       .purpose('appointment_reschedule').method(method).meta({appointmentId,date,time,durationMinutes}).process():null;
-    if (receipt && receipt.status!=='completed') throw new Error('Rescheduling payment failed');
+    if (receipt && receipt.status!=='completed') throw new Error(t('i_reschedule_failed'));
     appointment.reschedules=appointment.reschedules||[];
     appointment.reschedules.push({previousDate:appointment.date,previousTime:appointment.time,previousDurationMinutes:appointment.durationMinutes||30,date,time,durationMinutes,reason,requestedBy:actor.id,requestedRole:actor.role,fee:receipt?ReschedulePolicy.patientFee:0,currency:ReschedulePolicy.currency,paymentId:receipt?.id||null,createdAt:tsNow()});
     Object.assign(appointment,{date,time,durationMinutes});
@@ -4810,13 +4815,13 @@ function showNewApt() {
   const pats=CU.role==='doctor'?patientsForDoctor(CU.id):DB.users.filter(u=>u.role==='patient');
   const docs=DB.users.filter(u=>u.role==='doctor');
   openMo(`<div class="mh"><div class="mt2">${t('new_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl">Patient</label><select class="fc" id="ap-p"><option value="">Select patient...</option>${pats.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
-    ${CU.role!=='doctor'?`<div class="fg"><label class="fl">Doctor</label><select class="fc" id="ap-d"><option value="">Select doctor...</option>${docs.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>`:''}
+    <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="ap-p"><option value="">${t('i_select_patient')}</option>${pats.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    ${CU.role!=='doctor'?`<div class="fg"><label class="fl">${t('doctor')}</label><select class="fc" id="ap-d"><option value="">${t('i_select_doctor')}</option>${docs.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>`:''}
     <div class="fr"><div class="fg"><label class="fl" for="ap-dt">${t('date_lbl')}</label><input type="date" class="fc" id="ap-dt" required></div><div class="fg"><label class="fl" for="ap-tm">${t('time_lbl')}</label><input type="time" class="fc" id="ap-tm" required></div></div>
     <div class="fg"><label class="fl" for="ap-duration">${t('consultation_duration')}</label><select class="fc" id="ap-duration" required>${consultationDurationOptions()}</select></div>
-    <div class="fr"><div class="fg"><label class="fl">Mode</label><select class="fc" id="ap-md"><option value="video">${t('video_call')}</option><option value="voice">${t('voice_call')}</option><option value="text">${t('text_chat')}</option></select></div>
-    <div class="fg"><label class="fl">Type</label><select class="fc" id="ap-ty"><option value="consultation">${t('consultation')}</option><option value="follow-up">${t('follow_up')}</option><option value="emergency">${t('emergency')}</option></select></div></div>
-    <div class="fg"><label class="fl">Notes</label><textarea class="fc" id="ap-nt" placeholder="Appointment notes..."></textarea></div>
+    <div class="fr"><div class="fg"><label class="fl">${t('apt_mode')}</label><select class="fc" id="ap-md"><option value="video">${t('video_call')}</option><option value="voice">${t('voice_call')}</option><option value="text">${t('text_chat')}</option></select></div>
+    <div class="fg"><label class="fl">${t('apt_type')}</label><select class="fc" id="ap-ty"><option value="consultation">${t('consultation')}</option><option value="follow-up">${t('follow_up')}</option><option value="emergency">${t('emergency')}</option></select></div></div>
+    <div class="fg"><label class="fl">${t('notes_lbl')}</label><textarea class="fc" id="ap-nt" placeholder="${t('apt_notes_ph')}"></textarea></div>
     <div id="ap-error" class="mu sm" role="alert"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveApt()">${t('book_btn')}</button></div>`);
 }
@@ -4839,21 +4844,21 @@ function showBookApt(serviceCode='PC-VIRTUAL') {
   BOOKDOC = serviceCode==='SPECIALIST-REFERRAL'&&mySpec ? mySpec.id : (myDoc ? myDoc.id : (docs[0]?.id || null));
   APTSERVICE=VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-VIRTUAL';
   openMo(`<div class="mh"><div class="mt2">${t('book_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    ${myDoc?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()"><option value="${myDoc.id}" ${BOOKDOC===myDoc.id?'selected':''}>${myDoc.name} — ${myDoc.specialty||t('doctor')}</option>${mySpec?`<option value="${mySpec.id}" ${BOOKDOC===mySpec.id?'selected':''}>${mySpec.name} — ${mySpec.specialty||t('assigned_specialist')}</option>`:''}</select><div class="mu sm" style="margin-top:4px">${mySpec?t('generalist_first_notice'):''}</div></div><div id="bk-doc-fee"></div>`
-      :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${d.name} — ${d.specialty||''}${d.consultationFee?` (${money(d.consultationFee)})`:''}</option>`).join('')}</select></div>
+    ${myDoc?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()"><option value="${myDoc.id}" ${BOOKDOC===myDoc.id?'selected':''}>${myDoc.name} — ${tv(myDoc.specialty||t('doctor'))}</option>${mySpec?`<option value="${mySpec.id}" ${BOOKDOC===mySpec.id?'selected':''}>${mySpec.name} — ${tv(mySpec.specialty||t('assigned_specialist'))}</option>`:''}</select><div class="mu sm" style="margin-top:4px">${mySpec?t('generalist_first_notice'):''}</div></div><div id="bk-doc-fee"></div>`
+      :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${d.name} — ${tv(d.specialty||'')}${d.consultationFee?` (${money(d.consultationFee)})`:''}</option>`).join('')}</select></div>
         <div id="bk-doc-fee"></div>`
       :`<div class="alt ae">${t('no_doctors_available')}</div>`}
-    <div class="fg"><label class="fl" for="bk-sv">${t('virtual_services_title')}</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${service.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">Consultation Mode</label>
+    <div class="fg"><label class="fl" for="bk-sv">${t('virtual_services_title')}</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${tv(service.name)}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('i_consultation_mode')}</label>
       <div style="display:flex;gap:6px">
-        <button id="bk-v" class="btn bp" style="flex:1" onclick="setAptMode('video')">📹 Video</button>
-        <button id="bk-vo" class="btn bs" style="flex:1" onclick="setAptMode('voice')">📞 Voice</button>
-        <button id="bk-t" class="btn bs" style="flex:1" onclick="setAptMode('text')">💬 Text</button>
+        <button id="bk-v" class="btn bp" style="flex:1" onclick="setAptMode('video')">${t('i_video')}</button>
+        <button id="bk-vo" class="btn bs" style="flex:1" onclick="setAptMode('voice')">${t('i_voice')}</button>
+        <button id="bk-t" class="btn bs" style="flex:1" onclick="setAptMode('text')">${t('text_chat')}</button>
       </div>
     </div>
     <div class="fr"><div class="fg"><label class="fl" for="bk-d">${t('preferred_date')}</label><input type="date" class="fc" id="bk-d" required></div><div class="fg"><label class="fl" for="bk-t2">${t('preferred_time')}</label><input type="time" class="fc" id="bk-t2" required></div></div>
     <div class="fg"><label class="fl" for="bk-duration">${t('consultation_duration')}</label><select class="fc" id="bk-duration" required>${consultationDurationOptions()}</select></div>
-    <div class="fg"><label class="fl">Reason for Consultation</label><textarea class="fc" id="bk-n" placeholder="Describe your symptoms or concern..."></textarea></div>
+    <div class="fg"><label class="fl">${t('reason_lbl')}</label><textarea class="fc" id="bk-n" placeholder="${t('reason_ph')}"></textarea></div>
     <div id="bk-error" class="mu sm" role="alert"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveBooking()" ${docs.length||myDoc?'':'disabled'}>${t('confirm_booking')}</button></div>`);
   bkRenderDocFee();
@@ -4897,23 +4902,23 @@ function submitTriage() {
   notifyPatientActivity(CU.id,'Urgent Care');
   log('SUBMIT_TRIAGE','Urgent Care');
   closeMo();
-  if(level==='emergency') alert('Call your local emergency number now. Your triage request has been recorded for the care team.');
-  else alert('Your triage request has been received. A care team member will review it.');
+  if(level==='emergency') alert(t('i_triage_emergency'));
+  else alert(t('i_triage_received'));
 }
 
 // ═══════════════════════ ADMIN MODALS ═══════════════════════
 function showAddUser(role) {
-  openMo(`<div class="mh"><div class="mt2">${t('add_new')} ${role==='doctor'?t('doctor'):role==='nurse'?t('nurse'):role==='admin'?t('add_admin'):t('patient')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="au-n" placeholder="Full legal name"></div>
-    <div class="fg"><label class="fl">Email</label><input class="fc" type="email" id="au-e" placeholder="email@example.com"></div>
-    <div class="fg"><label class="fl">Phone</label><input class="fc" id="au-ph" placeholder="+237 6XX XXX XXX"></div>
-    <div class="fg"><label class="fl">Password</label><input class="fc" type="password" id="au-pw" placeholder="Temporary password"></div>
-    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">Specialty</label><select class="fc" id="au-sp"><option value="">Select...</option>${SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label class="fl">License No.</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div><div class="fg"><label class="fl">${t('consultation_fee')} (${priceCurrency()})</label><select class="fc" id="au-cf">${consultationFeeOptions()}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div></div>`:''}
-    ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">Department</label><input class="fc" id="au-de" placeholder="e.g. Emergency Care"></div><div class="fg"><label class="fl">Nursing Specialty</label><select class="fc" id="au-ns"><option value="">Select...</option>${NURSE_SPECIALTIES.map(s=>`<option>${s}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">Nurse ID</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">Hospital</label><input class="fc" id="au-ho" placeholder="Institution"></div></div>`:''}
+  openMo(`<div class="mh"><div class="mt2">${t('i_add_'+role)}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="fg"><label class="fl" id="lbl-name">${t('full_name_lbl')}</label><input class="fc" id="au-n" placeholder="${t('i_full_legal_name_ph')}"></div>
+    <div class="fg"><label class="fl">${t('email_lbl')}</label><input class="fc" type="email" id="au-e" placeholder="${t('i_email_example')}"></div>
+    <div class="fg"><label class="fl">${t('phone_lbl')}</label><input class="fc" id="au-ph" placeholder="+237 6XX XXX XXX"></div>
+    <div class="fg"><label class="fl">${t('password')}</label><input class="fc" type="password" id="au-pw" placeholder="${t('temp_password')}"></div>
+    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">${t('specialty')}</label><select class="fc" id="au-sp"><option value="">${t('select')}</option>${SPECIALTIES.map(s=>`<option value="${s}">${tv(s)}</option>`).join('')}</select></div><div class="fg"><label class="fl">${t('license_no')}</label><input class="fc" id="au-li" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">${t('hospital')}</label><input class="fc" id="au-ho" placeholder="${t('i_institution')}"></div><div class="fg"><label class="fl">${t('consultation_fee')} (${priceCurrency()})</label><select class="fc" id="au-cf">${consultationFeeOptions()}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div></div>`:''}
+    ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">${t('department')}</label><input class="fc" id="au-de" placeholder="${t('i_dept_ph')}"></div><div class="fg"><label class="fl">${t('i_nursing_specialty')}</label><select class="fc" id="au-ns"><option value="">${t('select')}</option>${NURSE_SPECIALTIES.map(s=>`<option value="${s}">${tv(s)}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">${t('pc_nurse_id')}</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">${t('hospital')}</label><input class="fc" id="au-ho" placeholder="${t('i_institution')}"></div></div>`:''}
     ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar">${isSuperAdmin(CU)?`<option>${t('super_admin_role')}</option>`:''}<option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
-    ${role==='patient'?`${ApiState.enabled?`<div class="fg"><label class="fl" for="au-wa">${t('whatsapp_number')}</label><input class="fc" id="au-wa" type="tel" placeholder="+237600000000" required></div>`:''}<div class="fr"><div class="fg"><label class="fl">Date of Birth</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">Blood Type</label><select class="fc" id="au-bt"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
-    <div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="au-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="au-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${n.name}</option>`).join('')}</select></div>`:''}
+    ${role==='patient'?`${ApiState.enabled?`<div class="fg"><label class="fl" for="au-wa">${t('whatsapp_number')}</label><input class="fc" id="au-wa" type="tel" placeholder="+237600000000" required></div>`:''}<div class="fr"><div class="fg"><label class="fl">${t('dob_lbl')}</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">${t('blood_type_lbl')}</label><select class="fc" id="au-bt"><option value="">${t('select')}</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
+    <div class="fg"><label class="fl">${t('assign_doctor')}</label><select class="fc" id="au-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('assign_nurse')}</label><select class="fc" id="au-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${n.name}</option>`).join('')}</select></div>`:''}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveAddUser('${role}')">${t('add_user')}</button></div>`);
 }
 function saveAddUser(role) {
@@ -4926,10 +4931,10 @@ function saveAddUser(role) {
     apiRequest('/api/admin/users','POST',payload).then(result=>{DB.users.push(result.user);closeMo();navigate(CP);}).catch(error=>alert(error.message));
     return;
   }
-  if(!n||!e||!pw){alert('Please fill all required fields.');return;}
+  if(!n||!e||!pw){alert(t('i_fill_required'));return;}
   if(role==='admin' && !isSuperAdmin(CU)){alert(t('super_admin_only_msg'));return;}
   if(role==='doctor' && !validConsultationFee($('au-cf')?.value)){alert(t('fee_range_required'));return;}
-  if(DB.users.find(u=>u.email.toLowerCase()===e.toLowerCase())){alert('Email already in use.');return;}
+  if(DB.users.find(u=>u.email.toLowerCase()===e.toLowerCase())){alert(t('i_email_in_use'));return;}
   const id=role.slice(0,3)+Date.now();
   const adminRole = role==='admin' ? ($('au-ar')?.value||'Support Administrator') : null;
   const adminStatus = role==='admin' ? (isSuperAdmin(CU)?'active':'pending_approval') : 'active';
@@ -4950,13 +4955,13 @@ function showEditUser(id) {
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   if (isSuperAdmin(u) && u.id!==CU.id) return alert(t('super_admin_protect_msg'));
   openMo(`<div class="mh"><div class="mt2">${t('edit')} ${t('user')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" id="eu-n" value="${u.name}"></div>
-    <div class="fg"><label class="fl">Phone</label><input class="fc" id="eu-ph" value="${u.phone||''}"></div>
-    <div class="fg"><label class="fl">Status</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option>${(u.role==='doctor'||u.role==='nurse'||u.role==='admin')?`<option value="pending_approval" ${u.status==='pending_approval'?'selected':''}>${t('pending_approval')}</option><option value="rejected" ${u.status==='rejected'?'selected':''}>${t('rejected')}</option>`:''}<option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
+    <div class="fg"><label class="fl" id="lbl-name">${t('full_name_lbl')}</label><input class="fc" id="eu-n" value="${u.name}"></div>
+    <div class="fg"><label class="fl">${t('phone_lbl')}</label><input class="fc" id="eu-ph" value="${u.phone||''}"></div>
+    <div class="fg"><label class="fl">${t('status')}</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option>${(u.role==='doctor'||u.role==='nurse'||u.role==='admin')?`<option value="pending_approval" ${u.status==='pending_approval'?'selected':''}>${t('pending_approval')}</option><option value="rejected" ${u.status==='rejected'?'selected':''}>${t('rejected')}</option>`:''}<option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
     ${u.role==='doctor'?`<div class="fg"><label class="fl">${t('consultation_fee')} (${priceCurrency()})</label><select class="fc" id="eu-cf">${consultationFeeOptions(u.consultationFee||'')}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div>`:''}
     ${u.role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="eu-ar">${isSuperAdmin(CU)?`<option ${u.adminRole==='Super Admin'?'selected':''}>${t('super_admin_role')}</option>`:''}<option ${u.adminRole==='Platform Owner'?'selected':''}>${t('platform_owner')}</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>${t('clinical_operations')}</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>${t('compliance_officer')}</option><option ${u.adminRole==='Support Administrator'?'selected':''}>${t('support_admin')}</option></select></div>`:''}
-    ${u.role==='patient'?`<div class="fg"><label class="fl">Assign Doctor</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">Assign Nurse</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
+    ${u.role==='patient'?`<div class="fg"><label class="fl">${t('assign_doctor')}</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('assign_nurse')}</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveEditUser('${id}')">${t('save_changes')}</button></div>`);
 }
 function saveEditUser(id) {
@@ -4986,7 +4991,7 @@ function doSuspend(id) {
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   if (isSuperAdmin(u)) return alert(t('super_admin_protect_msg'));
-  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">Suspend <strong>${u.name}</strong>?<br>They will be unable to log in.</p>
+  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">${t('suspend_q')} <strong>${u.name}</strong>${LANG==='fr'?' ':''}?<br>${t('suspend_confirm')}</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmSuspend('${id}')">${t('yes_suspend')}</button></div></div>`);
 }
 function confirmSuspend(id) { if(ApiState.enabled){backendAdminUpdate(id,{status:'suspended'});return;}const u=G(id);if(u && !(u.role==='admin' && !isSuperAdmin(CU)) && !isSuperAdmin(u)){const changed=u.status!=='suspended';u.status='suspended';if(changed)notifyPatientAccountChange(id,'account_suspended');log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
@@ -5002,7 +5007,7 @@ function askDelete(id, name) {
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   if (isSuperAdmin(u)) return alert(t('super_admin_protect_msg'));
-  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">Permanently delete <strong>${name}</strong>?<br>This action cannot be undone.</p>
+  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">${t('delete_q')} <strong>${name}</strong>${LANG==='fr'?' ':''}?<br>${t('delete_warn')}</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmDel('${id}')">${t('yes_delete')}</button></div></div>`);
 }
 function confirmDel(id) {
@@ -5067,6 +5072,7 @@ window.addEventListener('load',()=>{
 <script src="offline-uploads.js"></script>
 <script src="offline-session.js"></script>
 <script src="pharmacist.js"></script>
+<script src="i18n.js"></script>
 <script src="hfa-ui.js"></script>
 <script src="patient-registration.js"></script>
 <script src="offline.js"></script>

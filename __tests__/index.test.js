@@ -180,7 +180,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;
@@ -674,7 +674,7 @@ describe('index.html sanity checks', () => {
       const doctor={id:'doc1',role:'doctor',name:'Synthetic Doctor'}, patient={id:'pat1',role:'patient',phone:'+237600000000'};
       const appointment={id:'apt-test',doctorId:'doc1',patientId:'pat1',nurseId:'nur1',date:'2030-01-02',time:'10:00',durationMinutes:30,mode:'video',status:'scheduled'};
       const clock={now:new Date('2030-01-02T10:15').getTime()};
-      const context={CU:patient,SC:doctor,LANG:'en',DB:{appointments:[appointment],whatsappAlerts:[],notifications:[]},
+      const context={CU:patient,SC:doctor,LANG:'en',tv:value=>value,DB:{appointments:[appointment],whatsappAlerts:[],notifications:[]},
         ApiState:{enabled:false},
         Date:class extends Date { static now() { return clock.now; } },
         G:id=>id==='doc1'?doctor:id==='pat1'?patient:null,
@@ -1043,7 +1043,7 @@ describe('index.html sanity checks', () => {
   });
 
   test('shows the HFA copyright and abbreviated creator signature on the app and language picker', () => {
-    expect(content).toContain('<footer class="creator-credit" aria-label="App creator">');
+    expect(content).toContain('<footer class="creator-credit" aria-label="App creator"');
     expect(content).toContain('class="creator-credit creator-credit--picker"');
     expect((content.match(/class="creator-label">&copy; Healthy Future Africa \(HFA\)/g) || []).length).toBe(2);
     expect((content.match(/class="creator-name">Chinjie S\. N\./g) || []).length).toBe(2);
@@ -1057,9 +1057,9 @@ describe('index.html sanity checks', () => {
   });
 
   test('includes expanded doctor specialties', () => {
-    expect(content).toContain('<option>Physiotherapy</option>');
-    expect(content).toContain('<option>Psychiatry</option>');
-    expect(content).toContain('<option>Clinical Psychology</option>');
+    expect(content).toContain('<option value="Physiotherapy">Physiotherapy</option>');
+    expect(content).toContain('<option value="Psychiatry">Psychiatry</option>');
+    expect(content).toContain('<option value="Clinical Psychology">Clinical Psychology</option>');
     expect(content).toContain("const SPECIALTIES = [");
     expect(content).toContain("'Mental Health'");
     expect(content).toContain('id="rsp" required');
@@ -1098,7 +1098,7 @@ describe('index.html sanity checks', () => {
 
   test('includes multi-admin governance controls', () => {
     expect(content).toContain("id:'adm2',role:'admin'");
-    expect(content).toContain("id:'mgr-a',l:'Administrators'");
+    expect(content).toContain("id:'mgr-a',l:()=>t('administrators')");
     expect(content).toContain('function renderAdminControl');
     expect(content).toContain('function renderIntegrations');
     expect(content).toContain('function renderTriageQueue');

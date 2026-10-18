@@ -14,7 +14,7 @@
   files.addEventListener('click',()=>OfflineUploads.open());
   const country=document.createElement('select');
   country.id='price-country';country.className='price-country';
-  const countries=[['OTHER','Outside CEMAC / Hors CEMAC'],['CM','Cameroon / Cameroun'],['CF','Central African Republic / Centrafrique'],['TD','Chad / Tchad'],['CG','Republic of the Congo / Congo'],['GQ','Equatorial Guinea / Guinée équatoriale'],['GA','Gabon']];
+  const countries=[['OTHER','Outside CEMAC / Hors CEMAC'],['CM','Cameroon / Cameroun'],['CF','Central African Republic / Centrafrique'],['TD','Chad / Tchad'],['CG','Republic of the Congo / République du Congo'],['GQ','Equatorial Guinea / Guinée équatoriale'],['GA','Gabon']];
   for (const [code,name] of countries) {
     const option=document.createElement('option');option.value=code;option.textContent=name;country.append(option);
   }
@@ -22,7 +22,7 @@
   const modal=document.getElementById('movr');
   new MutationObserver(()=>{country.disabled=!modal.classList.contains('hid');}).observe(modal,{attributes:true,attributeFilter:['class']});
   country.addEventListener('change',()=>{
-    try {localStorage.setItem('hfa-price-country',country.value);} catch(error) {alert('Country preference could not be saved');return;}
+    try {localStorage.setItem('hfa-price-country',country.value);} catch(error) {alert(tv('Country preference could not be saved'));return;}
     updateStaticHTML();
     if (typeof CU!=='undefined'&&CU&&!document.getElementById('app-wrap').classList.contains('hid')) navigate(CP);
     render();

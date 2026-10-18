@@ -559,7 +559,7 @@
       }
       if (CP !== 'hospital-patients') return;
       if (!facility) { pc.innerHTML = `<div class="page"><div class="ph"><h2>${esc(t('hospital_patients_nav'))}</h2></div><div class="alt ai">${esc(t('hp_none_hospital'))}</div></div>`; return; }
-      const rows = list => list.length ? list.map(patient => `<tr><td><code class="code-chip">${esc(patient.hfaId)}</code></td><td>${esc(patient.name)}</td><td>${esc(dateText(patient.createdAt))}</td><td>${esc(patient.status)}</td></tr>`).join('')
+      const rows = list => list.length ? list.map(patient => `<tr><td><code class="code-chip">${esc(patient.hfaId)}</code></td><td>${esc(patient.name)}</td><td>${esc(dateText(patient.createdAt))}</td><td>${esc(tv(patient.status))}</td></tr>`).join('')
         : `<tr><td colspan="4" class="mu">${esc(t('hp_empty'))}</td></tr>`;
       pc.innerHTML = `<div class="page">
         <div class="ph"><h2>${esc(tf('hp_title', { hospital: facility.name }))}</h2><p>${esc(tf('hp_intro', { prefix: `HFA-PT-${facility.code}-` }))}</p></div>

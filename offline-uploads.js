@@ -1,3 +1,6 @@
+// Messages shown to the person, in their language when the site's translations are loaded (English otherwise).
+const vaultText = message => (typeof tv === 'function' ? tv(message) : message);
+
 class UploadQueueStorage {
   constructor(name='hfa-encrypted-uploads',stores=[['accounts','ownerId'],['files','id']]) { this.name=name;this.stores=stores;this.connection=null; }
   async open() {
@@ -9,7 +12,7 @@ class UploadQueueStorage {
       };
       request.onsuccess=()=>resolve(request.result);
       request.onerror=()=>reject(request.error);
-      request.onblocked=()=>reject(new Error('Close other app tabs and try again'));
+      request.onblocked=()=>reject(new Error(vaultText('Close other app tabs and try again')));
     });
     this.connection.onversionchange=()=>{this.connection.close();this.connection=null;};
     return this.connection;
@@ -32,7 +35,7 @@ class UploadQueueStorage {
         else transaction.objectStore(store).put(record);
       }
       transaction.oncomplete=()=>resolve();
-      transaction.onabort=()=>reject(transaction.error||new Error('Storage operation failed'));
+      transaction.onabort=()=>reject(transaction.error||new Error(vaultText('Storage operation failed')));
       transaction.onerror=()=>reject(transaction.error);
     });
   }
@@ -54,7 +57,7 @@ class OfflineFileVault {
     return this.crypto.subtle.decrypt({name:'AES-GCM',iv:record.iv,additionalData:new TextEncoder().encode(context)},key,record.encrypted);
   }
   attach(ownerId,key) {
-    if (this.syncing && ownerId!==this.ownerId) throw new Error('Wait for synchronization to finish');
+    if (this.syncing && ownerId!==this.ownerId) throw new Error(vaultText('Wait for synchronization to finish'));
     this.key=key;this.ownerId=ownerId;
   }
   lock() { this.key=null;this.ownerId=null; }
@@ -63,36 +66,36 @@ class OfflineFileVault {
   }
   async stage(files,metadata={category:'Other',notes:'',relatedApptId:''}) {
     const ownerId=this.ownerId,key=this.key;
-    if (!key || !ownerId) throw new Error('Sign in to save files on this device');
-    if (!files.length || files.length>20) throw new Error('Select between 1 and 20 files');
+    if (!key || !ownerId) throw new Error(vaultText('Sign in to save files on this device'));
+    if (!files.length || files.length>20) throw new Error(vaultText('Select between 1 and 20 files'));
     const existing=await this.storage.read('files');
-    if (existing.length+files.length>100 || existing.reduce((total,file)=>total+file.size,0)+files.reduce((total,file)=>total+file.size,0)>50*1024*1024) throw new Error('Offline storage limit reached (50 MB or 100 pending files)');
+    if (existing.length+files.length>100 || existing.reduce((total,file)=>total+file.size,0)+files.reduce((total,file)=>total+file.size,0)>50*1024*1024) throw new Error(vaultText('Offline storage limit reached (50 MB or 100 pending files)'));
     const staged=[];
     for (const file of files) {
-      if (!file.size || file.size>5*1024*1024) throw new Error('Each file must be between 1 byte and 5 MB');
+      if (!file.size || file.size>5*1024*1024) throw new Error(vaultText('Each file must be between 1 byte and 5 MB'));
       const header=new Uint8Array(await file.slice(0,12).arrayBuffer());
       const prefix=new TextDecoder().decode(header);
       const accepted=prefix.startsWith('%PDF-') || header.slice(0,8).join(',')==='137,80,78,71,13,10,26,10' || (header[0]===255&&header[1]===216&&header[2]===255) || (prefix.startsWith('RIFF')&&prefix.slice(8,12)==='WEBP');
-      if (!accepted) throw new Error('Only PDF, PNG, JPEG and WebP files are accepted');
+      if (!accepted) throw new Error(vaultText('Only PDF, PNG, JPEG and WebP files are accepted'));
       const details={category:String(metadata.category||'Other').slice(0,100),notes:String(metadata.notes||'').slice(0,1000),relatedApptId:String(metadata.relatedApptId||'').slice(0,100),fileName:file.name};
-      if (!file.name || file.name.length>180 || /[<>\u0000-\u001f/\\]/.test(file.name)) throw new Error('File name is too long or invalid');
+      if (!file.name || file.name.length>180 || /[<>\u0000-\u001f/\\]/.test(file.name)) throw new Error(vaultText('File name is too long or invalid'));
       const id=this.crypto.randomUUID();
       staged.push({id,ownerId,device:true,size:file.size,queuedAt:this.now(),nextAttempt:0,attempts:0,status:'pending',
         metadata:await this.encrypt(key,new TextEncoder().encode(JSON.stringify(details)),`${ownerId}:${id}:metadata`),
         file:await this.encrypt(key,await file.arrayBuffer(),`${ownerId}:${id}:file`)});
     }
-    if (this.ownerId!==ownerId || this.key!==key) throw new Error('Signed out before files could be saved');
+    if (this.ownerId!==ownerId || this.key!==key) throw new Error(vaultText('Signed out before files could be saved'));
     await this.storage.write('files',staged);
     return staged.length;
   }
   async details(record) {
-    if (!this.key || record.ownerId!==this.ownerId) throw new Error('Sign in to the account that saved this file');
+    if (!this.key || record.ownerId!==this.ownerId) throw new Error(vaultText('Sign in to the account that saved this file'));
     return JSON.parse(new TextDecoder().decode(await this.decrypt(this.key,record.metadata,`${record.ownerId}:${record.id}:metadata`)));
   }
   async remove(id) {
-    if (this.syncing) throw new Error('Wait for synchronization to finish');
+    if (this.syncing) throw new Error(vaultText('Wait for synchronization to finish'));
     const record=await this.storage.read('files',id);
-    if (!this.key || record?.ownerId!==this.ownerId) throw new Error('Sign in to the account that saved this file');
+    if (!this.key || record?.ownerId!==this.ownerId) throw new Error(vaultText('Sign in to the account that saved this file'));
     await this.storage.write('files',[record],true);
   }
   async sync() {
@@ -115,7 +118,7 @@ class OfflineFileVault {
           if (response.status===503) return 'unconfigured';
           if (response.ok) {
             const receipt=await response.json();
-            if (receipt.id!==record.id || receipt.ownerId!==ownerId || receipt.status!=='stored') throw new Error('Invalid upload receipt');
+            if (receipt.id!==record.id || receipt.ownerId!==ownerId || receipt.status!=='stored') throw new Error(vaultText('Invalid upload receipt'));
             await this.storage.write('files',[record],true);
             continue;
           }
@@ -190,7 +193,7 @@ globalThis.OfflineFileVault=OfflineFileVault;
   }
 
   async function open() {
-    if (!window.isSecureContext || !('indexedDB' in window) || !crypto.subtle) throw new Error('Encrypted offline files need HTTPS or localhost and a supported browser');
+    if (!window.isSecureContext || !('indexedDB' in window) || !crypto.subtle) throw new Error(vaultText('Encrypted offline files need HTTPS or localhost and a supported browser'));
     const text=words();
     openMo(`<div class="mh"><h3 class="mt2">${text.title}</h3></div>
       <p class="mu sm mb18">${text.warning}</p>
