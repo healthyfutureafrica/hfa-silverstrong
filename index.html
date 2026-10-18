@@ -527,9 +527,7 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 .contact-card p{font-size:.8rem;color:var(--t2);line-height:1.55}
 
 .creator-credit{display:flex;align-items:center;justify-content:center;gap:14px;padding:22px 24px;background:var(--na);border-top:1px solid rgba(232,184,75,.22);color:#fff;text-align:left}
-.creator-monogram{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:42px;height:42px;border:1px solid rgba(232,184,75,.5);border-radius:6px;color:var(--go-l);font-family:var(--fd);font-size:1rem;letter-spacing:0}
-.creator-label{display:block;color:var(--si-l);font-size:.68rem;letter-spacing:0;line-height:1.5}
-.creator-name{display:block;font-family:var(--fd);font-style:italic;font-weight:600;font-size:1.15rem;line-height:1.5;color:var(--go-l);letter-spacing:0;overflow-wrap:anywhere}
+.creator-label{display:block;color:var(--si-l);font-size:.74rem;letter-spacing:0;line-height:1.5;text-align:center}
 body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 .creator-credit--picker{margin-top:32px;padding:16px 0 0;background:transparent;width:calc(100% - 40px);max-width:352px}
 @media(max-width:700px){
@@ -540,7 +538,6 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   .offline-actions{max-width:100%}
   body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:210px}
   .creator-credit{gap:10px;padding:18px 16px}
-  .creator-name{font-size:1rem}
   .creator-credit--picker{padding:16px 0 0}
 }
 @media(max-height:650px){
@@ -804,11 +801,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
     </button>
   </div>
   <div class="creator-credit creator-credit--picker">
-    <span class="creator-monogram" aria-hidden="true">CSN</span>
-    <div>
-      <span class="creator-label">&copy; Healthy Future Africa (HFA)</span>
-      <span class="creator-name">Chinjie S. N.</span>
-    </div>
+    <span class="creator-label">&copy; Healthy Future Africa (HFA)</span>
   </div>
 </div>
 
@@ -1028,12 +1021,8 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
   </div>
 </div>
 
-<footer class="creator-credit" aria-label="App creator" data-i18n-aria="i_app_creator">
-  <span class="creator-monogram" aria-hidden="true">CSN</span>
-  <div>
-    <span class="creator-label">&copy; Healthy Future Africa (HFA)</span>
-    <span class="creator-name">Chinjie S. N.</span>
-  </div>
+<footer class="creator-credit" aria-label="Copyright" data-i18n-aria="i_copyright">
+  <span class="creator-label">&copy; Healthy Future Africa (HFA)</span>
 </footer>
 
 <!-- VIDEO CALL -->

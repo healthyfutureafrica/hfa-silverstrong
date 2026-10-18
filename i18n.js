@@ -33,7 +33,7 @@
     i_chip_consent: 'CONSENT', i_chip_verify: 'VERIFY', i_chip_med_safe: 'MED SAFE',
     i_manage_all: 'Manage all {what} on the platform', i_years: '{n} yr', i_how_experience: 'How was your experience with this {role}?',
     i_add_doctor: 'Add a new doctor', i_add_nurse: 'Add a new nurse', i_add_patient: 'Add a new patient', i_add_admin: 'Add a new administrator',
-    i_sidebar_nav: 'Application sidebar navigation', i_menu: 'Menu', i_app_creator: 'App creator',
+    i_sidebar_nav: 'Application sidebar navigation', i_menu: 'Menu', i_copyright: 'Copyright',
     i_triage_emergency: 'Call your local emergency number now. Your triage request has been recorded for the care team.',
     i_triage_received: 'Your triage request has been received. A care team member will review it.'
   });
@@ -68,7 +68,7 @@
     i_manage_all: 'Gérer tous les {what} de la plateforme', i_years: '{n} ans', i_how_experience: 'Comment s’est passée votre expérience avec ce {role} ?',
     i_add_doctor: 'Ajouter un médecin', i_add_nurse: 'Ajouter un(e) infirmier(e)', i_add_patient: 'Ajouter un patient', i_add_admin: 'Ajouter un administrateur',
     department: 'Service', pc_department: 'Service',
-    i_sidebar_nav: 'Navigation latérale de l’application', i_menu: 'Menu', i_app_creator: 'Créateur de l’application',
+    i_sidebar_nav: 'Navigation latérale de l’application', i_menu: 'Menu', i_copyright: 'Droits d’auteur',
     i_triage_emergency: 'Appelez immédiatement votre numéro d’urgence local. Votre demande de triage a été transmise à l’équipe soignante.',
     i_triage_received: 'Votre demande de triage a bien été reçue. Un membre de l’équipe soignante va l’examiner.',
     // Clearer French for existing strings

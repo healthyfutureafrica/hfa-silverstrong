@@ -1042,11 +1042,12 @@ describe('index.html sanity checks', () => {
     });
   });
 
-  test('shows the HFA copyright and abbreviated creator signature on the app and language picker', () => {
-    expect(content).toContain('<footer class="creator-credit" aria-label="App creator"');
+  test('shows only the HFA copyright on the app and language picker', () => {
+    expect(content).toContain('<footer class="creator-credit" aria-label="Copyright"');
     expect(content).toContain('class="creator-credit creator-credit--picker"');
     expect((content.match(/class="creator-label">&copy; Healthy Future Africa \(HFA\)/g) || []).length).toBe(2);
-    expect((content.match(/class="creator-name">Chinjie S\. N\./g) || []).length).toBe(2);
+    expect(content).not.toContain('creator-name');
+    expect(content).not.toContain('creator-monogram');
   });
 
   test('includes the patient provider rating section', () => {
