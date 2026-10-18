@@ -151,7 +151,7 @@
       const { percent } = HFACompletion.compute(user), tone = HFACompletion.tone(percent);
       const canComplete = user.role === 'patient' && typeof HFAPatientRegistration !== 'undefined' && percent < 100;
       return `<div class="card mb18 pc-card" id="pc-card">
-        ${HFAAvatar.html(user, { size: 'xl', ring: true, editable: true })}
+        ${HFAAvatar.html(user, { size: 'lg', ring: true, editable: true })}
         <div class="pc-body">
           <div class="ct">${esc(user.name)}</div>
           ${user.hfaId ? `<div class="pc-id"><code class="code-chip" title="${esc(t('hfa_number'))}">${esc(user.hfaId)}</code>${user.facilityName ? ` <span class="mu sm">${esc(user.facilityName)}</span>` : ''}</div>` : ''}
@@ -273,6 +273,8 @@
     if (sidebar && CU) { sidebar.className = 'av-slot'; sidebar.innerHTML = avatarHtml(CU, { size: 'sm', ring: true, editable: true }); }
     const card = document.getElementById('pc-card');
     if (card && CU) card.outerHTML = HFACompletion.card(CU);
+    const hello = document.querySelector('.home-hello > .hav');
+    if (hello && CU) hello.outerHTML = avatarHtml(CU, { size: 'lg', ring: true, editable: true });
   }
 
   function editorShell(body) {
@@ -611,6 +613,18 @@
     }
   };
   window.HFAFacilities = HFAFacilities;
+
+  // The status bar at the top changes height (offline, language…); keep the sidebar just below it.
+  function syncBannerHeight() {
+    const banner = document.querySelector('.offline-status');
+    document.documentElement.style.setProperty('--banner-h', banner ? banner.offsetHeight + 'px' : '0px');
+  }
+  window.addEventListener('load', () => {
+    syncBannerHeight();
+    const banner = document.querySelector('.offline-status');
+    if (banner && 'ResizeObserver' in window) new ResizeObserver(syncBannerHeight).observe(banner);
+    window.addEventListener('resize', syncBannerHeight);
+  });
 
   window.HFATheme = HFATheme;
   window.HFACompletion = HFACompletion;

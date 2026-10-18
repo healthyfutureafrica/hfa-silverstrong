@@ -775,6 +775,132 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 .fac-table th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);padding:8px 10px;border-bottom:1px solid var(--bd)}
 .fac-table td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t1);vertical-align:middle}
 .fac-table tr:last-child td{border-bottom:0}
+/* ════════════ Bright & simple UI (proposal, user feedback Oct 2026) ════════════
+   Brighter Cameroon-flag colours, larger text and touch targets, a light sidebar,
+   and colourful icon tiles. Text colours keep at least 4.5:1 contrast (WCAG AA). */
+:root:not([data-theme="dark"]){
+  --em:#00853F;--em-l:#1FB45A;--em-d:#006B3F;--em-p:#E6F7EC;
+  --go:#9A7200;--go-l:#FFD100;--go-p:#FFF7CC;
+  --dg:#D7142B;--wn:#E67700;--su:#00853F;--in:#1769E0;
+  --ow:#F3F7FB;--bd:#E2E8F0;--bd2:#CBD5E1;--si-p:#F8FAFC;--si-l:#E2E8F0;
+  --t1:#0F172A;--t2:#334155;--t3:#5B6475;
+  --sh:0 2px 10px rgba(15,23,42,.06);--shm:0 6px 20px rgba(15,23,42,.08);
+}
+body{font-size:15px}
+.page{padding:28px 28px 40px}
+.ph h2{font-size:1.75rem;font-weight:700;letter-spacing:-.01em}
+.ph p{font-size:.95rem}
+.card{border-radius:16px;padding:22px}
+.ct{font-size:1.08rem;font-weight:600}
+.btn{min-height:42px;padding:10px 18px;font-size:.9rem;font-weight:600}
+.bsm{min-height:36px;padding:7px 13px;font-size:.82rem}
+.fc{padding:11px 14px;font-size:.95rem;min-height:44px}
+.fl{font-size:.76rem}
+.alt{font-size:.88rem;border-radius:12px}
+
+/* Light sidebar with a clear, coloured active item */
+:root:not([data-theme="dark"]) #sidebar{background:#fff;border-right:1px solid var(--bd);box-shadow:2px 0 12px rgba(15,23,42,.04)}
+:root:not([data-theme="dark"]) .sb-logo,:root:not([data-theme="dark"]) .sb-ft{border-color:var(--bd)}
+:root:not([data-theme="dark"]) .sb-br{color:var(--t1);font-weight:700}
+:root:not([data-theme="dark"]) .sb-tg{color:var(--em)}
+:root:not([data-theme="dark"]) .sb-rb{background:var(--em-p);color:var(--em-d)}
+:root:not([data-theme="dark"]) .nl{color:var(--t3);font-size:.68rem}
+:root:not([data-theme="dark"]) .ni{color:var(--t2);font-size:.95rem;font-weight:500;padding:11px 14px;margin:2px 10px;border-left:0;border-radius:12px}
+:root:not([data-theme="dark"]) .ni:hover{background:var(--em-p);color:var(--em-d)}
+:root:not([data-theme="dark"]) .ni.active{background:var(--em);color:#fff;box-shadow:0 4px 12px rgba(0,133,63,.25)}
+:root:not([data-theme="dark"]) .ni svg{width:19px;height:19px;opacity:1}
+:root:not([data-theme="dark"]) .un{color:var(--t1)}
+:root:not([data-theme="dark"]) .ue{color:var(--t3)}
+:root:not([data-theme="dark"]) .sb-lang-btn{border-color:var(--bd);color:var(--t2);background:#fff}
+:root:not([data-theme="dark"]) .sb-lang-btn.active{background:var(--em-p);border-color:var(--em);color:var(--em-d)}
+:root:not([data-theme="dark"]) .sb-lang-btn:hover:not(.active){background:var(--si-p);color:var(--t1)}
+:root:not([data-theme="dark"]) #sb-site-link{color:var(--t3) !important;border-top-color:var(--bd) !important}
+:root:not([data-theme="dark"]) .creator-credit{background:#fff;border-top-color:var(--bd)}
+:root:not([data-theme="dark"]) .creator-label{color:var(--t3)}
+
+/* Bright landing and language screens */
+:root:not([data-theme="dark"]) #land,:root:not([data-theme="dark"]) #lang-pick{background:linear-gradient(140deg,#00A651 0%,#00853F 45%,#006B3F 100%)}
+:root:not([data-theme="dark"]) .ht p{color:rgba(255,255,255,.92);font-size:1.05rem}
+:root:not([data-theme="dark"]) .ht h2 span,:root:not([data-theme="dark"]) .llogo span,:root:not([data-theme="dark"]) #land-hero-title span{color:var(--go-l)}
+:root:not([data-theme="dark"]) .hsl,:root:not([data-theme="dark"]) .lf{color:rgba(255,255,255,.85)}
+:root:not([data-theme="dark"]) .pc2{background:#fff;border:0;box-shadow:0 8px 24px rgba(0,40,20,.18)}
+:root:not([data-theme="dark"]) .pc2:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,40,20,.25)}
+:root:not([data-theme="dark"]) .pc2 h3{color:var(--t1);font-size:1.02rem;font-weight:700}
+:root:not([data-theme="dark"]) .pc2 p{color:var(--t3);font-size:.85rem}
+:root:not([data-theme="dark"]) .pa{color:var(--em)}
+:root:not([data-theme="dark"]) .pi{background:var(--em-p) !important}
+:root:not([data-theme="dark"]) .pi svg{stroke:var(--em)}
+:root:not([data-theme="dark"]) .bg2{background:var(--go-l);color:#1A1300}
+:root:not([data-theme="dark"]) .bg2:hover{background:#FFDD33}
+:root:not([data-theme="dark"]) .lnav{border-bottom-color:rgba(255,255,255,.18)}
+:root:not([data-theme="dark"]) .lft{background:rgba(255,255,255,.08);border-top-color:rgba(255,255,255,.18)}
+:root:not([data-theme="dark"]) .lp-prompt,:root:not([data-theme="dark"]) .lp-btn-name{color:rgba(255,255,255,.9)}
+:root:not([data-theme="dark"]) .lp-sub{color:var(--go-l)}
+.ht h2{font-size:3.1rem;font-weight:800}
+
+/* ── Simple patient home ── */
+.home-hello{display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.home-hello h2{font-size:1.75rem;font-weight:700;color:var(--t1)}
+.home-hello p{color:var(--t3);font-size:1rem}
+.home-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.home-tile{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:20px;border-radius:18px;border:0;cursor:pointer;text-align:left;font:inherit;color:var(--t1);background:#fff;box-shadow:var(--shm);transition:transform .15s ease,box-shadow .15s ease;min-height:132px}
+.home-tile:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(15,23,42,.12)}
+.home-tile:focus-visible{outline:3px solid var(--go-l);outline-offset:3px}
+.home-ic{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;line-height:1}
+.home-tile strong{font-size:1.08rem;font-weight:700}
+.home-tile span.home-sub{font-size:.85rem;color:var(--t3);line-height:1.4}
+.tile-green .home-ic{background:#E6F7EC}.tile-blue .home-ic{background:#E7F0FF}.tile-yellow .home-ic{background:#FFF4C2}
+.tile-purple .home-ic{background:#F1E9FF}.tile-teal .home-ic{background:#E0F7F5}
+.tile-red{background:linear-gradient(135deg,#E5172F,#C40F24);color:#fff}
+.tile-red .home-ic{background:rgba(255,255,255,.2)}.tile-red span.home-sub{color:rgba(255,255,255,.92)}
+.home-next{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.home-next .ai2{flex:1;min-width:240px;margin:0}
+.home-more{margin-top:8px}
+.home-more details{background:var(--sf);border:1px solid var(--bd);border-radius:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.home-more summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:600;font-size:1rem;display:flex;align-items:center;gap:12px;color:var(--t1);min-height:56px}
+.home-more summary::-webkit-details-marker{display:none}
+.home-more summary::after{content:'';margin-left:auto;width:10px;height:10px;border-right:2.5px solid var(--t3);border-bottom:2.5px solid var(--t3);transform:rotate(45deg);transition:transform .15s ease}
+.home-more details[open] summary::after{transform:rotate(-135deg)}
+.home-more summary:focus-visible{outline:3px solid var(--go-l);outline-offset:2px;border-radius:14px}
+.home-more .home-sum-ic{font-size:1.3rem}
+.home-more .home-body{padding:0 18px 18px}
+.home-more .home-body > .card{box-shadow:none;border:0;padding:0;margin:0 0 12px}
+.home-section-title{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin:22px 0 10px}
+
+/* On green screens, gold accents become bright yellow so they stay readable */
+:root:not([data-theme="dark"]) #land,:root:not([data-theme="dark"]) #lang-pick{--go:#FFD100}
+/* The status bar at the top no longer hides the top of the sidebar */
+#sidebar{top:var(--banner-h,0px);min-height:0;height:calc(100vh - var(--banner-h,0px))}
+/* Compact profile card for staff dashboards */
+.pc-card{padding:18px 20px;gap:16px}
+.home-nudge{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:8px 14px;border-radius:999px;background:var(--go-p);color:#5C4300;font-weight:600;font-size:.88rem;border:0;cursor:pointer;font-family:inherit}
+.home-nudge:hover{background:#FFEFA3}
+.home-nudge:focus-visible{outline:3px solid var(--em);outline-offset:2px}
+
+/* Bottom navigation on phones (patients) */
+.bottom-nav{display:none}
+@media (max-width:700px){
+  body{font-size:15.5px}
+  .offline-status{padding:6px 12px;gap:8px;font-size:.72rem;flex-wrap:nowrap}
+  .offline-status > span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .offline-status .offline-actions{flex-wrap:nowrap;gap:6px}
+  .offline-status .price-country{max-width:118px;padding:4px}
+  .offline-status .btn{min-height:32px;padding:5px 10px;font-size:.72rem}
+  .home-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .home-tile{min-height:120px;padding:16px}
+  .home-hello h2{font-size:1.45rem}
+  .page{padding:18px 16px 28px}
+  body.has-bottom-nav #main{padding-bottom:76px}
+  body.has-bottom-nav .bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:300;background:var(--sf);border-top:1px solid var(--bd);box-shadow:0 -4px 16px rgba(15,23,42,.08);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;font:inherit;font-size:.7rem;font-weight:600;color:var(--t3);min-height:56px;border-radius:12px;cursor:pointer}
+  .bottom-nav button .bn-ic{font-size:1.35rem;line-height:1}
+  .bottom-nav button.active{color:var(--em);background:var(--em-p)}
+  .bottom-nav button:focus-visible{outline:3px solid var(--go-l)}
+  body.has-bottom-nav .creator-credit{margin-bottom:76px}
+  body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:0}
+}
+:root[data-theme="dark"] .home-tile{background:var(--sf)}
+:root[data-theme="dark"] .tile-green .home-ic,:root[data-theme="dark"] .tile-blue .home-ic,:root[data-theme="dark"] .tile-yellow .home-ic,:root[data-theme="dark"] .tile-purple .home-ic,:root[data-theme="dark"] .tile-teal .home-ic{background:rgba(255,255,255,.08)}
 </style>
 </head>
 <body>
@@ -2816,7 +2942,7 @@ const NAV = {
 };
 
 // ═══════════════════════ SCREEN NAVIGATION ═══════════════════════
-function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); toggleSidebar(false); }
+function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); toggleSidebar(false); document.body.classList.remove('has-bottom-nav'); $('bottom-nav')?.remove(); }
 function goFreeHub() {
   hide('land'); hide('auth-wrap'); hide('app-wrap'); show('free-hub');
   renderFreeHub($('free-hub-content'), true);
@@ -3057,12 +3183,25 @@ function buildSidebar() {
   updateLangButtons();
 }
 
+// Patients on phones get a bottom bar with the five things they use most.
+const BOTTOM_NAV = [['dashboard','🏠','bn_home'],['appointments','📅','bn_apts'],['messages','💬','bn_messages'],['records','📄','bn_records'],['menu','☰','bn_menu']];
+function renderBottomNav() {
+  let bar = $('bottom-nav');
+  const show = !!CU && CU.role==='patient';
+  document.body.classList.toggle('has-bottom-nav', show);
+  if (!show) { if (bar) bar.remove(); return; }
+  if (!bar) { bar = document.createElement('nav'); bar.id='bottom-nav'; bar.className='bottom-nav'; document.body.appendChild(bar); }
+  bar.setAttribute('aria-label', t('bn_label'));
+  bar.innerHTML = BOTTOM_NAV.map(([id,icon,key]) => `<button type="button" class="${CP===id?'active':''}" ${CP===id?'aria-current="page"':''} onclick="${id==='menu'?'toggleSidebar(true)':`navigate('${id}')`}"><span class="bn-ic" aria-hidden="true">${icon}</span>${t(key)}</button>`).join('');
+}
+
 function navigate(page) {
   CP = page;
   document.querySelectorAll('.ni').forEach(el=>el.classList.remove('active'));
   const el = $('ni-'+page); if (el) el.classList.add('active');
   if ($('app-wrap')?.classList.contains('sb-open')) toggleSidebar(false);
   renderPage(page);
+  renderBottomNav();
   if (typeof HFAOffline!=='undefined') HFAOffline.saveSoon(); // keep offline work if the app is closed
 }
 
@@ -3081,6 +3220,12 @@ function renderPage(page) {
     const insert = () => {
       if (CP!=='dashboard' || pc.querySelector('#pc-card')) return;
       const host = pc.querySelector('.page') || pc;
+      const vitalSlot = pc.querySelector('#home-vital'), profileSlot = pc.querySelector('#home-profile');
+      if (vitalSlot && profileSlot) {
+        profileSlot.innerHTML = HFACompletion.card(CU);
+        if (typeof HFAPatientRegistration!=='undefined') vitalSlot.innerHTML = HFAPatientRegistration.vitalCard(CU);
+        return;
+      }
       const intro = host.querySelector(':scope > .ph');
       const extra = HFACompletion.card(CU) + (r==='patient' && typeof HFAPatientRegistration!=='undefined' ? HFAPatientRegistration.vitalCard(CU) : '');
       if (intro) intro.insertAdjacentHTML('afterend', extra); else host.insertAdjacentHTML('afterbegin', extra);
@@ -3954,33 +4099,31 @@ function releaseLabResult(id) {
 // ═══════════════════════ PATIENT ═══════════════════════
 function renderPatDash(pc) {
   $('tbt').textContent=t('patient_dashboard');
-  topBtn(`<button class="btn bs bsm" onclick="showUploadDocument()">${IC.file} ${t('upload_document')}</button>`);
-  topBtn(`<button class="btn bd2 bsm" onclick="showTriage()">${t('urgent_help')}</button>`);
-  topBtn(`<button class="btn bp bsm" onclick="showBookApt()">${IC.plus} ${t('book_consultation')}</button>`);
   const myDoc=G(CU.assignedDoctor), myNur=G(CU.assignedNurse);
   const referral=activeSpecialistReferral(CU.id), mySpec=referral?.status==='accepted'?G(referral.specialistDoctorId):null;
   const myA=DB.appointments.filter(a=>a.patientId===CU.id);
-  const up=myA.filter(a=>a.status==='scheduled');
-  pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${LANG==='fr'?'Bonjour,':'Hello,'} ${CU.name.split(' ')[0]}</h2><p>${LANG==='fr'?'Gérez votre santé et contactez votre équipe soignante':'Manage your health and communicate with your care team'}</p></div>
-    ${notificationList(CU.id)}
-    ${whatsAppSettingsCard()}
-    <div class="safety-banner"><div>!</div><div><strong>${t('virtual_care_safety')}</strong><p>${t('virtual_care_safety_desc')}</p></div></div>
-    <div class="alt ai mb12">${t('generalist_first_notice')}</div>
+  const up=myA.filter(a=>a.status==='scheduled').sort((a,b)=>`${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+  const tile=(tone,icon,title,sub,action)=>`<button type="button" class="home-tile tile-${tone}" onclick="${action}"><span class="home-ic" aria-hidden="true">${icon}</span><strong>${title}</strong><span class="home-sub">${sub}</span></button>`;
+  const more=(icon,title,body,open=false)=>body?`<details${open?' open':''}><summary><span class="home-sum-ic" aria-hidden="true">${icon}</span>${title}</summary><div class="home-body">${body}</div></details>`:'';
+  pc.innerHTML=`<div class="page home">
+    <div class="home-hello">${typeof HFAAvatar!=='undefined'?HFAAvatar.html(CU,{size:'lg',ring:true,editable:true}):''}
+      <div><h2>${LANG==='fr'?'Bonjour,':'Hello,'} ${CU.name.split(' ')[0]}</h2><p>${t('home_hello_sub')}</p>
+      ${typeof HFACompletion!=='undefined'&&HFACompletion.compute(CU).percent<100?`<button type="button" class="home-nudge" onclick="HFAPatientRegistration.openCompletion()">✏️ ${tfmt('home_nudge',{percent:HFACompletion.compute(CU).percent})}</button>`:''}</div></div>
     ${referral&&referral.status==='pending_choice'?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('specialist_referral_title')}</div><div class="rating-note">${t('specialist_pending_choice')}</div></div><button class="btn bp bsm" onclick="showChooseSpecialist('${referral.id}')">${t('choose_specialist')}</button></div><div class="mu sm"><strong>${t('recommended_specialty')}:</strong> ${tv(referral.specialty)} · <strong>${t('illness_detected')}:</strong> ${referral.illness||'—'}</div><div class="mu sm" style="margin-top:4px">${referral.reason}</div></div>`:''}
-    ${mySpec?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('assigned_specialist')}</div><div class="rating-note">${tv(referral.specialty)} · ${referral.illness||''}</div></div><button class="btn bp bsm" onclick="showBookApt('SPECIALIST-REFERRAL')">${t('book_specialist_consult')}</button></div><div class="bo sm">${mySpec.name}</div><div class="mu sm">${mySpec.hospital||''}${mySpec.consultationFee?` · ${t('consultation_fee')}: ${money(mySpec.consultationFee)}`:''}</div></div>`:''}
-    <div class="card mb18"><div class="ch"><div><div class="ct">${t('medical_upload_cta_title')}</div><div class="rating-note">${t('medical_upload_cta_desc')}</div></div><button class="btn bp bsm" onclick="showUploadDocument()">${IC.plus} ${t('upload_document')}</button></div></div>
-    <div class="stats">
-      <div class="sc ce"><div class="sv">${up.length}</div><div class="sl">${t('upcoming_apts')}</div></div>
-      <div class="sc cg"><div class="sv">${myA.filter(a=>a.status==='completed').length}</div><div class="sl">${t('completed_consults')}</div></div>
-      <div class="sc cb"><div class="sv">${CU.bloodType||'—'}</div><div class="sl">${t('blood_type_lbl')}</div></div>
+    <div class="home-tiles" role="list">
+      ${tile('green','🩺',t('tile_book'),t('tile_book_sub'),'showBookApt()')}
+      ${tile('blue','📅',t('tile_apts'),tfmt('tile_apts_sub',{n:up.length}),"navigate('appointments')")}
+      ${tile('purple','💬',t('tile_messages'),t('tile_messages_sub'),"navigate('messages')")}
+      ${tile('teal','📄',t('tile_records'),t('tile_records_sub'),"navigate('records')")}
+      ${tile('yellow','💊',t('tile_pharmacy'),t('tile_pharmacy_sub'),"navigate('pharmacy')")}
+      ${tile('red','🆘',t('tile_urgent'),t('tile_urgent_sub'),'showTriage()')}
     </div>
-    <div class="card mb18"><div class="ch"><div><div class="ct">${t('virtual_services_title')}</div><div class="rating-note">${t('virtual_services_sub')}</div></div></div>
-      <div class="service-grid">${VIRTUAL_SERVICES.map(service=>`<div class="service-item"><h4>${tv(service.name)}</h4><p>${tv(service.description)}<br><strong>${tv(service.roles)}</strong></p><button class="btn bp bsm w100" onclick="showBookApt('${service.code}')">${t('book_service')}</button></div>`).join('')}</div>
-    </div>
-    ${CU.allergies&&CU.allergies!=='None'?`<div class="alt ae mb12">${t('allergy_alert')} <strong>${tv(CU.allergies)}</strong> — ${t('ensure_informed')}</div>`:''}
-    <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">${t('care_team')}</div></div>
+    <div id="home-vital"></div>
+    ${up.length?`<div class="home-section-title">${t('home_next')}</div>${aptCard(up[0])}`:''}
+    <div class="home-section-title">${t('home_more')}</div>
+    <div class="home-more">
+      <details><summary><span class="home-sum-ic" aria-hidden="true">👤</span>${t('more_profile')}</summary><div class="home-body" id="home-profile"></div></details>
+      ${more('🩺',t('more_team'),`<div class="card"><div class="ch"><div class="ct">${t('care_team')}</div></div>
         ${myDoc?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--em-p);border-radius:var(--rs);margin-bottom:8px">
           <div class="av">${ini(myDoc.name)}</div>
           <div style="flex:1"><div class="bo sm">${myDoc.name}</div><div class="mu sm">${tv(myDoc.specialty||'')} · ${myDoc.hospital||''}</div>${myDoc.consultationFee?`<div class="mu sm">${t('consultation_fee')}: ${money(myDoc.consultationFee)} <button class="btn bp bsm" style="margin-left:6px" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>
@@ -3996,15 +4139,15 @@ function renderPatDash(pc) {
         ${!myDoc&&!myNur?`<div class="emp"><p>${t('no_team')}</p></div>`:''}
         <button class="btn bgh bsm w100 mt8" onclick="navigate('messages')">${t('message_team')}</button>
       </div>
-      <div class="card"><div class="ch"><div class="ct">${t('upcoming_apts')}</div></div>
-        ${up.length===0?`<div class="emp"><p>${t('no_upcoming')}</p><button class="btn bp bsm mt8" onclick="showBookApt()">${t('book_now')}</button></div>`
-          : up.map(a=>aptCard(a)).join('')}
-      </div>
+        <div class="card mt18"><div class="ch"><div><div class="ct">${t('rate_care_team')}</div><div class="rating-note">${t('rate_care_team_sub')}</div></div></div>${renderProviderRatings([myDoc,myNur].filter(Boolean))}</div>`)}
+      ${mySpec?more('⭐',t('assigned_specialist'),`<div class="card"><div class="ch"><div><div class="ct">${t('assigned_specialist')}</div><div class="rating-note">${tv(referral.specialty)} · ${referral.illness||''}</div></div><button class="btn bp bsm" onclick="showBookApt('SPECIALIST-REFERRAL')">${t('book_specialist_consult')}</button></div><div class="bo sm">${mySpec.name}</div><div class="mu sm">${mySpec.hospital||''}${mySpec.consultationFee?` · ${t('consultation_fee')}: ${money(mySpec.consultationFee)}`:''}</div></div>`):''}
+      ${more('🔔',t('notifications'),notificationList(CU.id))}
+      ${more('🏥',t('more_services'),`<div class="card"><div class="rating-note mb12">${t('virtual_services_sub')}</div><div class="service-grid">${VIRTUAL_SERVICES.map(service=>`<div class="service-item"><h4>${tv(service.name)}</h4><p>${tv(service.description)}<br><strong>${tv(service.roles)}</strong></p><button class="btn bp bsm w100" onclick="showBookApt('${service.code}')">${t('book_service')}</button></div>`).join('')}</div></div>`)}
+      ${more('📤',t('more_upload'),`<div class="card"><p class="mu sm mb12">${t('medical_upload_cta_desc')}</p><button class="btn bp" onclick="showUploadDocument()">${IC.plus} ${t('upload_document')}</button></div>`)}
+      ${more('📲',t('more_whatsapp'),whatsAppSettingsCard())}
+      ${more('🪪',t('more_identity'),idVerificationCard())}
+      ${more('🛡️',t('more_safety'),`<div class="safety-banner"><div>!</div><div><strong>${t('virtual_care_safety')}</strong><p>${t('virtual_care_safety_desc')}</p></div></div><div class="alt ai" style="margin-top:12px">${t('generalist_first_notice')}</div>`)}
     </div>
-    <div class="card mt18"><div class="ch"><div><div class="ct">${t('rate_care_team')}</div><div class="rating-note">${t('rate_care_team_sub')}</div></div></div>
-      ${renderProviderRatings([myDoc,myNur].filter(Boolean))}
-    </div>
-    ${idVerificationCard()}
   </div>`;
 }
 

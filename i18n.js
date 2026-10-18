@@ -6,6 +6,13 @@
 (function () {
   Object.assign(T.en, {
     month: 'month', at: 'at', free: 'Free',
+    home_hello_sub: 'What would you like to do today?',
+    tile_book: 'Book a doctor', tile_book_sub: 'Video, voice or chat', tile_apts: 'My appointments', tile_apts_sub: '{n} coming up',
+    tile_messages: 'Messages', tile_messages_sub: 'Talk to your care team', tile_records: 'My health records', tile_records_sub: 'Results and documents',
+    tile_pharmacy: 'Pharmacy', tile_pharmacy_sub: 'Order your medicines', tile_urgent: 'Urgent help', tile_urgent_sub: 'Feeling very unwell?',
+    home_nudge: 'Profile {percent}% complete — finish it', home_next: 'Next appointment', home_more: 'More', more_profile: 'My profile & photo', more_team: 'My care team', more_services: 'Online services',
+    more_upload: 'Send a document', more_whatsapp: 'WhatsApp alerts', more_identity: 'Identity check', more_safety: 'Safety information',
+    bn_label: 'Main menu', bn_home: 'Home', bn_apts: 'Visits', bn_messages: 'Messages', bn_records: 'Records', bn_menu: 'Menu',
     i_public_nav: 'Public site navigation', i_fh_nav: 'Free Health Hub navigation',
     i_hero_title: 'Advanced <span>Telehealth</span><br>for Every Patient',
     i_hero_text: 'Connecting patients, nurses, and doctors across Africa with encrypted video consultations, real-time messaging, and comprehensive care management — all in one secure platform.',
@@ -39,6 +46,13 @@
   });
   Object.assign(T.fr, {
     month: 'mois', at: 'à', free: 'Gratuit',
+    home_hello_sub: 'Que souhaitez-vous faire aujourd’hui ?',
+    tile_book: 'Voir un médecin', tile_book_sub: 'Vidéo, appel ou discussion', tile_apts: 'Mes rendez-vous', tile_apts_sub: '{n} à venir',
+    tile_messages: 'Messages', tile_messages_sub: 'Écrire à votre équipe soignante', tile_records: 'Mon dossier de santé', tile_records_sub: 'Résultats et documents',
+    tile_pharmacy: 'Pharmacie', tile_pharmacy_sub: 'Commander vos médicaments', tile_urgent: 'Aide urgente', tile_urgent_sub: 'Vous vous sentez très mal ?',
+    home_nudge: 'Profil complété à {percent} % — le terminer', home_next: 'Prochain rendez-vous', home_more: 'Plus', more_profile: 'Mon profil et ma photo', more_team: 'Mon équipe soignante', more_services: 'Services en ligne',
+    more_upload: 'Envoyer un document', more_whatsapp: 'Alertes WhatsApp', more_identity: 'Vérification d’identité', more_safety: 'Informations de sécurité',
+    bn_label: 'Menu principal', bn_home: 'Accueil', bn_apts: 'Rendez-vous', bn_messages: 'Messages', bn_records: 'Dossier', bn_menu: 'Menu',
     email_lbl: 'E-mail', pc_email: 'E-mail', super_admin_role: 'Super administrateur', super_admin_badge: 'Super administrateur', subscription_plan: 'Formule',
     i_public_nav: 'Navigation du site public', i_fh_nav: 'Navigation de l’Espace Santé Gratuit',
     i_hero_title: 'Une <span>télésanté</span> de pointe<br>pour chaque patient',
