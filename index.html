@@ -2178,17 +2178,17 @@ function updateStaticHTML() {
 // ═══════════════════════ DATA STORE ═══════════════════════
 const DB = {
   users: [
-    {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',passwordHash:'pbkdf2-sha256$210000$GeQw85iqJSD16rIqmEly/g==$wj7Vfc6F1OXWsGFHbukLhuD1V2J+O0DLtBGX1QigYa0=',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
-    {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',passwordHash:'pbkdf2-sha256$210000$h9GqF/nmqGJfyW6+RQS5jQ==$kp+OrE8AHskXA3t2ga1YTJE0PkWiuJutVe4r+K5U5FE=',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
-    {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',passwordHash:'pbkdf2-sha256$210000$2vH2C2ugbeamc75c/9bLcg==$csvhiYRllpTKlNv4Go+11LP76rYV29Ss3veQYO8BueY=',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',labRegion:'littoral',labTown:'Douala',status:'active',createdAt:'2024-02-05'},
-    {id:'pha1',role:'pharmacist',name:'Pharm. Brenda Ngum',email:'pharmacy@hfa.org',passwordHash:'pbkdf2-sha256$210000$AKMVy/N6yhN6mFO+cyovCg==$BLfQ10V9zfnISA83ES1HjPlSmbNIX6uk8zh/203P5sQ=',phone:'+237 677 300 202',pharmacyName:'HFA Community Pharmacy',pharmacyAddress:'Rue Joss, Bonanjo',pharmacyLocation:'Douala, Littoral, Cameroon',pharmacyLicense:'CM-PHA-2021-0107',businessRegistration:'RC/DLA/2021/B/0456',minsanteAuthorization:'MINSANTE/DPML/2021/0219',ownerName:'Brenda Ngum',ownerIdType:'national_id',ownerIdNumber:'CM-CNI-114502387',status:'active',createdAt:'2024-02-12',pharmacyValidatedBy:'adm1',pharmacyValidatedAt:'2024-02-14 10:00'},
-    {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',passwordHash:'pbkdf2-sha256$210000$rc3jrgph5pYo1rmEgetOyw==$zUULvGT2DWozCW+o5YmyGecQQ14ceqn/rIgzVPI1OEA=',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
-    {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',passwordHash:'pbkdf2-sha256$210000$L5nELDDQ2F0zWpBl0I2CqQ==$8xDQGPXjpkPRzfWmJOGSYLfqc/GTqbRKUmuKida8Ffk=',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
-    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',passwordHash:'pbkdf2-sha256$210000$MYqSjWg2AGa8laODtkhdsw==$vIMHxn3zDQpnjx8hsV5xNU2Ek5t0xLRcFhvdG4K1grQ=',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',homeVisitFee:12,status:'active',createdAt:'2024-02-20'},
-    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',passwordHash:'pbkdf2-sha256$210000$6EA3LFsA8uFGDOuVDH2CVg==$AJ5pSknZgT1SsPgUijpmdIbcSonmW0bTCAdxj2qle+o=',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',homeVisitFee:10,status:'active',createdAt:'2024-04-01'},
-    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',passwordHash:'pbkdf2-sha256$210000$riaYLWb8ScNWFXmtJ0vjlw==$8+COZiswoX1trT5lffZzbUKf8WfcYCx48LikoAsxLa0=',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
-    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',passwordHash:'pbkdf2-sha256$210000$ed9Sv1csIFqu7KG4plkKFg==$V9YBAdpAe5UP9dud2jk+jNQJYVjrePGaswIgBjp7cMk=',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.',conditions:[{system:'ICD-10-CM',code:'E11.9',display:'Type 2 diabetes mellitus without complications'}],medications:[{system:'RxNorm',code:'860975',display:'Metformin 500 MG Oral Tablet'}],observations:[{system:'LOINC',code:'2339-0',display:'Glucose [Mass/volume] in Blood',value:'8.4',unit:'mmol/L',effectiveDate:'2025-01-27'}]},
-    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',passwordHash:'pbkdf2-sha256$210000$uoULjzztWHW7RypvFY1vrA==$LRaNfIA70PAOpfZ9OZsXrKhhFmSL12Oamz693gPoZwE=',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.',conditions:[{system:'ICD-10-CM',code:'I25.10',display:'Atherosclerotic heart disease of native coronary artery without angina pectoris'}],medications:[],observations:[]},
+    {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',passwordHash:'pbkdf2-sha256$25000$/GX4Z+Y+xG1hXYPHoB/tIA==$yOUOGqCxW+GWZiuJF3TtUcl4NcFLnDBUE1JaU3ywALQ=',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
+    {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',passwordHash:'pbkdf2-sha256$25000$QoPmlUhqBUJsQyl87gzYZQ==$78h+sNr0V4dhwk+v8YXZjyFaxQ2SrsFUgGTqvL8o3LA=',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
+    {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',passwordHash:'pbkdf2-sha256$25000$Y8EBV4zQuRQi2sEDn7tmSw==$8BDpotNeB5ZPtXKtOl9Ip3Dk6G7qCcRVENDU9j7QpHs=',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',labRegion:'littoral',labTown:'Douala',status:'active',createdAt:'2024-02-05'},
+    {id:'pha1',role:'pharmacist',name:'Pharm. Brenda Ngum',email:'pharmacy@hfa.org',passwordHash:'pbkdf2-sha256$25000$2r2nY3amXpk6DPGPcyvNHQ==$mJ4VcMJh5B4wtVdl62M1TfjQyGTnhSZp8c/bPow7nVM=',phone:'+237 677 300 202',pharmacyName:'HFA Community Pharmacy',pharmacyAddress:'Rue Joss, Bonanjo',pharmacyLocation:'Douala, Littoral, Cameroon',pharmacyLicense:'CM-PHA-2021-0107',businessRegistration:'RC/DLA/2021/B/0456',minsanteAuthorization:'MINSANTE/DPML/2021/0219',ownerName:'Brenda Ngum',ownerIdType:'national_id',ownerIdNumber:'CM-CNI-114502387',status:'active',createdAt:'2024-02-12',pharmacyValidatedBy:'adm1',pharmacyValidatedAt:'2024-02-14 10:00'},
+    {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',passwordHash:'pbkdf2-sha256$25000$ammKmwTGr4rEic2N4eQMgA==$DG8h0m2YiExwGWYtsdmtO8KRoTmSXJln38iX6tZ9tyc=',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
+    {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',passwordHash:'pbkdf2-sha256$25000$wj5TR+YnGSV0I2a8pL1Cbw==$pxJQFIcg2xoPTsjBZP3dOn/oGpQ1dewrfyoXmLpjhEg=',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
+    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',passwordHash:'pbkdf2-sha256$25000$38bRMrddSbL4LibIbz7WAQ==$mZQKtt/PaZKdLu318b7lT2YSrwjt28Q0PIa8eEaNQgU=',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',homeVisitFee:12,status:'active',createdAt:'2024-02-20'},
+    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',passwordHash:'pbkdf2-sha256$25000$FlV/kLgo+8ev2tVWhbfm1g==$gGampGkpmISD9Nm35UuCMd+ELML1Jiz5tahlECSfQqY=',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',homeVisitFee:10,status:'active',createdAt:'2024-04-01'},
+    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',passwordHash:'pbkdf2-sha256$25000$MyedosvxH1/EdxCsH/lZ5A==$78hHCLyt3lTiPQSK7pKb00fGeV3oIy1tBPCDkAi6zmo=',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
+    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',passwordHash:'pbkdf2-sha256$25000$592Cog+EQExe8pYTeFZqfg==$UI/xLw5hDlyG+X7ZplMuZRbrA97ji9dOH2nmMO9DPeY=',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.',conditions:[{system:'ICD-10-CM',code:'E11.9',display:'Type 2 diabetes mellitus without complications'}],medications:[{system:'RxNorm',code:'860975',display:'Metformin 500 MG Oral Tablet'}],observations:[{system:'LOINC',code:'2339-0',display:'Glucose [Mass/volume] in Blood',value:'8.4',unit:'mmol/L',effectiveDate:'2025-01-27'}]},
+    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',passwordHash:'pbkdf2-sha256$25000$AHJsdqbXqxMiNzYghzCDlQ==$1US8lIdx+7yQRDDObZFanzk4A5EuhpBSydmC1DauHw0=',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.',conditions:[{system:'ICD-10-CM',code:'I25.10',display:'Atherosclerotic heart disease of native coronary artery without angina pectoris'}],medications:[],observations:[]},
   ],
   appointments: [
     {id:'apt1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',date:'2025-02-04',time:'09:30',type:'consultation',serviceCode:'PC-VIRTUAL',serviceName:'Virtual primary care',encounterClass:'VR',status:'scheduled',notes:'Follow-up blood pressure check',mode:'video'},
@@ -2567,6 +2567,7 @@ async function backendLogin(email, password) {
   ApiState.busy=true;
   try {
     if (ApiState.offline) throw new TypeError('offline');
+    const button=document.querySelector('#fl > .btn.bp'); if (button) { button.dataset.label=button.textContent; button.disabled=true; button.textContent=t('i_signing_in'); }
     const data=await apiRequest('/api/auth/login','POST',{email,password});
     if (data.mfaRequired) { HFASecurity.askCode(data.challenge,email,password); return; } // two-step sign-in
     installBackendSession(data); $('lp').value=''; await HFAOffline.afterOnlineLogin(data.user,password); goApp();
@@ -2575,7 +2576,7 @@ async function backendLogin(email, password) {
     try { await HFAOffline.offlineLogin(email,password); $('lp').value=''; goApp(); }
     catch(offlineError) { $('amsg').textContent=offlineError.message; }
   }
-  finally { ApiState.busy=false; }
+  finally { ApiState.busy=false; const button=document.querySelector('#fl > .btn.bp'); if (button && button.dataset.label) { button.disabled=false; button.textContent=button.dataset.label; delete button.dataset.label; } }
 }
 async function backendRegister(localUser) {
   if (ApiState.busy) return;
@@ -3110,7 +3111,11 @@ function doLogin() {
   if (ApiState.enabled) { backendLogin(!email.includes('@')&&typeof HFAPatientRegistration!=='undefined'?HFAPatientRegistration.normPhone(email):email,pass); return; }
   const phoneId = typeof HFAPatientRegistration!=='undefined' && !email.includes('@') ? HFAPatientRegistration.normPhone(email) : null;
   const candidate = DB.users.find(u => phoneId ? (u.phone && HFAPatientRegistration.normPhone(u.phone)===phoneId) : u.email.toLowerCase()===email);
-  demoPasswordMatches(candidate, pass).then(ok => {
+  const button = document.querySelector('#fl > .btn.bp'), label = button?.textContent;
+  if (button) { if (button.disabled) return; button.disabled = true; button.textContent = t('i_signing_in'); }
+  $('amsg').innerHTML = '';
+  demoPasswordMatches(candidate, pass).catch(() => false).then(ok => {
+    if (button) { button.disabled = false; button.textContent = label; }
     const u = ok ? candidate : null;
     if (!u) { log('LOGIN_FAILED','System','failed'); return amsg(t('invalid_creds')); }
     if (u.status==='suspended') return amsg(t('suspended_msg'));
@@ -3125,14 +3130,67 @@ async function demoPasswordMatches(user, password) {
   if (!user || !password) return false;
   if (user.password !== undefined) return user.password === password; // account created during this visit (memory only)
   const [scheme, iterations, salt, expected] = String(user.passwordHash || '').split('$');
-  if (scheme !== 'pbkdf2-sha256' || !globalThis.crypto?.subtle) return false;
+  if (scheme !== 'pbkdf2-sha256') return false;
   const bytes = value => Uint8Array.from(atob(value), ch => ch.charCodeAt(0));
-  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
-  const derived = new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: bytes(salt), iterations: Number(iterations) }, key, 256));
+  let derived = null;
+  try {
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    derived = new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: bytes(salt), iterations: Number(iterations) }, key, 256));
+  } catch (error) {
+    // Older and "lite" browsers (Opera Mini, UC Browser, old Android) have no Web Crypto.
+    derived = await pbkdf2Sha256Fallback(utf8Bytes(password), bytes(salt), Number(iterations));
+  }
   const target = bytes(expected);
   let difference = derived.length ^ target.length;
   for (let index = 0; index < derived.length; index++) difference |= derived[index] ^ target[index];
   return difference === 0;
+}
+
+const utf8Bytes = text => typeof TextEncoder !== 'undefined' ? new TextEncoder().encode(text) : Uint8Array.from(unescape(encodeURIComponent(text)), ch => ch.charCodeAt(0));
+// SHA-256 compression and PBKDF2-HMAC-SHA256 (32-byte output) for browsers without Web Crypto.
+const SHA256_K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+const SHA256_IV = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+function sha256Block(state, words) {
+  const w = new Uint32Array(64); w.set(words);
+  for (let i = 16; i < 64; i++) {
+    const a = w[i-15], b = w[i-2];
+    w[i] = (((a>>>7|a<<25)^(a>>>18|a<<14)^(a>>>3)) + w[i-7] + ((b>>>17|b<<15)^(b>>>19|b<<13)^(b>>>10)) + w[i-16]) >>> 0;
+  }
+  let [a,b,c,d,e,f,g,h] = state;
+  for (let i = 0; i < 64; i++) {
+    const t1 = (h + ((e>>>6|e<<26)^(e>>>11|e<<21)^(e>>>25|e<<7)) + ((e&f)^(~e&g)) + SHA256_K[i] + w[i]) >>> 0;
+    const t2 = (((a>>>2|a<<30)^(a>>>13|a<<19)^(a>>>22|a<<10)) + ((a&b)^(a&c)^(b&c))) >>> 0;
+    h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+  }
+  return [a,b,c,d,e,f,g,h].map((value, index) => (value + state[index]) >>> 0);
+}
+function sha256(data, state = SHA256_IV, prefixLength = 0) {
+  const length = data.length, total = Math.ceil((length + 9) / 64) * 64, padded = new Uint8Array(total);
+  padded.set(data); padded[length] = 0x80;
+  const bits = (prefixLength + length) * 8;
+  padded[total-4] = bits >>> 24; padded[total-3] = bits >>> 16; padded[total-2] = bits >>> 8; padded[total-1] = bits;
+  for (let offset = 0; offset < total; offset += 64) {
+    const words = new Uint32Array(16);
+    for (let i = 0; i < 16; i++) words[i] = (padded[offset+i*4]<<24 | padded[offset+i*4+1]<<16 | padded[offset+i*4+2]<<8 | padded[offset+i*4+3]) >>> 0;
+    state = sha256Block(state, words);
+  }
+  return state;
+}
+const wordsToBytes = words => Uint8Array.from(words.flatMap(word => [word>>>24, (word>>>16)&255, (word>>>8)&255, word&255]));
+async function pbkdf2Sha256Fallback(password, salt, iterations) {
+  let key = password.length > 64 ? wordsToBytes(sha256(password)) : password;
+  const block = new Uint8Array(64); block.set(key);
+  const inner = sha256Block(SHA256_IV, Array.from({length:16}, (_, i) => ((block[i*4]^0x36)<<24 | (block[i*4+1]^0x36)<<16 | (block[i*4+2]^0x36)<<8 | (block[i*4+3]^0x36)) >>> 0));
+  const outer = sha256Block(SHA256_IV, Array.from({length:16}, (_, i) => ((block[i*4]^0x5c)<<24 | (block[i*4+1]^0x5c)<<16 | (block[i*4+2]^0x5c)<<8 | (block[i*4+3]^0x5c)) >>> 0));
+  const hmac = message => wordsToBytes(sha256(wordsToBytes(sha256(message, inner, 64)), outer, 64));
+  const first = new Uint8Array(salt.length + 4); first.set(salt); first[salt.length + 3] = 1;
+  let u = hmac(first); const result = u.slice();
+  for (let i = 1; i < iterations; i++) {
+    u = hmac(u);
+    for (let j = 0; j < 32; j++) result[j] ^= u[j];
+    if (i % 4000 === 0) await new Promise(resolve => setTimeout(resolve, 0)); // keep the phone responsive
+  }
+  return result;
 }
 
 function normalizeWhatsAppNumber(value) {
