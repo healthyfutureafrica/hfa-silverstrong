@@ -292,7 +292,6 @@ function showPharmacyFulfillment(id) {
 
 NAV.admin[2].items.push({id:'pharmacy',l:()=>t('pharmacy_admin'),i:'clip'});
 const labelPharmacyEntry=()=>{
-  $('lnd-pharmacist').textContent=t('pharmacy_portal');
   $('lnd-pharmacist-title').textContent=t('pharmacy_portal');
   $('lnd-pharmacist-desc').textContent=LANG==='fr'?'Stock, demandes d’achat et logistique de livraison':'Medication stock, purchase requests and delivery logistics';
   $('lnd-pharmacist-access').textContent=t('i_access_portal');

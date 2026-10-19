@@ -41,10 +41,10 @@ describe('index.html sanity checks', () => {
   });
 
   describe('pharmacist portal',()=>{
-    test('includes a static pharmacist tile and navigation entry in the published HTML',()=>{
+    test('includes a static pharmacist tile (the only pharmacist entry on the landing page)',()=>{
       expect(content).toContain('id="lnd-pharmacist-card"');
-      expect(content).toContain('id="lnd-pharmacist"');
-      expect(content).toContain('onclick="showPortalChoice(\'pharmacist\')"');
+      expect(content).not.toContain('id="lnd-pharmacist"');
+      expect(content).toContain('onclick="showPortalChoice(\'pharmacist\');return false;" id="lnd-pharmacist-card"');
       expect(content).toContain('id="lnd-pharmacist-title">Pharmacist Portal</h3>');
     });
     function pharmacyContext() {
