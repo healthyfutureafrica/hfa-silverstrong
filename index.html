@@ -775,6 +775,24 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 .fac-table th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);padding:8px 10px;border-bottom:1px solid var(--bd)}
 .fac-table td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t1);vertical-align:middle}
 .fac-table tr:last-child td{border-bottom:0}
+
+/* ── Super Admin portal access ── */
+.access-banner{position:sticky;top:0;z-index:150;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 20px;background:#FFF4C2;color:#3D2E00;border-bottom:2px solid #FFD100;font-size:.9rem;font-weight:600}
+.access-banner .ab-text{flex:1;min-width:200px}
+.access-banner .ab-ic{font-size:1.2rem}
+.access-banner .ab-return{background:#3D2E00;color:#fff}
+.access-banner .ab-return:hover{background:#1F1700}
+.pa-portals{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.pa-portal{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 12px;border-radius:16px;border:1.5px solid var(--bd);background:var(--sf);color:var(--t1);font:inherit;cursor:pointer;transition:var(--tr);min-height:110px}
+.pa-portal:hover{border-color:var(--em);background:var(--em-p)}
+.pa-portal:focus-visible{outline:3px solid var(--go-l);outline-offset:2px}
+.pa-portal.current{border-color:var(--em);background:var(--em-p)}
+.pa-ic{font-size:1.8rem;line-height:1}
+.pa-list{display:flex;flex-direction:column;margin-top:12px;max-height:440px;overflow-y:auto}
+.pa-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.pa-row:last-child{border-bottom:0}
+.pa-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.pa-who .code-chip{align-self:flex-start}
 /* ════════════ Bright & simple UI (proposal, user feedback Oct 2026) ════════════
    Brighter Cameroon-flag colours, larger text and touch targets, a light sidebar,
    and colourful icon tiles. Text colours keep at least 4.5:1 contrast (WCAG AA). */
@@ -2492,6 +2510,7 @@ function installBackendSession(data, localProfile={}) {
   DB.users.forEach(user=>{delete user.password;});
   if (typeof HFAPatientRegistration!=='undefined') DB.users.forEach(HFAPatientRegistration.applyLegacy);
   CU=DB.users.find(user=>user.id===data.user.id);
+  window.HFA_IMPERSONATED_BY = data.impersonatedBy || null; // set while a Super Admin is signed in as this account
   if (data.notifications) DB.notifications=data.notifications;
   ApiState.authenticated=true;
   window.dispatchEvent(new Event('hfa-session'));
@@ -2906,7 +2925,7 @@ const NAV = {
   admin:[
     {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'admin-control',l:()=>t('control_center'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
     {s:()=>t('user'),items:[{id:'mgr-approvals',l:()=>pendingApprovalsLabel(),i:'shield'},{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'},{id:'facilities',l:()=>t('facilities_nav'),i:'grid'}]},
-    {s:()=>t('administration'),items:[{id:'mgr-a',l:()=>t('administrators'),i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
+    {s:()=>t('administration'),items:[{id:'portal-access',l:()=>t('pa_nav'),i:'shield'},{id:'mgr-a',l:()=>t('administrators'),i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
     {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'fh-analytics',l:()=>t('fh_analytics_nav'),i:'heart'}]},
@@ -3144,6 +3163,7 @@ function finishReg(idInput, idDocumentType, whatsappNumber) {
 }
 
 function doLogout() {
+  if (typeof PortalAccess!=='undefined') PortalAccess.reset();
   if (typeof OfflineUploads!=='undefined') OfflineUploads.lock();
   if (ApiState.enabled) {
     const finish=()=>{ApiState.authenticated=false;log('LOGOUT','System');CU=null;SC=null;HFAOffline.clear();goLand();};
@@ -3165,7 +3185,7 @@ function buildSidebar() {
   $('shfa').textContent = CU.hfaId || '';
   const nav = (NAV[r]||[]).map(sec => ({
     s: sec.s,
-    items: sec.items.filter(item => item.id!=='mgr-a' || isSuperAdmin(CU))
+    items: sec.items.filter(item => !['mgr-a','portal-access'].includes(item.id) || isSuperAdmin(CU))
   })).filter(sec => sec.items.length);
   $('snav').innerHTML = nav.map(sec =>
     `<div class="nl">${typeof sec.s==='function'?sec.s():sec.s}</div>` +
@@ -3201,7 +3221,8 @@ function navigate(page) {
   if ($('app-wrap')?.classList.contains('sb-open')) toggleSidebar(false);
   renderPage(page);
   renderBottomNav();
-  if (typeof HFAOffline!=='undefined') HFAOffline.saveSoon(); // keep offline work if the app is closed
+  // Keep offline work if the app is closed (not while a Super Admin previews or acts for someone else).
+  if (typeof HFAOffline!=='undefined' && !(typeof PortalAccess!=='undefined' && PortalAccess.active())) HFAOffline.saveSoon();
 }
 
 // ═══════════════════════ PAGE ROUTER ═══════════════════════
@@ -3210,6 +3231,8 @@ function renderPage(page) {
   pc.style.padding = '';
   const signOutBtn = `<button type="button" class="btn bd2 bsm" onclick="doLogout()" title="${t('sign_out')}">${IC.x} ${t('sign_out')}</button>`;
   $('tbr').innerHTML = `${typeof HFATheme!=='undefined'?HFATheme.button():''}${signOutBtn}<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
+  if (typeof PortalAccess!=='undefined') PortalAccess.renderBanner();
+  if (page==='portal-access' && isSuperAdmin(CU) && typeof PortalAccess!=='undefined') return PortalAccess.renderPage(pc);
   if (page==='complete-profile' && r==='patient' && typeof HFAPatientRegistration!=='undefined') return HFAPatientRegistration.renderPage(pc);
   if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
   if (page==='facilities' && r==='admin' && typeof HFAFacilities!=='undefined') return HFAFacilities.renderRegister(pc);
@@ -5206,6 +5229,7 @@ window.addEventListener('load',()=>{
 <script src="i18n.js"></script>
 <script src="hfa-ui.js"></script>
 <script src="patient-registration.js"></script>
+<script src="portal-access.js"></script>
 <script src="offline.js"></script>
 </body>
 </html>

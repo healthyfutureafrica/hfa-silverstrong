@@ -83,6 +83,13 @@ class Store {
     if (!columns.includes('hfa_number')) this.db.exec('ALTER TABLE users ADD COLUMN hfa_number TEXT');
     if (!columns.includes('facility_id')) this.db.exec('ALTER TABLE users ADD COLUMN facility_id TEXT REFERENCES facilities(id)');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_hfa_number ON users(hfa_number) WHERE hfa_number IS NOT NULL');
+    // Super Admin "sign in as": the session records who is acting on the account.
+    if (!this.db.prepare('PRAGMA table_info(sessions)').all().some(column => column.name === 'impersonator_id')) this.db.exec('ALTER TABLE sessions ADD COLUMN impersonator_id TEXT');
+    // Permanent server-side audit log for administrator access (portal previews, sign in as).
+    this.db.exec(`CREATE TABLE IF NOT EXISTS audit_log (
+      id TEXT PRIMARY KEY, actor_id TEXT NOT NULL, action TEXT NOT NULL, target_id TEXT, details TEXT NOT NULL DEFAULT '{}',
+      ip TEXT, created_at TEXT NOT NULL
+    )`);
     this.db.exec('CREATE INDEX IF NOT EXISTS users_facility ON users(facility_id)');
     this.backfillNumbers();
   }
@@ -237,10 +244,31 @@ class Store {
         (user.status === 'active' && ['doctor', 'nurse', 'labtech'].includes(user.role)));
   }
 
-  createSession(userId) {
+  createSession(userId, { impersonatorId = null, ttl = SESSION_TTL } = {}) {
     const token = randomBytes(32).toString('hex');
-    this.db.prepare('INSERT INTO sessions VALUES (?,?,?)').run(digest(token), userId, Date.now() + SESSION_TTL);
+    this.db.prepare('INSERT INTO sessions (token_hash,user_id,expires_at,impersonator_id) VALUES (?,?,?,?)').run(digest(token), userId, Date.now() + ttl, impersonatorId);
     return token;
+  }
+
+  /** The signed-in user plus, during "sign in as", the administrator acting on the account. */
+  sessionDetails(token) {
+    if (!token) return null;
+    const row = this.db.prepare('SELECT user_id,impersonator_id FROM sessions WHERE token_hash=? AND expires_at>?').get(digest(token), Date.now());
+    const user = row && this.user(row.user_id);
+    if (user?.status !== 'active') return null;
+    const impersonator = row.impersonator_id ? this.user(row.impersonator_id) : null;
+    if (row.impersonator_id && (impersonator?.role !== 'admin' || impersonator.status !== 'active')) return null;
+    return { user, impersonator };
+  }
+
+  audit(actorId, action, { targetId = null, details = {}, ip = null } = {}) {
+    this.db.prepare('INSERT INTO audit_log VALUES (?,?,?,?,?,?,?)').run(randomUUID(), actorId, action, targetId, JSON.stringify(details), ip, new Date().toISOString());
+  }
+
+  auditLog(limit = 200) {
+    return this.db.prepare(`SELECT a.id, a.action, a.target_id AS targetId, a.details, a.ip, a.created_at AS createdAt, actor.name AS actorName, target.name AS targetName, target.role AS targetRole
+      FROM audit_log a LEFT JOIN users actor ON actor.id=a.actor_id LEFT JOIN users target ON target.id=a.target_id ORDER BY a.created_at DESC LIMIT ?`).all(limit)
+      .map(row => ({ ...row, details: JSON.parse(row.details) }));
   }
 
   session(token) {

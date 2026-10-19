@@ -11,6 +11,7 @@ const { seedDemoAccounts } = require('./demo-accounts');
 const { installAvatarRoutes, saveHealthRecord, withHealth } = require('./records');
 const { healthProfile, recordWithConsentTimes, REGIONS } = require('./patient-profile');
 const { installFacilityRoutes } = require('./facilities');
+const { installAdminAccessRoutes, RETURN_COOKIE } = require('./admin-access');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -109,8 +110,10 @@ function createApp(config, store, provider) {
   });
 
   const authenticated = (request, response, next) => {
-    request.user = store.session(cookieToken(request));
-    if (!request.user) return response.status(401).json({ error: 'Sign in required' });
+    const details = store.sessionDetails(cookieToken(request));
+    if (!details) return response.status(401).json({ error: 'Sign in required' });
+    request.user = details.user;
+    request.impersonator = details.impersonator; // set while a Super Admin is signed in as this account
     next();
   };
   const admin = (request, response, next) => request.user.role === 'admin' ? next() : response.status(403).json({ error: 'Administrator required' });
@@ -118,6 +121,7 @@ function createApp(config, store, provider) {
   installPharmacyRoutes(app,store,authenticated);
   installAvatarRoutes(app,config,store,authenticated);
   installFacilityRoutes(app,store,authenticated,admin);
+  installAdminAccessRoutes(app,config,store,authenticated,admin,{ cookieToken, withHealth });
   // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
@@ -239,9 +243,14 @@ function createApp(config, store, provider) {
     response.json({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
   });
   app.post('/api/auth/logout', (request, response) => {
-    store.logout(cookieToken(request)); response.clearCookie('hfa_session', { path: '/api' }).sendStatus(204);
+    store.logout(cookieToken(request));
+    // Signing out while signed in as someone else also ends the administrator's own session.
+    const returnCookie = (request.headers.cookie || '').split(';').map(value => value.trim()).find(value => value.startsWith(RETURN_COOKIE + '='));
+    if (returnCookie) store.logout(returnCookie.slice(RETURN_COOKIE.length + 1));
+    response.clearCookie(RETURN_COOKIE, { path: '/api' }).clearCookie('hfa_session', { path: '/api' }).sendStatus(204);
   });
-  app.get('/api/session', authenticated, (request, response) => response.json({ user: withHealth(config, store, request.user, [request.user])[0], users: withHealth(config, store, request.user, store.visibleUsers(request.user)), notifications: store.notifications(request.user.id) }));
+  app.get('/api/session', authenticated, (request, response) => response.json({ user: withHealth(config, store, request.user, [request.user])[0], users: withHealth(config, store, request.user, store.visibleUsers(request.user)), notifications: store.notifications(request.user.id),
+    ...(request.impersonator ? { impersonatedBy: { id: request.impersonator.id, name: request.impersonator.name } } : {}) }));
   app.get('/api/notifications', authenticated, (request, response) => response.json({ notifications: store.notifications(request.user.id) }));
   app.post('/api/activities', authenticated, eventLimit, (request, response) => {
     const input = activity.parse(request.body);
