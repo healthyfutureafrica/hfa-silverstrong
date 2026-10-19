@@ -15,7 +15,9 @@ function configuration(env = process.env) {
     urlParameter: env.WHATSAPP_TEMPLATE_LOGIN_URL_PARAMETER === 'true',
     adminEmail: env.BOOTSTRAP_ADMIN_EMAIL || '', adminPassword: env.BOOTSTRAP_ADMIN_PASSWORD || '',
     fileEncryptionKey: env.FILE_ENCRYPTION_KEY || '',
-    demoAccounts: env.DEMO_ACCOUNTS === 'true'
+    demoAccounts: env.DEMO_ACCOUNTS === 'true',
+    // Administrators must use two-step sign-in unless explicitly turned off.
+    requireAdminMfa: env.REQUIRE_ADMIN_MFA !== 'false'
   };
   if (!/^https?:\/\//.test(config.origin) || new URL(config.origin).origin !== config.origin ||
       !/^https?:\/\//.test(config.loginUrl) || !/^v\d+\.\d+$/.test(config.graphVersion) ||

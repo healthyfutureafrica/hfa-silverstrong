@@ -793,6 +793,20 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 .pa-row:last-child{border-bottom:0}
 .pa-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .pa-who .code-chip{align-self:flex-start}
+
+/* ── Account security ── */
+.sb-security{display:flex;align-items:center;gap:8px;width:calc(100% - 20px);margin:0 10px 6px;padding:9px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--sf);color:var(--t2);font:inherit;font-size:.84rem;font-weight:600;cursor:pointer}
+.sb-security:hover{background:var(--em-p);color:var(--em-d)}
+:root[data-theme="dark"] .sb-security{background:transparent;color:#cbd5e1;border-color:rgba(255,255,255,.15)}
+.sec-steps{display:flex;flex-direction:column;gap:14px;padding-left:20px;margin:8px 0 14px}
+.sec-qr{background:#fff;border-radius:12px;padding:10px;width:220px;max-width:100%;margin:10px 0;border:1px solid var(--bd)}
+.sec-qr svg{display:block;width:100%;height:auto}
+.sec-key{font-size:.95rem;letter-spacing:.06em;word-break:break-all}
+.sec-recovery{display:flex;flex-direction:column;gap:10px}
+.sec-codes{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.sec-codes code{display:block;padding:8px 10px;border-radius:8px;background:var(--si-p);border:1px solid var(--bd);font-size:.95rem;text-align:center;letter-spacing:.05em}
+.sec-login-step{display:flex;flex-direction:column;gap:6px}
+.sec-login-step h3{font-size:1.05rem}
 /* ════════════ Bright & simple UI (proposal, user feedback Oct 2026) ════════════
    Brighter Cameroon-flag colours, larger text and touch targets, a light sidebar,
    and colourful icon tiles. Text colours keep at least 4.5:1 contrast (WCAG AA). */
@@ -1135,6 +1149,7 @@ body{font-size:15px}
         <div class="av" id="sav"></div>
         <div><div class="un" id="snm"></div><div class="ue" id="sem"></div><div class="ue" id="shfa" style="font-family:var(--fm)"></div></div>
       </div>
+      <button type="button" class="sb-security" onclick="navigate('security')"><span aria-hidden="true">🔒</span> <span data-i18n="sec_nav">Account security</span></button>
       <div class="sb-lang">
       <button type="button" class="sb-lang-btn" id="slb-pick" onclick="openLangPicker()">Language</button>
       <button type="button" class="sb-lang-btn active" id="slb-en" onclick="setLang('en')">EN</button>
@@ -2536,7 +2551,7 @@ async function initializeBackend() {
     }
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
     // Servers started with DEMO_ACCOUNTS=true hold the same test accounts as the static demo.
-    ApiState.demoAccounts=!!config?.demoAccounts;
+    ApiState.demoAccounts=!!config?.demoAccounts; ApiState.requireAdminMfa=!!config?.requireAdminMfa;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
     if (!ApiState.demoAccounts) $('lnd-demo').classList.add('hid');
@@ -2553,6 +2568,7 @@ async function backendLogin(email, password) {
   try {
     if (ApiState.offline) throw new TypeError('offline');
     const data=await apiRequest('/api/auth/login','POST',{email,password});
+    if (data.mfaRequired) { HFASecurity.askCode(data.challenge,email,password); return; } // two-step sign-in
     installBackendSession(data); $('lp').value=''; await HFAOffline.afterOnlineLogin(data.user,password); goApp();
   } catch(error) {
     if (error.status) { $('amsg').textContent=error.message; return; }
@@ -3057,6 +3073,7 @@ window.matchMedia?.('(min-width:701px)').addEventListener?.('change', event=>{ i
 
 // ═══════════════════════ AUTH ═══════════════════════
 function swtTab(tab) {
+  if (typeof HFASecurity!=='undefined') HFASecurity.resetLogin();
   $('tl').classList.toggle('active', tab==='login');
   $('tr').classList.toggle('active', tab==='register');
   tab==='login' ? (show('fl'), hide('fr')) : (hide('fl'), show('fr'));
@@ -3252,6 +3269,9 @@ function renderPage(page) {
   const signOutBtn = `<button type="button" class="btn bd2 bsm" onclick="doLogout()" title="${t('sign_out')}">${IC.x} ${t('sign_out')}</button>`;
   $('tbr').innerHTML = `${typeof HFATheme!=='undefined'?HFATheme.button():''}${signOutBtn}<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
   if (typeof PortalAccess!=='undefined') PortalAccess.renderBanner();
+  // Administrators must turn on two-step sign-in before using admin tools (the server enforces it too).
+  if (typeof HFASecurity!=='undefined' && HFASecurity.needsMfa() && !['security','privacy','confidentiality'].includes(page)) { page='security'; CP='security'; }
+  if (page==='security' && typeof HFASecurity!=='undefined') return HFASecurity.renderPage(pc);
   if (page==='portal-access' && isSuperAdmin(CU) && typeof PortalAccess!=='undefined') return PortalAccess.renderPage(pc);
   if (page==='complete-profile' && r==='patient' && typeof HFAPatientRegistration!=='undefined') return HFAPatientRegistration.renderPage(pc);
   if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
@@ -5250,6 +5270,7 @@ window.addEventListener('load',()=>{
 <script src="hfa-ui.js"></script>
 <script src="patient-registration.js"></script>
 <script src="portal-access.js"></script>
+<script src="security.js"></script>
 <script src="offline.js"></script>
 </body>
 </html>

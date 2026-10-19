@@ -202,6 +202,7 @@ class Store {
       whatsappNotificationsConsent: !!row.whatsapp_consent, whatsappVerifiedAt: row.whatsapp_verified_at,
       whatsappConsentAt: row.whatsapp_consent_at,
       assignedDoctor: row.assigned_doctor, assignedNurse: row.assigned_nurse,
+      mfaEnabled: !!row.mfa_enabled_at, mfaEnabledAt: row.mfa_enabled_at || null, passwordChangedAt: row.password_changed_at || null,
       createdAt: row.created_at, hfaId: row.hfa_number || `HFA-${row.role.slice(0, 3).toUpperCase()}-${row.id.slice(-8)}`,
       facilityId: row.facility_id || null, ...this.facilityFields(row.facility_id),
       ...(row.role === 'admin' ? { adminRole: 'Super Admin', permissions: ['all'] } : {})

@@ -12,6 +12,7 @@ const { installAvatarRoutes, saveHealthRecord, withHealth } = require('./records
 const { healthProfile, recordWithConsentTimes, REGIONS } = require('./patient-profile');
 const { installFacilityRoutes } = require('./facilities');
 const { installAdminAccessRoutes, RETURN_COOKIE } = require('./admin-access');
+const { installAccountSecurity } = require('./account-security');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -88,7 +89,7 @@ function createApp(config, store, provider) {
   app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
   app.use(helmet());
   app.get('/api/healthz', (request, response) => response.json({ status: 'ok' }));
-  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), demoAccounts: !!config.demoAccounts }));
+  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), demoAccounts: !!config.demoAccounts, requireAdminMfa: !!config.requireAdminMfa }));
   app.get('/api/whatsapp/webhook', (request, response) => {
     if (!config.verifyToken || request.query['hub.mode'] !== 'subscribe' || request.query['hub.verify_token'] !== config.verifyToken || typeof request.query['hub.challenge'] !== 'string') return response.sendStatus(403);
     response.type('text/plain').send(request.query['hub.challenge']);
@@ -116,7 +117,12 @@ function createApp(config, store, provider) {
     request.impersonator = details.impersonator; // set while a Super Admin is signed in as this account
     next();
   };
-  const admin = (request, response, next) => request.user.role === 'admin' ? next() : response.status(403).json({ error: 'Administrator required' });
+  // Administrators need two-step sign-in before admin tools work (REQUIRE_ADMIN_MFA=false turns this off).
+  const admin = (request, response, next) => {
+    if (request.user.role !== 'admin') return response.status(403).json({ error: 'Administrator required' });
+    if (config.requireAdminMfa && !request.user.mfaEnabled) return response.status(403).json({ error: 'Set up two-step sign-in to use admin tools', code: 'mfa_required' });
+    next();
+  };
   installFileRoutes(app,config,store,authenticated);
   installPharmacyRoutes(app,store,authenticated);
   installAvatarRoutes(app,config,store,authenticated);
@@ -128,6 +134,8 @@ function createApp(config, store, provider) {
   const startSession = (response, user) => response.cookie('hfa_session', store.createSession(user.id), {
     httpOnly: true, sameSite: 'strict', secure: config.origin.startsWith('https://'), path: '/api', maxAge: SESSION_TTL
   });
+  const sessionPayload = user => ({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
+  const security = installAccountSecurity(app, config, store, authenticated, { authLimit, startSession, sessionPayload, cookieToken });
   const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee', 'laboratory', 'labRegion', 'labTown', 'hospitalOther'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
   // A patient may only register under a hospital that is on the public list (has active clinicians).
   const listedHospital = id => id ? store.listedHospitals().find(hospital => hospital.id === id) : null;
@@ -239,8 +247,11 @@ function createApp(config, store, provider) {
     if (!credentials || !valid) return response.status(401).json({ error: 'Invalid email or password' });
     const user = store.user(credentials.id);
     if (user.status !== 'active') return response.status(403).json({ error: 'Account is not active; administrator review may be required' });
+    // Two-step sign-in: no session until the code from the authenticator app is checked (POST /api/auth/mfa).
+    const challenge = security.challengeFor(user);
+    if (challenge) return response.json({ mfaRequired: true, challenge });
     startSession(response, user);
-    response.json({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
+    response.json(sessionPayload(user));
   });
   // "Try Demo": signs in to a demo account of the chosen role without any password in the page.
   app.post('/api/auth/demo', authLimit, (request, response) => {
