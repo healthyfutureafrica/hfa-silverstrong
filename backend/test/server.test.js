@@ -213,7 +213,12 @@ test('registration stores the identity document encrypted and sessions last seve
 test('demo accounts are created active only when enabled and match the static demo',async()=>{
   const { DEMO_ACCOUNTS, seedDemoAccounts } = require('../demo-accounts');
   const html=require('node:fs').readFileSync(join(__dirname,'..','..','index.html'),'utf8');
-  for (const account of DEMO_ACCOUNTS) assert.ok(html.includes(`email:'${account.email}',password:'${account.password}'`),account.email+' differs from index.html');
+  for (const account of DEMO_ACCOUNTS) {
+    assert.ok(html.includes(`email:'${account.email}',passwordHash:'pbkdf2-sha256$`),account.email+' is missing from index.html or not hashed');
+    assert.match(account.passwordHash,/^[0-9a-f]{32}:[0-9a-f]{128}$/,account.email+' must keep only a scrypt hash');
+    assert.equal(account.password,undefined);
+  }
+  assert.doesNotMatch(html,/,password:'[^']+'/,'index.html must not contain readable demo passwords');
   const store=new Store();
   const off=createApp({origin:'http://localhost:8080',ready:false},store,{}).listen(0,'127.0.0.1');
   await new Promise(resolve=>off.once('listening',resolve));
@@ -230,12 +235,13 @@ test('demo accounts are created active only when enabled and match the static de
   const base=`http://127.0.0.1:${server.address().port}`;
   try {
     assert.equal((await (await fetch(base+'/api/config')).json()).demoAccounts,true);
-    for (const account of DEMO_ACCOUNTS) {
-      const response=await fetch(base+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,'X-Forwarded-For':account.email},body:JSON.stringify({email:account.email,password:account.password})});
-      assert.equal(response.status,200,account.email);
+    for (const role of [...new Set(DEMO_ACCOUNTS.map(account=>account.role))]) {
+      const response=await fetch(base+'/api/auth/demo',{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin},body:JSON.stringify({role})});
+      assert.equal(response.status,200,role);
       const {user}=await response.json();
-      assert.equal(user.role,account.role);assert.equal(user.status,'active');
+      assert.equal(user.role,role);assert.equal(user.status,'active');
     }
+    assert.equal((await fetch(base+'/api/auth/demo',{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin},body:JSON.stringify({role:'admin'})})).status,400,'never an administrator');
     const patient=store.user(store.credentials('jfon@gmail.com').id);
     assert.equal(store.user(patient.assignedDoctor).email,'kasante@hfa.org');
     assert.ok(store.user(store.credentials('pharmacy@hfa.org').id).pharmacyValidatedAt);

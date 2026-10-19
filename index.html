@@ -2163,17 +2163,17 @@ function updateStaticHTML() {
 // ═══════════════════════ DATA STORE ═══════════════════════
 const DB = {
   users: [
-    {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',password:'Admin@2024',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
-    {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',password:'Admin@123',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
-    {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',password:'Lab@123',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',labRegion:'littoral',labTown:'Douala',status:'active',createdAt:'2024-02-05'},
-    {id:'pha1',role:'pharmacist',name:'Pharm. Brenda Ngum',email:'pharmacy@hfa.org',password:'Pharmacist@123',phone:'+237 677 300 202',pharmacyName:'HFA Community Pharmacy',pharmacyAddress:'Rue Joss, Bonanjo',pharmacyLocation:'Douala, Littoral, Cameroon',pharmacyLicense:'CM-PHA-2021-0107',businessRegistration:'RC/DLA/2021/B/0456',minsanteAuthorization:'MINSANTE/DPML/2021/0219',ownerName:'Brenda Ngum',ownerIdType:'national_id',ownerIdNumber:'CM-CNI-114502387',status:'active',createdAt:'2024-02-12',pharmacyValidatedBy:'adm1',pharmacyValidatedAt:'2024-02-14 10:00'},
-    {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',password:'Doctor@123',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
-    {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',password:'Doctor@123',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
-    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',password:'Nurse@123',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',homeVisitFee:12,status:'active',createdAt:'2024-02-20'},
-    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',password:'Nurse@123',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',homeVisitFee:10,status:'active',createdAt:'2024-04-01'},
-    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',password:'Patient@123',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
-    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',password:'Patient@123',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.',conditions:[{system:'ICD-10-CM',code:'E11.9',display:'Type 2 diabetes mellitus without complications'}],medications:[{system:'RxNorm',code:'860975',display:'Metformin 500 MG Oral Tablet'}],observations:[{system:'LOINC',code:'2339-0',display:'Glucose [Mass/volume] in Blood',value:'8.4',unit:'mmol/L',effectiveDate:'2025-01-27'}]},
-    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',password:'Patient@123',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.',conditions:[{system:'ICD-10-CM',code:'I25.10',display:'Atherosclerotic heart disease of native coronary artery without angina pectoris'}],medications:[],observations:[]},
+    {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',passwordHash:'pbkdf2-sha256$210000$GeQw85iqJSD16rIqmEly/g==$wj7Vfc6F1OXWsGFHbukLhuD1V2J+O0DLtBGX1QigYa0=',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
+    {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',passwordHash:'pbkdf2-sha256$210000$h9GqF/nmqGJfyW6+RQS5jQ==$kp+OrE8AHskXA3t2ga1YTJE0PkWiuJutVe4r+K5U5FE=',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
+    {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',passwordHash:'pbkdf2-sha256$210000$2vH2C2ugbeamc75c/9bLcg==$csvhiYRllpTKlNv4Go+11LP76rYV29Ss3veQYO8BueY=',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',labRegion:'littoral',labTown:'Douala',status:'active',createdAt:'2024-02-05'},
+    {id:'pha1',role:'pharmacist',name:'Pharm. Brenda Ngum',email:'pharmacy@hfa.org',passwordHash:'pbkdf2-sha256$210000$AKMVy/N6yhN6mFO+cyovCg==$BLfQ10V9zfnISA83ES1HjPlSmbNIX6uk8zh/203P5sQ=',phone:'+237 677 300 202',pharmacyName:'HFA Community Pharmacy',pharmacyAddress:'Rue Joss, Bonanjo',pharmacyLocation:'Douala, Littoral, Cameroon',pharmacyLicense:'CM-PHA-2021-0107',businessRegistration:'RC/DLA/2021/B/0456',minsanteAuthorization:'MINSANTE/DPML/2021/0219',ownerName:'Brenda Ngum',ownerIdType:'national_id',ownerIdNumber:'CM-CNI-114502387',status:'active',createdAt:'2024-02-12',pharmacyValidatedBy:'adm1',pharmacyValidatedAt:'2024-02-14 10:00'},
+    {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',passwordHash:'pbkdf2-sha256$210000$rc3jrgph5pYo1rmEgetOyw==$zUULvGT2DWozCW+o5YmyGecQQ14ceqn/rIgzVPI1OEA=',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
+    {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',passwordHash:'pbkdf2-sha256$210000$L5nELDDQ2F0zWpBl0I2CqQ==$8xDQGPXjpkPRzfWmJOGSYLfqc/GTqbRKUmuKida8Ffk=',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
+    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',passwordHash:'pbkdf2-sha256$210000$MYqSjWg2AGa8laODtkhdsw==$vIMHxn3zDQpnjx8hsV5xNU2Ek5t0xLRcFhvdG4K1grQ=',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',homeVisitFee:12,status:'active',createdAt:'2024-02-20'},
+    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',passwordHash:'pbkdf2-sha256$210000$6EA3LFsA8uFGDOuVDH2CVg==$AJ5pSknZgT1SsPgUijpmdIbcSonmW0bTCAdxj2qle+o=',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',homeVisitFee:10,status:'active',createdAt:'2024-04-01'},
+    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',passwordHash:'pbkdf2-sha256$210000$riaYLWb8ScNWFXmtJ0vjlw==$8+COZiswoX1trT5lffZzbUKf8WfcYCx48LikoAsxLa0=',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
+    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',passwordHash:'pbkdf2-sha256$210000$ed9Sv1csIFqu7KG4plkKFg==$V9YBAdpAe5UP9dud2jk+jNQJYVjrePGaswIgBjp7cMk=',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.',conditions:[{system:'ICD-10-CM',code:'E11.9',display:'Type 2 diabetes mellitus without complications'}],medications:[{system:'RxNorm',code:'860975',display:'Metformin 500 MG Oral Tablet'}],observations:[{system:'LOINC',code:'2339-0',display:'Glucose [Mass/volume] in Blood',value:'8.4',unit:'mmol/L',effectiveDate:'2025-01-27'}]},
+    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',passwordHash:'pbkdf2-sha256$210000$uoULjzztWHW7RypvFY1vrA==$LRaNfIA70PAOpfZ9OZsXrKhhFmSL12Oamz693gPoZwE=',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.',conditions:[{system:'ICD-10-CM',code:'I25.10',display:'Atherosclerotic heart disease of native coronary artery without angina pectoris'}],medications:[],observations:[]},
   ],
   appointments: [
     {id:'apt1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',date:'2025-02-04',time:'09:30',type:'consultation',serviceCode:'PC-VIRTUAL',serviceName:'Virtual primary care',encounterClass:'VR',status:'scheduled',notes:'Follow-up blood pressure check',mode:'video'},
@@ -2496,7 +2496,7 @@ const EXERCISE_ESSENTIALS = [
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
-const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false,offline:false,demoLogins:[]};
+const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false,offline:false,demoAccounts:false};
 async function apiRequest(path, method='GET', body, timeout=15000) {
   const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});
   if (response.status===204) return {};
@@ -2536,10 +2536,10 @@ async function initializeBackend() {
     }
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
     // Servers started with DEMO_ACCOUNTS=true hold the same test accounts as the static demo.
-    ApiState.demoLogins=config?.demoAccounts?DB.users.filter(user=>user.status==='active'&&user.role!=='admin').map(({role,email,password})=>({role,email,password})):[];
+    ApiState.demoAccounts=!!config?.demoAccounts;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
-    if (!ApiState.demoLogins.length) $('lnd-demo').classList.add('hid');
+    if (!ApiState.demoAccounts) $('lnd-demo').classList.add('hid');
     updateStaticHTML();
     if (ApiState.offline) return;
     const session=await fetch('/api/session',{credentials:'same-origin'});
@@ -2975,8 +2975,10 @@ function goAuth(tab, role) {
 }
 function startDemo(role='patient') {
   if (ApiState.loading) { ApiState.ready.then(()=>startDemo(role)); return; }
-  const serverDemo=ApiState.enabled&&ApiState.demoLogins?.find(user=>user.role===role);
-  if (serverDemo) { goAuth('login'); backendLogin(serverDemo.email,serverDemo.password); return; }
+  if (ApiState.enabled&&ApiState.demoAccounts) {
+    apiRequest('/api/auth/demo','POST',{role}).then(data=>{installBackendSession(data);goApp();}).catch(error=>{goAuth('login');amsg(error.message);});
+    return;
+  }
   if (ApiState.enabled||ApiState.failed) { goAuth('login'); return; }
   if(!['patient','doctor','nurse','labtech'].includes(role)) return goAuth('login');
   const demo=DB.users.find(user=>user.role===role&&user.status==='active');
@@ -3090,12 +3092,30 @@ function doLogin() {
   const email = $('le').value.trim().toLowerCase(), pass = ApiState.enabled?$('lp').value:$('lp').value.trim();
   if (ApiState.enabled) { backendLogin(!email.includes('@')&&typeof HFAPatientRegistration!=='undefined'?HFAPatientRegistration.normPhone(email):email,pass); return; }
   const phoneId = typeof HFAPatientRegistration!=='undefined' && !email.includes('@') ? HFAPatientRegistration.normPhone(email) : null;
-  const u = DB.users.find(u => (phoneId ? (u.phone && HFAPatientRegistration.normPhone(u.phone)===phoneId) : u.email.toLowerCase()===email) && u.password===pass);
-  if (!u) { log('LOGIN_FAILED','System','failed'); return amsg(t('invalid_creds')); }
-  if (u.status==='suspended') return amsg(t('suspended_msg'));
-  if (u.status==='pending_approval') return amsg(t('pending_review_msg'));
-  if (u.status==='rejected') return amsg(t('rejected_msg'));
-  CU = u; log('LOGIN','System'); goApp();
+  const candidate = DB.users.find(u => phoneId ? (u.phone && HFAPatientRegistration.normPhone(u.phone)===phoneId) : u.email.toLowerCase()===email);
+  demoPasswordMatches(candidate, pass).then(ok => {
+    const u = ok ? candidate : null;
+    if (!u) { log('LOGIN_FAILED','System','failed'); return amsg(t('invalid_creds')); }
+    if (u.status==='suspended') return amsg(t('suspended_msg'));
+    if (u.status==='pending_approval') return amsg(t('pending_review_msg'));
+    if (u.status==='rejected') return amsg(t('rejected_msg'));
+    CU = u; log('LOGIN','System'); goApp();
+  });
+}
+
+// Demo accounts in this file keep only a salted PBKDF2 hash of their password, never the password itself.
+async function demoPasswordMatches(user, password) {
+  if (!user || !password) return false;
+  if (user.password !== undefined) return user.password === password; // account created during this visit (memory only)
+  const [scheme, iterations, salt, expected] = String(user.passwordHash || '').split('$');
+  if (scheme !== 'pbkdf2-sha256' || !globalThis.crypto?.subtle) return false;
+  const bytes = value => Uint8Array.from(atob(value), ch => ch.charCodeAt(0));
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  const derived = new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: bytes(salt), iterations: Number(iterations) }, key, 256));
+  const target = bytes(expected);
+  let difference = derived.length ^ target.length;
+  for (let index = 0; index < derived.length; index++) difference |= derived[index] ^ target[index];
+  return difference === 0;
 }
 
 function normalizeWhatsAppNumber(value) {
@@ -3378,7 +3398,7 @@ function saveDoctorReport(appointmentId) {
 // ═══════════════════════ ADMIN ═══════════════════════
 function renderDemoCredentials() {
   if (ApiState.enabled) return '';
-  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech','pharmacist'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${String(tv(user.role)).toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('temp_test_pw')} ${user.password}</span></div></div>`).join('')}</div></div>`;
+  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech','pharmacist'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${String(tv(user.role)).toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('i_pw_encrypted')}</span></div></div>`).join('')}</div></div>`;
 }
 
 function renderAdminDash(pc) {

@@ -5,7 +5,7 @@
 // Loaded after index.html's main script; tv() in index.html reads VALUE_FR.
 (function () {
   Object.assign(T.en, {
-    month: 'month', at: 'at', free: 'Free',
+    month: 'month', at: 'at', free: 'Free', i_pw_encrypted: 'Password stored encrypted — ask the platform administrator.',
     home_hello_sub: 'What would you like to do today?',
     tile_book: 'Book a doctor', tile_book_sub: 'Video, voice or chat', tile_apts: 'My appointments', tile_apts_sub: '{n} coming up',
     tile_messages: 'Messages', tile_messages_sub: 'Talk to your care team', tile_records: 'My health records', tile_records_sub: 'Results and documents',
@@ -45,7 +45,7 @@
     i_triage_received: 'Your triage request has been received. A care team member will review it.'
   });
   Object.assign(T.fr, {
-    month: 'mois', at: 'à', free: 'Gratuit',
+    month: 'mois', at: 'à', free: 'Gratuit', i_pw_encrypted: 'Mot de passe stocké chiffré — demandez-le à l’administrateur de la plateforme.',
     home_hello_sub: 'Que souhaitez-vous faire aujourd’hui ?',
     tile_book: 'Voir un médecin', tile_book_sub: 'Vidéo, appel ou discussion', tile_apts: 'Mes rendez-vous', tile_apts_sub: '{n} à venir',
     tile_messages: 'Messages', tile_messages_sub: 'Écrire à votre équipe soignante', tile_records: 'Mon dossier de santé', tile_records_sub: 'Résultats et documents',

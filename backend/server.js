@@ -7,7 +7,7 @@ const { configuration, validSignature, MetaProvider } = require('./provider');
 const { randomUUID } = require('node:crypto');
 const { installFileRoutes, filesConfigured, fileMime, saveEncryptedFile, decodeFile } = require('./files');
 const { installPharmacyRoutes } = require('./pharmacy');
-const { seedDemoAccounts } = require('./demo-accounts');
+const { seedDemoAccounts, DEMO_ACCOUNTS } = require('./demo-accounts');
 const { installAvatarRoutes, saveHealthRecord, withHealth } = require('./records');
 const { healthProfile, recordWithConsentTimes, REGIONS } = require('./patient-profile');
 const { installFacilityRoutes } = require('./facilities');
@@ -239,6 +239,17 @@ function createApp(config, store, provider) {
     if (!credentials || !valid) return response.status(401).json({ error: 'Invalid email or password' });
     const user = store.user(credentials.id);
     if (user.status !== 'active') return response.status(403).json({ error: 'Account is not active; administrator review may be required' });
+    startSession(response, user);
+    response.json({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
+  });
+  // "Try Demo": signs in to a demo account of the chosen role without any password in the page.
+  app.post('/api/auth/demo', authLimit, (request, response) => {
+    if (!config.demoAccounts) return response.sendStatus(404);
+    const { role } = z.object({ role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']) }).strict().parse(request.body);
+    const account = DEMO_ACCOUNTS.find(entry => entry.role === role);
+    const credentials = account && store.credentials(account.email);
+    const user = credentials && store.user(credentials.id);
+    if (!user || user.status !== 'active') return response.status(404).json({ error: 'Demo account not available' });
     startSession(response, user);
     response.json({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
   });
