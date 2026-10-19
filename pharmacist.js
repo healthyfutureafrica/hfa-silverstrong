@@ -295,7 +295,7 @@ const labelPharmacyEntry=()=>{
   $('lnd-pharmacist').textContent=t('pharmacy_portal');
   $('lnd-pharmacist-title').textContent=t('pharmacy_portal');
   $('lnd-pharmacist-desc').textContent=LANG==='fr'?'Stock, demandes d’achat et logistique de livraison':'Medication stock, purchase requests and delivery logistics';
-  $('lnd-pharmacist-access').textContent=LANG==='fr'?'Accéder au portail':'Access Portal';
+  $('lnd-pharmacist-access').textContent=t('i_access_portal');
 };
 labelPharmacyEntry();
 pharmacyRegistrationFields();

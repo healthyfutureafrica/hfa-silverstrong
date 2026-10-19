@@ -1123,7 +1123,9 @@ describe('index.html sanity checks', () => {
 
   test('uses the HFA logo asset across the app', () => {
     expect(fs.existsSync(path.join(__dirname, '..', 'assets', 'hfa-logo.svg'))).toBe(true);
-    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(5);
+    // The HFA logo is for HFA's own branding only; portals use their own icons.
+    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(4);
+    expect(content).not.toMatch(/id="lnd-pharmacist-card"[^]*?hfa-logo\.svg[^]*?id="lnd-pharmacist-title"/);
     expect(content).toContain('alt="HFA SilverStrong logo"');
   });
 
