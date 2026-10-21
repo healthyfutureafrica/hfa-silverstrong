@@ -1,0 +1,7 @@
+# HTTPS for the HFA app. Caddy obtains and renews the certificate automatically.
+{$APP_DOMAIN} {
+	encode zstd gzip
+	# The app's own nginx already sends HSTS, the content security policy and the other security headers.
+	header -Server
+	reverse_proxy web:8080
+}

@@ -1,6 +1,16 @@
 # hfa-silverstrong
 A three-in-one application that covers 1. healthcare, 2. fitness & health tips and 3. pharmacy or health products expo sections and sales. An App that brings doctors/nurses and patients on one platform facilitating consultations and exchanges between both sides both through text and video and a secure data management of all interactions.
 
+## Production deployment
+
+**To put the real system online (app + server + encrypted database with automatic HTTPS), follow [DEPLOY.md](DEPLOY.md).**
+It uses `deploy/docker-compose.prod.yml` (Caddy + Let's Encrypt), `deploy/production.env.example`,
+`deploy/setup-ubuntu.sh` and daily backups with `deploy/backup.sh`. Production forces demo accounts off and
+two-step sign-in for administrators.
+
+The public website `www.healthyfutureafrica.org` is the no-server demo on Cloudflare (`wrangler.jsonc`), with an
+edge script (`worker/index.js`) that forces HTTPS and adds security headers.
+
 ## Environment notes
 
 - CI runs on GitHub-hosted Ubuntu runners and validates HTML linting, Jest tests, Node backend security/provider tests, Docker image build, and a frontend container smoke test.

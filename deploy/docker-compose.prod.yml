@@ -1,0 +1,31 @@
+# Production overlay: adds automatic HTTPS (Caddy + Let's Encrypt) in front of the app.
+# Use together with the base file:
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d --build
+# Settings come from .env (see deploy/production.env.example).
+services:
+  caddy:
+    image: caddy:2.8.4-alpine
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    ports:
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
+      - '${HTTPS_PORT:-443}:443/udp'
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Set APP_DOMAIN in .env, e.g. app.healthyfutureafrica.org}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+  backend:
+    environment:
+      # Production defaults that cannot be weakened by accident from .env.
+      DEMO_ACCOUNTS: 'false'
+      REQUIRE_ADMIN_MFA: 'true'
+
+volumes:
+  caddy-data:
+  caddy-config:

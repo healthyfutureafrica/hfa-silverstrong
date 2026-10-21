@@ -27,3 +27,6 @@ backend/data/
 # Static demo build output and Cloudflare Wrangler state
 dist/
 .wrangler/
+
+# Production database backups (deploy/backup.sh)
+backups/
