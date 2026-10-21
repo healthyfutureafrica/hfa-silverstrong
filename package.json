@@ -9,8 +9,9 @@
   "scripts": {
     "test": "jest --runInBand",
     "lint": "html-validate index.html",
-    "ci": "npm run lint && npm test && npm run test:backend",
+    "ci": "npm run lint && npm test && npm run test:backend && npm run test:worker",
     "test:backend": "node --test backend/test/*.test.js",
+    "test:worker": "node --test worker/worker.test.mjs",
     "backend": "node --env-file-if-exists=.env backend/server.js",
     "docker:build": "docker build -t hfa-silverstrong:latest .",
     "build:static": "node scripts/build-static.js"

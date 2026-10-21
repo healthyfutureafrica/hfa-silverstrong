@@ -3,11 +3,14 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hfa-silverstrong",
+  // Edge script: redirects http:// and workers.dev to https://www.healthyfutureafrica.org and adds security headers.
+  "main": "worker/index.js",
   "compatibility_date": "2026-10-06",
   "observability": {
     "enabled": true
   },
-  // Keep the workers.dev address on: listing custom domains would otherwise switch it off.
+  // Keep the workers.dev address on (listing custom domains would otherwise switch it off);
+  // the edge script redirects it to the main domain so old links still work.
   "workers_dev": true,
   // Served on the organisation's domain (DNS managed in the same Cloudflare account).
   "routes": [
@@ -19,6 +22,9 @@
   },
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
+    // The edge script runs first so it can redirect and add headers to every response.
+    "run_worker_first": true,
     "not_found_handling": "none"
   }
 }
