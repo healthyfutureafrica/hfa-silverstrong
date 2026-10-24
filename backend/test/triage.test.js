@@ -64,10 +64,10 @@ test('patient symptom check reaches their clinicians, emergencies alert them, an
   const store = new Store();
   // Stand-in for Claude: reads a danger sign the patient did not tick and drafts a summary.
   const calls = [];
-  const anthropicClient = { beta: { messages: { parse: async params => {
+  const anthropicClient = { messages: { parse: async params => {
     calls.push(params);
     return { stop_reason: 'end_turn', model: 'claude-opus-5-5', parsed_output: { complaints: ['fever'], dangerSigns: ['stiff_neck', 'not_a_code'], duration: 'days_1_2', severity: 'severe', clinicianSummary: 'Fever for two days with a stiff neck.', language: 'en' } };
-  } } } };
+  } } };
   const app = await startServer(store, { ...baseConfig, aiTriageEnabled: true, anthropicClient });
   try {
     const doctor = store.createUser({ name: 'Dr Synthetic Triage', email: 'triage-doc@example.invalid', role: 'doctor', profile: { hospital: 'Synthetic Triage Hospital' } }, await hashPassword('Synthetic-doctor-pass'), 'active');
@@ -95,11 +95,15 @@ test('patient symptom check reaches their clinicians, emergencies alert them, an
     assert.equal(created.aiUsed, true);
     assert.ok(created.case.reasons.some(reason => reason.rule === 'sign_stiff_neck'));
     assert.doesNotMatch(JSON.stringify(calls[0].messages), /Ndi|677/, 'name and phone are removed before the AI call');
-    assert.equal(calls[0].model, 'claude-opus-5-5');
-    assert.equal(calls[0].fallbacks, 'default');
+    assert.equal(calls[0].model, 'claude-haiku-5-5');
+    assert.equal(calls[0].output_config.effort, 'low');
+    // Answers that are already an emergency never pay for an AI call.
+    const before = calls.length;
+    await app.request('/api/v1/triage', { requestId: uuid(), answers: { ageGroup: 'adult', dangerSigns: ['convulsions'] }, text: 'He is shaking', aiConsent: true }, patientCookie);
+    assert.equal(calls.length, before);
     // Retrying the same request does not create a second case.
     assert.equal((await (await app.request('/api/v1/triage', body, patientCookie)).json()).message, 'Already received');
-    assert.equal((await (await app.request('/api/v1/triage/mine', undefined, patientCookie)).json()).data.cases.length, 2);
+    assert.equal((await (await app.request('/api/v1/triage/mine', undefined, patientCookie)).json()).data.cases.length, 3);
     assert.equal((await app.request('/api/v1/triage', body, doctorCookie)).status, 403, 'only patients submit');
 
     // The clinician at the patient's hospital is alerted and sees the full case; a doctor elsewhere sees nothing.
@@ -112,7 +116,7 @@ test('patient symptom check reaches their clinicians, emergencies alert them, an
     assert.equal((await app.request(`/api/v1/triage/${queue[0].id}/review`, { decision: 'confirm', finalLevel: 'emergency' }, otherCookie)).status, 404);
 
     // Lowering a level needs a reason; the decision is recorded once and the patient is told.
-    const emergency = queue[0], urgent = queue[1];
+    const emergency = queue[0], urgent = queue.find(item => item.level === 'urgent');
     assert.equal((await app.request(`/api/v1/triage/${emergency.id}/review`, { decision: 'change', finalLevel: 'urgent' }, doctorCookie)).status, 400);
     const confirmed = await app.request(`/api/v1/triage/${emergency.id}/review`, { decision: 'confirm', finalLevel: 'emergency', note: 'Please go to the emergency department now.' }, doctorCookie);
     assert.equal(confirmed.status, 200);
@@ -141,7 +145,7 @@ test('patient symptom check reaches their clinicians, emergencies alert them, an
 
 test('triage still works with the rules alone when the AI fails or refuses', async () => {
   const store = new Store();
-  const anthropicClient = { beta: { messages: { parse: async () => { throw Object.assign(new Error('overloaded'), { status: 529 }); } } } };
+  const anthropicClient = { messages: { parse: async () => { throw Object.assign(new Error('overloaded'), { status: 529 }); } } };
   const app = await startServer(store, { ...baseConfig, aiTriageEnabled: true, anthropicClient });
   try {
     const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Abe', password: 'Synthetic-password-123', role: 'patient', phone: '+237677555333' });

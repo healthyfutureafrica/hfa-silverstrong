@@ -118,6 +118,9 @@ class MetaProvider {
             this.store.db.prepare('UPDATE users SET whatsapp_verified_at=? WHERE id=?').run(new Date().toISOString(), patient.id);
             this.store.db.prepare('DELETE FROM verifications WHERE patient_id=?').run(patient.id);
           }
+        } else if (this.onText) {
+          // Everything else is a conversation with SLY Triage (handled after the webhook is acknowledged).
+          Promise.resolve().then(() => this.onText(phone, message.type === 'text' ? text : '')).catch(() => {});
         }
       }
       for (const status of value.statuses || []) {

@@ -64,12 +64,21 @@ how long and how bad. An emergency sign ends the questions at once.
   the symptoms, and are warned when no clinician can see a patient. Views and decisions appear in the patient's
   "Who has opened my record".
 - **AI help (optional, off by default).** With `AI_TRIAGE_ENABLED=true` and `ANTHROPIC_API_KEY`, and only when
-  the patient ticks consent for that check, the server sends Claude (`claude-opus-5-5`, structured output,
-  server-side fallback on refusal) the patient's words with names, phone numbers, emails and ID numbers removed,
+  the patient ticks consent for that check, the server sends Claude (`claude-haiku-5-5`, the lowest-cost
+  current model, at low effort, with structured output) the patient's words with names, phone numbers, emails and ID numbers removed,
   plus age group, sex, pregnancy status and condition codes. Claude returns problems and danger signs it reads
   (which can only raise the level) and a draft summary, shown to clinicians as "AI draft". If the AI fails or
-  declines, the rules alone complete the check. Enable it only after the data-protection authority approves the
+  declines, the rules alone complete the check. The AI is skipped when the answers are already an emergency.
+  Rough cost: about USD 0.0005 per check (under USD 1 per 1,000 checks). Enable it only after the data-protection authority approves the
   transfer abroad (Law No. 2024/017, Art. 32).
+- **WhatsApp, at no extra cost.** People who write to the HFA WhatsApp number get the same questions with
+  numbered answers, handled by this server (`backend/whatsapp-triage.js`, through the existing webhook), not a
+  separate bot service. Only free-form replies inside WhatsApp's free 24-hour customer-service window are sent,
+  never paid templates; no AI is used; replies are capped at 60 per number per day. A patient whose WhatsApp
+  number is verified on their account gets a case in their care team's queue; anyone else gets the advice and an
+  invitation to register, and nothing about them is kept. Conversation state is encrypted and forgotten after 2
+  hours. Needs `WHATSAPP_ENABLED=true`, `META_ACCESS_TOKEN` and `META_PHONE_NUMBER_ID`. The older standalone
+  `hfa-whatsapp-bot/` scaffold (PostgreSQL, Redis, OpenAI) is not needed for this.
 - API: `POST /api/v1/triage` (patient, idempotent `requestId`), `GET /api/v1/triage/mine`,
   `GET /api/v1/triage/queue`, `POST /api/v1/triage/:id/review`. Case contents are AES-256-GCM encrypted with
   `FILE_ENCRYPTION_KEY`.

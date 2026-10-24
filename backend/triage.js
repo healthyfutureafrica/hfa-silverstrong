@@ -49,6 +49,41 @@ function reviewers(store, patient) {
 }
 const canReview = (store, actor, patient) => ['doctor', 'nurse'].includes(actor.role) && reviewers(store, patient).includes(actor.id);
 
+/**
+ * Runs the rules (and, with consent, the AI) and stores one encrypted case for the patient. Used by the app
+ * and by WhatsApp. Idempotent on requestId. Returns { row, aiUsed, prior }.
+ */
+async function submitCase(config, store, patient, input, { ip = null, source = 'app' } = {}) {
+  ensureTriageTable(store);
+  const key = `${patient.id}:${input.requestId}`;
+  const prior = store.db.prepare('SELECT * FROM triage_cases WHERE request_key=?').get(key);
+  if (prior) return { row: prior, aiUsed: !!prior.ai_used, prior: true };
+  const health = healthRecord(config, store, patient.id);
+  const answers = { ...input.answers, conditions: health?.medical?.conditions || [] };
+  // AI costs money per call: skip it when the answers alone already make this an emergency (it can only raise the level).
+  const useAi = input.aiConsent && aiConfigured(config) && !!input.text && Triage.assess(answers).level !== 'emergency';
+  const ai = useAi ? await readSymptoms(config, { text: input.text, answers, user: patient }) : { error: input.aiConsent ? 'not_available' : 'not_used' };
+  const result = Triage.assess(Triage.merge(answers, ai.findings));
+  const payload = {
+    answers: result.answers, text: input.text || '', reasons: result.reasons, checkedNegative: result.checkedNegative, rulesVersion: result.rulesVersion,
+    rulesSummary: Triage.clinicianSummary(result, { text: input.text, health }), aiConsent: !!input.aiConsent, source,
+    ...(ai.findings ? { findings: { complaints: ai.findings.complaints, dangerSigns: ai.findings.dangerSigns, language: ai.findings.language }, aiSummary: ai.findings.clinicianSummary, aiModel: ai.model } : { aiError: ai.error })
+  };
+  const id = randomUUID(), now = new Date().toISOString(), sealed = seal(config, `triage-case:${id}`, Buffer.from(JSON.stringify(payload)));
+  store.db.exec('BEGIN IMMEDIATE');
+  try {
+    store.db.prepare('INSERT INTO triage_cases (id,patient_id,request_key,level,status,ai_used,nonce,encrypted,tag,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)')
+      .run(id, patient.id, key, result.level, 'awaiting_review', ai.findings ? 1 : 0, sealed.nonce, sealed.encrypted, sealed.tag, now);
+    if (input.aiConsent) store.db.prepare('INSERT INTO consent_events VALUES (?,?,?,?,?,?,?)').run(randomUUID(), patient.id, 'ai_triage', 1, Triage.RULES_VERSION, 'triage', now);
+    store.audit(patient.id, 'TRIAGE_SUBMITTED', { targetId: patient.id, details: { caseId: id, level: result.level, ai: !!ai.findings, source }, ip });
+    // Emergencies alert the patient's clinicians at once (in the app; the patient is told to call for help).
+    if (result.level === 'emergency') for (const clinicianId of reviewers(store, patient))
+      store.db.prepare('INSERT INTO notifications VALUES (?,?,?,?,?)').run(randomUUID(), clinicianId, CLINICIAN_ALERT, 'Urgent Care', now);
+    store.db.exec('COMMIT');
+  } catch (error) { store.db.exec('ROLLBACK'); throw error; }
+  return { row: store.db.prepare('SELECT * FROM triage_cases WHERE id=?').get(id), aiUsed: !!ai.findings, prior: false, result };
+}
+
 function installTriageRoutes(app, config, store, authenticated) {
   ensureTriageTable(store);
   const context = id => `triage-case:${id}`;
@@ -74,34 +109,9 @@ function installTriageRoutes(app, config, store, authenticated) {
 
   app.post('/api/v1/triage', authenticated, storage, async (request, response) => {
     if (request.user.role !== 'patient' || request.impersonator) return response.status(403).json({ error: 'Only the patient can submit a symptom check' });
-    const input = submission.parse(request.body);
-    const key = `${request.user.id}:${input.requestId}`;
-    const prior = store.db.prepare('SELECT * FROM triage_cases WHERE request_key=?').get(key);
-    if (prior) return response.json(envelope({ case: patientView(prior) }, 'Already received'));
-
-    const health = healthRecord(config, store, request.user.id);
-    const answers = { ...input.answers, conditions: health?.medical?.conditions || [] };
-    const useAi = input.aiConsent && aiConfigured(config) && !!input.text;
-    const ai = useAi ? await readSymptoms(config, { text: input.text, answers, user: request.user }) : { error: input.aiConsent ? 'not_available' : 'not_used' };
-    const result = Triage.assess(Triage.merge(answers, ai.findings));
-    const payload = {
-      answers: result.answers, text: input.text, reasons: result.reasons, checkedNegative: result.checkedNegative, rulesVersion: result.rulesVersion,
-      rulesSummary: Triage.clinicianSummary(result, { text: input.text, health }), aiConsent: input.aiConsent,
-      ...(ai.findings ? { findings: { complaints: ai.findings.complaints, dangerSigns: ai.findings.dangerSigns, language: ai.findings.language }, aiSummary: ai.findings.clinicianSummary, aiModel: ai.model } : { aiError: ai.error })
-    };
-    const id = randomUUID(), now = new Date().toISOString(), sealed = seal(config, context(id), Buffer.from(JSON.stringify(payload)));
-    store.db.exec('BEGIN IMMEDIATE');
-    try {
-      store.db.prepare('INSERT INTO triage_cases (id,patient_id,request_key,level,status,ai_used,nonce,encrypted,tag,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)')
-        .run(id, request.user.id, key, result.level, 'awaiting_review', ai.findings ? 1 : 0, sealed.nonce, sealed.encrypted, sealed.tag, now);
-      if (input.aiConsent) store.db.prepare('INSERT INTO consent_events VALUES (?,?,?,?,?,?,?)').run(randomUUID(), request.user.id, 'ai_triage', 1, Triage.RULES_VERSION, 'triage', now);
-      store.audit(request.user.id, 'TRIAGE_SUBMITTED', { targetId: request.user.id, details: { caseId: id, level: result.level, ai: !!ai.findings }, ip: request.ip });
-      // Emergencies alert the patient's clinicians at once (in the app; the patient is told to call for help).
-      if (result.level === 'emergency') for (const clinicianId of reviewers(store, request.user))
-        store.db.prepare('INSERT INTO notifications VALUES (?,?,?,?,?)').run(randomUUID(), clinicianId, CLINICIAN_ALERT, 'Urgent Care', now);
-      store.db.exec('COMMIT');
-    } catch (error) { store.db.exec('ROLLBACK'); throw error; }
-    response.status(201).json(envelope({ case: patientView(store.db.prepare('SELECT * FROM triage_cases WHERE id=?').get(id)), aiUsed: !!ai.findings }, 'Received'));
+    const saved = await submitCase(config, store, request.user, submission.parse(request.body), { ip: request.ip, source: 'app' });
+    if (saved.prior) return response.json(envelope({ case: patientView(saved.row) }, 'Already received'));
+    response.status(201).json(envelope({ case: patientView(saved.row), aiUsed: saved.aiUsed }, 'Received'));
   });
 
   app.get('/api/v1/triage/mine', authenticated, storage, (request, response) => {
@@ -152,4 +162,4 @@ function installTriageRoutes(app, config, store, authenticated) {
   });
 }
 
-module.exports = { installTriageRoutes, reviewers, canReview };
+module.exports = { installTriageRoutes, ensureTriageTable, submitCase, reviewers, canReview };

@@ -10,7 +10,8 @@ const { join } = require('node:path');
 const { z } = require('zod');
 const Triage = require(join(__dirname, '..', 'hfa-triage.js'));
 
-const MODEL = 'claude-opus-5-5';
+// The lowest-cost current model: reading a short message into fixed codes does not need a larger one.
+const MODEL = 'claude-haiku-5-5';
 const TIMEOUT_MS = 20000;
 
 // Lenient strings: the rule engine keeps only the codes it knows, so an unexpected value is simply dropped.
@@ -69,7 +70,7 @@ function client(config) {
  */
 async function readSymptoms(config, { text, answers, user }) {
   if (!aiConfigured(config) || !String(text || '').trim()) return { error: 'not_used' };
-  const { betaZodOutputFormat } = require('@anthropic-ai/sdk/helpers/beta/zod');
+  const { zodOutputFormat } = require('@anthropic-ai/sdk/helpers/zod');
   const context = [
     `Age group: ${answers.ageGroup}`, answers.sex ? `Sex: ${answers.sex}` : null,
     answers.maternal && answers.maternal !== 'no' ? `Pregnancy: ${answers.maternal}` : null,
@@ -77,12 +78,11 @@ async function readSymptoms(config, { text, answers, user }) {
     answers.complaints?.length ? `Problems the patient ticked: ${answers.complaints.join(', ')}` : null
   ].filter(Boolean).join('\n');
   try {
-    const response = await client(config).beta.messages.parse({
+    // Haiku has no server-side refusal fallback: a refusal simply leaves the rules to finish the check.
+    const response = await client(config).messages.parse({
       model: MODEL,
       max_tokens: 4000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: { effort: 'low', format: betaZodOutputFormat(Findings) },
+      output_config: { effort: 'low', format: zodOutputFormat(Findings) },
       system: SYSTEM,
       messages: [{ role: 'user', content: `${context}\n\n<patient_words>\n${deidentify(text, user)}\n</patient_words>` }]
     }, { timeout: TIMEOUT_MS });

@@ -16,6 +16,7 @@ const { installAccountSecurity } = require('./account-security');
 const { installPrivacyRoutes } = require('./privacy');
 const { installTriageRoutes } = require('./triage');
 const { aiConfigured } = require('./triage-ai');
+const { WhatsAppTriage } = require('./whatsapp-triage');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -360,6 +361,10 @@ async function start() {
   await bootstrap(config, store);
   if (config.demoAccounts) await seedDemoAccounts(store);
   const provider = new MetaProvider(config, store);
+  // SLY Triage answers people who write to the HFA WhatsApp number (free replies; no separate bot service).
+  const whatsappTriage = new WhatsAppTriage(config, store);
+  provider.onText = (phone, text) => whatsappTriage.handle(phone, text);
+  setInterval(() => whatsappTriage.sweep(), 10 * 60000).unref();
   const server = createApp(config, store, provider).listen(config.port, '0.0.0.0', () => {
     console.log(`HFA backend listening on port ${config.port}; WhatsApp delivery ${config.ready ? 'configured' : 'disabled'}${config.demoAccounts ? '; demo accounts enabled' : ''}`);
   });
