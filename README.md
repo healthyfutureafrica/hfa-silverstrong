@@ -42,6 +42,38 @@ Escape to close dialogs and reduced motion (WCAG 2.2 AA). The Compliance Centre 
 These features do not replace legal review: data-protection authorisation, the DPO appointment, hosting location
 (Art. 32 transfers abroad) and an independent penetration test are still required before real patients.
 
+## SLY Triage (symptom check and clinician handover)
+
+Patients open **Check my symptoms** (sidebar, or the Urgent Help tile). Four short steps: who is unwell and
+their age group (and pregnancy), the problems (plus optional own words), the danger signs for that person, and
+how long and how bad. An emergency sign ends the questions at once.
+
+- **The rules decide, not the AI.** `hfa-triage.js` (shared by the site, the server and later the WhatsApp bot)
+  applies WHO IMCI general danger signs and young-infant signs, WHO danger signs in pregnancy, adult red flags,
+  same-day malaria testing for fever, and TB screening for a cough of 2 weeks or more. Levels: emergency, urgent
+  (today), routine, self-care (only for healthy, non-pregnant adults with a mild, recent, low-risk problem).
+  Every case stores `RULES_VERSION`. **A clinician must review these rules before real patients use them.**
+- The result appears on the device immediately (works offline and in the static demo), with a call button for
+  the emergency number (`EMERGENCY_NUMBER` in `hfa-triage.js`, currently the WhatsApp assistant's `1515`;
+  confirm the national numbers with MINSANTE before launch).
+- **Clinician handover.** Cases go to the **Triage queue** of doctors and nurses assigned to the patient or
+  working at the hospital the patient is registered under, most urgent first, with a plain summary (answers,
+  danger signs asked and answered "no", allergies, conditions and medicines from the health profile). Emergencies
+  notify those clinicians immediately. A clinician confirms the level or changes it (lowering it needs a written
+  reason); the patient sees the decision and the clinician's message. Administrators see the queue's status, never
+  the symptoms, and are warned when no clinician can see a patient. Views and decisions appear in the patient's
+  "Who has opened my record".
+- **AI help (optional, off by default).** With `AI_TRIAGE_ENABLED=true` and `ANTHROPIC_API_KEY`, and only when
+  the patient ticks consent for that check, the server sends Claude (`claude-opus-5-5`, structured output,
+  server-side fallback on refusal) the patient's words with names, phone numbers, emails and ID numbers removed,
+  plus age group, sex, pregnancy status and condition codes. Claude returns problems and danger signs it reads
+  (which can only raise the level) and a draft summary, shown to clinicians as "AI draft". If the AI fails or
+  declines, the rules alone complete the check. Enable it only after the data-protection authority approves the
+  transfer abroad (Law No. 2024/017, Art. 32).
+- API: `POST /api/v1/triage` (patient, idempotent `requestId`), `GET /api/v1/triage/mine`,
+  `GET /api/v1/triage/queue`, `POST /api/v1/triage/:id/review`. Case contents are AES-256-GCM encrypted with
+  `FILE_ENCRYPTION_KEY`.
+
 ## Environment notes
 
 - CI runs on GitHub-hosted Ubuntu runners and validates HTML linting, Jest tests, Node backend security/provider tests, Docker image build, and a frontend container smoke test.

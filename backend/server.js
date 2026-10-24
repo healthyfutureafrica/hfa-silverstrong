@@ -14,6 +14,8 @@ const { installFacilityRoutes } = require('./facilities');
 const { installAdminAccessRoutes, RETURN_COOKIE } = require('./admin-access');
 const { installAccountSecurity } = require('./account-security');
 const { installPrivacyRoutes } = require('./privacy');
+const { installTriageRoutes } = require('./triage');
+const { aiConfigured } = require('./triage-ai');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -90,7 +92,7 @@ function createApp(config, store, provider) {
   app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
   app.use(helmet());
   app.get('/api/healthz', (request, response) => response.json({ status: 'ok' }));
-  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), demoAccounts: !!config.demoAccounts, requireAdminMfa: !!config.requireAdminMfa }));
+  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), demoAccounts: !!config.demoAccounts, requireAdminMfa: !!config.requireAdminMfa, aiTriage: aiConfigured(config) }));
   app.get('/api/whatsapp/webhook', (request, response) => {
     if (!config.verifyToken || request.query['hub.mode'] !== 'subscribe' || request.query['hub.verify_token'] !== config.verifyToken || typeof request.query['hub.challenge'] !== 'string') return response.sendStatus(403);
     response.type('text/plain').send(request.query['hub.challenge']);
@@ -130,6 +132,7 @@ function createApp(config, store, provider) {
   installFacilityRoutes(app,store,authenticated,admin);
   installAdminAccessRoutes(app,config,store,authenticated,admin,{ cookieToken, withHealth });
   installPrivacyRoutes(app,config,store,authenticated,admin);
+  installTriageRoutes(app,config,store,authenticated);
   // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });

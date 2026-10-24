@@ -17,7 +17,9 @@ function configuration(env = process.env) {
     fileEncryptionKey: env.FILE_ENCRYPTION_KEY || '',
     demoAccounts: env.DEMO_ACCOUNTS === 'true',
     // Administrators must use two-step sign-in unless explicitly turned off.
-    requireAdminMfa: env.REQUIRE_ADMIN_MFA !== 'false'
+    requireAdminMfa: env.REQUIRE_ADMIN_MFA !== 'false',
+    // SLY Triage AI help (Claude). Off by default: needs data-protection approval for transfers abroad.
+    aiTriageEnabled: env.AI_TRIAGE_ENABLED === 'true'
   };
   if (!/^https?:\/\//.test(config.origin) || new URL(config.origin).origin !== config.origin ||
       !/^https?:\/\//.test(config.loginUrl) || !/^v\d+\.\d+$/.test(config.graphVersion) ||

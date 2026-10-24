@@ -2558,7 +2558,7 @@ async function initializeBackend() {
     }
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
     // Servers started with DEMO_ACCOUNTS=true hold the same test accounts as the static demo.
-    ApiState.demoAccounts=!!config?.demoAccounts; ApiState.requireAdminMfa=!!config?.requireAdminMfa;
+    ApiState.demoAccounts=!!config?.demoAccounts; ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
     if (!ApiState.demoAccounts) $('lnd-demo').classList.add('hid');
@@ -3353,6 +3353,8 @@ function renderPage(page) {
   if (page==='security' && typeof HFASecurity!=='undefined') return HFASecurity.renderPage(pc);
   if (page==='my-data' && typeof HFAPrivacy!=='undefined') return HFAPrivacy.renderPage(pc);
   if (page==='privacy-requests' && r==='admin' && typeof HFAPrivacy!=='undefined') return HFAPrivacy.renderAdmin(pc);
+  if (page==='triage' && r==='patient' && typeof HFATriageUI!=='undefined') return HFATriageUI.renderPatient(pc);
+  if (page==='triage-queue' && ['doctor','nurse','admin'].includes(r) && typeof HFATriageUI!=='undefined') return HFATriageUI.renderQueue(pc);
   if (page==='portal-access' && isSuperAdmin(CU) && typeof PortalAccess!=='undefined') return PortalAccess.renderPage(pc);
   if (page==='complete-profile' && r==='patient' && typeof HFAPatientRegistration!=='undefined') return HFAPatientRegistration.renderPage(pc);
   if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
@@ -5363,6 +5365,8 @@ window.addEventListener('load',()=>{
 <script src="hfa-fhir.js"></script>
 <script src="privacy-centre.js"></script>
 <script src="session-guard.js"></script>
+<script src="hfa-triage.js"></script>
+<script src="triage-assistant.js"></script>
 <script src="offline.js"></script>
 </body>
 </html>

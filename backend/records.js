@@ -160,4 +160,4 @@ function installAvatarRoutes(app, config, store, authenticated) {
   });
 }
 
-module.exports = { installAvatarRoutes, ensureRecordTables, saveHealthRecord, healthRecord, withHealth, canReadHealth, recordHealthView, placeholderSvg, AVATAR_MIN_DIMENSION };
+module.exports = { seal, unseal, installAvatarRoutes, ensureRecordTables, saveHealthRecord, healthRecord, withHealth, canReadHealth, recordHealthView, placeholderSvg, AVATAR_MIN_DIMENSION };

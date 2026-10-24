@@ -16,7 +16,7 @@ const CHANGEABLE_CONSENTS = ['research', 'ministry', 'sms'];
 const REQUEST_KINDS = ['access', 'rectification', 'erasure', 'restriction', 'objection', 'portability'];
 const RESPONSE_DAYS = 30;
 // Audit actions a person sees in "who accessed my record" (never their own sign-ins or IP addresses).
-const ACCESS_ACTIONS = ['HEALTH_RECORD_VIEW', 'DOCUMENT_VIEWED', 'ACCOUNT_UPDATED_BY_ADMIN', 'ACCOUNT_DELETED', 'SIGN_IN_AS_START', 'SIGN_IN_AS_STOP', 'PRIVACY_REQUEST_UPDATED'];
+const ACCESS_ACTIONS = ['HEALTH_RECORD_VIEW', 'DOCUMENT_VIEWED', 'ACCOUNT_UPDATED_BY_ADMIN', 'ACCOUNT_DELETED', 'SIGN_IN_AS_START', 'SIGN_IN_AS_STOP', 'PRIVACY_REQUEST_UPDATED', 'TRIAGE_VIEWED', 'TRIAGE_REVIEWED'];
 
 const envelope = (data, message = 'OK') => ({ success: true, data, message, timestamp: new Date().toISOString() });
 const details = z.string().trim().max(2000).regex(/^[^<>\u0000-\u0008\u000b\u000c\u000e-\u001f]*$/, 'Remove < and > characters');
