@@ -2523,7 +2523,7 @@ async function apiRequest(path, method='GET', body, timeout=15000) {
   const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});
   if (response.status===204) return {};
   const data=await response.json().catch(()=>({}));
-  if (!response.ok) { const error=new Error(tv(data.error)||t('backend_unavailable'));error.status=response.status;throw error; }
+  if (!response.ok) { const error=new Error(tv(data.error)||t('backend_unavailable'));error.status=response.status;error.body=data;throw error; }
   return data;
 }
 function installBackendSession(data, localProfile={}) {
@@ -4878,7 +4878,7 @@ function chatView() {
       </div>`;}).join('')}
   </div>
   <div class="cai">
-    <input id="mgin" placeholder="${(LANG==='fr'?'Message ':'Message ')+c.name+'...'}" onkeydown="if(event.key==='Enter')sendMsg()">
+    <input id="mgin" placeholder="${hx('Message '+c.name+'...')}" onkeydown="if(event.key==='Enter')sendMsg()">
     <button class="btn bp bsm" onclick="sendMsg()" title="${t('send')}">${IC.send}</button>
   </div>`;
 }
@@ -4892,7 +4892,7 @@ function sendMsg() {
   prepareDoctorReplyAlert(message);
   log('SEND_MESSAGE','Communications');
   const el=$('chatmsgs');
-  if(el){el.innerHTML+=`<div class="msg2 snt"><div><div class="mb2">${txt}</div><div class="mt3">${nowT()}</div></div></div>`;el.scrollTop=el.scrollHeight;}
+  if(el){el.innerHTML+=`<div class="msg2 snt"><div><div class="mb2">${hx(txt)}</div><div class="mt3">${nowT()}</div></div></div>`;el.scrollTop=el.scrollHeight;}
   inp.value='';
 }
 function prepareDoctorReplyAlert(message) {
@@ -5369,6 +5369,7 @@ window.addEventListener('load',()=>{
 <script src="hfa-fhir.js"></script>
 <script src="privacy-centre.js"></script>
 <script src="session-guard.js"></script>
+<script src="clinical-sync.js"></script>
 <script src="hfa-triage.js"></script>
 <script src="triage-assistant.js"></script>
 <script src="hfa-surveillance.js"></script>

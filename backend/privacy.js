@@ -8,6 +8,7 @@ const { join } = require('node:path');
 const { z } = require('zod');
 const { filesConfigured, decodeFile, ensureFileTable } = require('./files');
 const { healthRecord, saveHealthRecord } = require('./records');
+const { patientRecords } = require('./clinical');
 const Fhir = require(join(__dirname, '..', 'hfa-fhir.js'));
 
 const CONSENT_VERSION = '2026.1';
@@ -16,7 +17,7 @@ const CHANGEABLE_CONSENTS = ['research', 'ministry', 'sms'];
 const REQUEST_KINDS = ['access', 'rectification', 'erasure', 'restriction', 'objection', 'portability'];
 const RESPONSE_DAYS = 30;
 // Audit actions a person sees in "who accessed my record" (never their own sign-ins or IP addresses).
-const ACCESS_ACTIONS = ['HEALTH_RECORD_VIEW', 'DOCUMENT_VIEWED', 'ACCOUNT_UPDATED_BY_ADMIN', 'ACCOUNT_DELETED', 'SIGN_IN_AS_START', 'SIGN_IN_AS_STOP', 'PRIVACY_REQUEST_UPDATED', 'TRIAGE_VIEWED', 'TRIAGE_REVIEWED', 'AI_SCRIBE_DRAFT'];
+const ACCESS_ACTIONS = ['HEALTH_RECORD_VIEW', 'DOCUMENT_VIEWED', 'ACCOUNT_UPDATED_BY_ADMIN', 'ACCOUNT_DELETED', 'SIGN_IN_AS_START', 'SIGN_IN_AS_STOP', 'PRIVACY_REQUEST_UPDATED', 'TRIAGE_VIEWED', 'TRIAGE_REVIEWED', 'AI_SCRIBE_DRAFT', 'CLINICAL_RECORD_CREATED', 'CLINICAL_RECORD_UPDATED'];
 
 const envelope = (data, message = 'OK') => ({ success: true, data, message, timestamp: new Date().toISOString() });
 const details = z.string().trim().max(2000).regex(/^[^<>\u0000-\u0008\u000b\u000c\u000e-\u001f]*$/, 'Remove < and > characters');
@@ -100,7 +101,13 @@ function installPrivacyRoutes(app, config, store, authenticated, admin) {
   app.get('/api/v1/me/fhir', authenticated, ownAccount, (request, response) => {
     if (request.user.role !== 'patient') return response.status(403).json({ error: 'Only patients have a health record to export' });
     const user = request.user;
-    const bundle = Fhir.patientBundle({ user, health: healthRecord(config, store, user.id), consentHistory: consentHistory(store, user.id), files: serverFiles(config, store, user.id) });
+    const clinical = patientRecords(config, store, user.id);
+    const people = {};
+    for (const list of Object.values(clinical)) for (const item of list) for (const key of ['doctorId', 'nurseId', 'labTechId', 'specialistDoctorId', 'generalistId'])
+      if (item[key] && !people[item[key]]) { const person = store.user(item[key]); if (person) people[item[key]] = { name: person.name, hfaId: person.hfaId, specialty: person.specialty, department: person.department }; }
+    const bundle = Fhir.patientBundle({ user, health: healthRecord(config, store, user.id), consentHistory: consentHistory(store, user.id), people,
+      appointments: clinical.appointments, labResults: clinical.labResults, referrals: clinical.specialistReferrals, reports: clinical.doctorReports, careNotes: clinical.careNotes,
+      files: [...serverFiles(config, store, user.id), ...clinical.medicalDocuments.map(item => ({ id: item.id, fileName: item.fileName, category: item.category, notes: item.notes, uploadedAt: item.uploadedAt }))] });
     store.audit(user.id, 'RECORD_EXPORTED', { targetId: user.id, details: { format: 'FHIR R4', resources: bundle.entry.length }, ip: request.ip });
     response.set('Content-Disposition', `attachment; filename="hfa-health-record-${user.hfaId || user.id}.json"`);
     response.type('application/fhir+json').send(JSON.stringify(bundle, null, 2));

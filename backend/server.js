@@ -18,6 +18,7 @@ const { installTriageRoutes } = require('./triage');
 const { aiConfigured } = require('./triage-ai');
 const { WhatsAppTriage } = require('./whatsapp-triage');
 const { installAiAssistRoutes } = require('./ai-assist');
+const { installClinicalRoutes } = require('./clinical');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -107,7 +108,7 @@ function createApp(config, store, provider) {
   app.use('/api', rateLimit({ windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false }));
   const smallJson=express.json({ limit: '32kb' });
   const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist'];
-  app.use((request, response, next) => documentRoutes.includes(request.path) || /^\/api\/v1\/users\/[^/]+\/health-profile$/.test(request.path) ? next() : smallJson(request, response, next));
+  app.use((request, response, next) => documentRoutes.includes(request.path) || /^\/api\/v1\/clinical\/[^/]+\/[^/]+$/.test(request.path) || /^\/api\/v1\/users\/[^/]+\/health-profile$/.test(request.path) ? next() : smallJson(request, response, next));
   app.use('/api', (request, response, next) => {
     response.set('Cache-Control', 'no-store');
     if (['POST', 'PATCH', 'DELETE'].includes(request.method) &&
@@ -136,6 +137,7 @@ function createApp(config, store, provider) {
   installPrivacyRoutes(app,config,store,authenticated,admin);
   installTriageRoutes(app,config,store,authenticated);
   installAiAssistRoutes(app,config,store,authenticated);
+  installClinicalRoutes(app,config,store,authenticated);
   // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
