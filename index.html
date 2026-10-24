@@ -1470,7 +1470,7 @@ const T = {
     consultation_duration:'Consultation Duration', select_duration:'Select duration', minutes_short:'min',
     patient_surname_initial:'Last Name Initial', all_patient_initials:'All initials', no_matching_patients:'No patients match this initial.',
     reschedule_appointment:'Reschedule Appointment', reschedule_reason:'Reason for Rescheduling', reschedule_reason_required:'Please provide a reason for rescheduling.',
-    reschedule_fee:'Patient Rescheduling Fee', doctor_reschedule_free:'Doctor rescheduling is free.', pay_and_reschedule:'Pay & Reschedule', mock_payment_notice:'Demo payment: no real charge.',
+    reschedule_fee:'Patient Rescheduling Fee', doctor_reschedule_free:'Doctor rescheduling is free.', pay_and_reschedule:'Pay & Reschedule',
     doctor_profile_photo:'Doctor Profile Photo', upload_profile_photo:'Upload Profile Photo', approved_doctor_photo:'Admin-approved doctor portrait', photo_pending:'Photo awaiting admin review', photo_rejected:'Photo rejected by admin', no_approved_photo:'No approved photo',
     photo_file_required:'Choose a JPG, PNG or WebP image, up to 2 MB.', photo_upload_failed:'The image could not be read. Please choose another image.', doctor_photo_reviews:'Doctor Photo Reviews', no_photo_reviews:'No photos awaiting review.',
     appointment_call_only:'Voice and video calls are available only during your scheduled appointment, in its booked mode.', doctor_reply_alert:'Your doctor has sent you a new message.',
@@ -1805,7 +1805,7 @@ const T = {
     consultation_duration:'Durée de la consultation', select_duration:'Sélectionnez une durée', minutes_short:'min',
     patient_surname_initial:'Initiale du nom de famille', all_patient_initials:'Toutes les initiales', no_matching_patients:'Aucun patient ne correspond à cette initiale.',
     reschedule_appointment:'Reprogrammer le rendez-vous', reschedule_reason:'Motif de reprogrammation', reschedule_reason_required:'Veuillez indiquer le motif de reprogrammation.',
-    reschedule_fee:'Frais de reprogrammation pour le patient', doctor_reschedule_free:'La reprogrammation par le médecin est gratuite.', pay_and_reschedule:'Payer et reprogrammer', mock_payment_notice:'Paiement de démonstration : aucun débit réel.',
+    reschedule_fee:'Frais de reprogrammation pour le patient', doctor_reschedule_free:'La reprogrammation par le médecin est gratuite.', pay_and_reschedule:'Payer et reprogrammer',
     doctor_profile_photo:'Photo de profil du médecin', upload_profile_photo:'Télécharger une photo de profil', approved_doctor_photo:'Portrait du médecin approuvé par un administrateur', photo_pending:'Photo en attente de validation', photo_rejected:'Photo refusée par un administrateur', no_approved_photo:'Aucune photo approuvée',
     photo_file_required:'Choisissez une image JPG, PNG ou WebP de 2 Mo maximum.', photo_upload_failed:'Impossible de lire cette image. Choisissez une autre image.', doctor_photo_reviews:'Validation des photos des médecins', no_photo_reviews:'Aucune photo en attente de validation.',
     appointment_call_only:'Les appels audio et vidéo sont disponibles uniquement pendant votre rendez-vous, selon le mode réservé.', doctor_reply_alert:'Votre médecin vous a envoyé un nouveau message.',
@@ -2486,7 +2486,7 @@ async function initializeBackend() {
       ApiState.offline=true;
     }
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
-    ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage;
+    ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage; ApiState.paymentsAvailable=!!config?.paymentsAvailable;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
     updateStaticHTML();
@@ -2696,36 +2696,19 @@ function myContacts() {
 }
 
 // ═══════════════════════ PAYMENTS ═══════════════════════
-// Provider-agnostic payment gateway. Point this at a local provider by setting provider:'local' + apiBaseUrl/apiKey below.
-const PaymentConfig = { provider: 'mock', apiBaseUrl: '', apiKey: '' };
-
+// Payments go through the HFA server, which prices them and confirms them with MTN Mobile Money (mobile-money.js).
+// When online payment is not set up, nothing is charged and nothing is marked paid: the fee is recorded as due.
 class PaymentProvider {
   async charge(request) { throw new Error(`${this.constructor.name} must implement charge()`); }
 }
-
-// Simulated provider used until a real local payment API is configured.
-class MockPaymentProvider extends PaymentProvider {
-  async charge(request) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { success: true, reference: 'MOCK-'+Date.now(), providerStatus: 'completed' };
-  }
+class MobileMoneyProvider extends PaymentProvider {
+  async charge(request) { return HFAMobileMoney.charge(request); }
 }
-
-// Drop-in adapter for a local provider's REST charge endpoint — no other code needs to change once wired up.
-class LocalPaymentProvider extends PaymentProvider {
-  async charge(request) {
-    const res = await fetch(`${PaymentConfig.apiBaseUrl}/charges`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PaymentConfig.apiKey}` },
-      body: JSON.stringify(request)
-    });
-    if (!res.ok) throw new Error(`Payment provider responded ${res.status}`);
-    const data = await res.json();
-    return { success: !!data.success, reference: data.reference||data.id, providerStatus: data.status };
-  }
+class UnavailablePaymentProvider extends PaymentProvider {
+  async charge() { return { success: false, due: true, providerStatus: 'unavailable', reference: null }; }
 }
-
-const providerFor = () => PaymentConfig.provider === 'local' ? new LocalPaymentProvider() : new MockPaymentProvider();
+const providerFor = () => typeof HFAMobileMoney!=='undefined' && HFAMobileMoney.available() ? new MobileMoneyProvider() : new UnavailablePaymentProvider();
+const paymentMethodOptions = () => `<option value="mobile_money">${t('mtn_momo')}</option>`;
 
 // Fluent builder: Payment.create().from(payerId).to(payeeId).amount(15).currency('USD').purpose('consultation_fee').method('mobile_money').process()
 class PaymentRequestBuilder {
@@ -2757,7 +2740,8 @@ class PaymentRequestBuilder {
     DB.payments.unshift(request);
     try {
       const result = await providerFor().charge(request);
-      request.status = result.success ? 'completed' : 'failed';
+      request.status = result.success ? 'completed' : result.due ? 'due' : 'failed';
+      if (result.paymentId) request.serverPaymentId = result.paymentId;
       request.reference = result.reference || null;
       request.completedAt = tsNow();
       log(`PAYMENT_${String(request.status).toUpperCase()}`, 'Billing', {amount:request.amount, currency:request.currency, purpose:request.purpose});
@@ -2778,7 +2762,7 @@ function payConsultationFee(doctorId) {
     <div class="fg"><div class="mu sm">${hx(doc.name)} — ${tv(doc.specialty||'')}</div>
       <div style="font-size:24px;font-weight:600;margin-top:8px">${money(doc.consultationFee)}</div>
     </div>
-    <div class="fg"><label class="fl">${t('payment_method')}</label><select class="fc" id="pay-md"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>
+    <div class="fg"><label class="fl">${t('payment_method')}</label><select class="fc" id="pay-md">${paymentMethodOptions()}</select></div>
     <div class="mu sm" id="pay-status"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" id="pay-btn" onclick="confirmFeePayment('${doctorId}')">${t('pay_now')}</button></div>`);
 }
@@ -2788,9 +2772,10 @@ async function confirmFeePayment(doctorId) {
   const btn = $('pay-btn'), status = $('pay-status');
   btn.disabled = true; status.textContent = t('processing_payment');
   try {
-    await Payment.create().from(CU.id).to(doctorId).amount(doc.consultationFee).currency('USD')
+    const receipt = await Payment.create().from(CU.id).to(doctorId).amount(doc.consultationFee).currency('USD')
       .purpose('consultation_fee').describe(`Consultation fee — ${doc.name}`).method($('pay-md').value)
       .meta({doctorName:doc.name}).process();
+    if (receipt.status==='due') { status.textContent = t('payments_unavailable'); btn.disabled = false; return; }
     notifyPatientActivity(CU.id,'Billing');
     status.textContent = t('payment_success');
     setTimeout(() => { closeMo(); navigate(CP); }, 700);
@@ -2802,7 +2787,14 @@ async function confirmFeePayment(doctorId) {
 
 // ═══════════════════════ SUBSCRIPTIONS ═══════════════════════
 function getSubscription(patientId) {
+  if (ApiState.enabled) { const sub=G(patientId)?.subscription; return sub?.status==='active' ? {patientId, ...sub} : undefined; }
   return DB.subscriptions.find(s => s.patientId === patientId && s.status === 'active');
+}
+async function refreshOwnAccount() {
+  const data=await apiRequest('/api/session');
+  const fresh=data.user, index=DB.users.findIndex(user=>user.id===fresh.id);
+  if (index>=0) DB.users[index]={...DB.users[index],...fresh};
+  CU=DB.users.find(user=>user.id===fresh.id)||CU;
 }
 
 function getTierName(tier) {
@@ -4342,6 +4334,21 @@ function renderSubscriptions(pc) {
 }
 
 async function upgradeSubscription(tierId) {
+  if (ApiState.enabled) {
+    try {
+      if (tierId==='free') await apiRequest('/api/v1/subscription/free','POST',{});
+      else {
+        const prices={basic:2,premium:10};
+        const receipt=await Payment.create().from(CU.id).amount(prices[tierId]).currency('USD').purpose('subscription').describe(`${tierId} subscription`).method('mobile_money').meta({tier:tierId}).process();
+        if (receipt.status==='due') { alert(t('payments_unavailable_short')); return; }
+        if (receipt.status!=='completed') { alert(t('payment_failed')); return; }
+      }
+      await refreshOwnAccount(); // the server activates the plan once MTN confirms
+      log('UPDATE_SUBSCRIPTION', 'Billing', {tier: tierId});
+    } catch (error) { alert(error.message); }
+    renderSubscriptions($('pgc'));
+    return;
+  }
   const sub = getSubscription(CU.id) || {patientId: CU.id, startDate: tsNow().split(' ')[0]};
   const tierPrices = {free: 0, basic: 2, premium: 10};
   const amount = tierPrices[tierId];
@@ -4389,7 +4396,7 @@ function scheduleHomeVisit() {
     <div class="fr"><div class="fg"><label class="fl">${t('visit_date')}</label><input class="fc" type="date" id="hv-date" value="${defaultDate}" onchange="renderHomeVisitFee()"></div><div class="fg"><label class="fl">${t('visit_time')}</label><input class="fc" type="time" id="hv-time" value="14:00"></div></div>
     <div class="fg"><label class="fl">${t('visit_location')}</label><input class="fc" id="hv-location" value="${CU.address||`${hx(CU.name)}'s home`}"></div>
     <div class="fg"><label class="fl">${t('visit_notes')}</label><textarea class="fc" id="hv-notes" placeholder="${t('home_visit_notes_ph')}"></textarea></div>
-    <div class="fg" id="hv-payment-method"><label class="fl">${t('payment_method')}</label><select class="fc" id="hv-pay-md"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>
+    <div class="fg" id="hv-payment-method"><label class="fl">${t('payment_method')}</label><select class="fc" id="hv-pay-md">${paymentMethodOptions()}</select></div>
     <div id="hv-fee" class="alt ai"></div><div id="hv-status" class="mu sm"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" id="hv-pay-btn" onclick="confirmHomeVisitBooking()">${t('pay_now')}</button></div>`);
   renderHomeVisitFee();
@@ -4418,7 +4425,7 @@ async function confirmHomeVisitBooking() {
     const sub=getSubscription(CU.id); if(included&&sub) sub.monthlyVisitsUsed=(sub.monthlyVisitsUsed||0)+1;
     notifyPatientActivity(CU.id,'Home Visits');
     log('SCHEDULE_HOME_VISIT','Healthcare');
-    status.textContent=included?t('home_visit_included_desc'):t('home_visit_payment_success');
+    status.textContent=included?t('home_visit_included_desc'):receipt?.status==='due'?t('fee_due_at_visit'):t('home_visit_payment_success');
     setTimeout(()=>{ closeMo(); renderSubscriptions($('pgc')); }, 700);
   } catch (err) {
     status.textContent=t('payment_failed'); btn.disabled=false;
@@ -4953,7 +4960,7 @@ function showReschedule(appointmentId) {
     <div class="fr"><div class="fg"><label class="fl" for="rs-date">${t('date_lbl')}</label><input class="fc" type="date" id="rs-date" value="${appointment.date}" required></div><div class="fg"><label class="fl" for="rs-time">${t('time_lbl')}</label><input class="fc" type="time" id="rs-time" value="${appointment.time}" required></div></div>
     <div class="fg"><label class="fl" for="rs-duration">${t('consultation_duration')}</label><select class="fc" id="rs-duration" required>${consultationDurationOptions()}</select></div>
     <div class="fg"><label class="fl" for="rs-reason">${t('reschedule_reason')}</label><textarea class="fc" id="rs-reason" required></textarea></div>
-    ${CU.role==='patient'?`<p class="bo sm mb12">${t('reschedule_fee')}: ${money(ReschedulePolicy.patientFee,ReschedulePolicy.currency)}</p>${PaymentConfig.provider==='mock'?`<p class="mu sm mb12">${t('mock_payment_notice')}</p>`:''}<div class="fg"><label class="fl" for="rs-method">${t('payment_method')}</label><select class="fc" id="rs-method"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>`:`<p class="mu sm mb12">${t('doctor_reschedule_free')}</p>`}
+    ${CU.role==='patient'?`<p class="bo sm mb12">${t('reschedule_fee')}: ${money(ReschedulePolicy.patientFee,ReschedulePolicy.currency)}</p>${typeof HFAMobileMoney!=='undefined'&&HFAMobileMoney.available()?'':`<p class="mu sm mb12">${t('payments_unavailable')}</p>`}<div class="fg"><label class="fl" for="rs-method">${t('payment_method')}</label><select class="fc" id="rs-method">${paymentMethodOptions()}</select></div>`:`<p class="mu sm mb12">${t('doctor_reschedule_free')}</p>`}
     <div id="rs-status" class="mu sm" role="alert"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" id="rs-confirm" onclick="confirmReschedule('${appointmentId}')">${t(CU.role==='patient'?'pay_and_reschedule':'reschedule_appointment')}</button></div>`);
   $('rs-duration').value=String(appointment.durationMinutes||30);
@@ -4973,7 +4980,7 @@ async function confirmReschedule(appointmentId) {
   try {
     const receipt=actor.role==='patient'?await Payment.create().from(actor.id).amount(ReschedulePolicy.patientFee).currency(ReschedulePolicy.currency)
       .purpose('appointment_reschedule').method(method).meta({appointmentId,date,time,durationMinutes}).process():null;
-    if (receipt && receipt.status!=='completed') throw new Error(t('i_reschedule_failed'));
+    if (receipt && !['completed','due'].includes(receipt.status)) throw new Error(t('i_reschedule_failed'));
     appointment.reschedules=appointment.reschedules||[];
     appointment.reschedules.push({previousDate:appointment.date,previousTime:appointment.time,previousDurationMinutes:appointment.durationMinutes||30,date,time,durationMinutes,reason,requestedBy:actor.id,requestedRole:actor.role,fee:receipt?ReschedulePolicy.patientFee:0,currency:ReschedulePolicy.currency,paymentId:receipt?.id||null,createdAt:tsNow()});
     Object.assign(appointment,{date,time,durationMinutes});
@@ -5277,6 +5284,7 @@ window.addEventListener('load',()=>{
 <script src="privacy-centre.js"></script>
 <script src="session-guard.js"></script>
 <script src="clinical-sync.js"></script>
+<script src="mobile-money.js"></script>
 <script src="hfa-triage.js"></script>
 <script src="triage-assistant.js"></script>
 <script src="hfa-surveillance.js"></script>

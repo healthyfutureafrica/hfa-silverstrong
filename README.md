@@ -109,6 +109,22 @@ missed urgency must be 0 and is checked in CI), **real-world monitoring** for cl
 `GET /api/v1/ai/metrics`), outbreak signals, the six WHO principles for AI in health and the limits. The scenarios
 were written by the team with the rules, so independent clinical review is still required.
 
+## Payments (MTN Mobile Money)
+
+Consultation fees, Basic and Premium plans, nurse home visits and patient rescheduling are paid with **MTN Mobile
+Money** through the server (`backend/payments.js`, `mobile-money.js`):
+
+- The server sets every amount from its own records (doctor's fee, plan price, nurse's home-visit fee, USD 5
+  rescheduling fee), converted at USD 1 = XAF 600; the browser cannot send an amount.
+- The patient enters their MTN number (checked: 67x, 68x, 650–654), approves on their phone, and the result is
+  taken only from MTN (status checks with back-off, callbacks re-checked, amount and currency must match).
+  Idempotency keys stop double charges on weak networks. Phone numbers are encrypted; every step is audited.
+- A paid plan is activated by the server only after MTN confirms the payment.
+- **Without MTN credentials nothing is charged and nothing is ever marked paid.** Patients see that online payment
+  is not available yet: rescheduling and home-visit fees are recorded as due at the facility, and paid plans cannot
+  be bought. Set the `MTN_*` values in `.env` (see `.env.example`) once HFA has an MTN MoMo merchant account; test
+  with `MTN_TARGET_ENVIRONMENT=sandbox` first. Orange Money is not connected yet.
+
 ## Environment notes
 
 - CI runs on GitHub-hosted Ubuntu runners and validates HTML linting, Jest tests, Node backend security/provider tests, Docker image build, and a frontend container smoke test.

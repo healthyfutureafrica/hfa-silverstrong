@@ -19,6 +19,7 @@ const { aiConfigured } = require('./triage-ai');
 const { WhatsAppTriage } = require('./whatsapp-triage');
 const { installAiAssistRoutes } = require('./ai-assist');
 const { installClinicalRoutes } = require('./clinical');
+const { Payments, installPaymentRoutes, installPaymentWebhook, mtnConfig } = require('./payments');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -95,7 +96,7 @@ function createApp(config, store, provider) {
   app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
   app.use(helmet());
   app.get('/api/healthz', (request, response) => response.json({ status: 'ok' }));
-  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), requireAdminMfa: !!config.requireAdminMfa, aiTriage: aiConfigured(config) }));
+  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), requireAdminMfa: !!config.requireAdminMfa, aiTriage: aiConfigured(config), paymentsAvailable: app.locals.payments?.available || false }));
   app.get('/api/whatsapp/webhook', (request, response) => {
     if (!config.verifyToken || request.query['hub.mode'] !== 'subscribe' || request.query['hub.verify_token'] !== config.verifyToken || typeof request.query['hub.challenge'] !== 'string') return response.sendStatus(403);
     response.type('text/plain').send(request.query['hub.challenge']);
@@ -105,6 +106,10 @@ function createApp(config, store, provider) {
     try { provider.webhook(JSON.parse(request.body.toString('utf8'))); response.sendStatus(200); }
     catch (error) { response.sendStatus(400); }
   });
+  // MTN Mobile Money: amounts decided here, results only from MTN. Its callback must come before the origin guard.
+  const payments = new Payments(config, store, { mtn: config.mtn || mtnConfig(), client: config.mtnClient || null });
+  app.locals.payments = payments;
+  installPaymentWebhook(app, payments);
   app.use('/api', rateLimit({ windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false }));
   const smallJson=express.json({ limit: '32kb' });
   const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist'];
@@ -138,6 +143,7 @@ function createApp(config, store, provider) {
   installTriageRoutes(app,config,store,authenticated);
   installAiAssistRoutes(app,config,store,authenticated);
   installClinicalRoutes(app,config,store,authenticated);
+  installPaymentRoutes(app,config,store,authenticated,payments);
   // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
@@ -359,7 +365,10 @@ async function start() {
   const whatsappTriage = new WhatsAppTriage(config, store);
   provider.onText = (phone, text) => whatsappTriage.handle(phone, text);
   setInterval(() => whatsappTriage.sweep(), 10 * 60000).unref();
-  const server = createApp(config, store, provider).listen(config.port, '0.0.0.0', () => {
+  const app = createApp(config, store, provider);
+  const paymentWorker = setInterval(() => app.locals.payments.pollDue().catch(() => console.error('Payment status check failed')), 5000);
+  paymentWorker.unref();
+  const server = app.listen(config.port, '0.0.0.0', () => {
     console.log(`HFA backend listening on port ${config.port}; WhatsApp delivery ${config.ready ? 'configured' : 'disabled'}`);
   });
   const worker = setInterval(() => provider.deliverNext().catch(() => console.error('WhatsApp worker failed')), 1000);
