@@ -125,6 +125,22 @@ were written by the team with the rules, so independent clinical review is still
 - **Free Health Hub statistics** are anonymous counts on the server (topic, type, language, day; never search
   words or identities) (`backend/hub-stats.js`).
 
+## Governance registers (Safety & Consent page)
+
+All three are held on the server (`backend/governance.js`, `governance-ui.js`):
+
+- **Consent register** (administrators / DPO): each patient's current choices (care team, research, Ministry
+  statistics, SMS, WhatsApp), consent version, date and number of changes. Viewing it is audited.
+- **Clinician licence register** (administrators): the licence number entered at registration (now sent to the
+  server for doctors and nurses), verified against the Ordre National des Médecins du Cameroun or the nursing
+  council with an expiry date. Unverified, rejected, expired and soon-expiring (60 days) licences are flagged.
+- **Medication safety alerts**: each patient's recorded drug allergies are checked against their medicine list,
+  doctors' consultation plans and pharmacy orders (penicillins, cephalosporins incl. penicillin cross-reaction,
+  sulfonamides incl. cotrimoxazole and sulfadoxine, NSAIDs/aspirin, quinine, artemisinins, chloroquine,
+  metronidazole, opioids; English and French names). Only the patient's clinicians see them (Medication safety in
+  their sidebar) and resolve them with a written note; administrators see counts only. A clinician should review
+  the drug lists before use with real patients.
+
 ## Payments (MTN Mobile Money)
 
 Consultation fees, Basic and Premium plans, nurse home visits and patient rescheduling are paid with **MTN Mobile

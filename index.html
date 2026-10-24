@@ -2515,6 +2515,10 @@ async function backendRegister(localUser) {
   ApiState.busy=true;
   const payload={};
   ['name','email','password','role','phone','whatsappNumber','whatsappNotificationsConsent','specialty','hospital','department','consultationFee','idDocumentType'].forEach(key=>{if(localUser[key]!==undefined&&localUser[key]!=='')payload[key]=localUser[key];});
+  // Professional licence numbers go to the server so an administrator can verify them (nurses enter it as nurseId).
+  const licence=localUser.licenseNo||(localUser.role==='nurse'?localUser.nurseId:'');
+  if (licence) payload.licenseNo=String(licence).trim().slice(0,60);
+  if (localUser.qualifications) payload.qualifications=localUser.qualifications;
   if (localUser.idDocumentData) payload.idDocument={fileName:localUser.idDocumentName.replace(/[<>\u0000-\u001f/\\]/g,'_').slice(0,180),content:localUser.idDocumentData.slice(localUser.idDocumentData.indexOf(',')+1)};
   try {
     const {data,queued}=await HFAOffline.submitRegistration('/api/auth/register',payload);
@@ -3259,6 +3263,7 @@ function renderPage(page) {
   if (page==='my-data' && typeof HFAPrivacy!=='undefined') return HFAPrivacy.renderPage(pc);
   if (page==='privacy-requests' && r==='admin' && typeof HFAPrivacy!=='undefined') return HFAPrivacy.renderAdmin(pc);
   if (page==='ai-centre' && typeof HFAAiCentre!=='undefined') return HFAAiCentre.renderPage(pc);
+  if (page==='safety' && ['doctor','nurse'].includes(r)) return renderSafety(pc);
   if (page==='triage' && r==='patient' && typeof HFATriageUI!=='undefined') return HFATriageUI.renderPatient(pc);
   if (page==='triage-queue' && ['doctor','nurse','admin'].includes(r) && typeof HFATriageUI!=='undefined') return HFATriageUI.renderQueue(pc);
   if (page==='portal-access' && isSuperAdmin(CU) && typeof PortalAccess!=='undefined') return PortalAccess.renderPage(pc);
@@ -5288,6 +5293,7 @@ window.addEventListener('load',()=>{
 <script src="mobile-money.js"></script>
 <script src="calls.js"></script>
 <script src="real-world.js"></script>
+<script src="governance-ui.js"></script>
 <script src="hfa-triage.js"></script>
 <script src="triage-assistant.js"></script>
 <script src="hfa-surveillance.js"></script>

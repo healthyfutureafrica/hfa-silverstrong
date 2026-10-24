@@ -4,7 +4,7 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const dist = path.join(root, 'dist');
-const files = ['index.html', 'offline.js', 'offline-uploads.js', 'offline-session.js', 'pharmacist.js', 'hfa-numbering.js', 'i18n.js', 'hfa-ui.js', 'patient-registration.js', 'portal-access.js', 'security.js', 'hfa-fhir.js', 'privacy-centre.js', 'session-guard.js', 'clinical-sync.js', 'mobile-money.js', 'calls.js', 'real-world.js', 'hfa-triage.js', 'triage-assistant.js', 'hfa-surveillance.js', 'hfa-ai-eval.js', 'ai-assist.js', 'ai-centre.js', 'service-worker.js'];
+const files = ['index.html', 'offline.js', 'offline-uploads.js', 'offline-session.js', 'pharmacist.js', 'hfa-numbering.js', 'i18n.js', 'hfa-ui.js', 'patient-registration.js', 'portal-access.js', 'security.js', 'hfa-fhir.js', 'privacy-centre.js', 'session-guard.js', 'clinical-sync.js', 'mobile-money.js', 'calls.js', 'real-world.js', 'governance-ui.js', 'hfa-triage.js', 'triage-assistant.js', 'hfa-surveillance.js', 'hfa-ai-eval.js', 'ai-assist.js', 'ai-centre.js', 'service-worker.js'];
 
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist);

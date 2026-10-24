@@ -25,6 +25,7 @@ const { installAccountRecovery } = require('./account-recovery');
 const { installNotifyRoutes } = require('./notify');
 const { installDoctorPhotoRoutes } = require('./doctor-photos');
 const { installHubStats } = require('./hub-stats');
+const { installGovernanceRoutes } = require('./governance');
 const { passwordProblem } = require('./account-security');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
@@ -39,6 +40,8 @@ const registration = z.object({
   password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']),
   phone: contactPhone.optional(), whatsappNumber: phone.optional(), whatsappNotificationsConsent: z.boolean().optional(),
   specialty: plain.optional(), hospital: plain.optional(), department: plain.optional(), consultationFee: z.number().min(5).max(20).optional(),
+  // Professional licence (Ordre National des Médecins / nursing council number), verified by an administrator.
+  licenseNo: z.string().trim().max(60).regex(/^[A-Za-z0-9 ./-]*$/).optional(), qualifications: plain.optional(),
   idDocumentType: z.enum(['national_id','passport']).optional(), idDocument: uploadedDocument.optional(),
   preferredLanguage: z.enum(['en','fr']).optional(), healthProfile: healthProfile.optional(), vaccinationDocument: uploadedDocument.optional(),
   hospitalId: z.string().max(100).optional(), hospitalOther: plain.optional(),
@@ -148,6 +151,7 @@ function createApp(config, store, provider) {
   installFacilityRoutes(app,store,authenticated,admin);
   installAdminAccessRoutes(app,config,store,authenticated,admin,{ cookieToken, withHealth });
   installPrivacyRoutes(app,config,store,authenticated,admin);
+  installGovernanceRoutes(app,config,store,authenticated,admin);
   installTriageRoutes(app,config,store,authenticated);
   installAiAssistRoutes(app,config,store,authenticated);
   installClinicalRoutes(app,config,store,authenticated);
@@ -182,7 +186,7 @@ function createApp(config, store, provider) {
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     response.status(201).json({ user: store.user(request.user.id) });
   });
-  const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee', 'laboratory', 'labRegion', 'labTown', 'hospitalOther'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
+  const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee', 'licenseNo', 'qualifications', 'laboratory', 'labRegion', 'labTown', 'hospitalOther'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
   // A patient may only register under a hospital that is on the public list (has active clinicians).
   const listedHospital = id => id ? store.listedHospitals().find(hospital => hospital.id === id) : null;
 

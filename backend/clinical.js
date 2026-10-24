@@ -64,6 +64,16 @@ function patientOf(store, collection, data) {
 }
 const peopleOf = (collection, data) => [...new Set(COLLECTIONS[collection].people.map(field => data[field]).filter(Boolean))];
 
+/** Patients this clinician cares for: assigned to them, registered at their hospital, or seen in a shared record. */
+function careTeam(store, actor) {
+  if (!CLINICIANS.includes(actor.role)) return new Set();
+  ensureClinicalTable(store);
+  const facility = store.db.prepare('SELECT facility_id FROM users WHERE id=?').get(actor.id)?.facility_id;
+  const rows = store.db.prepare(`SELECT id FROM users WHERE role='patient' AND status!='deleted' AND (assigned_doctor=? OR assigned_nurse=? OR (facility_id IS NOT NULL AND facility_id=?))`).all(actor.id, actor.id, facility || '');
+  const shared = store.db.prepare("SELECT DISTINCT patient_id FROM clinical_records WHERE patient_id IS NOT NULL AND people LIKE ?").all(`%"${actor.id}"%`);
+  return new Set([...rows.map(row => row.id), ...shared.map(row => row.patient_id)]);
+}
+
 function installClinicalRoutes(app, config, store, authenticated) {
   ensureClinicalTable(store);
   const context = (collection, recordId) => `clinical:${collection}:${recordId}`;
@@ -71,14 +81,7 @@ function installClinicalRoutes(app, config, store, authenticated) {
   const storage = (request, response, next) => filesConfigured(config) ? next() : response.status(503).json({ error: 'Encrypted record storage is not configured' });
   const own = (request, response, next) => request.impersonator ? response.status(403).json({ error: 'Clinical records can only be changed from your own account' }) : next();
 
-  /** Patients this clinician cares for: assigned to them, registered at their hospital, or seen in a shared record. */
-  function careTeamPatients(actor) {
-    if (!CLINICIANS.includes(actor.role)) return new Set();
-    const facility = store.db.prepare('SELECT facility_id FROM users WHERE id=?').get(actor.id)?.facility_id;
-    const rows = store.db.prepare(`SELECT id FROM users WHERE role='patient' AND status!='deleted' AND (assigned_doctor=? OR assigned_nurse=? OR (facility_id IS NOT NULL AND facility_id=?))`).all(actor.id, actor.id, facility || '');
-    const shared = store.db.prepare("SELECT DISTINCT patient_id FROM clinical_records WHERE patient_id IS NOT NULL AND people LIKE ?").all(`%"${actor.id}"%`);
-    return new Set([...rows.map(row => row.id), ...shared.map(row => row.patient_id)]);
-  }
+  const careTeamPatients = actor => careTeam(store, actor);
   const caresFor = (actor, patientId) => !!patientId && careTeamPatients(actor).has(patientId);
 
   function canRead(actor, collection, row, data, team) {
@@ -172,4 +175,4 @@ function patientRecords(config, store, patientId) {
   return out;
 }
 
-module.exports = { installClinicalRoutes, patientRecords, ensureClinicalTable, COLLECTIONS };
+module.exports = { installClinicalRoutes, patientRecords, ensureClinicalTable, careTeam, COLLECTIONS };
