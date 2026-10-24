@@ -55,11 +55,23 @@ function canReadHealth(actor, patient) {
   return patient.role === 'patient' && (actor.id === patient.id || patient.assignedDoctor === actor.id || patient.assignedNurse === actor.id);
 }
 
+// Every time a health profile is sent to someone other than the patient, the patient can see it in
+// "Who accessed my record" (one entry an hour per viewer, so page reloads do not flood the log).
+const RECORD_VIEW_DEDUPE_MS = 60 * 60 * 1000;
+function recordHealthView(store, actor, patient) {
+  if (actor.id === patient.id) return;
+  const since = new Date(Date.now() - RECORD_VIEW_DEDUPE_MS).toISOString();
+  const recent = store.db.prepare("SELECT 1 FROM audit_log WHERE actor_id=? AND target_id=? AND action='HEALTH_RECORD_VIEW' AND created_at>? LIMIT 1").get(actor.id, patient.id, since);
+  if (!recent) store.audit(actor.id, 'HEALTH_RECORD_VIEW', { targetId: patient.id, details: { role: actor.role } });
+}
+
 function withHealth(config, store, actor, users) {
   return users.map(user => {
     if (!canReadHealth(actor, user)) return user;
     const record = healthRecord(config, store, user.id);
-    return record ? { ...user, healthProfile: record } : user;
+    if (!record) return user;
+    recordHealthView(store, actor, user);
+    return { ...user, healthProfile: record };
   });
 }
 
@@ -148,4 +160,4 @@ function installAvatarRoutes(app, config, store, authenticated) {
   });
 }
 
-module.exports = { installAvatarRoutes, ensureRecordTables, saveHealthRecord, healthRecord, withHealth, canReadHealth, placeholderSvg, AVATAR_MIN_DIMENSION };
+module.exports = { installAvatarRoutes, ensureRecordTables, saveHealthRecord, healthRecord, withHealth, canReadHealth, recordHealthView, placeholderSvg, AVATAR_MIN_DIMENSION };

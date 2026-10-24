@@ -11,6 +11,37 @@ two-step sign-in for administrators.
 The public website `www.healthyfutureafrica.org` is the no-server demo on Cloudflare (`wrangler.jsonc`), with an
 edge script (`worker/index.js`) that forces HTTPS and adds security headers.
 
+## Patient rights, privacy and health-data standards
+
+Every portal has **My data & privacy** in the sidebar (under Legal & Privacy). It turns the rights in Cameroon
+Law No. 2024/017 on personal data (aligned with GDPR Art. 15–21 and the HIPAA right of access) into buttons:
+
+- **Download my health record** as an **HL7 FHIR R4** collection Bundle (`application/fhir+json`): Patient,
+  AllergyIntolerance, Condition, MedicationStatement, Procedure, Observation, FamilyMemberHistory, Consent,
+  Appointment, DiagnosticReport (released lab results only), ServiceRequest, DocumentReference and Practitioner.
+  Codes are used only where certain (WHO ICD-11 MMS, LOINC, SNOMED CT, HL7 terminology); everything else is text.
+  Information typed by the patient is marked `unconfirmed` (patient-reported), never as a diagnosis. The builder
+  is `hfa-fhir.js`, shared by the site and the server (`GET /api/v1/me/fhir`). A readable summary can be printed
+  or saved as PDF.
+- **Consents**: research, Ministry statistics and SMS can be switched on or off at any time
+  (`POST /api/v1/me/consents`); every change is kept in `consent_events` and in the encrypted health record.
+  Sharing with the care team is required to hold an account; withdrawing it is an erasure request.
+- **Who has opened my record**: each time a patient's health profile is sent to someone else (assigned
+  clinicians), and each administrator document view, account change, account closure or "sign in as", is in the
+  server audit log and shown to the person (`GET /api/v1/me/access-log`, at most one view entry per viewer per hour,
+  without IP addresses).
+- **Data-rights requests** (access, rectification, erasure, restriction, objection, portability) with a 30-day
+  deadline. Administrators answer them under **Data-rights requests** (`/api/v1/admin/privacy-requests`); closing
+  a request needs a written answer, and the patient is notified.
+
+Other safeguards: automatic sign-out after 15 minutes without activity with a one-minute warning
+(`session-guard.js`, HIPAA §164.312(a)(2)(iii)); text typed by users is HTML-escaped before display (`hx()` in
+`index.html`, OWASP ASVS V5.3); a skip link, a `main` landmark, visible keyboard focus, dialog semantics,
+Escape to close dialogs and reduced motion (WCAG 2.2 AA). The Compliance Centre lists the frameworks applied.
+
+These features do not replace legal review: data-protection authorisation, the DPO appointment, hosting location
+(Art. 32 transfers abroad) and an independent penetration test are still required before real patients.
+
 ## Environment notes
 
 - CI runs on GitHub-hosted Ubuntu runners and validates HTML linting, Jest tests, Node backend security/provider tests, Docker image build, and a frontend container smoke test.

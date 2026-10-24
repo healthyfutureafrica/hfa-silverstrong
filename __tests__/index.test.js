@@ -180,7 +180,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/portal-access.js','https://example.invalid/hfa/security.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/portal-access.js','https://example.invalid/hfa/security.js','https://example.invalid/hfa/hfa-fhir.js','https://example.invalid/hfa/privacy-centre.js','https://example.invalid/hfa/session-guard.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;
@@ -679,7 +679,7 @@ describe('index.html sanity checks', () => {
         Date:class extends Date { static now() { return clock.now; } },
         G:id=>id==='doc1'?doctor:id==='pat1'?patient:null,
         t:key=>key,tsNow:()=>'test time',notifyUser:jest.fn(),fetch:jest.fn(),alert:jest.fn(),$:jest.fn(),
-        convBetween:()=>[],RCOL:{},ini:()=>'SD',IC:{send:'send'},
+        convBetween:()=>[],RCOL:{},ini:()=>'SD',IC:{send:'send'},hx:value=>String(value??''),
       };
       vm.createContext(context);
       ['appointmentCallAllowed','startVC','startVoiceCall','normalizeWhatsAppNumber','queuePatientWhatsAppAlert','notifyUser','notifyPatientActivity','notifyPatientAccountChange','prepareDoctorReplyAlert','chatView'].forEach(name=>{

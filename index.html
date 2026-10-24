@@ -46,6 +46,12 @@ input,select,textarea,button{font-family:var(--fb)}
 .vault-actions .btn,.vault-row .btn{white-space:normal;line-height:1.3}
 .vault-download{display:block;padding:8px 0;color:var(--em);overflow-wrap:anywhere}
 
+.skip-link{position:absolute;left:12px;top:-60px;z-index:10001;background:var(--em-d);color:#fff;padding:10px 16px;border-radius:var(--rs);font-weight:600;text-decoration:none}
+.skip-link:focus{top:12px;outline:3px solid var(--go-l);outline-offset:2px}
+:focus-visible{outline:3px solid var(--em-d);outline-offset:2px}
+#sidebar :focus-visible,.bottom-nav :focus-visible{outline-color:var(--go-l)}
+#pgc:focus{outline:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 #app-wrap{display:flex;min-height:100vh}
 #sidebar{width:252px;min-height:100vh;background:var(--na);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:200}
 #main{margin-left:252px;flex:1;min-width:0;min-height:100vh;display:flex;flex-direction:column}
@@ -936,6 +942,7 @@ body{font-size:15px}
 </style>
 </head>
 <body>
+<a href="#pgc" class="skip-link" data-i18n="skip_main" onclick="skipToMain(event)">Skip to main content</a>
 
 
 <!-- LANGUAGE PICKER -->
@@ -1175,7 +1182,7 @@ body{font-size:15px}
         <div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>
       </div>
     </div>
-    <div id="pgc"></div>
+    <main id="pgc" tabindex="-1"></main>
   </div>
 </div>
 
@@ -1256,7 +1263,7 @@ body{font-size:15px}
 </div>
 
 <!-- MODAL -->
-<div id="movr" class="ov hid" onclick="cmbg(event)"><div class="mo" id="mbox"></div></div>
+<div id="movr" class="ov hid" onclick="cmbg(event)"><div class="mo" id="mbox" role="dialog" aria-modal="true"></div></div>
 
 <script src="hfa-numbering.js"></script>
 <script>
@@ -1314,7 +1321,7 @@ const T = {
     lab_portal:'Lab Portal', lab_results:'Lab Results', upload_lab_result:'Upload Lab Result',
     my_appointments:'My Appointments', health_records:'Health Records',
     consult_now:'Consult Now', sign_out:'Sign Out',
-    legal_privacy:'Legal & Privacy', compliance_nav:'Compliance Centre',
+    skip_main:'Skip to main content', legal_privacy:'Legal & Privacy', compliance_nav:'Compliance Centre',
     privacy_nav:'Privacy & Data Protection', confidentiality_nav:'Confidentiality & Medical Secrecy',
 
     // Topbar page titles
@@ -1649,7 +1656,7 @@ const T = {
     lab_portal:'Portail Laboratoire', lab_results:'Résultats de Laboratoire', upload_lab_result:'Télécharger Résultat de Laboratoire',
     my_appointments:'Mes Rendez-vous', health_records:'Dossiers de Santé',
     consult_now:'Consulter Maintenant', sign_out:'Se Déconnecter',
-    legal_privacy:'Juridique & Confidentialité', compliance_nav:'Centre de Conformité',
+    skip_main:'Aller au contenu principal', legal_privacy:'Juridique & Confidentialité', compliance_nav:'Centre de Conformité',
     privacy_nav:'Confidentialité & Protection des Données', confidentiality_nav:'Secret Médical & Confidentialité',
 
     // Topbar page titles
@@ -2652,6 +2659,8 @@ let LANG_RETURN_SCREEN = 'land';
 const $= id => document.getElementById(id);
 const show = id => $(id).classList.remove('hid');
 const hide = id => $(id).classList.add('hid');
+// Escapes text typed by users before it is placed in HTML (stored XSS defence, OWASP ASVS V5.3).
+const hx = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const G = id => DB.users.find(u => u.id === id);
 const isSuperAdmin = u => !!u && u.role==='admin' && u.adminRole==='Super Admin';
 const ini = n => ((n||'?').split(' ').filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?');
@@ -2839,7 +2848,7 @@ const Payment = { create: () => new PaymentRequestBuilder() };
 function payConsultationFee(doctorId) {
   const doc = G(doctorId); if (!doc || !doc.consultationFee) return;
   openMo(`<div class="mh"><div class="mt2">${t('pay_now')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="fg"><div class="mu sm">${doc.name} — ${tv(doc.specialty||'')}</div>
+    <div class="fg"><div class="mu sm">${hx(doc.name)} — ${tv(doc.specialty||'')}</div>
       <div style="font-size:24px;font-weight:600;margin-top:8px">${money(doc.consultationFee)}</div>
     </div>
     <div class="fg"><label class="fl">${t('payment_method')}</label><select class="fc" id="pay-md"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>
@@ -2977,6 +2986,14 @@ const NAV = {
 };
 
 // ═══════════════════════ SCREEN NAVIGATION ═══════════════════════
+// Skip link: jumps to whichever screen is showing (landing, sign-in, Free Health Hub or the app page).
+function skipToMain(event) {
+  const target=['pgc','free-hub','auth-wrap','land'].map(id=>$(id)).find(el=>el&&el.offsetParent!==null);
+  if (!target) return;
+  event.preventDefault();
+  if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex','-1');
+  target.focus();
+}
 function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); toggleSidebar(false); document.body.classList.remove('has-bottom-nav'); $('bottom-nav')?.remove(); }
 function goFreeHub() {
   hide('land'); hide('auth-wrap'); hide('app-wrap'); show('free-hub');
@@ -3026,8 +3043,8 @@ function showTerms() {
       text:{en:'Medical secrecy is a professional and criminal obligation under Cameroon law (including the Penal Code provisions on professional secrecy) and continues even after the care relationship ends. All users must keep patient identity, diagnoses, consultation content, and care notes confidential, sharing them only with the assigned care team or under a permitted legal exception. Full detail is provided on the Confidentiality & Medical Secrecy page, which you must also review.',
           fr:'Le secret m\u00e9dical est une obligation professionnelle et p\u00e9nale en droit camerounais (y compris les dispositions du Code P\u00e9nal relatives au secret professionnel) et se poursuit m\u00eame apr\u00e8s la fin de la relation de soins. Tous les utilisateurs doivent garder confidentiels l\u2019identit\u00e9 du patient, les diagnostics, le contenu des consultations et les notes de soins, en ne les partageant qu\u2019avec l\u2019\u00e9quipe de soins assign\u00e9e ou dans le cadre d\u2019une exception l\u00e9gale autoris\u00e9e. Le d\u00e9tail complet figure sur la page Confidentialit\u00e9 et Secret M\u00e9dical, que vous devez \u00e9galement consulter.'}},
     {title:{en:'5. Data Protection & Privacy',fr:'5. Protection des Donn\u00e9es et Vie Priv\u00e9e'},
-      text:{en:'Personal and health data is processed in line with Cameroon Law No. 2010/012 on cybersecurity and personal data protection, ANTIC registration requirements, and GDPR-aligned architecture and safeguards. Data is encrypted in transit and at rest, access is role-based and audit-logged, and retention periods follow the schedule on the Privacy & Data Protection page. You have rights of access, rectification, erasure, and objection as described there.',
-          fr:'Les donn\u00e9es personnelles et de sant\u00e9 sont trait\u00e9es conform\u00e9ment a la Loi camerounaise n\u00b0 2010/012 relative a la cybers\u00e9curit\u00e9 et a la protection des donn\u00e9es personnelles, aux exigences d\u2019enregistrement de l\u2019ANTIC, et a une architecture et des garanties align\u00e9es sur le RGPD. Les donn\u00e9es sont chiffr\u00e9es en transit et au repos, l\u2019acc\u00e8s est bas\u00e9 sur les r\u00f4les et journalis\u00e9, et les dur\u00e9es de conservation suivent le calendrier de la page Confidentialit\u00e9 et Protection des Donn\u00e9es. Vous disposez des droits d\u2019acc\u00e8s, de rectification, d\u2019effacement et d\u2019opposition qui y sont d\u00e9crits.'}},
+      text:{en:'Personal and health data is processed in line with Cameroon Law No. 2024/017 of December 2024 on the protection of personal data, Law No. 2010/012 on cybersecurity and cybercrime, ANTIC registration requirements, and GDPR-aligned architecture and safeguards. Data is encrypted in transit and at rest, access is role-based and audit-logged, and retention periods follow the schedule on the Privacy & Data Protection page. You have rights of access, rectification, erasure, and objection as described there.',
+          fr:'Les donn\u00e9es personnelles et de sant\u00e9 sont trait\u00e9es conform\u00e9ment a la Loi camerounaise n\u00b0 2024/017 de d\u00e9cembre 2024 relative a la protection des donn\u00e9es a caract\u00e8re personnel, a la Loi n\u00b0 2010/012 relative a la cybers\u00e9curit\u00e9 et a la cybercriminalit\u00e9, aux exigences d\u2019enregistrement de l\u2019ANTIC, et a une architecture et des garanties align\u00e9es sur le RGPD. Les donn\u00e9es sont chiffr\u00e9es en transit et au repos, l\u2019acc\u00e8s est bas\u00e9 sur les r\u00f4les et journalis\u00e9, et les dur\u00e9es de conservation suivent le calendrier de la page Confidentialit\u00e9 et Protection des Donn\u00e9es. Vous disposez des droits d\u2019acc\u00e8s, de rectification, d\u2019effacement et d\u2019opposition qui y sont d\u00e9crits.'}},
     {title:{en:'6. Informed Consent for Virtual Care',fr:'6. Consentement Eclair\u00e9 aux Soins Virtuels'},
       text:{en:'By booking a virtual consultation, patients acknowledge that telehealth has inherent limitations compared to in-person examination, that technical interruptions may occur, and that the treating clinician may recommend an in-person visit, referral, or emergency care when virtual assessment is insufficient. Consent to telehealth and data sharing is recorded in your account and may be withdrawn at any time by contacting the care team.',
           fr:'En r\u00e9servant une consultation virtuelle, le patient reconnait que la t\u00e9l\u00e9m\u00e9decine pr\u00e9sente des limites inh\u00e9rentes par rapport a un examen en personne, que des interruptions techniques peuvent survenir, et que le clinicien traitant peut recommander une visite en personne, une orientation ou des soins d\u2019urgence lorsque l\u2019\u00e9valuation virtuelle est insuffisante. Le consentement a la t\u00e9l\u00e9m\u00e9decine et au partage des donn\u00e9es est enregistr\u00e9 dans votre compte et peut \u00eatre retir\u00e9 a tout moment en contactant l\u2019\u00e9quipe de soins.'}},
@@ -3044,8 +3061,8 @@ function showTerms() {
       text:{en:'HFA SilverStrong may suspend or terminate any account that breaches this agreement, endangers patient safety, or violates applicable law. Serious clinical, safety, or legal violations by licensed professionals may be reported to the appropriate medical or nursing regulatory board and, where required, to law enforcement.',
           fr:'HFA SilverStrong peut suspendre ou r\u00e9silier tout compte qui enfreint le pr\u00e9sent accord, met en danger la s\u00e9curit\u00e9 des patients, ou viole la loi applicable. Les violations cliniques, de s\u00e9curit\u00e9 ou l\u00e9gales graves commises par des professionnels agr\u00e9es peuvent \u00eatre signal\u00e9es a l\u2019ordre m\u00e9dical ou infirmier comp\u00e9tent et, si n\u00e9cessaire, aux forces de l\u2019ordre.'}},
     {title:{en:'11. Governing Law',fr:'11. Droit Applicable'},
-      text:{en:'This agreement is governed by the laws of the Republic of Cameroon, including healthcare practice regulations and Law No. 2010/012 on cybersecurity and personal data protection. Any dispute will first be addressed through good-faith negotiation with HFA SilverStrong support before other remedies are pursued.',
-          fr:'Le pr\u00e9sent accord est r\u00e9gi par les lois de la R\u00e9publique du Cameroun, y compris les r\u00e9glementations relatives a la pratique des soins de sant\u00e9 et la Loi n\u00b0 2010/012 relative a la cybers\u00e9curit\u00e9 et a la protection des donn\u00e9es personnelles. Tout litige sera d\u2019abord trait\u00e9 par une n\u00e9gociation de bonne foi avec le support HFA SilverStrong avant toute autre voie de recours.'}},
+      text:{en:'This agreement is governed by the laws of the Republic of Cameroon, including healthcare practice regulations, Law No. 2024/017 on the protection of personal data and Law No. 2010/012 on cybersecurity and cybercrime. Any dispute will first be addressed through good-faith negotiation with HFA SilverStrong support before other remedies are pursued.',
+          fr:'Le pr\u00e9sent accord est r\u00e9gi par les lois de la R\u00e9publique du Cameroun, y compris les r\u00e9glementations relatives a la pratique des soins de sant\u00e9, la Loi n\u00b0 2024/017 relative a la protection des donn\u00e9es a caract\u00e8re personnel et la Loi n\u00b0 2010/012 relative a la cybers\u00e9curit\u00e9 et a la cybercriminalit\u00e9. Tout litige sera d\u2019abord trait\u00e9 par une n\u00e9gociation de bonne foi avec le support HFA SilverStrong avant toute autre voie de recours.'}},
   ];
   openMo(`<div class="mh"><div class="mt2">${t('terms_and_conditions')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div style="max-height:55vh;overflow-y:auto;padding-right:4px">
@@ -3069,7 +3086,11 @@ function toggleSidebar(open) {
   const button=$('tb-menu'); if (button) button.setAttribute('aria-expanded', String(next));
   if (!next && open===false && document.activeElement?.closest?.('#sidebar')) button?.focus();
 }
-document.addEventListener('keydown', event=>{ if (event.key==='Escape' && $('app-wrap')?.classList.contains('sb-open')) toggleSidebar(false); });
+document.addEventListener('keydown', event=>{
+  if (event.key!=='Escape') return;
+  if (!$('movr').classList.contains('hid')) { closeMo(); return; }
+  if ($('app-wrap')?.classList.contains('sb-open')) toggleSidebar(false);
+});
 window.matchMedia?.('(min-width:701px)').addEventListener?.('change', event=>{ if (event.matches) toggleSidebar(false); });
 
 // ═══════════════════════ AUTH ═══════════════════════
@@ -3328,8 +3349,10 @@ function renderPage(page) {
   $('tbr').innerHTML = `${typeof HFATheme!=='undefined'?HFATheme.button():''}${signOutBtn}<div class="ib"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="nd"></div></div>`;
   if (typeof PortalAccess!=='undefined') PortalAccess.renderBanner();
   // Administrators must turn on two-step sign-in before using admin tools (the server enforces it too).
-  if (typeof HFASecurity!=='undefined' && HFASecurity.needsMfa() && !['security','privacy','confidentiality'].includes(page)) { page='security'; CP='security'; }
+  if (typeof HFASecurity!=='undefined' && HFASecurity.needsMfa() && !['security','privacy','confidentiality','my-data'].includes(page)) { page='security'; CP='security'; }
   if (page==='security' && typeof HFASecurity!=='undefined') return HFASecurity.renderPage(pc);
+  if (page==='my-data' && typeof HFAPrivacy!=='undefined') return HFAPrivacy.renderPage(pc);
+  if (page==='privacy-requests' && r==='admin' && typeof HFAPrivacy!=='undefined') return HFAPrivacy.renderAdmin(pc);
   if (page==='portal-access' && isSuperAdmin(CU) && typeof PortalAccess!=='undefined') return PortalAccess.renderPage(pc);
   if (page==='complete-profile' && r==='patient' && typeof HFAPatientRegistration!=='undefined') return HFAPatientRegistration.renderPage(pc);
   if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
@@ -3433,8 +3456,8 @@ function aptCard(a) {
     <div class="adi" style="flex:1">
       <div class="ain">${who}</div>
       <div class="ame">${a.time} · ${a.durationMinutes||30} ${t('minutes_short')} · ${tv(a.serviceName||a.type)} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
-      ${a.notes ? `<div class="ame">${a.notes}</div>` : ''}
-      ${report ? `<div class="ame"><strong>${t('doctor_report')}:</strong> ${report.summary}</div>` : ''}
+      ${a.notes ? `<div class="ame">${hx(a.notes)}</div>` : ''}
+      ${report ? `<div class="ame"><strong>${t('doctor_report')}:</strong> ${hx(report.summary)}</div>` : ''}
     </div>
     <div class="aac">
       ${a.status==='scheduled'&&[a.patientId,a.doctorId,a.nurseId].includes(CU.id)?`<button class="btn bp bsm" onclick="joinAppointment('${a.id}')">${a.mode==='video'?IC.vid:a.mode==='voice'?IC.phone:IC.send} ${t(a.mode==='video'?'join_video':a.mode==='voice'?'join_call':'open_chat')}</button>`:''}
@@ -3454,7 +3477,7 @@ function completeApt(id) {
 function showDoctorReport(appointmentId) {
   const apt=DB.appointments.find(a=>a.id===appointmentId), patient=G(apt?.patientId);
   if(!apt||!patient) return;
-  openMo(`<div class="mh"><div><div class="mt2">${t('add_doctor_report')}</div><div class="mu sm">${patient.name} · ${apt.date} ${t('at')} ${apt.time}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+  openMo(`<div class="mh"><div><div class="mt2">${t('add_doctor_report')}</div><div class="mu sm">${hx(patient.name)} · ${apt.date} ${t('at')} ${apt.time}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div class="fg"><label class="fl">${t('diagnosis_summary')}</label><input class="fc" id="dr-summary" placeholder="${t('i_report_summary_ph')}"></div>
     <div class="fg"><label class="fl">${t('treatment_plan')}</label><textarea class="fc" id="dr-plan" placeholder="${t('report_notes_ph')}"></textarea></div>
     <div id="dr-status" class="mu sm"></div>
@@ -3532,15 +3555,15 @@ function renderIntegrations(pc) {
 function renderTriageQueue(pc) {
   $('tbt').textContent=t('triage_queue_nav');
   const cases=DB.triageCases.filter(item=>item.status!=='closed');
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('triage_queue_title')}</h2><p>${t('triage_queue_sub')}</p></div><div class="card">${cases.length?cases.map(item=>{const patient=G(item.patientId);return`<div class="code-item"><span class="badge ${item.priority==='emergency'?'bda':item.priority==='urgent'?'bwa':'bin'}">${tv(item.priority)}</span><div style="flex:1"><strong>${patient?.name||t('patient')} · ${item.location}</strong><span>${item.symptoms} · ${item.createdAt}</span></div><button class="btn bs bsm" onclick="closeTriage('${item.id}')">${t('close_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_open_triage')}</div>`}</div></div>`;
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('triage_queue_title')}</h2><p>${t('triage_queue_sub')}</p></div><div class="card">${cases.length?cases.map(item=>{const patient=G(item.patientId);return`<div class="code-item"><span class="badge ${item.priority==='emergency'?'bda':item.priority==='urgent'?'bwa':'bin'}">${tv(item.priority)}</span><div style="flex:1"><strong>${hx(patient?.name||t('patient'))} · ${hx(item.location)}</strong><span>${hx(item.symptoms)} · ${item.createdAt}</span></div><button class="btn bs bsm" onclick="closeTriage('${item.id}')">${t('close_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_open_triage')}</div>`}</div></div>`;
 }
 function closeTriage(id) { const item=DB.triageCases.find(item=>item.id===id); if(item){item.status='closed';log('CLOSE_TRIAGE','Urgent Care');} navigate('triage-queue'); }
 
 function renderSafety(pc) {
   $('tbt').textContent=t('safety_nav');
   pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('safety_title')}</h2><p>${t('safety_sub')}</p></div>
-    <div class="card mb18"><div class="ch"><div class="ct">${t('med_alerts_title')}</div></div>${DB.medicationSafetyAlerts.length?DB.medicationSafetyAlerts.map(alert=>{const patient=G(alert.patientId);return`<div class="code-item"><span class="badge ${alert.severity==='critical'?'bda':'bwa'}">${tv(alert.severity)}</span><div style="flex:1"><strong>${patient?.name||t('patient')}</strong><span>${tv(alert.message)}</span></div><button class="btn bs bsm" onclick="resolveSafetyAlert('${alert.id}')">${t('resolve_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_med_alerts')}</div>`}</div>
-    <div class="card"><div class="ch"><div class="ct">${t('consent_registry')}</div></div>${DB.consents.map(consent=>{const patient=G(consent.patientId);return`<div class="code-item"><code class="code-chip">v${consent.version}</code><div><strong>${patient?.name||t('patient')} · ${tv(consent.type)}</strong><span>${tfmt('i_status_recorded',{status:tv(consent.status),date:consent.recordedAt})}</span></div><span class="badge ${consent.status==='active'?'bsu':'bse'}">${tv(consent.status)}</span></div>`}).join('')}</div>
+    <div class="card mb18"><div class="ch"><div class="ct">${t('med_alerts_title')}</div></div>${DB.medicationSafetyAlerts.length?DB.medicationSafetyAlerts.map(alert=>{const patient=G(alert.patientId);return`<div class="code-item"><span class="badge ${alert.severity==='critical'?'bda':'bwa'}">${tv(alert.severity)}</span><div style="flex:1"><strong>${hx(patient?.name||t('patient'))}</strong><span>${hx(tv(alert.message))}</span></div><button class="btn bs bsm" onclick="resolveSafetyAlert('${alert.id}')">${t('resolve_btn')}</button></div>`}).join(''):`<div class="rating-empty">${t('no_med_alerts')}</div>`}</div>
+    <div class="card"><div class="ch"><div class="ct">${t('consent_registry')}</div></div>${DB.consents.map(consent=>{const patient=G(consent.patientId);return`<div class="code-item"><code class="code-chip">v${consent.version}</code><div><strong>${hx(patient?.name||t('patient'))} · ${tv(consent.type)}</strong><span>${tfmt('i_status_recorded',{status:tv(consent.status),date:consent.recordedAt})}</span></div><span class="badge ${consent.status==='active'?'bsu':'bse'}">${tv(consent.status)}</span></div>`}).join('')}</div>
   </div>`;
 }
 function resolveSafetyAlert(id) { const alert=DB.medicationSafetyAlerts.find(item=>item.id===id); if(alert){alert.status='resolved';log('RESOLVE_MEDICATION_ALERT','Clinical Safety');} navigate('safety'); }
@@ -3567,8 +3590,14 @@ function renderAudit(pc) {
 function renderCompliance(pc) {
   $('tbt').textContent=t('compliance_nav');
   const frameworks = [
-    {badge:'CAM-2010/012',title:{en:'Cameroon Law No. 2010/012',fr:'Loi camerounaise n° 2010/012'},text:{en:'Sets rules for cybersecurity and electronic communications. HFA treats clinical accounts, access records, and incident handling as regulated digital health activity.',fr:'Fixe les règles de cybersécurité et de communications électroniques. HFA traite les comptes cliniques, les accès et les incidents comme une activité numérique de santé réglementée.'}},
-    {badge:'GDPR',title:{en:'GDPR-Aligned Architecture',fr:'Architecture Alignée sur le RGPD'},text:{en:'Uses privacy-by-design safeguards: minimum necessary data, role-based access, clear retention periods, and auditable data rights workflows.',fr:'Applique la protection des données dès la conception : données minimales, accès par rôle, durées de conservation claires et droits traçables.'}},
+    {badge:'CAM-2024/017',title:{en:'Cameroon Law No. 2024/017 on personal data',fr:'Loi camerounaise n° 2024/017 sur les données personnelles'},text:{en:'Health data is sensitive data: it is processed only with explicit consent or for care, with a Data Protection Officer, a 30-day answer to every data-rights request, breach handling, and limits on transfers outside Cameroon.',fr:'Les données de santé sont des données sensibles : traitées uniquement avec un consentement explicite ou pour les soins, avec un Délégué à la protection des données, une réponse sous 30 jours à chaque demande et des limites aux transferts hors du Cameroun.'}},
+    {badge:'CAM-2010/012',title:{en:'Cameroon Law No. 2010/012',fr:'Loi camerounaise n° 2010/012'},text:{en:'Sets rules for cybersecurity and cybercrime. HFA treats clinical accounts, access records, and incident handling as regulated digital health activity.',fr:'Fixe les règles de cybersécurité et de lutte contre la cybercriminalité. HFA traite les comptes cliniques, les accès et les incidents comme une activité numérique de santé réglementée.'}},
+    {badge:'HL7 FHIR R4',title:{en:'International health-record exchange',fr:'Échange international des dossiers de santé'},text:{en:'Patients download their record as an HL7 FHIR R4 file that hospitals and health apps can read. Conditions use WHO ICD-11 codes; blood group and smoking use LOINC and SNOMED CT.',fr:'Les patients téléchargent leur dossier au format HL7 FHIR R4, lisible par les hôpitaux et applications de santé. Les affections utilisent les codes CIM-11 de l’OMS ; groupe sanguin et tabac utilisent LOINC et SNOMED CT.'}},
+    {badge:'GDPR',title:{en:'GDPR-Aligned Architecture',fr:'Architecture Alignée sur le RGPD'},text:{en:'Privacy by design: minimum necessary data, role-based access, clear retention periods, and self-service rights to access, correct, erase, restrict, object and take data elsewhere.',fr:'Protection dès la conception : données minimales, accès par rôle, durées de conservation claires, et droits en libre-service d’accès, rectification, effacement, limitation, opposition et portabilité.'}},
+    {badge:'HIPAA',title:{en:'HIPAA-Aligned Safeguards',fr:'Garanties alignées sur HIPAA'},text:{en:'Encryption at rest and in transit, unique accounts, two-step sign-in for administrators, automatic sign-out after 15 minutes of inactivity, audit controls, and a log patients can read of everyone who opened their record.',fr:'Chiffrement au repos et en transit, comptes individuels, connexion en deux étapes pour les administrateurs, déconnexion automatique après 15 minutes d’inactivité, contrôles d’audit et journal consultable par le patient de chaque accès à son dossier.'}},
+    {badge:'WCAG 2.2',title:{en:'Accessible to everyone',fr:'Accessible à tous'},text:{en:'Built to WCAG 2.2 level AA: keyboard use, visible focus, screen-reader labels, large touch targets, reduced motion, high-contrast colours, and plain English and French.',fr:'Conçu selon le niveau AA des WCAG 2.2 : clavier, focus visible, libellés pour lecteurs d’écran, grandes zones tactiles, animations réduites, couleurs contrastées et français et anglais simples.'}},
+    {badge:'OWASP',title:{en:'Secure development',fr:'Développement sécurisé'},text:{en:'Designed against the OWASP Application Security Verification Standard: validated input, escaped output, strict cookies, rate limits, security headers and encrypted files. An independent penetration test is required before production.',fr:'Conçu selon le standard OWASP ASVS : entrées validées, sorties échappées, cookies stricts, limites de débit, en-têtes de sécurité et fichiers chiffrés. Un test d’intrusion indépendant est requis avant la production.'}},
+    {badge:'WHO',title:{en:'WHO Global Strategy on Digital Health',fr:'Stratégie mondiale de l’OMS pour la santé numérique'},text:{en:'People-centred, interoperable and secure digital health, with clinician review of triage and guidance that never replaces emergency care.',fr:'Une santé numérique centrée sur la personne, interopérable et sûre, avec revue clinique du triage et des conseils qui ne remplacent jamais les urgences.'}},
     {badge:'ANTIC',title:{en:'ANTIC Registration',fr:'Enregistrement ANTIC'},text:{en:'Provider operations are prepared for national registration and audit expectations from Cameroon\'s ICT regulator.',fr:'Les opérations du prestataire sont préparées aux attentes d\'enregistrement et d\'audit du régulateur TIC camerounais.'}},
   ];
   const issues = [
@@ -3586,7 +3615,7 @@ function renderCompliance(pc) {
     {en:'Respect patient confidentiality during and after your work with HFA SilverStrong.',fr:'Respectez la confidentialité des patients pendant et après votre travail avec HFA SilverStrong.'},
   ];
   pc.innerHTML=`<div class="page">
-    <div class="legal-hero"><h2>${t('compliance_nav')}</h2><p>${LANG==='fr'?'HFA SilverStrong applique un cadre combinant la loi camerounaise sur la cybersécurité, une architecture alignée sur le RGPD et une préparation aux exigences ANTIC pour les services de télésanté.':'HFA SilverStrong applies a combined framework of Cameroon cybersecurity law, GDPR-aligned privacy architecture, and ANTIC readiness for telehealth service operations.'}</p></div>
+    <div class="legal-hero"><h2>${t('compliance_nav')}</h2><p>${LANG==='fr'?'HFA SilverStrong applique un cadre combinant la loi camerounaise sur les données personnelles et la cybersécurité, les normes internationales de santé numérique (HL7 FHIR, CIM-11, WCAG, OWASP), des garanties alignées sur le RGPD et HIPAA, et une préparation aux exigences ANTIC.':'HFA SilverStrong applies a combined framework of Cameroon personal-data and cybersecurity law, international digital-health standards (HL7 FHIR, ICD-11, WCAG, OWASP), GDPR- and HIPAA-aligned safeguards, and ANTIC readiness.'}</p></div>
     <div class="legal-grid">${frameworks.map(item=>`<div class="legal-card"><span class="legal-badge">${item.badge}</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Problèmes de conformité et solutions':'Compliance issues and solutions'}</div></div><div class="issue-list">${issues.map(item=>`<div class="issue-pair"><div class="problem-block"><strong>${LANG==='fr'?'Problème':'Problem'}</strong>${lt(item.p)}</div><div class="solution-block"><strong>${LANG==='fr'?'Solution':'Solution'}</strong>${lt(item.s)}</div></div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Vos obligations légales':'Your legal obligations'}</div></div><div class="legal-numbered">${obligations.map(item=>`<div class="legal-duty">${lt(item)}</div>`).join('')}</div></div>
@@ -3614,6 +3643,8 @@ function renderPrivacy(pc) {
     {title:{en:'Right to Rectification',fr:'Droit de Rectification'},text:{en:'You can request correction of inaccurate or incomplete information.',fr:'Vous pouvez demander la correction d\'informations inexactes ou incomplètes.'}},
     {title:{en:'Right to Erasure',fr:'Droit à l\'Effacement'},text:{en:'You can request deletion when retention law and clinical safety allow it.',fr:'Vous pouvez demander la suppression lorsque la loi de conservation et la sécurité clinique le permettent.'}},
     {title:{en:'Right to Object',fr:'Droit d\'Opposition'},text:{en:'You can object to certain processing activities and ask for a review.',fr:'Vous pouvez vous opposer à certains traitements et demander une révision.'}},
+    {title:{en:'Right to Data Portability',fr:'Droit à la Portabilité'},text:{en:'You can download your health record as an HL7 FHIR R4 file and take it to another provider.',fr:'Vous pouvez télécharger votre dossier de santé au format HL7 FHIR R4 et le transmettre à un autre prestataire.'}},
+    {title:{en:'Right to Know Who Accessed Your Record',fr:'Droit de Savoir qui a Consulté votre Dossier'},text:{en:'You can see every time someone else opened your health information or changed your account.',fr:'Vous pouvez voir chaque fois qu\'une autre personne a consulté vos informations de santé ou modifié votre compte.'}},
   ];
   const retention = [
     [{en:'Medical Records',fr:'Dossiers Médicaux'},{en:'10 yr',fr:'10 ans'}],[{en:'Audit Logs',fr:'Journaux d\'Audit'},{en:'7 yr',fr:'7 ans'}],[{en:'Communication Records',fr:'Enregistrements de Communication'},{en:'5 yr',fr:'5 ans'}],[{en:'Account Data',fr:'Données de Compte'},{en:'deletion + 1 yr',fr:'suppression + 1 an'}],
@@ -3627,7 +3658,7 @@ function renderPrivacy(pc) {
     <div class="legal-hero"><h2>${t('privacy_nav')}</h2><p>${LANG==='fr'?'Cette page explique quelles données HFA SilverStrong collecte, comment elles sont protégées, les droits des personnes concernées et les durées de conservation appliquées.':'This page explains what HFA SilverStrong collects, how data is protected, the rights available to data subjects, and the retention periods applied.'}</p></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Données collectées':'What data is collected'}</div></div><div class="legal-grid">${collected.map(item=>`<div class="legal-card"><span class="legal-badge">${LANG==='fr'?'DONNÉES':'DATA'}</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Protection des données':'How it is protected'}</div></div><div class="legal-grid">${protectedBy.map(item=>`<div class="legal-card"><span class="legal-badge">SAFE</span><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
-    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Droits sur les données':'Data rights'}</div></div><div class="g2">${rights.map(item=>`<div class="legal-card"><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
+    <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Droits sur les données':'Data rights'}</div><button type="button" class="btn bp bsm" onclick="navigate('my-data')">${t('pc_nav')}</button></div><div class="g2">${rights.map(item=>`<div class="legal-card"><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Durées de conservation':'Data retention periods'}</div></div>${retention.map(item=>`<div class="retention-row"><strong>${lt(item[0])}</strong><span>${typeof item[1]==='string'?item[1]:lt(item[1])}</span></div>`).join('')}</div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Problèmes de confidentialité et solutions':'Data privacy issues and solutions'}</div></div><div class="issue-list">${issues.map(item=>`<div class="issue-pair"><div class="problem-block"><strong>${LANG==='fr'?'Problème':'Problem'}</strong>${lt(item.p)}</div><div class="solution-block"><strong>${LANG==='fr'?'Solution':'Solution'}</strong>${lt(item.s)}</div></div>`).join('')}</div></div>
     <div class="contact-card"><div class="legal-badge">DPO</div><div><h3>${LANG==='fr'?'Délégué à la Protection des Données':'Data Protection Officer'}</h3><p>${LANG==='fr'?'Email : dpo@hfa.org<br>Téléphone : +237 677 000 120<br>Délai cible de réponse : 30 jours':'Email: dpo@hfa.org<br>Phone: +237 677 000 120<br>Target response time: 30 days'}</p></div></div>
@@ -3696,8 +3727,8 @@ function renderManage(pc, roleFilter, title) {
         const protectedSuper = isSuperAdmin(u);
         return `<tr>
         <td><div style="display:flex;align-items:center;gap:10px">
-          <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
-          <div><div class="bo sm">${u.name} ${protectedSuper?`<span class="badge bwa" style="margin-left:4px">${t('super_admin_badge')}</span>`:''}</div><div class="mu sm">${u.email}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${u.hfaId||'—'}</code></div>
+          <div class="av" style="width:30px;height:30px;font-size:.68rem">${hx(ini(u.name))}</div>
+          <div><div class="bo sm">${hx(u.name)} ${protectedSuper?`<span class="badge bwa" style="margin-left:4px">${t('super_admin_badge')}</span>`:''}</div><div class="mu sm">${u.email}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${u.hfaId||'—'}</code></div>
         </div></td>
         <td class="sm">${tv(roleFilter==='admin'?(u.adminRole||'Administrator'):(u.specialty||u.department||u.dateOfBirth||'—'))}</td>
         <td class="mu sm">${u.phone||'—'}</td>
@@ -3730,8 +3761,8 @@ function renderApprovals(pc) {
       <thead><tr><th>${t('user')}</th><th>${t('phone_lbl')}</th><th>${t('specialty')}</th><th>${t('applied_on')}</th><th>${t('status')}</th><th>${t('actions')}</th></tr></thead>
       <tbody>${pending.map(u=>`<tr>
         <td><div style="display:flex;align-items:center;gap:10px">
-          <div class="av" style="width:30px;height:30px;font-size:.68rem">${ini(u.name)}</div>
-          <div><div class="bo sm">${u.name}</div><div class="mu sm">${u.email} · ${u.role==='pharmacist'?t('pharmacist'):u.role==='doctor'?t('doctor'):u.role==='nurse'?t('nurse'):t('admin_role_lbl')}</div></div>
+          <div class="av" style="width:30px;height:30px;font-size:.68rem">${hx(ini(u.name))}</div>
+          <div><div class="bo sm">${hx(u.name)}</div><div class="mu sm">${u.email} · ${u.role==='pharmacist'?t('pharmacist'):u.role==='doctor'?t('doctor'):u.role==='nurse'?t('nurse'):t('admin_role_lbl')}</div></div>
         </div></td>
         <td class="mu sm">${u.phone||'—'}</td>
         <td class="sm">${tv(u.role==='pharmacist'?pharmacyCredentialSummary(u):u.specialty||u.adminRole||'—')}</td>
@@ -3752,7 +3783,7 @@ function askApprove(id) {
   const u=G(id); if(!u) return;
   if (u.role==='pharmacist') {showPharmacyApproval(u);return;}
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
-  openMo(`<div style="text-align:center;padding:10px 0">${IC.chk}<p style="margin-top:12px">${t('approve_confirm_title')}<br><strong>${u.name}</strong> ${t('approve_confirm_body')}</p>
+  openMo(`<div style="text-align:center;padding:10px 0">${IC.chk}<p style="margin-top:12px">${t('approve_confirm_title')}<br><strong>${hx(u.name)}</strong> ${t('approve_confirm_body')}</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="confirmApprove('${id}')">${t('yes_approve')}</button></div></div>`);
 }
 function confirmApprove(id) {
@@ -3765,7 +3796,7 @@ function confirmApprove(id) {
 function askReject(id) {
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
-  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">${t('reject_confirm_title')}<br><strong>${u.name}</strong> ${t('reject_confirm_body')}</p>
+  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">${t('reject_confirm_title')}<br><strong>${hx(u.name)}</strong> ${t('reject_confirm_body')}</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmReject('${id}')">${t('yes_reject')}</button></div></div>`);
 }
 function confirmReject(id) {
@@ -3781,8 +3812,8 @@ function renderAllApts(pc) {
     <div class="card"><div class="tw"><table>
       <thead><tr><th>${t('patient_lbl')}</th><th>${t('doctor')}</th><th>${t('date_time')}</th><th>${t('type')}</th><th>${t('mode')}</th><th>${t('status')}</th></tr></thead>
       <tbody>${DB.appointments.map(a=>{const pat=G(a.patientId),doc=G(a.doctorId);return`<tr>
-        <td class="bo sm">${pat?.name||'—'}</td>
-        <td class="sm">${doc?.name||'—'}</td>
+        <td class="bo sm">${hx(pat?.name||'—')}</td>
+        <td class="sm">${hx(doc?.name||'—')}</td>
         <td class="mu sm">${a.date} @ ${a.time} · ${a.durationMinutes||30} ${t('minutes_short')}</td>
         <td><span class="badge bse">${tv(a.type)}</span></td>
         <td><span class="badge ${a.mode==='video'?'bwa':'bin'}">${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</span></td>
@@ -3844,7 +3875,7 @@ function approvedDoctorPhoto(doctor) {
 }
 function doctorPortrait(doctor) {
   const photo=approvedDoctorPhoto(doctor);
-  return photo?`<img class="doctor-portrait" src="${photo}" alt="${t('approved_doctor_photo')}">`:`<div class="doctor-portrait" title="${t('no_approved_photo')}">${ini(doctor?.name||'?')}</div>`;
+  return photo?`<img class="doctor-portrait" src="${photo}" alt="${t('approved_doctor_photo')}">`:`<div class="doctor-portrait" title="${t('no_approved_photo')}">${hx(ini(doctor?.name||'?'))}</div>`;
 }
 function doctorPhotoCard() {
   const submission=CU.doctorPhotoSubmission;
@@ -3884,7 +3915,7 @@ function saveDoctorPhoto() {
 function doctorPhotoReviewPanel() {
   if (CU.role!=='admin') return '';
   const doctors=DB.users.filter(user=>user.role==='doctor'&&user.doctorPhotoSubmission?.status==='pending');
-  return `<section class="mt18"><h3 class="ct mb12">${t('doctor_photo_reviews')}</h3>${doctors.length?doctors.map(doctor=>`<div class="ai2 mb12"><img class="doctor-photo-preview" src="${doctor.doctorPhotoSubmission.data}" alt="${t('photo_pending')}"><div class="adi"><strong>${doctor.name}</strong><div class="mu sm">${tv(doctor.specialty||'')}</div></div><div class="aac"><button class="btn bp bsm" onclick="reviewDoctorPhoto('${doctor.id}',true)">${IC.chk} ${t('approve')}</button><button class="btn bd2 bsm" onclick="reviewDoctorPhoto('${doctor.id}',false)">${IC.x} ${t('reject')}</button></div></div>`).join(''):`<p class="mu sm">${t('no_photo_reviews')}</p>`}</section>`;
+  return `<section class="mt18"><h3 class="ct mb12">${t('doctor_photo_reviews')}</h3>${doctors.length?doctors.map(doctor=>`<div class="ai2 mb12"><img class="doctor-photo-preview" src="${doctor.doctorPhotoSubmission.data}" alt="${t('photo_pending')}"><div class="adi"><strong>${hx(doctor.name)}</strong><div class="mu sm">${tv(doctor.specialty||'')}</div></div><div class="aac"><button class="btn bp bsm" onclick="reviewDoctorPhoto('${doctor.id}',true)">${IC.chk} ${t('approve')}</button><button class="btn bd2 bsm" onclick="reviewDoctorPhoto('${doctor.id}',false)">${IC.x} ${t('reject')}</button></div></div>`).join(''):`<p class="mu sm">${t('no_photo_reviews')}</p>`}</section>`;
 }
 function reviewDoctorPhoto(doctorId, approve) {
   if (CU.role!=='admin') return;
@@ -3915,7 +3946,7 @@ function renderDrDash(pc) {
   const myA=DB.appointments.filter(a=>a.doctorId===CU.id);
   const up=myA.filter(a=>a.status==='scheduled');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${tv(CU.specialty||'')} · ${CU.hospital||''} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${hx(CU.name)}</h2><p>${tv(CU.specialty||'')} · ${hx(CU.hospital||'')} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">${t('my_patients_lbl')}</div></div>
       <div class="sc cg"><div class="sv">${up.length}</div><div class="sl">${t('upcoming')}</div></div>
@@ -3931,8 +3962,8 @@ function renderDrDash(pc) {
         ${patientInitialControl(myP)}
         ${filterPatientsByInitial(myP,CU.patientInitialFilter).length===0 ? `<div class="emp"><p>${t(myP.length?'no_matching_patients':'no_patients')}</p></div>` : filterPatientsByInitial(myP,CU.patientInitialFilter).map(p=>`
           <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
-            <div class="pca">${ini(p.name)}</div>
-            <div style="flex:1"><div class="bo sm">${p.name}</div><div class="mu sm">${p.bloodType||'—'} · ${tv(p.gender||'—')}</div></div>
+            <div class="pca">${hx(ini(p.name))}</div>
+            <div style="flex:1"><div class="bo sm">${hx(p.name)}</div><div class="mu sm">${p.bloodType||'—'} · ${tv(p.gender||'—')}</div></div>
             ${p.allergies&&p.allergies!=='None'?`<span class="badge bda" title="${t('allergies')}">!</span>`:''}
           </div>`).join('')}
       </div>
@@ -3953,18 +3984,18 @@ function renderPatients(pc) {
     ${filterPatientsByInitial(myP,CU.patientInitialFilter).length===0 ? `<div class="card"><div class="emp"><p>${t(myP.length?'no_matching_patients':'no_patients')}</p></div></div>` : filterPatientsByInitial(myP,CU.patientInitialFilter).map(p=>`
     <div class="ptc mb12">
       <div class="pch">
-        <div class="pca">${ini(p.name)}</div>
-        <div style="flex:1"><div class="bo">${p.name}</div><div class="pcm">${p.email} · ${p.phone||''}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${p.hfaId||'—'}</code></div>
+        <div class="pca">${hx(ini(p.name))}</div>
+        <div style="flex:1"><div class="bo">${hx(p.name)}</div><div class="pcm">${p.email} · ${p.phone||''}</div><code class="code-chip" style="margin-top:2px;display:inline-block">${p.hfaId||'—'}</code></div>
         <span class="badge bsu">${t('active')}</span>
       </div>
       <div class="pcg">
         <div class="pf"><label>${t('dob_lbl')}</label><span>${p.dateOfBirth||'—'}</span></div>
         <div class="pf"><label>${t('gender_lbl')}</label><span>${tv(p.gender||'—')}</span></div>
         <div class="pf"><label>${t('blood_type_lbl')}</label><span class="badge bin">${p.bloodType||'—'}</span></div>
-        <div class="pf"><label>${t('allergies')}</label><span class="${p.allergies&&p.allergies!=='None'?'aw':''}">${tv(p.allergies||'None')}</span></div>
+        <div class="pf"><label>${t('allergies')}</label><span class="${p.allergies&&p.allergies!=='None'?'aw':''}">${hx(tv(p.allergies||'None'))}</span></div>
         <div class="pf" style="grid-column:span 2"><label>${t('medical_history')}</label><span>${p.medicalHistory||t('none_recorded')}</span></div>
-        <div class="pf"><label>${t('address')}</label><span>${p.address||'—'}</span></div>
-        <div class="pf"><label>${t('emergency_contact')}</label><span>${p.emergencyContact||'—'}</span></div>
+        <div class="pf"><label>${t('address')}</label><span>${hx(p.address||'—')}</span></div>
+        <div class="pf"><label>${t('emergency_contact')}</label><span>${hx(p.emergencyContact||'—')}</span></div>
       </div>
       <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn bs bsm" onclick="showPatientDocuments('${p.id}')">${IC.file} ${t('medical_documents_title')}</button>${CU.role==='doctor'&&isGeneralistDoctor(CU)?`<button class="btn bp bsm" onclick="showSpecialistReferral('${p.id}')">${IC.plus} ${t('refer_specialist')}</button>`:''}</div>
     </div>`).join('')}
@@ -3978,12 +4009,12 @@ function renderRecords(pc) {
     <div class="ph"><h2>${t('medical_records')}</h2><p>${LANG==='fr'?'Dossiers complets pour vos patients':'Complete records for your patients'}</p></div>
     ${myP.length===0 ? `<div class="card"><div class="emp"><p>${t('no_records')}</p></div></div>` : myP.map(p=>`
     <div class="card mb18">
-      <div class="ch"><div><div class="ct">${p.name}</div><div class="mu sm">DOB: ${p.dateOfBirth||'—'} · ${tv(p.gender||'—')} · ${p.bloodType||'—'}</div></div><span class="badge bsu">${t('active')}</span></div>
+      <div class="ch"><div><div class="ct">${hx(p.name)}</div><div class="mu sm">DOB: ${p.dateOfBirth||'—'} · ${tv(p.gender||'—')} · ${p.bloodType||'—'}</div></div><span class="badge bsu">${t('active')}</span></div>
       <div class="g2">
         <div><div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin-top:4px">${p.medicalHistory||t('none_recorded')}</p></div>
-        <div><div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin-top:4px;color:${p.allergies&&p.allergies!=='None'?'var(--dg)':'inherit'}">${tv(p.allergies||'None')}</p></div>
-        <div><div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${p.emergencyContact||'—'}</p></div>
-        <div><div class="fl">${t('address')}</div><p style="font-size:.85rem;margin-top:4px">${p.address||'—'}</p></div>
+        <div><div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin-top:4px;color:${p.allergies&&p.allergies!=='None'?'var(--dg)':'inherit'}">${hx(tv(p.allergies||'None'))}</p></div>
+        <div><div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${hx(p.emergencyContact||'—')}</p></div>
+        <div><div class="fl">${t('address')}</div><p style="font-size:.85rem;margin-top:4px">${hx(p.address||'—')}</p></div>
       </div>
       <div class="fl" style="margin-top:16px">${t('doctor_reports_title')}</div>
       ${doctorReportList(p.id)}
@@ -3997,15 +4028,15 @@ function doctorReportList(patientId) {
   const reports=DB.doctorReports.filter(r=>r.patientId===patientId).sort((a,b)=>(b.consultationDate+b.consultationTime).localeCompare(a.consultationDate+a.consultationTime));
   return reports.length===0?`<p class="mu sm" style="margin-top:4px">${t('none_recorded')}</p>`:reports.map(r=>{const doc=G(r.doctorId);return`
     <div style="padding:10px 0;border-bottom:1px solid var(--bd)">
-      <div style="display:flex;justify-content:space-between;gap:12px"><div class="bo sm">${r.summary}</div><span class="badge bin">${r.consultationDate} ${t('at')} ${r.consultationTime}</span></div>
-      <div class="mu sm">${doc?.name||t('doctor')} · ${tv(doc?.specialty||'')}</div>
-      <div class="sm" style="margin-top:4px">${r.plan}</div>
+      <div style="display:flex;justify-content:space-between;gap:12px"><div class="bo sm">${hx(r.summary)}</div><span class="badge bin">${r.consultationDate} ${t('at')} ${r.consultationTime}</span></div>
+      <div class="mu sm">${hx(doc?.name||t('doctor'))} · ${tv(doc?.specialty||'')}</div>
+      <div class="sm" style="margin-top:4px">${hx(r.plan)}</div>
     </div>`;}).join('');
 }
 
 function notificationList(userId) {
   const notes=userNotifications(userId).slice(0,6);
-  return `<div class="card mb18 activity-notifications"><div class="ch"><div class="ct">${t('notifications')}</div></div>${notes.length?notes.map(n=>`<div class="code-item"><code class="code-chip">${tv(n.resource)}</code><div><strong>${tv(n.message)}</strong><span>${n.createdAt}</span></div></div>`).join(''):`<div class="rating-empty">${t('no_notifications')}</div>`}</div>`;
+  return `<div class="card mb18 activity-notifications"><div class="ch"><div class="ct">${t('notifications')}</div></div>${notes.length?notes.map(n=>`<div class="code-item"><code class="code-chip">${tv(n.resource)}</code><div><strong>${hx(tv(n.message))}</strong><span>${n.createdAt}</span></div></div>`).join(''):`<div class="rating-empty">${t('no_notifications')}</div>`}</div>`;
 }
 
 function labResultStatusBadge(status) {
@@ -4023,12 +4054,12 @@ function labResultList(scope='patient', patientId=null) {
   }).sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));
   return results.length?results.map(result=>{const patient=G(result.patientId), specialist=G(result.specialistDoctorId), lab=G(result.labTechId);const canOpen=scope==='specialist'&&result.status==='pending';const canRelease=scope==='specialist'&&result.status==='opened';const canView=scope==='specialist'||(scope==='patient'&&result.status==='released');return`
     <div class="code-item">
-      <code class="code-chip">${result.testType}</code>
-      <div style="flex:1"><strong>${patient?.name||t('patient')} · ${specialist?.name||t('doctor')}</strong><span>${result.fileName} · ${result.uploadedAt} · ${lab?.laboratory||lab?.name||t('laboratory')}</span>${result.notes?`<span>${result.notes}</span>`:''}</div>
+      <code class="code-chip">${hx(result.testType)}</code>
+      <div style="flex:1"><strong>${hx(patient?.name||t('patient'))} · ${hx(specialist?.name||t('doctor'))}</strong><span>${hx(result.fileName)} · ${result.uploadedAt} · ${lab?.laboratory||lab?.name||t('laboratory')}</span>${result.notes?`<span>${hx(result.notes)}</span>`:''}</div>
       ${labResultStatusBadge(result.status)}
       ${canOpen?`<button class="btn bp bsm" onclick="openLabResultFirst('${result.id}')">${t('open_lab_result')}</button>`:''}
       ${canRelease?`<button class="btn bg2 bsm" onclick="releaseLabResult('${result.id}')">${t('release_result')}</button>`:''}
-      ${canView?`<a class="btn bs bsm" href="${result.fileData}" download="${result.fileName}" target="_blank">${t('view_document')}</a>`:''}
+      ${canView?`<a class="btn bs bsm" href="${result.fileData}" download="${hx(result.fileName)}" target="_blank">${t('view_document')}</a>`:''}
     </div>`;}).join(''):`<div class="rating-empty">${t('no_lab_results')}</div>`;
 }
 
@@ -4039,15 +4070,15 @@ function medicalDocumentList(patientId) {
     const apt=apts.find(a=>a.id===d.relatedApptId);
     return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
       <div class="pca">${IC.file}</div>
-      <div style="flex:1"><div class="bo sm">${d.category}</div><div class="mu sm">${d.fileName} · ${d.uploadedAt}${apt?` · ${apt.date}`:''}</div>${d.notes?`<div class="mu sm">${d.notes}</div>`:''}</div>
-      <a class="btn bs bsm" href="${d.fileData}" download="${d.fileName}" target="_blank">${t('view_document')}</a>
+      <div style="flex:1"><div class="bo sm">${d.category}</div><div class="mu sm">${hx(d.fileName)} · ${d.uploadedAt}${apt?` · ${apt.date}`:''}</div>${d.notes?`<div class="mu sm">${hx(d.notes)}</div>`:''}</div>
+      <a class="btn bs bsm" href="${d.fileData}" download="${hx(d.fileName)}" target="_blank">${t('view_document')}</a>
     </div>`;
   }).join('');
 }
 
 function showPatientDocuments(patientId) {
   const p=G(patientId); if(!p) return;
-  openMo(`<div class="mh"><div><div class="mt2">${t('medical_documents_title')}</div><div class="mu sm">${p.name}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+  openMo(`<div class="mh"><div><div class="mt2">${t('medical_documents_title')}</div><div class="mu sm">${hx(p.name)}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     ${medicalDocumentList(patientId)}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('close_btn')}</button></div>`);
 }
@@ -4055,7 +4086,7 @@ function showPatientDocuments(patientId) {
 function showSpecialistReferral(patientId) {
   const p=G(patientId); if(!p||!isGeneralistDoctor(CU)) return;
   const specialistOptions=SPECIALTIES.filter(s=>!GENERALIST_SPECIALTIES.includes(s)).map(s=>`<option value="${s}">${tv(s)}</option>`).join('');
-  openMo(`<div class="mh"><div><div class="mt2">${t('refer_specialist')}</div><div class="mu sm">${p.name}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+  openMo(`<div class="mh"><div><div class="mt2">${t('refer_specialist')}</div><div class="mu sm">${hx(p.name)}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div class="alt ai">${t('specialist_referral_desc')}</div>
     <div class="fg"><label class="fl">${t('illness_detected')}</label><input class="fc" id="sr-illness" placeholder="${t('i_referral_illness_ph')}"></div>
     <div class="fg"><label class="fl">${t('recommended_specialty')}</label><select class="fc" id="sr-spec"><option value="">${t('select')}</option>${specialistOptions}</select></div>
@@ -4077,8 +4108,8 @@ function showChooseSpecialist(referralId) {
   const ref=DB.specialistReferrals.find(r=>r.id===referralId); if(!ref) return;
   const doctors=specialistsForReferral(ref);
   openMo(`<div class="mh"><div><div class="mt2">${t('choose_specialist')}</div><div class="mu sm">${tv(ref.specialty)}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="alt ai"><strong>${t('illness_detected')}:</strong> ${ref.illness||'—'}<br>${ref.reason}</div>
-    ${doctors.length?doctors.map(doc=>`<div class="code-item"><code class="code-chip">${tv(doc.specialty)}</code><div style="flex:1"><strong>${doc.name}</strong><span>${doc.hospital||''}${doc.consultationFee?` · ${t('consultation_fee')}: ${money(doc.consultationFee)}`:''}</span></div><button class="btn bp bsm" onclick="confirmSpecialistChoice('${referralId}','${doc.id}')">${t('choose_specialist')}</button></div>`).join(''):`<div class="emp"><p>${t('no_specialists_available')}</p></div>`}
+    <div class="alt ai"><strong>${t('illness_detected')}:</strong> ${hx(ref.illness||'—')}<br>${hx(ref.reason)}</div>
+    ${doctors.length?doctors.map(doc=>`<div class="code-item"><code class="code-chip">${tv(doc.specialty)}</code><div style="flex:1"><strong>${hx(doc.name)}</strong><span>${hx(doc.hospital||'')}${doc.consultationFee?` · ${t('consultation_fee')}: ${money(doc.consultationFee)}`:''}</span></div><button class="btn bp bsm" onclick="confirmSpecialistChoice('${referralId}','${doc.id}')">${t('choose_specialist')}</button></div>`).join(''):`<div class="emp"><p>${t('no_specialists_available')}</p></div>`}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button></div>`);
 }
 
@@ -4113,7 +4144,7 @@ function renderNsDash(pc) {
   const myA=DB.appointments.filter(a=>a.nurseId===CU.id&&a.status==='scheduled');
   const notes=DB.careNotes.filter(n=>n.nurseId===CU.id);
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${CU.name}</h2><p>${tv(CU.department||'')} · ${CU.hospital||''} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
+    <div class="ph"><h2>${LANG==='fr'?'Bienvenue,':'Welcome,'} ${hx(CU.name)}</h2><p>${tv(CU.department||'')} · ${hx(CU.hospital||'')} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
     <div class="stats">
       <div class="sc ce"><div class="sv">${myP.length}</div><div class="sl">${t('assigned_patients')}</div></div>
       <div class="sc cg"><div class="sv">${myA.length}</div><div class="sl">${t('upcoming_tasks')}</div></div>
@@ -4123,15 +4154,15 @@ function renderNsDash(pc) {
       <div class="card"><div class="ch"><div class="ct">${t('my_patients_lbl')}</div></div>
         ${myP.length===0 ? `<div class="emp"><p>${t('no_patients')}</p></div>` : myP.map(p=>`
           <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
-            <div class="pca">${ini(p.name)}</div>
-            <div style="flex:1"><div class="bo sm">${p.name}</div><div class="mu sm">${(p.medicalHistory||'').slice(0,50)}</div></div>
+            <div class="pca">${hx(ini(p.name))}</div>
+            <div style="flex:1"><div class="bo sm">${hx(p.name)}</div><div class="mu sm">${(p.medicalHistory||'').slice(0,50)}</div></div>
             ${p.allergies&&p.allergies!=='None'?`<span class="badge bda">!</span>`:''}
           </div>`).join('')}
       </div>
       <div class="card"><div class="ch"><div class="ct">${t('i_recent_care_notes')}</div></div>
         ${notes.slice(0,3).map(n=>{const p=G(n.patientId);return`<div class="cn3">
-          <div class="cnh"><div class="cnp">${p?.name||t('patient')}</div><div class="cnt2">${n.date}</div></div>
-          <div class="cnb">${n.text}</div>
+          <div class="cnh"><div class="cnp">${hx(p?.name||t('patient'))}</div><div class="cnt2">${n.date}</div></div>
+          <div class="cnb">${hx(n.text)}</div>
         </div>`;}).join('')}
         ${notes.length===0?`<div class="emp"><p>${t('no_notes')}</p></div>`:''}
       </div>
@@ -4147,8 +4178,8 @@ function renderCareNotes(pc) {
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('care_notes')}</h2><p>${LANG==='fr'?'Documenter et suivre les observations de soins patients':'Document and track patient care observations'}</p></div>
     ${notes.length===0 ? `<div class="card"><div class="emp"><p>${t('add_first_note')}</p></div></div>` : notes.map(n=>{const p=G(n.patientId);return`<div class="cn3 mb12">
-      <div class="cnh"><div class="cnp">${p?.name||'Unknown Patient'}</div><div class="cnt2">${n.date} · ${n.time}</div></div>
-      <div class="cnb">${n.text}</div>
+      <div class="cnh"><div class="cnp">${hx(p?.name||'Unknown Patient')}</div><div class="cnt2">${n.date} · ${n.time}</div></div>
+      <div class="cnb">${hx(n.text)}</div>
     </div>`;}).join('')}
   </div>`;
 }
@@ -4158,7 +4189,7 @@ function renderLabDash(pc) {
   $('tbt').textContent=t('lab_portal');
   topBtn(`<button class="btn bp bsm" onclick="showLabUpload()">${IC.plus} ${t('upload_lab_result')}</button>`);
   const mine=DB.labResults.filter(r=>r.labTechId===CU.id), pending=mine.filter(r=>r.status==='pending').length, released=mine.filter(r=>r.status==='released').length;
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('lab_portal')}</h2><p>${CU.laboratory||t('laboratory')} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('lab_portal')}</h2><p>${hx(CU.laboratory||t('laboratory'))} · <code class="code-chip">${CU.hfaId||''}</code></p></div>
     <div class="stats"><div class="sc ce"><div class="sv">${mine.length}</div><div class="sl">${t('lab_results')}</div></div><div class="sc cg"><div class="sv">${pending}</div><div class="sl">${t('pending_specialist_review')}</div></div><div class="sc cb"><div class="sv">${released}</div><div class="sl">${t('released_to_patient')}</div></div></div>
     ${notificationList(CU.id)}
     <div class="card"><div class="ch"><div class="ct">${t('lab_results')}</div><button class="btn bp bsm" onclick="showLabUpload()">${IC.plus} ${t('upload_lab_result')}</button></div>${labResultList('lab')}</div>
@@ -4175,8 +4206,8 @@ function showLabUpload() {
   const patients=DB.users.filter(u=>u.role==='patient'&&u.status==='active');
   const specialists=DB.users.filter(u=>u.role==='doctor'&&u.status==='active'&&!isGeneralistDoctor(u));
   openMo(`<div class="mh"><div class="mt2">${t('upload_lab_result')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="fg"><label class="fl">${t('tag_patient')}</label><select class="fc" id="lr-patient"><option value="">${t('select')}</option>${patients.map(p=>`<option value="${p.id}">${p.name} · ${p.hfaId||''}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">${t('tag_specialist')}</label><select class="fc" id="lr-specialist"><option value="">${t('select')}</option>${specialists.map(d=>`<option value="${d.id}">${d.name} — ${tv(d.specialty)}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('tag_patient')}</label><select class="fc" id="lr-patient"><option value="">${t('select')}</option>${patients.map(p=>`<option value="${p.id}">${hx(p.name)} · ${p.hfaId||''}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('tag_specialist')}</label><select class="fc" id="lr-specialist"><option value="">${t('select')}</option>${specialists.map(d=>`<option value="${d.id}">${hx(d.name)} — ${tv(d.specialty)}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">${t('test_type')}</label><input class="fc" id="lr-test" placeholder="${t('i_lab_test_ph')}"></div>
     <div class="fg"><label class="fl">${t('lab_result_file')}</label><input class="fc" type="file" id="lr-file" accept="image/*,.pdf"></div>
     <div class="fg"><label class="fl">${t('lab_result_notes')}</label><textarea class="fc" id="lr-notes" placeholder="${t('lab_result_notes_ph')}"></textarea></div>
@@ -4229,7 +4260,7 @@ function renderPatDash(pc) {
     <div class="home-hello">${typeof HFAAvatar!=='undefined'?HFAAvatar.html(CU,{size:'lg',ring:true,editable:true}):''}
       <div><h2>${LANG==='fr'?'Bonjour,':'Hello,'} ${CU.name.split(' ')[0]}</h2><p>${t('home_hello_sub')}</p>
       ${typeof HFACompletion!=='undefined'&&HFACompletion.compute(CU).percent<100?`<button type="button" class="home-nudge" onclick="HFAPatientRegistration.openCompletion()">✏️ ${tfmt('home_nudge',{percent:HFACompletion.compute(CU).percent})}</button>`:''}</div></div>
-    ${referral&&referral.status==='pending_choice'?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('specialist_referral_title')}</div><div class="rating-note">${t('specialist_pending_choice')}</div></div><button class="btn bp bsm" onclick="showChooseSpecialist('${referral.id}')">${t('choose_specialist')}</button></div><div class="mu sm"><strong>${t('recommended_specialty')}:</strong> ${tv(referral.specialty)} · <strong>${t('illness_detected')}:</strong> ${referral.illness||'—'}</div><div class="mu sm" style="margin-top:4px">${referral.reason}</div></div>`:''}
+    ${referral&&referral.status==='pending_choice'?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('specialist_referral_title')}</div><div class="rating-note">${t('specialist_pending_choice')}</div></div><button class="btn bp bsm" onclick="showChooseSpecialist('${referral.id}')">${t('choose_specialist')}</button></div><div class="mu sm"><strong>${t('recommended_specialty')}:</strong> ${tv(referral.specialty)} · <strong>${t('illness_detected')}:</strong> ${hx(referral.illness||'—')}</div><div class="mu sm" style="margin-top:4px">${hx(referral.reason)}</div></div>`:''}
     <div class="home-tiles" role="list">
       ${tile('green','🩺',t('tile_book'),t('tile_book_sub'),'showBookApt()')}
       ${tile('blue','📅',t('tile_apts'),tfmt('tile_apts_sub',{n:up.length}),"navigate('appointments')")}
@@ -4245,22 +4276,22 @@ function renderPatDash(pc) {
       <details><summary><span class="home-sum-ic" aria-hidden="true">👤</span>${t('more_profile')}</summary><div class="home-body" id="home-profile"></div></details>
       ${more('🩺',t('more_team'),`<div class="card"><div class="ch"><div class="ct">${t('care_team')}</div></div>
         ${myDoc?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--em-p);border-radius:var(--rs);margin-bottom:8px">
-          <div class="av">${ini(myDoc.name)}</div>
-          <div style="flex:1"><div class="bo sm">${myDoc.name}</div><div class="mu sm">${tv(myDoc.specialty||'')} · ${myDoc.hospital||''}</div>${myDoc.consultationFee?`<div class="mu sm">${t('consultation_fee')}: ${money(myDoc.consultationFee)} <button class="btn bp bsm" style="margin-left:6px" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>
+          <div class="av">${hx(ini(myDoc.name))}</div>
+          <div style="flex:1"><div class="bo sm">${hx(myDoc.name)}</div><div class="mu sm">${tv(myDoc.specialty||'')} · ${hx(myDoc.hospital||'')}</div>${myDoc.consultationFee?`<div class="mu sm">${t('consultation_fee')}: ${money(myDoc.consultationFee)} <button class="btn bp bsm" style="margin-left:6px" onclick="payConsultationFee('${myDoc.id}')">${t('pay_now')}</button></div>`:''}</div>
           <span class="badge bdo">${t('doctor')}</span></div>`:''}
         ${mySpec?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--go-p);border-radius:var(--rs);margin-bottom:8px">
-          <div class="av" style="background:linear-gradient(135deg,var(--go),var(--go-l))">${ini(mySpec.name)}</div>
-          <div style="flex:1"><div class="bo sm">${mySpec.name}</div><div class="mu sm">${tv(mySpec.specialty||'')} · ${mySpec.hospital||''}</div></div>
+          <div class="av" style="background:linear-gradient(135deg,var(--go),var(--go-l))">${hx(ini(mySpec.name))}</div>
+          <div style="flex:1"><div class="bo sm">${hx(mySpec.name)}</div><div class="mu sm">${tv(mySpec.specialty||'')} · ${hx(mySpec.hospital||'')}</div></div>
           <span class="badge bwa">${t('assigned_specialist')}</span></div>`:''}
         ${myNur?`<div style="display:flex;align-items:center;gap:12px;padding:10px;background:#eaf3fb;border-radius:var(--rs)">
-          <div class="av" style="background:linear-gradient(135deg,#2e8bc0,#1a5f8f)">${ini(myNur.name)}</div>
-          <div style="flex:1"><div class="bo sm">${myNur.name}</div><div class="mu sm">${tv(myNur.department||'')} · ${myNur.hospital||''}</div></div>
+          <div class="av" style="background:linear-gradient(135deg,#2e8bc0,#1a5f8f)">${hx(ini(myNur.name))}</div>
+          <div style="flex:1"><div class="bo sm">${hx(myNur.name)}</div><div class="mu sm">${tv(myNur.department||'')} · ${hx(myNur.hospital||'')}</div></div>
           <span class="badge bnu">${t('nurse')}</span></div>`:''}
         ${!myDoc&&!myNur?`<div class="emp"><p>${t('no_team')}</p></div>`:''}
         <button class="btn bgh bsm w100 mt8" onclick="navigate('messages')">${t('message_team')}</button>
       </div>
         <div class="card mt18"><div class="ch"><div><div class="ct">${t('rate_care_team')}</div><div class="rating-note">${t('rate_care_team_sub')}</div></div></div>${renderProviderRatings([myDoc,myNur].filter(Boolean))}</div>`)}
-      ${mySpec?more('⭐',t('assigned_specialist'),`<div class="card"><div class="ch"><div><div class="ct">${t('assigned_specialist')}</div><div class="rating-note">${tv(referral.specialty)} · ${referral.illness||''}</div></div><button class="btn bp bsm" onclick="showBookApt('SPECIALIST-REFERRAL')">${t('book_specialist_consult')}</button></div><div class="bo sm">${mySpec.name}</div><div class="mu sm">${mySpec.hospital||''}${mySpec.consultationFee?` · ${t('consultation_fee')}: ${money(mySpec.consultationFee)}`:''}</div></div>`):''}
+      ${mySpec?more('⭐',t('assigned_specialist'),`<div class="card"><div class="ch"><div><div class="ct">${t('assigned_specialist')}</div><div class="rating-note">${tv(referral.specialty)} · ${hx(referral.illness||'')}</div></div><button class="btn bp bsm" onclick="showBookApt('SPECIALIST-REFERRAL')">${t('book_specialist_consult')}</button></div><div class="bo sm">${hx(mySpec.name)}</div><div class="mu sm">${hx(mySpec.hospital||'')}${mySpec.consultationFee?` · ${t('consultation_fee')}: ${money(mySpec.consultationFee)}`:''}</div></div>`):''}
       ${more('🔔',t('notifications'),notificationList(CU.id))}
       ${more('🏥',t('more_services'),`<div class="card"><div class="rating-note mb12">${t('virtual_services_sub')}</div><div class="service-grid">${VIRTUAL_SERVICES.map(service=>`<div class="service-item"><h4>${tv(service.name)}</h4><p>${tv(service.description)}<br><strong>${tv(service.roles)}</strong></p><button class="btn bp bsm w100" onclick="showBookApt('${service.code}')">${t('book_service')}</button></div>`).join('')}</div></div>`)}
       ${more('📤',t('more_upload'),`<div class="card"><p class="mu sm mb12">${t('medical_upload_cta_desc')}</p><button class="btn bp" onclick="showUploadDocument()">${IC.plus} ${t('upload_document')}</button></div>`)}
@@ -4276,7 +4307,7 @@ function renderCarePlan(pc) {
   const plans=DB.carePlans.filter(plan=>plan.patientId===CU.id);
   pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('care_plan_title')}</h2><p>${t('care_plan_sub')}</p></div>
     <div class="safety-banner"><div>i</div><div><strong>${t('keep_team_informed')}</strong><p>${t('keep_team_informed_desc')}</p></div></div>
-    ${plans.length?plans.map(plan=>{const owner=G(plan.ownerId);return`<div class="card mb18"><div class="ch"><div><div class="ct">${plan.title}</div><div class="mu sm">${t('led_by')} ${owner?.name||'Care team'} · ${t('next_review')} ${plan.nextReview}</div></div><span class="badge bsu">${tv(plan.status)}</span></div>
+    ${plans.length?plans.map(plan=>{const owner=G(plan.ownerId);return`<div class="card mb18"><div class="ch"><div><div class="ct">${hx(plan.title)}</div><div class="mu sm">${t('led_by')} ${hx(owner?.name||'Care team')} · ${t('next_review')} ${plan.nextReview}</div></div><span class="badge bsu">${tv(plan.status)}</span></div>
       ${plan.goals.map(goal=>`<div class="goal-row"><div style="flex:1"><div class="bo sm">${goal.label}</div><div class="goal-progress"><span style="width:${goal.progress}%"></span></div></div><span class="mu sm">${goal.progress}%</span></div>`).join('')}
     </div>`}).join(''):`<div class="card"><div class="emp"><p>${t('no_care_plan')}</p><button class="btn bp bsm mt8" onclick="navigate('messages')">${t('message_team')}</button></div></div>`}
   </div>`;
@@ -4361,7 +4392,7 @@ function renderSubscriptions(pc) {
     const bgColor = isCurrent ? '#f3f7ff' : '#fff';
     html += `<div style="border:2px solid ${borderColor};border-radius:8px;padding:16px;background:${bgColor};position:relative">
       ${isCurrent ? `<div style="position:absolute;top:-12px;left:16px;background:#667eea;color:white;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600">${t('current_plan')}</div>` : ''}
-      <div style="font-size:16px;font-weight:600;margin-top:${isCurrent?'8px':'0'}">${t_item.name}</div>
+      <div style="font-size:16px;font-weight:600;margin-top:${isCurrent?'8px':'0'}">${hx(t_item.name)}</div>
       <div style="font-size:13px;color:#666;margin-top:4px">${t_item.desc}</div>
       ${t_item.price > 0 ? `<div style="font-size:20px;font-weight:600;margin-top:12px">${money(t_item.price,t_item.currency)}/${t_item.period}</div>` : `<div style="font-size:14px;color:#999;margin-top:12px">${t('free')}</div>`}
       <ul style="list-style:none;padding:12px 0;margin:0;border-top:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0">
@@ -4380,9 +4411,9 @@ function renderSubscriptions(pc) {
         <div style="padding:12px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:start">
           <div style="flex:1">
             <div class="bo sm">${t('visit_date')}: ${hv.visitDate} ${t('at')} ${hv.visitTime}</div>
-            <div class="mu sm">${G(hv.nurseId)?.name||t('nurse')} · ${hv.location}</div>
+            <div class="mu sm">${G(hv.nurseId)?.name||t('nurse')} · ${hx(hv.location)}</div>
             ${hv.premiumIncluded?`<div class="mu sm">${t('home_visit_included')}</div>`:hv.fee?`<div class="mu sm">${t('home_visit_fee')}: ${money(hv.fee,hv.currency||'USD')} · ${t('payment_success')}</div>`:''}
-            ${hv.notes ? `<div class="mu sm" style="color:#666;margin-top:4px">${hv.notes}</div>` : ''}
+            ${hv.notes ? `<div class="mu sm" style="color:#666;margin-top:4px">${hx(hv.notes)}</div>` : ''}
           </div>
           <span class="badge ${hv.status==='scheduled'?'bsu':hv.status==='completed'?'bin':'bda'}">${tv(hv.status)}</span>
         </div>
@@ -4441,9 +4472,9 @@ function scheduleHomeVisit() {
   const nurses=DB.users.filter(u=>u.role==='nurse'&&u.status==='active');
   const defaultDate=new Date(new Date().setDate(new Date().getDate()+3)).toISOString().split('T')[0];
   openMo(`<div class="mh"><div class="mt2">${t('schedule_visit')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="fg"><label class="fl">${t('choose_nurse')}</label><select class="fc" id="hv-nurse" onchange="renderHomeVisitFee()">${nurses.map(n=>`<option value="${n.id}">${n.name} — ${tv(n.specialty||n.department||'')}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('choose_nurse')}</label><select class="fc" id="hv-nurse" onchange="renderHomeVisitFee()">${nurses.map(n=>`<option value="${n.id}">${hx(n.name)} — ${tv(n.specialty||n.department||'')}</option>`).join('')}</select></div>
     <div class="fr"><div class="fg"><label class="fl">${t('visit_date')}</label><input class="fc" type="date" id="hv-date" value="${defaultDate}" onchange="renderHomeVisitFee()"></div><div class="fg"><label class="fl">${t('visit_time')}</label><input class="fc" type="time" id="hv-time" value="14:00"></div></div>
-    <div class="fg"><label class="fl">${t('visit_location')}</label><input class="fc" id="hv-location" value="${CU.address||`${CU.name}'s home`}"></div>
+    <div class="fg"><label class="fl">${t('visit_location')}</label><input class="fc" id="hv-location" value="${CU.address||`${hx(CU.name)}'s home`}"></div>
     <div class="fg"><label class="fl">${t('visit_notes')}</label><textarea class="fc" id="hv-notes" placeholder="${t('home_visit_notes_ph')}"></textarea></div>
     <div class="fg" id="hv-payment-method"><label class="fl">${t('payment_method')}</label><select class="fc" id="hv-pay-md"><option value="mobile_money">${t('mobile_money')}</option><option value="card">${t('card_payment')}</option><option value="bank_transfer">${t('bank_transfer')}</option></select></div>
     <div id="hv-fee" class="alt ai"></div><div id="hv-status" class="mu sm"></div>
@@ -4703,8 +4734,8 @@ function renderProviderRatings(providers) {
     const color=provider.role==='doctor'?'var(--em)':'#1a6fa3';
     const stars=review ? '★'.repeat(review.rating)+'☆'.repeat(5-review.rating) : '☆☆☆☆☆';
     return `<div class="rating-row">
-      <div class="av" style="background:${color}">${ini(provider.name)}</div>
-      <div class="rating-info"><div class="bo sm">${provider.name}</div><div class="mu sm">${role} · ${tv(provider.specialty||provider.department||'')}</div></div>
+      <div class="av" style="background:${color}">${hx(ini(provider.name))}</div>
+      <div class="rating-info"><div class="bo sm">${hx(provider.name)}</div><div class="mu sm">${role} · ${tv(provider.specialty||provider.department||'')}</div></div>
       <div class="rating-stars" aria-label="${review?tfmt('i_rated',{n:review.rating}):t('i_not_rated')}">${stars}</div>
       <button class="btn ${review?'bs':'bp'} bsm" onclick="showRating('${provider.id}')">${review?t('edit_rating'):t('rate_btn')}</button>
     </div>`;
@@ -4715,14 +4746,14 @@ function showRating(providerId) {
   const provider=G(providerId); if(!provider) return;
   const review=DB.reviews.find(r=>r.patientId===CU.id&&r.providerId===providerId);
   const selected=review?.rating||0;
-  openMo(`<div class="mh"><div class="mt2">${t('rate_btn')} ${provider.name}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+  openMo(`<div class="mh"><div class="mt2">${t('rate_btn')} ${hx(provider.name)}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <p class="mu sm">${tfmt('i_how_experience',{role:tv(provider.role)})}</p>
     <div class="fg" style="margin-top:16px"><span class="fl" id="rating-label">${t('rating_label')}</span>
       <div class="star-picker" role="radiogroup" aria-labelledby="rating-label">
         ${[5,4,3,2,1].map(value=>`<input type="radio" id="rating-${value}" name="provider-rating" value="${value}" ${selected===value?'checked':''}><label for="rating-${value}" aria-label="${value===1?t('i_star'):tfmt('i_stars',{n:value})}">★</label>`).join('')}
       </div>
     </div>
-    <div class="fg"><label class="fl" for="rating-comment">${t('comment_optional')}</label><textarea class="fc" id="rating-comment" maxlength="500" placeholder="${t('comment_ph')}">${review?.comment||''}</textarea></div>
+    <div class="fg"><label class="fl" for="rating-comment">${t('comment_optional')}</label><textarea class="fc" id="rating-comment" maxlength="500" placeholder="${t('comment_ph')}">${hx(review?.comment||'')}</textarea></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveRating('${providerId}')">${review?t('update_rating'):t('submit_rating')}</button></div>`);
 }
 
@@ -4748,8 +4779,8 @@ function renderPatRecords(pc) {
       </div>
       <div class="card"><div class="ct mb18">${t('medical_info')}</div>
         <div class="fl">${t('medical_history')}</div><p style="font-size:.85rem;margin:4px 0 16px">${u.medicalHistory||t('none_recorded')}</p>
-        <div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin:4px 0 16px;color:${u.allergies&&u.allergies!=='None'?'var(--dg)':'inherit'};font-weight:${u.allergies&&u.allergies!=='None'?600:400}">${tv(u.allergies||'None')}</p>
-        <div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${u.emergencyContact||'—'}</p>
+        <div class="fl">${t('allergies')}</div><p style="font-size:.85rem;margin:4px 0 16px;color:${u.allergies&&u.allergies!=='None'?'var(--dg)':'inherit'};font-weight:${u.allergies&&u.allergies!=='None'?600:400}">${hx(tv(u.allergies||'None'))}</p>
+        <div class="fl">${t('emergency_contact')}</div><p style="font-size:.85rem;margin-top:4px">${hx(u.emergencyContact||'—')}</p>
       </div>
     </div>
     <div class="card mt18"><div class="ch"><div><div class="ct">${t('doctor_reports_title')}</div><div class="rating-note">${LANG==='fr'?'Historique des rapports ajoutés après chaque consultation médicale':'History of reports added after each doctor consultation'}</div></div></div>
@@ -4817,9 +4848,9 @@ function renderMessages(pc) {
 function ctItem(c,selId) {
   const conv=convBetween(CU.id,c.id), last=conv[conv.length-1], col=RCOL[c.role]||'#8a9bb0';
   return `<div class="cit ${selId===c.id?'active':''}" onclick="selCt('${c.id}')">
-    <div class="cav" style="background:${col}22;border-color:${col}44;color:${col}">${ini(c.name)}</div>
-    <div style="flex:1;min-width:0"><div class="cn2">${c.name}</div>
-      <div class="cs2">${tv(last?last.text:(c.specialty||c.department||c.role))}</div>
+    <div class="cav" style="background:${col}22;border-color:${col}44;color:${col}">${hx(ini(c.name))}</div>
+    <div style="flex:1;min-width:0"><div class="cn2">${hx(c.name)}</div>
+      <div class="cs2">${hx(tv(last?last.text:(c.specialty||c.department||c.role)))}</div>
     </div>
   </div>`;
 }
@@ -4829,15 +4860,15 @@ function chatView() {
   const c=SC, conv=convBetween(CU.id,c.id), col=RCOL[c.role]||'#8a9bb0';
   return `<div class="cahdr">
     <div style="display:flex;align-items:center;gap:10px">
-      <div class="cav" style="background:${col}22;border-color:${col}44;color:${col};width:36px;height:36px">${ini(c.name)}</div>
-      <div><div class="canm">${c.name}</div><div class="carl">${tv(c.specialty||c.department||c.role)}${c.hospital?' · '+c.hospital:''}</div></div>
+      <div class="cav" style="background:${col}22;border-color:${col}44;color:${col};width:36px;height:36px">${hx(ini(c.name))}</div>
+      <div><div class="canm">${hx(c.name)}</div><div class="carl">${tv(c.specialty||c.department||c.role)}${c.hospital?' · '+c.hospital:''}</div></div>
     </div>
   </div>
   <div class="cam" id="chatmsgs">
     ${conv.length===0?`<div class="cemp" style="flex:none;padding:24px"><p>${LANG==='fr'?'Commencez !':'Start the conversation!'}</p></div>`
       :conv.map(m=>{const sent=m.from===CU.id,sender=G(m.from);return`<div class="msg2 ${sent?'snt':'rcv'}">
-        ${!sent?`<div style="width:26px;height:26px;border-radius:50%;background:var(--si-p);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:var(--t2);flex-shrink:0">${ini(sender?.name||'?')}</div>`:''}
-        <div><div class="mb2">${m.text}</div><div class="mt3">${m.time}</div></div>
+        ${!sent?`<div style="width:26px;height:26px;border-radius:50%;background:var(--si-p);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:var(--t2);flex-shrink:0">${hx(ini(sender?.name||'?'))}</div>`:''}
+        <div><div class="mb2">${hx(m.text)}</div><div class="mt3">${m.time}</div></div>
       </div>`;}).join('')}
   </div>
   <div class="cai">
@@ -4985,7 +5016,7 @@ function cmbg(e) { if(e.target===$('movr')) closeMo(); }
 function showAddNote() {
   const myP=DB.users.filter(u=>u.role==='patient'&&u.assignedNurse===CU.id);
   openMo(`<div class="mh"><div class="mt2">${t('add_care_note')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="cn-p"><option value="">${t('select')}</option>${myP.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="cn-p"><option value="">${t('select')}</option>${myP.map(p=>`<option value="${p.id}">${hx(p.name)}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">${t('note_lbl')}</label><textarea class="fc" id="cn-t" placeholder="${t('note_ph')}"></textarea></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveNote()">${t('add_note')}</button></div>`);
 }
@@ -5067,8 +5098,8 @@ function showNewApt() {
   const pats=CU.role==='doctor'?patientsForDoctor(CU.id):DB.users.filter(u=>u.role==='patient');
   const docs=DB.users.filter(u=>u.role==='doctor');
   openMo(`<div class="mh"><div class="mt2">${t('new_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="ap-p"><option value="">${t('i_select_patient')}</option>${pats.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
-    ${CU.role!=='doctor'?`<div class="fg"><label class="fl">${t('doctor')}</label><select class="fc" id="ap-d"><option value="">${t('i_select_doctor')}</option>${docs.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>`:''}
+    <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="ap-p"><option value="">${t('i_select_patient')}</option>${pats.map(p=>`<option value="${p.id}">${hx(p.name)}</option>`).join('')}</select></div>
+    ${CU.role!=='doctor'?`<div class="fg"><label class="fl">${t('doctor')}</label><select class="fc" id="ap-d"><option value="">${t('i_select_doctor')}</option>${docs.map(d=>`<option value="${d.id}">${hx(d.name)}</option>`).join('')}</select></div>`:''}
     <div class="fr"><div class="fg"><label class="fl" for="ap-dt">${t('date_lbl')}</label><input type="date" class="fc" id="ap-dt" required></div><div class="fg"><label class="fl" for="ap-tm">${t('time_lbl')}</label><input type="time" class="fc" id="ap-tm" required></div></div>
     <div class="fg"><label class="fl" for="ap-duration">${t('consultation_duration')}</label><select class="fc" id="ap-duration" required>${consultationDurationOptions()}</select></div>
     <div class="fr"><div class="fg"><label class="fl">${t('apt_mode')}</label><select class="fc" id="ap-md"><option value="video">${t('video_call')}</option><option value="voice">${t('voice_call')}</option><option value="text">${t('text_chat')}</option></select></div>
@@ -5096,8 +5127,8 @@ function showBookApt(serviceCode='PC-VIRTUAL') {
   BOOKDOC = serviceCode==='SPECIALIST-REFERRAL'&&mySpec ? mySpec.id : (myDoc ? myDoc.id : (docs[0]?.id || null));
   APTSERVICE=VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-VIRTUAL';
   openMo(`<div class="mh"><div class="mt2">${t('book_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    ${myDoc?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()"><option value="${myDoc.id}" ${BOOKDOC===myDoc.id?'selected':''}>${myDoc.name} — ${tv(myDoc.specialty||t('doctor'))}</option>${mySpec?`<option value="${mySpec.id}" ${BOOKDOC===mySpec.id?'selected':''}>${mySpec.name} — ${tv(mySpec.specialty||t('assigned_specialist'))}</option>`:''}</select><div class="mu sm" style="margin-top:4px">${mySpec?t('generalist_first_notice'):''}</div></div><div id="bk-doc-fee"></div>`
-      :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${d.name} — ${tv(d.specialty||'')}${d.consultationFee?` (${money(d.consultationFee)})`:''}</option>`).join('')}</select></div>
+    ${myDoc?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()"><option value="${myDoc.id}" ${BOOKDOC===myDoc.id?'selected':''}>${hx(myDoc.name)} — ${tv(myDoc.specialty||t('doctor'))}</option>${mySpec?`<option value="${mySpec.id}" ${BOOKDOC===mySpec.id?'selected':''}>${hx(mySpec.name)} — ${tv(mySpec.specialty||t('assigned_specialist'))}</option>`:''}</select><div class="mu sm" style="margin-top:4px">${mySpec?t('generalist_first_notice'):''}</div></div><div id="bk-doc-fee"></div>`
+      :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${hx(d.name)} — ${tv(d.specialty||'')}${d.consultationFee?` (${money(d.consultationFee)})`:''}</option>`).join('')}</select></div>
         <div id="bk-doc-fee"></div>`
       :`<div class="alt ae">${t('no_doctors_available')}</div>`}
     <div class="fg"><label class="fl" for="bk-sv">${t('virtual_services_title')}</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${tv(service.name)}</option>`).join('')}</select></div>
@@ -5169,8 +5200,8 @@ function showAddUser(role) {
     ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">${t('department')}</label><input class="fc" id="au-de" placeholder="${t('i_dept_ph')}"></div><div class="fg"><label class="fl">${t('i_nursing_specialty')}</label><select class="fc" id="au-ns"><option value="">${t('select')}</option>${NURSE_SPECIALTIES.map(s=>`<option value="${s}">${tv(s)}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">${t('pc_nurse_id')}</label><input class="fc" id="au-ni" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">${t('hospital')}</label><input class="fc" id="au-ho" placeholder="${t('i_institution')}"></div></div>`:''}
     ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar">${isSuperAdmin(CU)?`<option>${t('super_admin_role')}</option>`:''}<option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
     ${role==='patient'?`${ApiState.enabled?`<div class="fg"><label class="fl" for="au-wa">${t('whatsapp_number')}</label><input class="fc" id="au-wa" type="tel" placeholder="+237600000000" required></div>`:''}<div class="fr"><div class="fg"><label class="fl">${t('dob_lbl')}</label><input class="fc" type="date" id="au-db"></div><div class="fg"><label class="fl">${t('blood_type_lbl')}</label><select class="fc" id="au-bt"><option value="">${t('select')}</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
-    <div class="fg"><label class="fl">${t('assign_doctor')}</label><select class="fc" id="au-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">${t('assign_nurse')}</label><select class="fc" id="au-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${n.name}</option>`).join('')}</select></div>`:''}
+    <div class="fg"><label class="fl">${t('assign_doctor')}</label><select class="fc" id="au-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='doctor').map(d=>`<option value="${d.id}">${hx(d.name)}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('assign_nurse')}</label><select class="fc" id="au-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(u=>u.role==='nurse').map(n=>`<option value="${n.id}">${hx(n.name)}</option>`).join('')}</select></div>`:''}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveAddUser('${role}')">${t('add_user')}</button></div>`);
 }
 function saveAddUser(role) {
@@ -5207,13 +5238,13 @@ function showEditUser(id) {
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   if (isSuperAdmin(u) && u.id!==CU.id) return alert(t('super_admin_protect_msg'));
   openMo(`<div class="mh"><div class="mt2">${t('edit')} ${t('user')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="fg"><label class="fl" id="lbl-name">${t('full_name_lbl')}</label><input class="fc" id="eu-n" value="${u.name}"></div>
+    <div class="fg"><label class="fl" id="lbl-name">${t('full_name_lbl')}</label><input class="fc" id="eu-n" value="${hx(u.name)}"></div>
     <div class="fg"><label class="fl">${t('phone_lbl')}</label><input class="fc" id="eu-ph" value="${u.phone||''}"></div>
     <div class="fg"><label class="fl">${t('status')}</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option>${(u.role==='doctor'||u.role==='nurse'||u.role==='admin')?`<option value="pending_approval" ${u.status==='pending_approval'?'selected':''}>${t('pending_approval')}</option><option value="rejected" ${u.status==='rejected'?'selected':''}>${t('rejected')}</option>`:''}<option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
     ${u.role==='doctor'?`<div class="fg"><label class="fl">${t('consultation_fee')} (${priceCurrency()})</label><select class="fc" id="eu-cf">${consultationFeeOptions(u.consultationFee||'')}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div>`:''}
     ${u.role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="eu-ar">${isSuperAdmin(CU)?`<option ${u.adminRole==='Super Admin'?'selected':''}>${t('super_admin_role')}</option>`:''}<option ${u.adminRole==='Platform Owner'?'selected':''}>${t('platform_owner')}</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>${t('clinical_operations')}</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>${t('compliance_officer')}</option><option ${u.adminRole==='Support Administrator'?'selected':''}>${t('support_admin')}</option></select></div>`:''}
-    ${u.role==='patient'?`<div class="fg"><label class="fl">${t('assign_doctor')}</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${d.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">${t('assign_nurse')}</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>`:''}
+    ${u.role==='patient'?`<div class="fg"><label class="fl">${t('assign_doctor')}</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${hx(d.name)}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('assign_nurse')}</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${hx(n.name)}</option>`).join('')}</select></div>`:''}
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveEditUser('${id}')">${t('save_changes')}</button></div>`);
 }
 function saveEditUser(id) {
@@ -5243,7 +5274,7 @@ function doSuspend(id) {
   const u=G(id); if(!u) return;
   if (u.role==='admin' && !isSuperAdmin(CU)) return alert(t('super_admin_only_msg'));
   if (isSuperAdmin(u)) return alert(t('super_admin_protect_msg'));
-  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">${t('suspend_q')} <strong>${u.name}</strong>${LANG==='fr'?' ':''}?<br>${t('suspend_confirm')}</p>
+  openMo(`<div style="text-align:center;padding:10px 0">${IC.warn}<p style="margin-top:12px">${t('suspend_q')} <strong>${hx(u.name)}</strong>${LANG==='fr'?' ':''}?<br>${t('suspend_confirm')}</p>
     <div class="mf" style="justify-content:center"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bd2" onclick="confirmSuspend('${id}')">${t('yes_suspend')}</button></div></div>`);
 }
 function confirmSuspend(id) { if(ApiState.enabled){backendAdminUpdate(id,{status:'suspended'});return;}const u=G(id);if(u && !(u.role==='admin' && !isSuperAdmin(CU)) && !isSuperAdmin(u)){const changed=u.status!=='suspended';u.status='suspended';if(changed)notifyPatientAccountChange(id,'account_suspended');log('SUSPEND_USER','User Management');} closeMo(); navigate(CP); }
@@ -5329,6 +5360,9 @@ window.addEventListener('load',()=>{
 <script src="patient-registration.js"></script>
 <script src="portal-access.js"></script>
 <script src="security.js"></script>
+<script src="hfa-fhir.js"></script>
+<script src="privacy-centre.js"></script>
+<script src="session-guard.js"></script>
 <script src="offline.js"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@ RUN rm -rf /usr/share/nginx/html/* \
 	&& chown -R 101:101 /usr/share/nginx/html /tmp /var/cache/nginx
 
 COPY index.html /usr/share/nginx/html/index.html
-COPY offline.js offline-uploads.js offline-session.js pharmacist.js hfa-numbering.js i18n.js hfa-ui.js patient-registration.js portal-access.js security.js service-worker.js /usr/share/nginx/html/
+COPY offline.js offline-uploads.js offline-session.js pharmacist.js hfa-numbering.js i18n.js hfa-ui.js patient-registration.js portal-access.js security.js hfa-fhir.js privacy-centre.js session-guard.js service-worker.js /usr/share/nginx/html/
 COPY assets/ /usr/share/nginx/html/assets/
 COPY nginx.conf /etc/nginx/nginx.conf
 

@@ -13,6 +13,7 @@ const { healthProfile, recordWithConsentTimes, REGIONS } = require('./patient-pr
 const { installFacilityRoutes } = require('./facilities');
 const { installAdminAccessRoutes, RETURN_COOKIE } = require('./admin-access');
 const { installAccountSecurity } = require('./account-security');
+const { installPrivacyRoutes } = require('./privacy');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -128,6 +129,7 @@ function createApp(config, store, provider) {
   installAvatarRoutes(app,config,store,authenticated);
   installFacilityRoutes(app,store,authenticated,admin);
   installAdminAccessRoutes(app,config,store,authenticated,admin,{ cookieToken, withHealth });
+  installPrivacyRoutes(app,config,store,authenticated,admin);
   // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
@@ -319,6 +321,7 @@ function createApp(config, store, provider) {
       if (patch[key] && (store.user(patch[key])?.role !== role || store.user(patch[key]).status !== 'active')) return response.status(400).json({ error: 'Invalid provider assignment' });
     }
     const updated = store.updateUser(user.id, { ...patch, profile: {...(patch.consultationFee === undefined ? {} : { consultationFee: patch.consultationFee }),...(user.role==='pharmacist'&&patch.status==='active'?{pharmacyValidatedBy:request.user.id,pharmacyValidatedAt:new Date().toISOString()}: {})} });
+    if (JSON.stringify(updated) !== JSON.stringify(user)) store.audit(request.user.id, 'ACCOUNT_UPDATED_BY_ADMIN', { targetId: user.id, details: { fields: Object.keys(patch) }, ip: request.ip });
     if (user.role === 'patient' && JSON.stringify(updated) !== JSON.stringify(user)) store.activity(request.user, { eventId: require('node:crypto').randomUUID(), patientId: user.id, resource: 'Account' }, config.ready, message);
     response.json({ user: updated });
   });
@@ -328,6 +331,7 @@ function createApp(config, store, provider) {
     const row = document && filesConfigured(config) && store.db.prepare('SELECT * FROM uploaded_files WHERE owner_id=? AND upload_id=?').get(user.id, document.id);
     if (!row) return response.sendStatus(404);
     const file = decodeFile(config, row);
+    store.audit(request.user.id, 'DOCUMENT_VIEWED', { targetId: user.id, details: { kind }, ip: request.ip });
     response.set('Content-Disposition', `attachment; filename="download"; filename*=UTF-8''${encodeURIComponent(file.metadata.fileName)}`);
     response.type(row.mime).send(Buffer.from(file.content, 'base64'));
   });
@@ -336,6 +340,7 @@ function createApp(config, store, provider) {
     if (!user || user.role === 'admin') return response.sendStatus(403);
     store.updateUser(user.id, { status: 'deleted' });
     store.db.prepare('DELETE FROM sessions WHERE user_id=?').run(user.id);
+    store.audit(request.user.id, 'ACCOUNT_DELETED', { targetId: user.id, details: { role: user.role }, ip: request.ip });
     response.sendStatus(204);
   });
   app.use((request, response) => response.sendStatus(404));

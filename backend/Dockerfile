@@ -7,7 +7,7 @@ RUN npm ci --omit=dev \
 	&& rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/yarn /usr/local/bin/yarnpkg \
 	&& mkdir -p /app/data && chown -R node:node /app
 COPY --chown=node:node backend/ ./backend/
-COPY --chown=node:node hfa-numbering.js ./hfa-numbering.js
+COPY --chown=node:node hfa-numbering.js hfa-fhir.js ./
 USER node
 ENV NODE_ENV=production PORT=3000 DATABASE_PATH=/app/data/hfa.sqlite
 EXPOSE 3000

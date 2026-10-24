@@ -56,7 +56,7 @@ const healthProfile = z.object({
     insuranceNumber: text(60, 1).optional(),
     emergencyContact: z.object({ name: text(120, 1).optional(), relationship: text(60, 1).optional(), phone: e164.optional() }).strict().optional()
   }).strict(),
-  // Law No. 2010/012: explicit opt-in. Care data processing is required to hold an account; the rest are optional.
+  // Law No. 2024/017: explicit opt-in. Care data processing is required to hold an account; the rest are optional.
   consents: z.object({
     dataSharing: z.literal(true),
     research: z.boolean(),
