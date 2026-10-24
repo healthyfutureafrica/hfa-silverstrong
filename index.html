@@ -976,7 +976,7 @@ body{font-size:15px}
     <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span id="land-hero-title">HFA <span>SilverStrong</span></span></div>
     <div class="lnr">
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goFreeHub()" id="lnd-freehub" data-i18n="free_hub_title">Free Health Hub</button>
-      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="startDemo('patient')" id="lnd-demo">Try Demo</button>
+      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="HFATriageUI.openPublic()" id="lnd-triage" data-i18n="st_nav">Check my symptoms</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
       <button type="button" class="btn bgh land-nav-btn nav-ghost" onclick="openLangPicker()" id="lnd-lang">Language</button>
       <button type="button" class="btn bg2 land-nav-btn" onclick="goAuth('register')" id="lnd-register">Register</button>
@@ -1321,6 +1321,7 @@ const T = {
     lab_portal:'Lab Portal', lab_results:'Lab Results', upload_lab_result:'Upload Lab Result',
     my_appointments:'My Appointments', health_records:'Health Records',
     consult_now:'Consult Now', sign_out:'Sign Out',
+    accounts_unavailable_title:'Accounts are not open on this website yet', accounts_unavailable_body:'HFA SilverStrong accounts, consultations and records open when the HFA service starts in your area. You can already use the Free Health Hub and check your symptoms here, without an account.',
     skip_main:'Skip to main content', legal_privacy:'Legal & Privacy', compliance_nav:'Compliance Centre',
     privacy_nav:'Privacy & Data Protection', confidentiality_nav:'Confidentiality & Medical Secrecy',
 
@@ -1503,7 +1504,6 @@ const T = {
     // Badges & misc
     active:'Active', video:'video', voice:'voice', text:'text',
     success:'OK', failed:'Failed',
-    demo_creds:'Demo Credentials',
 
     // Admin governance / integrations / triage / safety / care plan / ratings
     control_center:'Control Center', administration:'Administration', administrators:'Administrators',
@@ -1514,7 +1514,7 @@ const T = {
     consent_registry_title:'Patient consent registry', verify_title:'Clinician verification', manage_admins_btn:'Manage Administrators',
     safety_integrations:'Safety & Integrations', fhir_title:'Clinical exchange', med_safety_title:'Medication safety', triage_title:'Urgent-care queue', review_integrations_btn:'Review Integrations',
     integrations_title:'Platform Integrations', integrations_sub:'Connection readiness for production clinical services',
-    demo_config_title:'Demo configuration', demo_config_desc:'These records document the required integration boundaries. No real FHIR server, terminology server, encryption key store, identity provider, or emergency dispatcher is connected by this static build.',
+    demo_config_title:'Integration status', demo_config_desc:'Connections marked “configuration required” are not active yet. Clinical records, triage and exports run on the HFA server.',
     triage_queue_title:'Urgent Care Queue', triage_queue_sub:'Review patient-submitted triage requests and document escalation', no_open_triage:'No open triage requests.', close_btn:'Close',
     safety_title:'Safety, Consent & Verification', safety_sub:'Review clinical safety signals and patient permissions',
     med_alerts_title:'Medication Safety Alerts', no_med_alerts:'No medication safety alerts.', resolve_btn:'Resolve', consent_registry:'Consent Registry',
@@ -1531,16 +1531,14 @@ const T = {
     emergency_warning_desc:'Call your local emergency number immediately for severe chest pain, difficulty breathing, stroke symptoms, severe bleeding, loss of consciousness, or immediate danger.',
     triage_urgency_q:'How urgent is your concern?', triage_emergency_opt:'Emergency or life-threatening', triage_urgent_opt:'Urgent, needs same-day review', triage_routine_opt:'Non-urgent guidance',
     triage_what_happening:'What is happening?', triage_symptoms_ph:'Describe your symptoms, when they started, and what has changed...',
-    triage_location:'Your current location', triage_location_ph:'City and country', submit_triage:'Submit Triage',
-    testing_access:'Testing Access', demo_admin_only:'Admin-only demo credentials. Share them only with approved testers.', restricted:'Restricted', temp_test_pw:'Temporary testing password:',
+    triage_location:'Your current location', triage_location_ph:'City and country', submit_triage:'Submit Triage', restricted:'Restricted', temp_test_pw:'Temporary testing password:',
     admin_role_lbl:'Administrator Role', add_admin:'Add Admin', platform_owner:'Platform Owner', clinical_operations:'Clinical Operations', compliance_officer:'Compliance Officer', support_admin:'Support Administrator',
     super_admin_role:'Super Admin', super_admin_badge:'Super Admin',
     super_admin_only_msg:'Only a Super Admin can perform this action on an administrator account.',
     admin_pending_note:'New admin accounts created by a Super Admin are active immediately. Admins created by other administrators require Super Admin validation before gaining access.',
     admin_pending_review_msg:'Administrator account submitted. It will remain inactive until a Super Admin validates it.',
     super_admin_protect_msg:'The Super Admin account cannot be modified, suspended, or removed by another administrator.',
-    spec_required:'Please select your medical specialty.', nurse_spec_required:'Please select your nursing specialty.',
-    try_demo:'Try Demo', lang_prompt_lbl:'Language',
+    spec_required:'Please select your medical specialty.', nurse_spec_required:'Please select your nursing specialty.', lang_prompt_lbl:'Language',
 
     // Free Health Hub
     free_hub_nav:'Free Health Hub', free_hub_title:'Free Health Hub',
@@ -1656,6 +1654,7 @@ const T = {
     lab_portal:'Portail Laboratoire', lab_results:'Résultats de Laboratoire', upload_lab_result:'Télécharger Résultat de Laboratoire',
     my_appointments:'Mes Rendez-vous', health_records:'Dossiers de Santé',
     consult_now:'Consulter Maintenant', sign_out:'Se Déconnecter',
+    accounts_unavailable_title:'Les comptes ne sont pas encore ouverts sur ce site', accounts_unavailable_body:'Les comptes, consultations et dossiers HFA SilverStrong ouvrent lorsque le service HFA démarre dans votre région. Vous pouvez déjà utiliser l’Espace Santé gratuit et vérifier vos symptômes ici, sans compte.',
     skip_main:'Aller au contenu principal', legal_privacy:'Juridique & Confidentialité', compliance_nav:'Centre de Conformité',
     privacy_nav:'Confidentialité & Protection des Données', confidentiality_nav:'Secret Médical & Confidentialité',
 
@@ -1840,7 +1839,6 @@ const T = {
     // Badges & misc
     active:'Actif', video:'vidéo', voice:'vocal', text:'texte',
     success:'OK', failed:'Échoué',
-    demo_creds:'Identifiants de Démonstration',
 
     // Admin governance / integrations / triage / safety / care plan / ratings
     control_center:'Centre de Contrôle', administration:'Administration', administrators:'Administrateurs',
@@ -1851,7 +1849,7 @@ const T = {
     consent_registry_title:'Registre de consentement des patients', verify_title:'Vérification des cliniciens', manage_admins_btn:'Gérer les Administrateurs',
     safety_integrations:'Sécurité & Intégrations', fhir_title:'Échange clinique', med_safety_title:'Sécurité des médicaments', triage_title:'File d\'attente urgente', review_integrations_btn:'Vérifier les Intégrations',
     integrations_title:'Intégrations de la Plateforme', integrations_sub:'État de préparation des connexions pour les services cliniques en production',
-    demo_config_title:'Configuration de démonstration', demo_config_desc:'Ces enregistrements documentent les limites d\'intégration requises. Aucun serveur FHIR réel, serveur de terminologie, coffre-fort de clés de chiffrement, fournisseur d\'identité ou service d\'urgence n\'est connecté par cette version statique.',
+    demo_config_title:'État des intégrations', demo_config_desc:'Les connexions marquées « configuration requise » ne sont pas encore actives. Les dossiers cliniques, le triage et les exports fonctionnent sur le serveur HFA.'intégration requises. Aucun serveur FHIR réel, serveur de terminologie, coffre-fort de clés de chiffrement, fournisseur d\'identité ou service d\'urgence n\'est connecté par cette version statique.',
     triage_queue_title:'File d\'Attente Urgente', triage_queue_sub:'Examiner les demandes de triage soumises par les patients et documenter l\'escalade', no_open_triage:'Aucune demande de triage ouverte.', close_btn:'Fermer',
     safety_title:'Sécurité, Consentement & Vérification', safety_sub:'Examiner les signaux de sécurité clinique et les autorisations des patients',
     med_alerts_title:'Alertes de Sécurité des Médicaments', no_med_alerts:'Aucune alerte de sécurité des médicaments.', resolve_btn:'Résoudre', consent_registry:'Registre de Consentement',
@@ -1868,16 +1866,14 @@ const T = {
     emergency_warning_desc:'Appelez immédiatement votre numéro d\'urgence local en cas de douleur thoracique sévère, difficulté à respirer, symptômes d\'AVC, saignement grave, perte de conscience ou danger immédiat.',
     triage_urgency_q:'Quelle est l\'urgence de votre préoccupation ?', triage_emergency_opt:'Urgence ou danger vital', triage_urgent_opt:'Urgent, nécessite une révision le jour même', triage_routine_opt:'Conseils non urgents',
     triage_what_happening:'Que se passe-t-il ?', triage_symptoms_ph:'Décrivez vos symptômes, quand ils ont commencé et ce qui a changé...',
-    triage_location:'Votre emplacement actuel', triage_location_ph:'Ville et pays', submit_triage:'Soumettre le Triage',
-    testing_access:'Accès de Test', demo_admin_only:'Identifiants de démonstration réservés aux administrateurs. Ne les partagez qu\'avec des testeurs approuvés.', restricted:'Restreint', temp_test_pw:'Mot de passe de test temporaire :',
+    triage_location:'Votre emplacement actuel', triage_location_ph:'Ville et pays', submit_triage:'Soumettre le Triage', restricted:'Restreint', temp_test_pw:'Mot de passe de test temporaire :',
     admin_role_lbl:'Rôle Administrateur', add_admin:'Ajouter Admin', platform_owner:'Propriétaire de la Plateforme', clinical_operations:'Opérations Cliniques', compliance_officer:'Responsable de la Conformité', support_admin:'Administrateur de Support',
     super_admin_role:'Super Admin', super_admin_badge:'Super Admin',
     super_admin_only_msg:'Seul un Super Admin peut effectuer cette action sur un compte administrateur.',
     admin_pending_note:'Les comptes admin créés par un Super Admin sont actifs immédiatement. Ceux créés par d\'autres administrateurs nécessitent la validation d\'un Super Admin avant d\'obtenir l\'accès.',
     admin_pending_review_msg:'Compte administrateur soumis. Il restera inactif jusqu\'à validation par un Super Admin.',
     super_admin_protect_msg:'Le compte Super Admin ne peut être modifié, suspendu ou supprimé par un autre administrateur.',
-    spec_required:'Veuillez sélectionner votre spécialité médicale.', nurse_spec_required:'Veuillez sélectionner votre spécialité infirmière.',
-    try_demo:'Essayer la Démo', lang_prompt_lbl:'Langue',
+    spec_required:'Veuillez sélectionner votre spécialité médicale.', nurse_spec_required:'Veuillez sélectionner votre spécialité infirmière.', lang_prompt_lbl:'Langue',
 
     // Free Health Hub
     free_hub_nav:'Espace Santé Gratuit', free_hub_title:'Espace Santé Gratuit',
@@ -2080,7 +2076,6 @@ function updateStaticHTML() {
     'lbl-id-doc-ph-d': t('id_document_ph'),
     'lbl-id-doc-ph-n': t('id_document_ph'),
     'lbl-id-doc-ph-p': t('id_document_ph'),
-    'demo-lbl':  t('demo_creds'),
     'back-home-btn': LANG==='fr'?'← Retour':'← Back to Home',
     'auth-lang-btn': LANG==='fr'?'Langue':'Language',
     'lnd-lang': LANG==='fr'?'Langue':'Language',
@@ -2142,7 +2137,6 @@ function updateStaticHTML() {
     : 'HFA <span style="color:var(--go)">SilverStrong</span>';
   // Landing nav buttons
   const lsi = $('lnd-signin'); if(lsi) lsi.textContent = LANG==='fr'?'Se Connecter':'Sign In';
-  const lbk = $('lnd-demo'); if(lbk) lbk.textContent = t('try_demo');
   const sbs = $('sb-site-lbl');  if(sbs) sbs.textContent  = LANG==='fr'?'Retour au Site':'Back to Website';
   const lrg = $('lnd-register'); if(lrg) lrg.textContent = LANG==='fr'?'Inscription':'Register';
   const fhb = $('fh-back'); if(fhb) fhb.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
@@ -2183,83 +2177,18 @@ function updateStaticHTML() {
 // ═══════════════════════ UTILITIES & APP CODE ════════════════════════════════
 
 // ═══════════════════════ DATA STORE ═══════════════════════
+// Clinical data comes only from real accounts on the HFA server (see clinical-sync.js); nothing is built in.
 const DB = {
-  users: [
-    {id:'adm1',role:'admin',name:'Chinjie Sylvester Nkeh',email:'chinjiesylvestern@gmail.com',passwordHash:'pbkdf2-sha256$25000$/GX4Z+Y+xG1hXYPHoB/tIA==$yOUOGqCxW+GWZiuJF3TtUcl4NcFLnDBUE1JaU3ywALQ=',phone:'+237 699 000 001',status:'active',createdAt:'2024-01-01',adminRole:'Super Admin',permissions:['all']},
-    {id:'adm2',role:'admin',name:'Amina Okafor',email:'aokafor@hfa.org',passwordHash:'pbkdf2-sha256$25000$QoPmlUhqBUJsQyl87gzYZQ==$78h+sNr0V4dhwk+v8YXZjyFaxQ2SrsFUgGTqvL8o3LA=',phone:'+237 677 555 012',status:'active',createdAt:'2024-02-01',adminRole:'Clinical Operations',permissions:['users','triage','audit']},
-    {id:'lab1',role:'labtech',name:'Grace Laboratory Tech',email:'lab@hfa.org',passwordHash:'pbkdf2-sha256$25000$Y8EBV4zQuRQi2sEDn7tmSw==$8BDpotNeB5ZPtXKtOl9Ip3Dk6G7qCcRVENDU9j7QpHs=',phone:'+237 677 800 101',laboratory:'HFA Diagnostic Laboratory',labRegion:'littoral',labTown:'Douala',status:'active',createdAt:'2024-02-05'},
-    {id:'pha1',role:'pharmacist',name:'Pharm. Brenda Ngum',email:'pharmacy@hfa.org',passwordHash:'pbkdf2-sha256$25000$2r2nY3amXpk6DPGPcyvNHQ==$mJ4VcMJh5B4wtVdl62M1TfjQyGTnhSZp8c/bPow7nVM=',phone:'+237 677 300 202',pharmacyName:'HFA Community Pharmacy',pharmacyAddress:'Rue Joss, Bonanjo',pharmacyLocation:'Douala, Littoral, Cameroon',pharmacyLicense:'CM-PHA-2021-0107',businessRegistration:'RC/DLA/2021/B/0456',minsanteAuthorization:'MINSANTE/DPML/2021/0219',ownerName:'Brenda Ngum',ownerIdType:'national_id',ownerIdNumber:'CM-CNI-114502387',status:'active',createdAt:'2024-02-12',pharmacyValidatedBy:'adm1',pharmacyValidatedAt:'2024-02-14 10:00'},
-    {id:'doc1',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',passwordHash:'pbkdf2-sha256$25000$ammKmwTGr4rEic2N4eQMgA==$DG8h0m2YiExwGWYtsdmtO8KRoTmSXJln38iX6tZ9tyc=',specialty:'General Medicine',licenseNo:'CM-MED-2021-0041',hospital:'HFA Central Hospital',phone:'+237 677 123 456',status:'active',createdAt:'2024-02-10',consultationFee:15},
-    {id:'doc2',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',passwordHash:'pbkdf2-sha256$25000$wj5TR+YnGSV0I2a8pL1Cbw==$pxJQFIcg2xoPTsjBZP3dOn/oGpQ1dewrfyoXmLpjhEg=',specialty:'Cardiology',licenseNo:'CM-MED-2019-0078',hospital:'HFA Heart Center',phone:'+237 655 987 321',status:'active',createdAt:'2024-03-15',consultationFee:20},
-    {id:'nur1',role:'nurse',name:'Nurse Fatima Diallo',email:'fdiallo@hfa.org',passwordHash:'pbkdf2-sha256$25000$38bRMrddSbL4LibIbz7WAQ==$mZQKtt/PaZKdLu318b7lT2YSrwjt28Q0PIa8eEaNQgU=',department:'Emergency Care',specialty:'Critical Care Nursing',nurseId:'CM-NUR-2020-0015',hospital:'HFA Central Hospital',phone:'+237 699 234 567',qualifications:'BSN, Critical Care Certified',homeVisitFee:12,status:'active',createdAt:'2024-02-20'},
-    {id:'nur2',role:'nurse',name:'Nurse Bola Osei',email:'bosei@hfa.org',passwordHash:'pbkdf2-sha256$25000$FlV/kLgo+8ev2tVWhbfm1g==$gGampGkpmISD9Nm35UuCMd+ELML1Jiz5tahlECSfQqY=',department:'Pediatrics',specialty:'Pediatric Nursing',nurseId:'CM-NUR-2022-0031',hospital:'HFA Children Ward',phone:'+237 688 345 678',qualifications:'BSN, Pediatric Specialist',homeVisitFee:10,status:'active',createdAt:'2024-04-01'},
-    {id:'pat1',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',passwordHash:'pbkdf2-sha256$25000$MyedosvxH1/EdxCsH/lZ5A==$78hHCLyt3lTiPQSK7pKb00fGeV3oIy1tBPCDkAi6zmo=',dateOfBirth:'1985-06-14',gender:'Male',phone:'+237 677 456 789',bloodType:'O+',allergies:'Penicillin',address:'Douala, Cameroon',emergencyContact:'Grace Tabe — +237 677 999 888',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-03-05',medicalHistory:'Hypertension, managed with Amlodipine 5mg daily.',conditions:[{system:'ICD-10-CM',code:'I10',display:'Essential (primary) hypertension'}],medications:[{system:'RxNorm',code:'308047',display:'Amlodipine 5 MG Oral Tablet'}],observations:[{system:'LOINC',code:'85354-9',display:'Blood pressure panel',value:'145/92',unit:'mmHg',effectiveDate:'2025-01-27'}]},
-    {id:'pat2',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',passwordHash:'pbkdf2-sha256$25000$592Cog+EQExe8pYTeFZqfg==$UI/xLw5hDlyG+X7ZplMuZRbrA97ji9dOH2nmMO9DPeY=',dateOfBirth:'1992-11-22',gender:'Female',phone:'+237 655 789 012',bloodType:'A+',allergies:'None',address:'Yaoundé, Cameroon',emergencyContact:'Paul Mbeki — +237 655 777 666',assignedDoctor:'doc1',assignedNurse:'nur1',status:'active',createdAt:'2024-04-18',medicalHistory:'Type 2 Diabetes, on Metformin 500mg twice daily.',conditions:[{system:'ICD-10-CM',code:'E11.9',display:'Type 2 diabetes mellitus without complications'}],medications:[{system:'RxNorm',code:'860975',display:'Metformin 500 MG Oral Tablet'}],observations:[{system:'LOINC',code:'2339-0',display:'Glucose [Mass/volume] in Blood',value:'8.4',unit:'mmol/L',effectiveDate:'2025-01-27'}]},
-    {id:'pat3',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',passwordHash:'pbkdf2-sha256$25000$AHJsdqbXqxMiNzYghzCDlQ==$1US8lIdx+7yQRDDObZFanzk4A5EuhpBSydmC1DauHw0=',dateOfBirth:'1970-03-08',gender:'Male',phone:'+237 699 123 456',bloodType:'B+',allergies:'Aspirin',address:'Bamenda, Cameroon',emergencyContact:'Mary Fon — +237 699 888 777',assignedDoctor:'doc2',assignedNurse:'nur1',status:'active',createdAt:'2024-05-02',medicalHistory:'Coronary artery disease. Post-stent placement 2023.',conditions:[{system:'ICD-10-CM',code:'I25.10',display:'Atherosclerotic heart disease of native coronary artery without angina pectoris'}],medications:[],observations:[]},
-  ],
-  appointments: [
-    {id:'apt1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',date:'2025-02-04',time:'09:30',type:'consultation',serviceCode:'PC-VIRTUAL',serviceName:'Virtual primary care',encounterClass:'VR',status:'scheduled',notes:'Follow-up blood pressure check',mode:'video'},
-    {id:'apt2',patientId:'pat2',doctorId:'doc1',nurseId:'nur1',date:'2025-01-29',time:'11:00',type:'consultation',serviceCode:'MED-REVIEW',serviceName:'Medication review',encounterClass:'VR',status:'completed',notes:'Diabetes management review',mode:'text'},
-    {id:'apt3',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-06',time:'14:00',type:'consultation',serviceCode:'CARD-VIRTUAL',serviceName:'Virtual cardiology',encounterClass:'VR',status:'scheduled',notes:'Cardiology post-op check',mode:'video'},
-    {id:'apt4',patientId:'pat1',doctorId:'doc1',date:'2025-02-10',time:'10:00',type:'follow-up',serviceCode:'MED-REVIEW',serviceName:'Medication review',encounterClass:'VR',status:'scheduled',notes:'Medication review',mode:'text'},
-    {id:'apt5',patientId:'pat3',doctorId:'doc2',nurseId:'nur1',date:'2025-02-08',time:'08:00',type:'consultation',serviceCode:'CARD-VIRTUAL',serviceName:'Virtual cardiology',encounterClass:'VR',status:'scheduled',notes:'Weekly cardiac check-in',mode:'voice'},
-  ],
-  messages: [
-    {id:'m1',from:'doc1',to:'pat1',text:'Hello Emmanuel, how are you feeling today?',time:'10:02 AM',date:'2025-01-27'},
-    {id:'m2',from:'pat1',to:'doc1',text:'Good morning Dr. Nwosu. My BP is still a bit high — 145/92 this morning.',time:'10:15 AM',date:'2025-01-27'},
-    {id:'m3',from:'doc1',to:'pat1',text:'Thank you. Please maintain the low-salt diet. We will reassess at your Tuesday appointment.',time:'10:22 AM',date:'2025-01-27'},
-    {id:'m4',from:'nur1',to:'pat1',text:'Hi Emmanuel, just a reminder about your appointment on Feb 4th at 9:30 AM with Dr. Nwosu.',time:'03:00 PM',date:'2025-01-27'},
-    {id:'m5',from:'pat1',to:'nur1',text:'Thank you so much for the reminder, Nurse Fatima!',time:'03:15 PM',date:'2025-01-27'},
-    {id:'m6',from:'doc1',to:'nur1',text:'Please prepare the consultation notes for patient Tabe before Tuesday.',time:'04:00 PM',date:'2025-01-27'},
-  ],
-  auditLogs: [
-    {id:'lg1',userId:'doc1',userName:'Dr. Amara Nwosu',action:'LOGIN',resource:'System',timestamp:'2025-01-27 08:30:15',ip:'192.168.1.45',status:'success'},
-    {id:'lg2',userId:'pat1',userName:'Emmanuel Tabe',action:'VIEW_RECORD',resource:'Medical Records',timestamp:'2025-01-27 09:15:22',ip:'192.168.1.78',status:'success'},
-    {id:'lg3',userId:'nur1',userName:'Nurse Fatima Diallo',action:'UPDATE_APPOINTMENT',resource:'Appointments',timestamp:'2025-01-27 10:02:34',ip:'192.168.1.52',status:'success'},
-    {id:'lg4',userId:'doc2',userName:'Dr. Kwame Asante',action:'LOGIN',resource:'System',timestamp:'2025-01-27 11:00:01',ip:'192.168.1.90',status:'success'},
-    {id:'lg5',userId:'pat2',userName:'Carine Mbeki',action:'LOGIN',resource:'System',timestamp:'2025-01-27 11:30:11',ip:'192.168.2.12',status:'success'},
-    {id:'lg6',userId:'unknown',userName:'Unknown',action:'LOGIN_FAILED',resource:'System',timestamp:'2025-01-27 12:00:00',ip:'45.123.45.67',status:'failed'},
-    {id:'lg7',userId:'pat3',userName:'Joseph Fon',action:'BOOK_APPOINTMENT',resource:'Appointments',timestamp:'2025-01-27 13:22:10',ip:'192.168.3.5',status:'success'},
-  ],
-  careNotes: [
-    {id:'cn1',nurseId:'nur1',patientId:'pat1',text:'Patient BP: 145/92. Medication compliance noted. Advised on low-sodium diet.',date:'2025-01-27',time:'09:15 AM'},
-    {id:'cn2',nurseId:'nur1',patientId:'pat2',text:'Blood glucose: 8.4 mmol/L. Diet review completed. Patient doing well.',date:'2025-01-27',time:'10:30 AM'},
-    {id:'cn3',nurseId:'nur1',patientId:'pat3',text:'Post-op incision site checked. Healing well. No signs of infection.',date:'2025-01-28',time:'08:45 AM'},
-  ],
-  doctorReports: [],
-  carePlans: [
-    {id:'cp1',patientId:'pat1',title:'Blood pressure control',ownerId:'doc1',status:'active',nextReview:'2025-02-04',goals:[{label:'Take prescribed medicine as directed',progress:80},{label:'Record blood pressure three times weekly',progress:60}]},
-    {id:'cp2',patientId:'pat2',title:'Diabetes self-management',ownerId:'doc1',status:'active',nextReview:'2025-02-12',goals:[{label:'Track glucose readings',progress:70},{label:'Follow nutrition plan',progress:50}]},
-  ],
-  triageCases: [],
-  labResults: [],
-  notifications: [],
-  specialistReferrals: [],
-  reviews: [],
-  fhAnalytics: [],
-  clinicianVerifications: [
-    {id:'ver1',providerId:'doc1',status:'verified',verifiedBy:'adm1',verifiedAt:'2024-02-12',licenseExpiry:'2027-02-12'},
-    {id:'ver2',providerId:'doc2',status:'verified',verifiedBy:'adm1',verifiedAt:'2024-03-20',licenseExpiry:'2027-03-20'},
-    {id:'ver3',providerId:'nur1',status:'verified',verifiedBy:'adm2',verifiedAt:'2024-02-25',licenseExpiry:'2027-02-25'},
-  ],
-  consents: [{id:'con1',patientId:'pat1',type:'Telehealth and data sharing',status:'active',version:'2025.1',recordedAt:'2025-01-27'}],
-  medicationSafetyAlerts: [{id:'msa1',patientId:'pat1',severity:'review',message:'Penicillin allergy recorded; verify medication allergies before prescribing.',status:'open'}],
+  users: [], appointments: [], messages: [], auditLogs: [], careNotes: [], doctorReports: [], carePlans: [], triageCases: [],
+  labResults: [], notifications: [], specialistReferrals: [], reviews: [], fhAnalytics: [], clinicianVerifications: [], consents: [],
+  medicationSafetyAlerts: [],
+  // Status of each outside connection, shown to administrators.
   integrations: [
-    {id:'int1',name:'FHIR R4 API',purpose:'Clinical data exchange',status:'configuration required',environment:'demo'},
-    {id:'int2',name:'Terminology service',purpose:'ICD-10-CM, SNOMED CT, LOINC, RxNorm validation',status:'configuration required',environment:'demo'},
-    {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'demo'},
+    {id:'int1',name:'HL7 FHIR R4 export',purpose:'Patients download their record; GET /api/v1/me/fhir',status:'connected',environment:'production'},
+    {id:'int2',name:'Terminology service',purpose:'ICD-11, SNOMED CT, LOINC validation',status:'configuration required',environment:'production'},
+    {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'production'},
   ],
-  subscriptions: [
-    {id:'sub1',patientId:'pat1',tier:'premium',status:'active',startDate:'2024-12-15',renewalDate:'2025-02-15',monthlyVisitsUsed:0,monthlyVisitsAllowed:1,currency:'USD',amount:10,paymentStatus:'completed'},
-    {id:'sub2',patientId:'pat2',tier:'basic',status:'active',startDate:'2025-01-15',renewalDate:'2025-02-15',currency:'USD',amount:2,paymentStatus:'completed'},
-    {id:'sub3',patientId:'pat3',tier:'free',status:'active',startDate:'2024-05-02',renewalDate:null,currency:null,amount:0,paymentStatus:'completed'},
-  ],
-  homeVisits: [
-    {id:'hv1',patientId:'pat1',doctorId:'doc1',nurseId:'nur1',visitDate:'2025-02-20',visitTime:'14:00',status:'scheduled',location:'Emmanuel\'s home - Douala',notes:'Monthly wellness check and medication review'},
-  ],
-  payments: [],
-  whatsappAlerts: [],
-  medicalDocuments: [],
+  subscriptions: [], homeVisits: [], payments: [], whatsappAlerts: [], medicalDocuments: [],
 };
 
 const SPECIALTIES = [
@@ -2518,7 +2447,7 @@ const EXERCISE_ESSENTIALS = [
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
-const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false,offline:false,demoAccounts:false};
+const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false,offline:false};
 async function apiRequest(path, method='GET', body, timeout=15000) {
   const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});
   if (response.status===204) return {};
@@ -2557,11 +2486,9 @@ async function initializeBackend() {
       ApiState.offline=true;
     }
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
-    // Servers started with DEMO_ACCOUNTS=true hold the same test accounts as the static demo.
-    ApiState.demoAccounts=!!config?.demoAccounts; ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage;
+    ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
-    if (!ApiState.demoAccounts) $('lnd-demo').classList.add('hid');
     updateStaticHTML();
     if (ApiState.offline) return;
     const session=await fetch('/api/session',{credentials:'same-origin'});
@@ -2988,7 +2915,7 @@ const NAV = {
 // ═══════════════════════ SCREEN NAVIGATION ═══════════════════════
 // Skip link: jumps to whichever screen is showing (landing, sign-in, Free Health Hub or the app page).
 function skipToMain(event) {
-  const target=['pgc','free-hub','auth-wrap','land'].map(id=>$(id)).find(el=>el&&el.offsetParent!==null);
+  const target=['pgc','public-triage','free-hub','auth-wrap','land'].map(id=>$(id)).find(el=>el&&el.offsetParent!==null);
   if (!target) return;
   event.preventDefault();
   if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex','-1');
@@ -2999,7 +2926,16 @@ function goFreeHub() {
   hide('land'); hide('auth-wrap'); hide('app-wrap'); show('free-hub');
   renderFreeHub($('free-hub-content'), true);
 }
+// True on a copy of the site that has no HFA server behind it (the public information website).
+const noAccounts = () => !ApiState.enabled && !ApiState.loading && !ApiState.failed;
+function showAccountsUnavailable() {
+  openMo(`<div class="mh"><div class="mt2">${t('accounts_unavailable_title')}</div><button class="mc" onclick="closeMo()" aria-label="${t('close')}">${IC.x}</button></div>
+    <p class="mb12">${t('accounts_unavailable_body')}</p>
+    <div class="mf" style="flex-wrap:wrap"><button class="btn bs" onclick="closeMo();goFreeHub()">${t('free_hub_title')}</button><button class="btn bp" onclick="closeMo();HFATriageUI.openPublic()">${t('st_nav')}</button></div>`);
+}
 function goAuth(tab, role) {
+  if (ApiState.loading) { ApiState.ready.then(()=>goAuth(tab, role)); return; }
+  if (noAccounts()) return showAccountsUnavailable();
   hide('land'); show('auth-wrap'); hide('app-wrap');
   swtTab(tab || 'login');
   if (role) setRole(role);
@@ -3007,19 +2943,8 @@ function goAuth(tab, role) {
   const bh = $('back-home-btn');
   if(bh) bh.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
 }
-function startDemo(role='patient') {
-  if (ApiState.loading) { ApiState.ready.then(()=>startDemo(role)); return; }
-  if (ApiState.enabled&&ApiState.demoAccounts) {
-    apiRequest('/api/auth/demo','POST',{role}).then(data=>{installBackendSession(data);goApp();}).catch(error=>{goAuth('login');amsg(error.message);});
-    return;
-  }
-  if (ApiState.enabled||ApiState.failed) { goAuth('login'); return; }
-  if(!['patient','doctor','nurse','labtech'].includes(role)) return goAuth('login');
-  const demo=DB.users.find(user=>user.role===role&&user.status==='active');
-  if(!demo) return goAuth('login');
-  CU=demo; SC=null; log('START_DEMO','System'); goApp();
-}
 function showPortalChoice(role) {
+  if (noAccounts()) return showAccountsUnavailable();
   const label = role==='pharmacist' ? (LANG==='fr'?'Portail Pharmacien':'Pharmacist Portal') : role==='patient' ? (LANG==='fr'?'Portail Patient':'Patient Portal') : role;
   openMo(`<div class="mh"><div class="mt2">${label}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <p class="mu sm" style="margin-bottom:16px">${LANG==='fr'?'Avez-vous déjà un compte ?':'Do you already have an account?'}</p>
@@ -3128,6 +3053,7 @@ function amsg(txt, type='e') { $('amsg').innerHTML=`<div class="alt ${type==='e'
 function doLogin() {
   if (ApiState.loading) { ApiState.ready.then(()=>doLogin()); return; }
   if (ApiState.failed) return amsg(t('backend_unavailable'));
+  if (noAccounts()) return amsg(t('accounts_unavailable_body'),'i');
   const email = $('le').value.trim().toLowerCase(), pass = ApiState.enabled?$('lp').value:$('lp').value.trim();
   if (ApiState.enabled) { backendLogin(!email.includes('@')&&typeof HFAPatientRegistration!=='undefined'?HFAPatientRegistration.normPhone(email):email,pass); return; }
   const phoneId = typeof HFAPatientRegistration!=='undefined' && !email.includes('@') ? HFAPatientRegistration.normPhone(email) : null;
@@ -3219,6 +3145,7 @@ function normalizeWhatsAppNumber(value) {
   return /^\+[1-9]\d{7,14}$/.test(number)?number:null;
 }
 function doReg() {
+  if (noAccounts()) return amsg(t('accounts_unavailable_body'),'i');
   if (ApiState.loading) { ApiState.ready.then(()=>doReg()); return; }
   if (ApiState.failed) return amsg(t('backend_unavailable'));
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
@@ -3251,22 +3178,9 @@ function finishReg(idInput, idDocumentType, whatsappNumber) {
     : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
     : {whatsappNumber,whatsappNotificationsConsent:$('rwa-consent').checked,whatsappConsentAt:$('rwa-consent').checked?tsNow():null,dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
   const finalize = (idFields) => {
-    if (ApiState.enabled) { backendRegister({...base,...extra,...idFields}); return; }
-    const created = {...base,...extra,...idFields,termsAcceptedAt:tsNow(),patientCommitmentAt:RROLE==='patient'?tsNow():null};
-    created.hfaId = nextHfaId(RROLE, created);
-    DB.users.push(created);
-    DB.consents.push({id:'con'+Date.now(),patientId:id,type:'Terms and Conditions',status:'active',version:'2025.1',recordedAt:todayD()});
-    if (RROLE==='patient') {
-      CU = DB.users[DB.users.length-1];
-      log('REGISTER','System');
-      goApp();
-      navigate('subscriptions');
-      return;
-    }
-    log('REGISTER','System');
-    amsg(t('pending_review_msg'),'o');
-    swtTab('login');
-    $('le').value = email;
+    // Accounts exist only on the HFA server; this browser never creates one.
+    if (!ApiState.enabled) { amsg(t('accounts_unavailable_body'),'i'); return; }
+    backendRegister({...base,...extra,...idFields});
   };
   if (idInput && idInput.files.length) {
     const file = idInput.files[0];
@@ -3501,11 +3415,6 @@ function saveDoctorReport(appointmentId) {
 }
 
 // ═══════════════════════ ADMIN ═══════════════════════
-function renderDemoCredentials() {
-  if (ApiState.enabled) return '';
-  return `<div class="card mt18"><div class="ch"><div><div class="ct">${t('testing_access')}</div><div class="rating-note">${t('demo_admin_only')}</div></div><span class="badge bwa">${t('restricted')}</span></div><div class="code-list">${DB.users.filter(u=>['admin','doctor','nurse','patient','labtech','pharmacist'].includes(u.role)).map(user=>`<div class="code-item"><code class="code-chip">${String(tv(user.role)).toUpperCase()}</code><div><strong>${user.email}</strong><span>${t('i_pw_encrypted')}</span></div></div>`).join('')}</div></div>`;
-}
-
 function renderAdminDash(pc) {
   $('tbt').textContent=t('admin_dashboard');
   topBtn(`<button class="btn bp bsm" onclick="navigate('admin-control')">${IC.shield} ${t('control_center')}</button>`);
@@ -3534,7 +3443,6 @@ function renderAdminDash(pc) {
         <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}${t('success')}</span>`:`<span class="badge bda">${IC.x}${t('failed')}</span>`}</td>
       </tr>`).join('')}</tbody></table></div>
     </div>
-    ${renderDemoCredentials()}
   </div>`;
 }
 
@@ -3547,7 +3455,6 @@ function renderAdminControl(pc) {
     <div class="stats"><div class="sc ce"><div class="sv">${DB.users.filter(u=>u.role==='admin'&&u.status==='active').length}</div><div class="sl">${t('active_admins')}</div></div><div class="sc cb"><div class="sv">${verified}</div><div class="sl">${t('verified_clinicians')}</div></div><div class="sc cr"><div class="sv">${openAlerts}</div><div class="sl">${t('open_safety_alerts')}</div></div><div class="sc cg"><div class="sv">${activeConsents}</div><div class="sl">${t('active_consents')}</div></div></div>
     <div class="g2"><div class="card"><div class="ch"><div class="ct">${t('access_governance')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">RBAC</code><div><strong>${t('rbac_title')}</strong><span>${t('rbac_desc')}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_consent')}</code><div><strong>${t('consent_registry_title')}</strong><span>${tfmt('i_consent_records',{n:activeConsents})}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_verify')}</code><div><strong>${t('verify_title')}</strong><span>${tfmt('i_verified_records',{n:verified})}</span></div></div></div><button class="btn bp bsm w100 mt8" onclick="navigate('mgr-a')">${t('manage_admins_btn')}</button></div>
       <div class="card"><div class="ch"><div class="ct">${t('safety_integrations')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">FHIR R4</code><div><strong>${t('fhir_title')}</strong><span>${tfmt('i_config_status',{status:tv(DB.integrations[0].status)})}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_med_safe')}</code><div><strong>${t('med_safety_title')}</strong><span>${tfmt('i_open_alerts',{n:openAlerts})}</span></div></div><div class="code-item"><code class="code-chip">TRIAGE</code><div><strong>${t('triage_title')}</strong><span>${tfmt('i_triage_requests',{n:DB.triageCases.filter(c=>c.status!=='closed').length})}</span></div></div></div><button class="btn bgh bsm w100 mt8" onclick="navigate('integrations')">${t('review_integrations_btn')}</button></div></div>
-    ${renderDemoCredentials()}
   </div>`;
 }
 

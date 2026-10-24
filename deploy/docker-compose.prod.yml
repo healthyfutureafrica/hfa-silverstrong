@@ -23,7 +23,6 @@ services:
   backend:
     environment:
       # Production defaults that cannot be weakened by accident from .env.
-      DEMO_ACCOUNTS: 'false'
       REQUIRE_ADMIN_MFA: 'true'
 
 volumes:

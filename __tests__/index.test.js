@@ -76,13 +76,17 @@ describe('index.html sanity checks', () => {
       await context.registerPharmacist();
       expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('pharmacy_docs_required');
     });
-    test('keeps a complete pharmacy profile pending with owner identity and every document',async()=>{
+    test('never creates a pharmacy account in the browser without the HFA server',async()=>{
       const {context}=pharmacyContext();await context.registerPharmacist();
-      expect(context.DB.users[0]).toMatchObject({role:'pharmacist',status:'pending_approval',pharmacyAddress:'Synthetic pharmacyAddress',minsanteAuthorization:'Synthetic minsanteAuthorization',ownerName:'Synthetic ownerName',ownerIdType:'passport'});
-      expect(Object.keys(context.DB.users[0].pharmacyDocuments)).toEqual(PH_DOC_KINDS);
-      expect(context.DB.users[0].pharmacyDocuments.ownerIdentity).toMatchObject({fileName:'ownerIdentity.pdf',mime:'application/pdf'});
+      expect(context.DB.users).toHaveLength(0);
+      expect(context.amsg).toHaveBeenCalledWith('accounts_unavailable_body','i');
       expect(context.apiRequest).not.toHaveBeenCalled();
     });
+    const pendingPharmacy=context=>{
+      const user={id:'pha-test',role:'pharmacist',status:'pending_approval',pharmacyDocuments:Object.fromEntries(PH_DOC_KINDS.map(kind=>[kind,{fileName:kind+'.pdf',mime:'application/pdf'}]))};
+      ['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization','ownerName','ownerIdNumber'].forEach(name=>{user[name]='Synthetic '+name;});
+      user.ownerIdType='passport';context.DB.users.push(user);return user;
+    };
     test('sends documents with the backend pharmacy registration',async()=>{
       const {context}=pharmacyContext();context.ApiState.enabled=true;
       context.HFAOffline={submitRegistration:jest.fn().mockResolvedValue({data:{}})};await context.registerPharmacist();
@@ -93,13 +97,13 @@ describe('index.html sanity checks', () => {
       expect(body.documents.businessLicense).toEqual({fileName:'businessLicense.pdf',content:'JVBERi0='});
     });
     test('blocks approval when a registration document is missing',async()=>{
-      const {context,fields}=pharmacyContext();await context.registerPharmacist();const user=context.DB.users[0];
+      const {context,fields}=pharmacyContext();const user=pendingPharmacy(context);
       delete user.pharmacyDocuments.minsanteAuthorization;fields['ph-credential-review'].checked=true;
       context.approvePharmacist(user.id);
       expect(user.status).toBe('pending_approval');expect(fields['ph-review-status'].textContent).toBe('pharmacy_docs_missing');
     });
     test('requires explicit admin review and blocks patient approval',async()=>{
-      const {context,fields}=pharmacyContext();await context.registerPharmacist();const user=context.DB.users[0];
+      const {context,fields}=pharmacyContext();const user=pendingPharmacy(context);
       context.approvePharmacist(user.id);expect(user.status).toBe('pending_approval');
       fields['ph-credential-review'].checked=true;context.CU={id:'patient-test',role:'patient'};
       context.approvePharmacist(user.id);expect(user.status).toBe('pending_approval');
@@ -563,7 +567,7 @@ describe('index.html sanity checks', () => {
       fields['rwa-consent'] = {checked:false};
       const context = {
         RROLE:role, CU:{}, CP:'dashboard', DB:{users:[],consents:[]},
-        ApiState:{enabled:false},
+        ApiState:{enabled:true}, noAccounts:()=>false,
         notifyPatientActivity:jest.fn(),
         $:id=>fields[id] || {value:'Synthetic example',checked:true},
         t:key=>key, amsg:jest.fn(), validConsultationFee:()=>true,
@@ -574,6 +578,8 @@ describe('index.html sanity checks', () => {
         })),
       };
       vm.createContext(context);
+      // Registration goes to the HFA server; DB.users here records what would be sent.
+      context.backendRegister = jest.fn(user => context.DB.users.push(user));
       ['normalizeWhatsAppNumber','doReg','finishReg','queueAccountDocuments','saveIdUpload','idDocumentTypeOptions','idVerificationCard'].forEach(name => {
         const source = content.match(new RegExp(`^(?:async )?function ${name}\\([^]*?^}`, 'm'));
         expect(source).not.toBeNull();
@@ -1078,9 +1084,6 @@ describe('index.html sanity checks', () => {
   });
 
   test('includes standards-aware virtual care data', () => {
-    expect(content).toContain("system:'ICD-10-CM'");
-    expect(content).toContain("system:'LOINC'");
-    expect(content).toContain("system:'RxNorm'");
     expect(content).toContain('const VIRTUAL_SERVICES = [');
     expect(content).toContain("code:'MENTAL-VIRTUAL'");
     expect(content).toContain("code:'PHYSIO-VIRTUAL'");
@@ -1098,7 +1101,6 @@ describe('index.html sanity checks', () => {
   });
 
   test('includes multi-admin governance controls', () => {
-    expect(content).toContain("id:'adm2',role:'admin'");
     expect(content).toContain("id:'mgr-a',l:()=>t('administrators')");
     expect(content).toContain('function renderAdminControl');
     expect(content).toContain('function renderIntegrations');
@@ -1107,18 +1109,14 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("role==='admin'?{adminRole:");
   });
 
-  test('keeps demo credentials inside the admin portal only', () => {
-    expect(content).not.toContain('<strong>Demo Credentials</strong>');
-    expect(content).toContain('Testing Access');
-    expect(content).toContain('Admin-only demo credentials');
-    expect(content).toContain("DB.users.filter(u=>['admin','doctor','nurse','patient','labtech','pharmacist'].includes(u.role))");
-    expect(content).toContain('${renderDemoCredentials()}');
-  });
-
-  test('provisions Chinjie as the Super Admin', () => {
-    expect(content).toContain("email:'chinjiesylvestern@gmail.com'");
-    expect(content).toContain("adminRole:'Super Admin'");
-    expect(content).toContain("permissions:['all']");
+  test('has no built-in people, records, demo sign-in or demo credentials', () => {
+    const db = content.match(/^const DB = \{[^]*?^\};/m)[0];
+    for (const key of ['users', 'appointments', 'messages', 'careNotes', 'carePlans', 'consents', 'subscriptions', 'homeVisits', 'auditLogs']) expect(db).toContain(`${key}: []`);
+    expect(content).not.toContain('passwordHash:');
+    expect(content).not.toContain('startDemo');
+    expect(content).not.toContain('renderDemoCredentials');
+    expect(content).not.toContain('/api/auth/demo');
+    expect(content).toContain("if (noAccounts()) return showAccountsUnavailable();");
   });
 
   test('uses the HFA logo asset across the app', () => {
@@ -1129,10 +1127,8 @@ describe('index.html sanity checks', () => {
     expect(content).toContain('alt="HFA SilverStrong logo"');
   });
 
-  test('provides a public non-admin demo entry point', () => {
-    expect(content).toContain('onclick="startDemo(\'patient\')"');
-    expect(content).toContain("function startDemo(role='patient')");
-    expect(content).toContain("user.role===role&&user.status==='active'");
+  test('offers a real public symptom check without an account', () => {
+    expect(content).toContain('onclick="HFATriageUI.openPublic()" id="lnd-triage"');
   });
 
   test('includes bilingual legal privacy and confidentiality pages', () => {

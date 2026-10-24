@@ -5,7 +5,7 @@
 //   - see who opened the record or changed the account;
 //   - ask for a correction, erasure, restriction or objection, answered within 30 days.
 // Administrators answer the requests under "Data-rights requests". With the server, everything is stored
-// and audited there; the browser-only demo keeps the same screens in memory.
+// and audited there.
 (function () {
   const esc = window.hfaEscape, tf = window.hfaFormat;
   const RESPONSE_DAYS = 30;
@@ -26,7 +26,7 @@
     pc_consent_history: 'History of my choices', pc_no_history: 'No changes since registration.', pc_given: 'given', pc_withdrawn: 'withdrawn',
     pc_consent_profile_needed: 'Complete your health profile to set these choices.',
     pc_access_title: 'Who has opened my record', pc_access_body: 'Every time someone else opens your health information or changes your account, it is recorded here. If you do not recognise an entry, ask for a review below.',
-    pc_access_empty: 'Nobody else has opened your record yet.', pc_demo_data: 'Demo data',
+    pc_access_empty: 'Nobody else has opened your record yet.',
     pc_act_HEALTH_RECORD_VIEW: 'Opened your health profile', pc_act_DOCUMENT_VIEWED: 'Viewed a document you uploaded', pc_act_ACCOUNT_UPDATED_BY_ADMIN: 'Changed your account details',
     pc_act_ACCOUNT_DELETED: 'Closed your account', pc_act_SIGN_IN_AS_START: 'Signed in to your account for support', pc_act_SIGN_IN_AS_STOP: 'Left your account',
     pc_act_PRIVACY_REQUEST_UPDATED: 'Answered your data-protection request',
@@ -61,7 +61,7 @@
     pc_consent_history: 'Historique de mes choix', pc_no_history: 'Aucun changement depuis l’inscription.', pc_given: 'donné', pc_withdrawn: 'retiré',
     pc_consent_profile_needed: 'Complétez votre profil de santé pour faire ces choix.',
     pc_access_title: 'Qui a consulté mon dossier', pc_access_body: 'Chaque fois qu’une autre personne consulte vos informations de santé ou modifie votre compte, c’est consigné ici. Si vous ne reconnaissez pas une ligne, demandez une vérification ci-dessous.',
-    pc_access_empty: 'Personne d’autre n’a encore consulté votre dossier.', pc_demo_data: 'Données de démonstration',
+    pc_access_empty: 'Personne d’autre n’a encore consulté votre dossier.',
     pc_act_HEALTH_RECORD_VIEW: 'A consulté votre profil de santé', pc_act_DOCUMENT_VIEWED: 'A consulté un document que vous avez déposé', pc_act_ACCOUNT_UPDATED_BY_ADMIN: 'A modifié les informations de votre compte',
     pc_act_ACCOUNT_DELETED: 'A fermé votre compte', pc_act_SIGN_IN_AS_START: 'S’est connecté à votre compte pour l’assistance', pc_act_SIGN_IN_AS_STOP: 'A quitté votre compte',
     pc_act_PRIVACY_REQUEST_UPDATED: 'A répondu à votre demande sur vos données',
@@ -114,26 +114,22 @@
   const statusBadge = status => `<span class="badge ${status === 'completed' ? 'bsu' : status === 'refused' ? 'bda' : status === 'in_progress' ? 'bin' : 'bwa'}">${esc(t('pc_s_' + status))}</span>`;
   const note = (id, text, kind = 'ao') => { const box = document.getElementById(id); if (box) box.innerHTML = text ? `<div class="alt ${kind}" role="${kind === 'ae' ? 'alert' : 'status'}">${esc(text)}</div>` : ''; };
   const backend = () => ApiState.enabled && ApiState.authenticated;
-  const demoList = key => (DB[key] = DB[key] || []);
+  const localList = key => (DB[key] = DB[key] || []);
 
-  // Browser-only demo: the patient's record was opened by their care team.
-  if (!DB.privacyAccess) DB.privacyAccess = [
-    { id: 'pa1', userId: 'pat1', action: 'HEALTH_RECORD_VIEW', actorId: 'doc1', createdAt: '2025-01-27T09:10:00Z' },
-    { id: 'pa2', userId: 'pat1', action: 'HEALTH_RECORD_VIEW', actorId: 'nur1', createdAt: '2025-01-27T09:14:00Z' }
-  ];
+  if (!DB.privacyAccess) DB.privacyAccess = [];
 
-  // ───── Data loading (server or demo) ─────
+  // ───── Data loading (server, or this browser without one) ─────
   async function loadConsents() {
     if (backend()) return (await apiRequest('/api/v1/me/consents')).data;
-    return { consents: CU.healthProfile?.consents || null, changeable: CHANGEABLE, history: demoList('consentEvents').filter(event => event.userId === CU.id), whatsapp: { consent: !!CU.whatsappNotificationsConsent } };
+    return { consents: CU.healthProfile?.consents || null, changeable: CHANGEABLE, history: localList('consentEvents').filter(event => event.userId === CU.id), whatsapp: { consent: !!CU.whatsappNotificationsConsent } };
   }
   async function loadAccess() {
     if (backend()) return (await apiRequest('/api/v1/me/access-log')).data.entries;
-    return DB.privacyAccess.filter(entry => entry.userId === CU.id).map(entry => ({ ...entry, actorName: G(entry.actorId)?.name || 'HFA', actorRole: G(entry.actorId)?.role || 'admin', demo: true }));
+    return DB.privacyAccess.filter(entry => entry.userId === CU.id).map(entry => ({ ...entry, actorName: G(entry.actorId)?.name || 'HFA', actorRole: G(entry.actorId)?.role || 'admin' }));
   }
   async function loadRequests() {
     if (backend()) return (await apiRequest('/api/v1/me/privacy-requests')).data.requests;
-    return demoList('privacyRequests').filter(entry => entry.userId === CU.id).map(withOverdue);
+    return localList('privacyRequests').filter(entry => entry.userId === CU.id).map(withOverdue);
   }
   const withOverdue = entry => ({ ...entry, overdue: !['completed', 'refused'].includes(entry.status) && entry.dueAt < new Date().toISOString() });
 
@@ -197,7 +193,7 @@
       } else {
         const now = new Date().toISOString();
         CU.healthProfile.consents = { ...CU.healthProfile.consents, [purpose]: granted, recordedAt: now, version: '2026.1' };
-        demoList('consentEvents').unshift({ userId: CU.id, purpose, granted, version: '2026.1', source: 'privacy_centre', createdAt: now });
+        localList('consentEvents').unshift({ userId: CU.id, purpose, granted, version: '2026.1', source: 'privacy_centre', createdAt: now });
         log(granted ? 'CONSENT_GIVEN' : 'CONSENT_WITHDRAWN', purpose);
       }
       await paintConsents();
@@ -210,7 +206,7 @@
     try {
       const entries = await loadAccess();
       if (!box.isConnected) return;
-      box.innerHTML = entries.length ? entries.map(entry => `<div class="pc-row"><div><strong>${esc(entry.actorName)}</strong> <span class="mu">· ${esc(tv(entry.actorRole))}</span><div>${esc(t('pc_act_' + entry.action) || entry.action)}${entry.demo ? ` <span class="badge bin">${esc(t('pc_demo_data'))}</span>` : ''}</div></div><div class="mu">${esc(String(entry.createdAt).replace('T', ' ').slice(0, 16))}</div></div>`).join('')
+      box.innerHTML = entries.length ? entries.map(entry => `<div class="pc-row"><div><strong>${esc(entry.actorName)}</strong> <span class="mu">· ${esc(tv(entry.actorRole))}</span><div>${esc(t('pc_act_' + entry.action) || entry.action)}</div></div><div class="mu">${esc(String(entry.createdAt).replace('T', ' ').slice(0, 16))}</div></div>`).join('')
         : `<p class="mu sm">${esc(t('pc_access_empty'))}</p>`;
     } catch (error) { box.innerHTML = `<div class="alt ae" role="alert">${esc(error.message)}</div>`; }
   }
@@ -241,7 +237,7 @@
       let saved;
       if (backend()) saved = (await apiRequest('/api/v1/me/privacy-requests', 'POST', { kind, details })).data.request;
       else {
-        const list = demoList('privacyRequests');
+        const list = localList('privacyRequests');
         if (list.some(entry => entry.userId === CU.id && entry.kind === kind && ['received', 'in_progress'].includes(entry.status))) throw new Error(t('pc_open_exists'));
         const now = new Date();
         saved = { id: 'pr' + Date.now(), userId: CU.id, kind, details, status: 'received', createdAt: now.toISOString(), dueAt: new Date(now.getTime() + RESPONSE_DAYS * 86400000).toISOString() };
@@ -323,7 +319,7 @@
   // ───── Administrators: data-rights requests ─────
   async function loadAdminRequests() {
     if (backend()) return (await apiRequest('/api/v1/admin/privacy-requests')).data.requests;
-    return demoList('privacyRequests').map(entry => ({ ...withOverdue(entry), userName: G(entry.userId)?.name || '—', userRole: G(entry.userId)?.role || '', hfaId: G(entry.userId)?.hfaId || '', resolvedByName: G(entry.resolvedBy)?.name }))
+    return localList('privacyRequests').map(entry => ({ ...withOverdue(entry), userName: G(entry.userId)?.name || '—', userRole: G(entry.userId)?.role || '', hfaId: G(entry.userId)?.hfaId || '', resolvedByName: G(entry.resolvedBy)?.name }))
       .sort((a, b) => (['completed', 'refused'].includes(a.status) - ['completed', 'refused'].includes(b.status)) || a.dueAt.localeCompare(b.dueAt));
   }
 
@@ -361,7 +357,7 @@
     try {
       if (backend()) await apiRequest(`/api/v1/admin/privacy-requests/${encodeURIComponent(id)}`, 'PATCH', { status, ...(resolution ? { resolution } : {}) });
       else {
-        const entry = demoList('privacyRequests').find(item => item.id === id);
+        const entry = localList('privacyRequests').find(item => item.id === id);
         if (!entry || ['completed', 'refused'].includes(entry.status)) return false;
         Object.assign(entry, { status, ...(resolution ? { resolution } : {}), ...(status !== 'in_progress' ? { resolvedAt: new Date().toISOString(), resolvedBy: CU.id } : {}) });
         DB.privacyAccess.unshift({ id: 'pa' + Date.now(), userId: entry.userId, action: 'PRIVACY_REQUEST_UPDATED', actorId: CU.id, createdAt: new Date().toISOString() });

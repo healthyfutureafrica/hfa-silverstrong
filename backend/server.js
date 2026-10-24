@@ -7,7 +7,7 @@ const { configuration, validSignature, MetaProvider } = require('./provider');
 const { randomUUID } = require('node:crypto');
 const { installFileRoutes, filesConfigured, fileMime, saveEncryptedFile, decodeFile } = require('./files');
 const { installPharmacyRoutes } = require('./pharmacy');
-const { seedDemoAccounts, DEMO_ACCOUNTS } = require('./demo-accounts');
+const { retireDemoAccounts } = require('./retire-demo-accounts');
 const { installAvatarRoutes, saveHealthRecord, withHealth } = require('./records');
 const { healthProfile, recordWithConsentTimes, REGIONS } = require('./patient-profile');
 const { installFacilityRoutes } = require('./facilities');
@@ -95,7 +95,7 @@ function createApp(config, store, provider) {
   app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
   app.use(helmet());
   app.get('/api/healthz', (request, response) => response.json({ status: 'ok' }));
-  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), demoAccounts: !!config.demoAccounts, requireAdminMfa: !!config.requireAdminMfa, aiTriage: aiConfigured(config) }));
+  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), requireAdminMfa: !!config.requireAdminMfa, aiTriage: aiConfigured(config) }));
   app.get('/api/whatsapp/webhook', (request, response) => {
     if (!config.verifyToken || request.query['hub.mode'] !== 'subscribe' || request.query['hub.verify_token'] !== config.verifyToken || typeof request.query['hub.challenge'] !== 'string') return response.sendStatus(403);
     response.type('text/plain').send(request.query['hub.challenge']);
@@ -263,17 +263,6 @@ function createApp(config, store, provider) {
     startSession(response, user);
     response.json(sessionPayload(user));
   });
-  // "Try Demo": signs in to a demo account of the chosen role without any password in the page.
-  app.post('/api/auth/demo', authLimit, (request, response) => {
-    if (!config.demoAccounts) return response.sendStatus(404);
-    const { role } = z.object({ role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']) }).strict().parse(request.body);
-    const account = DEMO_ACCOUNTS.find(entry => entry.role === role);
-    const credentials = account && store.credentials(account.email);
-    const user = credentials && store.user(credentials.id);
-    if (!user || user.status !== 'active') return response.status(404).json({ error: 'Demo account not available' });
-    startSession(response, user);
-    response.json({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
-  });
   app.post('/api/auth/logout', (request, response) => {
     store.logout(cookieToken(request));
     // Signing out while signed in as someone else also ends the administrator's own session.
@@ -363,14 +352,15 @@ function createApp(config, store, provider) {
 async function start() {
   const config = configuration(), store = new Store(config.database);
   await bootstrap(config, store);
-  if (config.demoAccounts) await seedDemoAccounts(store);
+  const retired = retireDemoAccounts(store);
+  if (retired) console.log(`Retired ${retired} demo account(s) left by an earlier version`);
   const provider = new MetaProvider(config, store);
   // SLY Triage answers people who write to the HFA WhatsApp number (free replies; no separate bot service).
   const whatsappTriage = new WhatsAppTriage(config, store);
   provider.onText = (phone, text) => whatsappTriage.handle(phone, text);
   setInterval(() => whatsappTriage.sweep(), 10 * 60000).unref();
   const server = createApp(config, store, provider).listen(config.port, '0.0.0.0', () => {
-    console.log(`HFA backend listening on port ${config.port}; WhatsApp delivery ${config.ready ? 'configured' : 'disabled'}${config.demoAccounts ? '; demo accounts enabled' : ''}`);
+    console.log(`HFA backend listening on port ${config.port}; WhatsApp delivery ${config.ready ? 'configured' : 'disabled'}`);
   });
   const worker = setInterval(() => provider.deliverNext().catch(() => console.error('WhatsApp worker failed')), 1000);
   worker.unref();

@@ -18,7 +18,7 @@
     aic_awaiting: 'Awaiting review', aic_ai_calls: 'AI requests (30 days)', aic_ai_cost: 'Estimated AI cost (30 days)', aic_no_reviews: 'No reviewed cases yet.',
     aic_outbreak: 'Outbreak early warning', aic_outbreak_intro: 'Unusual groups of symptoms by region from symptom checks in the last 7 days, compared with the 4 weeks before. Statistics only, no AI cost. Signals are not diagnoses: they tell surveillance staff where to look.',
     aic_no_signals: 'No unusual clusters this week.', aic_signal_count: '{current} this week · usual {baseline} a week', aic_alert: 'Alert', aic_watch: 'Watch',
-    aic_export: 'Download weekly counts (CSV, DHIS2-style)', aic_counted: '{counted} symptom checks counted, {unknown} without a region.', aic_demo: 'Demo data',
+    aic_export: 'Download weekly counts (CSV, DHIS2-style)', aic_counted: '{counted} symptom checks counted, {unknown} without a region.',
     aic_principles: 'WHO principles for AI in health, and how SLY follows them', aic_limits: 'Limits',
     aic_limit_1: 'SLY does not diagnose or prescribe. Results are suggestions a clinician confirms.', aic_limit_2: 'AI can misread words or invent details. Drafts are labelled and must be checked.',
     aic_limit_3: 'Symptom checks only cover people who use HFA, so outbreak signals can miss cases elsewhere.', aic_limit_4: 'The rules and scenarios need review by Cameroonian clinicians and the Ministry of Public Health before real use.'
@@ -36,7 +36,7 @@
     aic_awaiting: 'En attente de vérification', aic_ai_calls: 'Demandes IA (30 jours)', aic_ai_cost: 'Coût IA estimé (30 jours)', aic_no_reviews: 'Aucun cas vérifié pour l’instant.',
     aic_outbreak: 'Alerte précoce d’épidémie', aic_outbreak_intro: 'Groupes inhabituels de symptômes par région, à partir des vérifications des 7 derniers jours, comparés aux 4 semaines précédentes. Statistiques uniquement, sans coût d’IA. Ce ne sont pas des diagnostics : ils indiquent où regarder.',
     aic_no_signals: 'Aucun regroupement inhabituel cette semaine.', aic_signal_count: '{current} cette semaine · d’habitude {baseline} par semaine', aic_alert: 'Alerte', aic_watch: 'Surveiller',
-    aic_export: 'Télécharger les chiffres hebdomadaires (CSV, format DHIS2)', aic_counted: '{counted} vérifications comptées, {unknown} sans région.', aic_demo: 'Données de démonstration',
+    aic_export: 'Télécharger les chiffres hebdomadaires (CSV, format DHIS2)', aic_counted: '{counted} vérifications comptées, {unknown} sans région.',
     aic_principles: 'Principes de l’OMS pour l’IA en santé, et comment SLY les suit', aic_limits: 'Limites',
     aic_limit_1: 'SLY ne pose pas de diagnostic et ne prescrit pas. Les résultats sont des suggestions qu’un soignant confirme.', aic_limit_2: 'L’IA peut mal lire des mots ou inventer des détails. Les brouillons sont signalés et doivent être vérifiés.',
     aic_limit_3: 'Les vérifications ne couvrent que les utilisateurs de HFA : des cas ailleurs peuvent échapper aux alertes.', aic_limit_4: 'Les règles et les scénarios doivent être revus par des soignants camerounais et le Ministère de la Santé Publique avant un usage réel.'
@@ -118,7 +118,7 @@
     box.innerHTML = status?.enabled ? `<div class="alt ao">✅ ${esc(tf('aic_status_on', { model: status.model, used: status.usedToday, limit: status.dailyLimit }))}</div>` : `<div class="alt ai">ℹ️ ${esc(t('aic_status_off'))}</div>`;
   }
 
-  function demoMetrics() {
+  function localMetrics() {
     const cases = DB.triageCases.filter(item => item.level), reviewed = cases.filter(item => item.finalLevel);
     return { cases: cases.length, reviewed: reviewed.length, awaiting: cases.filter(item => item.status === 'awaiting_review').length,
       agreed: reviewed.filter(item => item.finalLevel === item.level).length, raisedByClinician: reviewed.filter(item => TR.rank(item.finalLevel) > TR.rank(item.level)).length,
@@ -127,32 +127,24 @@
   async function paintMetrics() {
     const box = $('aic-metrics'); if (!box) return;
     try {
-      const m = backend() ? (await apiRequest('/api/v1/ai/metrics')).data : demoMetrics();
+      const m = backend() ? (await apiRequest('/api/v1/ai/metrics')).data : localMetrics();
       if (!box.isConnected) return;
       box.innerHTML = `<div class="stats">${tile(m.reviewed ? percent(m.agreed / m.reviewed) : '—', t('aic_agreement'), 'var(--em)')}${tile(m.raisedByClinician, t('aic_raised'), m.raisedByClinician ? 'var(--dg)' : '')}${tile(m.loweredByClinician, t('aic_lowered'))}${tile(m.awaiting, t('aic_awaiting'))}${tile(m.aiCalls30Days, t('aic_ai_calls'))}${tile('$' + Number(m.estimatedCostUsd30Days).toFixed(4), t('aic_ai_cost'))}</div>
         ${m.reviewed ? '' : `<p class="mu sm mt8">${esc(t('aic_no_reviews'))}</p>`}`;
     } catch (error) { box.innerHTML = `<div class="alt ae">${esc(error.message)}</div>`; }
   }
 
-  // Browser-only demo: a few synthetic checks so the warning can be seen (labelled as demo data).
-  function demoEvents() {
-    const now = Date.now(), day = 86400000, at = days => new Date(now - days * day).toISOString();
-    const own = DB.triageCases.filter(item => item.level && item.answers).map(item => ({ date: item.createdAt, region: G(item.patientId)?.healthProfile?.location?.region || null, division: G(item.patientId)?.healthProfile?.location?.division || null, complaints: item.answers.complaints, dangerSigns: item.answers.dangerSigns }));
-    const synthetic = [
-      ...[1, 2, 3].map(days => ({ date: at(days), region: 'littoral', division: 'Wouri', complaints: ['diarrhoea_vomiting'], dangerSigns: ['watery_diarrhoea'] })),
-      ...[10, 18, 25, 32].map(days => ({ date: at(days), region: 'centre', division: 'Mfoundi', complaints: ['fever'], dangerSigns: [] })),
-      ...[0, 1, 1, 2, 3, 4, 5, 6].map(days => ({ date: at(days), region: 'centre', division: 'Mfoundi', complaints: ['fever'], dangerSigns: [] }))
-    ];
-    return [...own, ...synthetic];
+  // Without the server, only the symptom checks kept in this browser are counted.
+  function localEvents() {
+    return DB.triageCases.filter(item => item.level && item.answers).map(item => ({ date: item.createdAt, region: G(item.patientId)?.healthProfile?.location?.region || null, division: G(item.patientId)?.healthProfile?.location?.division || null, complaints: item.answers.complaints, dangerSigns: item.answers.dangerSigns }));
   }
   async function paintOutbreak() {
     const box = $('aic-outbreak'); if (!box) return;
     try {
-      const data = backend() ? (await apiRequest('/api/v1/ai/outbreak')).data : SV.analyse(demoEvents());
+      const data = backend() ? (await apiRequest('/api/v1/ai/outbreak')).data : SV.analyse(localEvents());
       if (!box.isConnected) return;
       const place = signal => [signal.division, signal.region === 'unknown' ? '—' : signal.region.replace(/_/g, ' ')].filter(Boolean).join(', ');
-      box.innerHTML = `${backend() ? '' : `<span class="badge bin">${esc(t('aic_demo'))}</span>`}
-        ${data.signals.length ? data.signals.map(signal => `<div class="pc-row"><div><strong>${esc(lang(SV.SYNDROMES[signal.syndrome].label))}</strong> · ${esc(place(signal))}
+      box.innerHTML = `        ${data.signals.length ? data.signals.map(signal => `<div class="pc-row"><div><strong>${esc(lang(SV.SYNDROMES[signal.syndrome].label))}</strong> · ${esc(place(signal))}
           <div class="mu sm">${esc(tf('aic_signal_count', { current: signal.current, baseline: signal.baselinePerWeek.toFixed(1) }))} · ${esc(signal.rule)}</div>
           <div class="sm">${esc(lang(SV.SYNDROMES[signal.syndrome].action))}</div></div>
           <span class="badge ${signal.level === 'alert' ? 'bda' : 'bwa'}">${esc(t(signal.level === 'alert' ? 'aic_alert' : 'aic_watch'))}</span></div>`).join('') : `<p class="mu sm">${esc(t('aic_no_signals'))}</p>`}

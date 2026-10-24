@@ -674,25 +674,8 @@
         if (RS.photo?.file) { try { await HFAAvatar.upload(RS.photo.file); } catch (error) { /* account exists; the photo can be added from the dashboard */ } }
         finishSuccess(false);
       } else {
-        if (DB.users.find(user => email && user.email?.toLowerCase() === email)) throw Object.assign(new Error(t('email_exists')), { status: 409 });
-        if (DB.users.find(user => user.phone && normPhone(user.phone) === phone)) throw Object.assign(new Error(t('wz_phone_taken')), { status: 409 });
-        const id = 'pat' + Date.now();
-        const user = {
-          id, role: 'patient', name: trim(d.name), email, password: RS.password, phone, status: 'active', createdAt: todayD(),
-          facilityId: hospitalPayload().hospitalId || null, hospitalOther: hospitalPayload().hospitalOther || '',
-          whatsappNumber: d.phoneIsWhatsApp ? phone : '', whatsappNotificationsConsent: !!(d.phoneIsWhatsApp && d.cWhatsapp), whatsappConsentAt: d.phoneIsWhatsApp && d.cWhatsapp ? tsNow() : null,
-          preferredLanguage: d.language, healthProfile: { ...health, consents: { ...health.consents, recordedAt: new Date().toISOString(), version: '2026.1' } },
-          assignedDoctor: null, assignedNurse: null, medicalHistory: '', termsAcceptedAt: tsNow(), patientCommitmentAt: tsNow(),
-          idDocumentType: d.idType, idDocumentName: RS.files.idFile.name, idDocumentData: await fileToDataUrl(RS.files.idFile), idUploadedAt: tsNow(), idVerificationStatus: 'pending',
-          ...(RS.photo?.file ? { avatarData: await fileToDataUrl(RS.photo.file) } : {})
-        };
-        applyLegacy(user);
-        user.hfaId = nextHfaId('patient', user);
-        DB.users.push(user);
-        DB.consents.push({ id: 'con' + Date.now(), patientId: id, type: 'Terms and Conditions', status: 'active', version: '2025.1', recordedAt: todayD() });
-        CU = user;
-        log('REGISTER', 'System');
-        finishSuccess(true);
+        // Without the HFA server there is nowhere safe to keep an account: never create one in the browser.
+        throw new Error(t('accounts_unavailable_body'));
       }
     } catch (error) {
       RS.busy = false;

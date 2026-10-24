@@ -22,6 +22,9 @@
     st_result: 'Your result', st_why: 'Why', st_what_now: 'What to do now', st_book_urgent: 'Book an urgent consultation', st_book: 'Book a consultation', st_selfcare_tips: 'Self-care tips',
     st_sent: 'Sent to your care team. A nurse or doctor will review it.', st_sending: 'Sending to your care team…', st_not_sent: 'Could not reach your care team: {error}. Follow the advice above. If it is an emergency, call {number}.',
     st_updated: 'Updated after SLY read your words.', st_ai_used: 'AI helped read your words.', st_history: 'My symptom checks', st_no_history: 'No symptom checks yet.',
+    st_public_intro: 'No account needed. Answer a few questions and SLY tells you how soon to get care. Your answers stay on this screen and are not sent or kept.',
+    st_public_nothing_kept: 'Nothing was sent or kept. When HFA SilverStrong accounts open in your area, you will be able to send your checks to a nurse or doctor.',
+    st_public_register: 'Nothing was sent or kept. Register or sign in to send your symptom checks to a nurse or doctor who will review them.', st_public_back: 'Back to home',
     st_awaiting: 'Waiting for review', st_confirmed: 'Confirmed by {name}', st_changed: 'Changed by {name}', st_clinician_note: 'Message from your care team', st_again: 'Check again',
     tq_title: 'Triage queue', tq_intro: 'Symptom checks from your patients, most urgent first. SLY’s level is a suggestion: confirm it or change it.',
     tq_oversight: 'Oversight view: administrators see the status of the queue, not the symptoms.', tq_no_clinician: 'No clinician can see this patient yet. Assign a doctor or nurse.',
@@ -43,6 +46,9 @@
     st_result: 'Votre résultat', st_why: 'Pourquoi', st_what_now: 'Que faire maintenant', st_book_urgent: 'Réserver une consultation urgente', st_book: 'Réserver une consultation', st_selfcare_tips: 'Conseils de soins',
     st_sent: 'Envoyé à votre équipe de soins. Un infirmier ou un médecin va le vérifier.', st_sending: 'Envoi à votre équipe de soins…', st_not_sent: 'Impossible de joindre votre équipe de soins : {error}. Suivez le conseil ci-dessus. En cas d’urgence, appelez le {number}.',
     st_updated: 'Mis à jour après la lecture de vos mots par SLY.', st_ai_used: 'L’IA a aidé à lire vos mots.', st_history: 'Mes vérifications de symptômes', st_no_history: 'Aucune vérification pour l’instant.',
+    st_public_intro: 'Pas besoin de compte. Répondez à quelques questions et SLY vous dit dans quel délai consulter. Vos réponses restent sur cet écran et ne sont ni envoyées ni conservées.',
+    st_public_nothing_kept: 'Rien n’a été envoyé ni conservé. Quand les comptes HFA SilverStrong ouvriront dans votre région, vous pourrez envoyer vos vérifications à un infirmier ou un médecin.',
+    st_public_register: 'Rien n’a été envoyé ni conservé. Inscrivez-vous ou connectez-vous pour envoyer vos vérifications à un infirmier ou un médecin qui les examinera.', st_public_back: 'Retour à l’accueil',
     st_awaiting: 'En attente de vérification', st_confirmed: 'Confirmé par {name}', st_changed: 'Modifié par {name}', st_clinician_note: 'Message de votre équipe de soins', st_again: 'Vérifier à nouveau',
     tq_title: 'File de triage', tq_intro: 'Vérifications de symptômes de vos patients, les plus urgentes d’abord. Le niveau de SLY est une suggestion : confirmez-le ou modifiez-le.',
     tq_oversight: 'Vue de supervision : les administrateurs voient l’état de la file, pas les symptômes.', tq_no_clinician: 'Aucun soignant ne peut voir ce patient. Assignez un médecin ou un infirmier.',
@@ -95,8 +101,8 @@
   // ───── Patient: the four steps ─────
   let S = null;
   function fresh() {
-    const health = CU.healthProfile || {};
-    return { step: 0, who: 'me', ageGroup: ageGroupOf(health.identity?.dateOfBirth || CU.dateOfBirth), sex: ['male', 'female'].includes(String(health.identity?.gender || CU.gender || '').toLowerCase()) ? String(health.identity?.gender || CU.gender).toLowerCase() : null,
+    const user = typeof CU !== 'undefined' && CU ? CU : {}, health = user.healthProfile || {};
+    return { step: 0, who: 'me', ageGroup: ageGroupOf(health.identity?.dateOfBirth || user.dateOfBirth), sex: ['male', 'female'].includes(String(health.identity?.gender || user.gender || '').toLowerCase()) ? String(health.identity?.gender || user.gender).toLowerCase() : null,
       maternal: 'no', complaints: [], dangerSigns: [], noneChosen: false, duration: null, severity: null, text: '', aiConsent: false, requestId: crypto.randomUUID() };
   }
   const chip = (attrs, label, pressed, extra = '') => `<button type="button" class="st-chip ${extra}" ${attrs} aria-pressed="${pressed ? 'true' : 'false'}">${pressed ? '✅' : '⬜'} <span>${esc(label)}</span></button>`;
@@ -171,7 +177,9 @@
 
   function resultCard(result, note = '') {
     const level = result.level, crisis = result.answers?.dangerSigns?.includes('suicidal') || (result.reasons || []).some(reason => reason.rule === 'sign_suicidal');
+    const signedIn = typeof CU !== 'undefined' && !!CU;
     const actions = level === 'emergency' ? callButton()
+      : !signedIn ? (level === 'self_care' ? `<button type="button" class="btn bp" onclick="goFreeHub()">${esc(t('st_selfcare_tips'))}</button>` : '')
       : level === 'urgent' ? `<button type="button" class="btn bp" onclick="showBookApt('URGENT-TRIAGE')">${esc(t('st_book_urgent'))}</button>`
       : level === 'routine' ? `<button type="button" class="btn bp" onclick="showBookApt()">${esc(t('st_book'))}</button>`
       : `<button type="button" class="btn bp" onclick="navigate('freehub')">${esc(t('st_selfcare_tips'))}</button>`;
@@ -184,7 +192,14 @@
 
   async function finish() {
     const card = $('st-card'), answers = answersOf();
-    const local = TR.assess({ ...answers, conditions: CU.healthProfile?.medical?.conditions || [] });
+    const local = TR.assess({ ...answers, conditions: (typeof CU !== 'undefined' && CU?.healthProfile?.medical?.conditions) || [] });
+    if (typeof CU === 'undefined' || !CU) {
+      // Public symptom check: the result stays on this screen; nothing is sent or kept.
+      card.innerHTML = resultCard(local, `<div class="alt ai">${esc(t(ApiState.enabled ? 'st_public_register' : 'st_public_nothing_kept'))}</div>${ApiState.enabled ? `<div class="pc-actions"><button type="button" class="btn bp" onclick="goAuth('register','patient')">${esc(t('register'))}</button><button type="button" class="btn bs" onclick="goAuth('login')">${esc(t('sign_in'))}</button></div>` : ''}`);
+      $('st-again').onclick = () => { S = fresh(); paintStep(); };
+      S = fresh();
+      return;
+    }
     card.innerHTML = resultCard(local, `<div class="alt ai">${esc(t('st_sending'))}</div>`);
     const again = () => { S = fresh(); paintStep(); };
     $('st-again').onclick = again;
@@ -299,8 +314,34 @@
     } catch (error) { box.innerHTML = `<div class="alt ae" role="alert">${esc(error.message)}</div>`; }
   }
 
+  // ───── Public symptom check (no account) ─────
+  function openPublic() {
+    let page = document.getElementById('public-triage');
+    if (!page) {
+      page = document.createElement('main');
+      page.id = 'public-triage'; page.className = 'hid'; page.tabIndex = -1;
+      page.innerHTML = '<div class="page" style="max-width:860px;margin:0 auto;padding:24px 16px" id="public-triage-body"></div>';
+      document.body.insertBefore(page, document.getElementById('movr'));
+    }
+    ['land', 'auth-wrap', 'app-wrap', 'free-hub'].forEach(id => document.getElementById(id)?.classList.add('hid'));
+    page.classList.remove('hid');
+    S = fresh();
+    $('public-triage-body').innerHTML = `<button type="button" class="btn bs bsm mb12" onclick="goLand()">← ${esc(t('st_public_back'))}</button>
+      <div class="ph"><h2>${esc(t('st_title'))}</h2><p>${esc(t('st_public_intro'))}</p></div>
+      <div class="st-emergency" role="note"><span>🚨 ${esc(t('st_emergency_now'))} ${esc(L('advice_emergency'))}</span>${callButton()}</div>
+      <div class="card mb18" id="st-card" aria-live="polite"></div>`;
+    paintStep();
+    page.focus();
+    window.scrollTo(0, 0);
+  }
+  // Leaving the public check by any route hides it.
+  for (const name of ['goLand', 'goAuth', 'goFreeHub']) {
+    const original = window[name];
+    window[name] = (...args) => { document.getElementById('public-triage')?.classList.add('hid'); return original(...args); };
+  }
+
   // The old urgent-help form asked patients to choose their own urgency; every entry point now opens SLY.
   window.showTriage = () => { closeMo(); S = null; navigate('triage'); };
   window.renderTriageQueue = renderQueue;
-  window.HFATriageUI = { renderPatient, renderQueue, ageGroupOf };
+  window.HFATriageUI = { renderPatient, renderQueue, ageGroupOf, openPublic };
 })();

@@ -210,41 +210,39 @@ test('registration stores the identity document encrypted and sessions last seve
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
 
-test('demo accounts are created active only when enabled and match the static demo',async()=>{
-  const { DEMO_ACCOUNTS, seedDemoAccounts } = require('../demo-accounts');
+test('old demo accounts are retired at startup, real accounts with the same address are kept, and no demo sign-in exists',async()=>{
+  const { retireDemoAccounts, DEMO_FINGERPRINTS } = require('../retire-demo-accounts');
   const html=require('node:fs').readFileSync(join(__dirname,'..','..','index.html'),'utf8');
-  for (const account of DEMO_ACCOUNTS) {
-    assert.ok(html.includes(`email:'${account.email}',passwordHash:'pbkdf2-sha256$`),account.email+' is missing from index.html or not hashed');
-    assert.match(account.passwordHash,/^[0-9a-f]{32}:[0-9a-f]{128}$/,account.email+' must keep only a scrypt hash');
-    assert.equal(account.password,undefined);
-  }
-  assert.doesNotMatch(html,/,password:'[^']+'/,'index.html must not contain readable demo passwords');
+  for (const email of DEMO_FINGERPRINTS.keys()) assert.equal(html.includes(email),false,email+' must not be built into the app');
+  assert.doesNotMatch(html,/passwordHash:'pbkdf2-sha256\$/,'no built-in accounts in the page');
   const store=new Store();
-  const off=createApp({origin:'http://localhost:8080',ready:false},store,{}).listen(0,'127.0.0.1');
-  await new Promise(resolve=>off.once('listening',resolve));
-  try { assert.equal((await (await fetch(`http://127.0.0.1:${off.address().port}/api/config`)).json()).demoAccounts,false); }
-  finally { await new Promise(resolve=>off.close(resolve)); }
-  await seedDemoAccounts(store);
-  const pharmacist=store.user(store.credentials('pharmacy@hfa.org').id);
-  store.updateUser(pharmacist.id,{status:'suspended'});
-  await seedDemoAccounts(store);
-  assert.equal(store.db.prepare('SELECT COUNT(*) AS total FROM users').get().total,DEMO_ACCOUNTS.length);
-  const config={origin:'http://localhost:8080',ready:false,demoAccounts:true};
-  const server=createApp(config,store,{}).listen(0,'127.0.0.1');
+  const [demoEmail,demoHash]=[...DEMO_FINGERPRINTS][0];
+  const demo=store.createUser({name:'Old demo doctor',email:demoEmail,role:'doctor'},demoHash,'active');
+  store.createSession(demo.id);
+  // A real person who registered with an address that looks like a demo one keeps their account.
+  const [realEmail]=[...DEMO_FINGERPRINTS].find(([email])=>email.endsWith('@gmail.com'));
+  const real=store.createUser({name:'Real Person',email:realEmail,role:'patient'},await hashPassword('Real-person-password-1'),'active');
+  // An older demo account: same name and role, a different (freshly salted) hash, created before demo removal.
+  const { DEMO_ACCOUNTS } = require('../retire-demo-accounts');
+  const older=DEMO_ACCOUNTS.find(account=>account.role==='nurse');
+  const oldDemo=store.createUser({name:older.name,email:older.email,role:older.role},await hashPassword('Some-old-demo-pass'),'active');
+  // Same name, role and address but registered after demo accounts were removed: a real person, kept.
+  const later=DEMO_ACCOUNTS.find(account=>account.role==='pharmacist');
+  const laterUser=store.createUser({name:later.name,email:later.email,role:later.role},await hashPassword('Real-pharmacist-pass-1'),'active');
+  store.db.prepare('UPDATE users SET created_at=? WHERE id=?').run('2026-11-01T08:00:00.000Z',laterUser.id);
+  assert.equal(retireDemoAccounts(store),2);
+  assert.equal(store.user(demo.id).status,'deleted');
+  assert.equal(store.user(oldDemo.id).status,'deleted');
+  assert.equal(store.user(laterUser.id).status,'active');
+  assert.equal(store.db.prepare('SELECT COUNT(*) AS n FROM sessions WHERE user_id=?').get(demo.id).n,0);
+  assert.equal(store.user(real.id).status,'active');
+  assert.equal(retireDemoAccounts(store),0,'runs safely at every start');
+  const server=createApp({origin:'http://localhost:8080',ready:false},store,{}).listen(0,'127.0.0.1');
   await new Promise(resolve=>server.once('listening',resolve));
   const base=`http://127.0.0.1:${server.address().port}`;
   try {
-    assert.equal((await (await fetch(base+'/api/config')).json()).demoAccounts,true);
-    for (const role of [...new Set(DEMO_ACCOUNTS.map(account=>account.role))]) {
-      const response=await fetch(base+'/api/auth/demo',{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin},body:JSON.stringify({role})});
-      assert.equal(response.status,200,role);
-      const {user}=await response.json();
-      assert.equal(user.role,role);assert.equal(user.status,'active');
-    }
-    assert.equal((await fetch(base+'/api/auth/demo',{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin},body:JSON.stringify({role:'admin'})})).status,400,'never an administrator');
-    const patient=store.user(store.credentials('jfon@gmail.com').id);
-    assert.equal(store.user(patient.assignedDoctor).email,'kasante@hfa.org');
-    assert.ok(store.user(store.credentials('pharmacy@hfa.org').id).pharmacyValidatedAt);
+    assert.equal('demoAccounts' in (await (await fetch(base+'/api/config')).json()),false);
+    assert.equal((await fetch(base+'/api/auth/demo',{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:'http://localhost:8080'},body:JSON.stringify({role:'patient'})})).status,404);
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
 

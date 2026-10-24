@@ -1,7 +1,7 @@
 // SLY AI help inside clinical screens:
 // - Scribe (doctors, nurses): rough notes → draft SOAP note, suggested ICD-11 codes, safety flags and gaps.
 // - Explain (patients): a doctor's report or released lab result in plain English or French.
-// Both are drafts a person checks. When AI is off (static demo, or not switched on), the scribe gives a SOAP
+// Both are drafts a person checks. When AI is not switched on, the scribe gives a SOAP
 // template and Explain uses the built-in medical glossary below — free and offline.
 (function () {
   const esc = window.hfaEscape, tf = window.hfaFormat;

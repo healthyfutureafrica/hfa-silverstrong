@@ -13,14 +13,8 @@ const PH_DOCS=[['pharmacistLicense','pharmacy_doc_license'],['businessLicense','
 const PH_DOC_TYPES=['application/pdf','image/png','image/jpeg','image/webp'],PH_DOC_MAX=2*1024*1024;
 let PH_DATA={items:[],orders:[]},PH_BUSY=false,PH_VIEW=0;
 
-// Static-demo pharmacy store: mirrors backend/pharmacy.js rules in browser memory and resets on reload.
-const PH_LOCAL={items:[
-  {id:'phi-demo-1',pharmacistId:'pha1',name:'Amlodipine',strength:'5 mg tablet',unit:'Box of 30',batch:'AML-2026-014',expiresOn:'2028-06-30',stock:39,price:4.5,requiresPrescription:true},
-  {id:'phi-demo-2',pharmacistId:'pha1',name:'Paracetamol',strength:'500 mg tablet',unit:'Box of 20',batch:'PCM-2026-102',expiresOn:'2028-03-31',stock:120,price:1.25,requiresPrescription:false},
-  {id:'phi-demo-3',pharmacistId:'pha1',name:'Metformin',strength:'500 mg tablet',unit:'Box of 60',batch:'MET-2026-031',expiresOn:'2027-12-31',stock:25,price:3.8,requiresPrescription:true}
-],orders:[
-  {id:'pho-demo-1',requestId:'demo-seed-1',itemId:'phi-demo-1',patientId:'pat1',pharmacistId:'pha1',quantity:1,total:4.5,method:'pickup',address:'Douala, Cameroon',status:'requested',prescriptionReviewed:false,createdAt:'2026-10-01T09:00:00.000Z'}
-]};
+// Browser-only store used when no HFA server is reachable; it starts empty (no built-in stock or orders).
+const PH_LOCAL={items:[],orders:[]};
 
 function phLocalRequest(path,method='GET',body={}) {
   const user=CU,today=new Date().toISOString().slice(0,10),fail=message=>{throw new Error(message);};
@@ -166,12 +160,7 @@ async function registerPharmacist() {
     if (ApiState.enabled) {
       const {queued}=await HFAOffline.submitRegistration('/api/auth/register/pharmacist',{...payload,documents:Object.fromEntries(Object.entries(documents).map(([kind,doc])=>[kind,{fileName:doc.fileName,content:doc.data.slice(doc.data.indexOf(',')+1)}]))});
       if (queued) {$('rpa').value='';PH_DOCS.forEach(([kind])=>{$('phd-'+kind).value='';});swtTab('login');$('le').value=payload.email;amsg(t('offline_registration_queued'),'i');return;}
-    } else {
-      if (DB.users.some(user=>user.email.toLowerCase()===payload.email.toLowerCase())) return amsg(t('email_exists'));
-      const pharmacy={...payload,role:'pharmacist',pharmacyDocuments:documents,id:'pha'+Date.now(),status:'pending_approval',createdAt:todayD()};
-      pharmacy.hfaId=nextHfaId('pharmacist',pharmacy);
-      DB.users.push(pharmacy);
-    }
+    } else return amsg(t('accounts_unavailable_body'),'i'); // pharmacies register only with the HFA server
     $('rpa').value='';PH_DOCS.forEach(([kind])=>{$('phd-'+kind).value='';});swtTab('login');$('le').value=payload.email;amsg(t('pending_review_msg'),'o');
   } catch(error) {amsg(error.message);}
   finally {PH_BUSY=false;}

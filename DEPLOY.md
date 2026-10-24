@@ -1,8 +1,8 @@
 # Deploying HFA SilverStrong to the internet
 
 This puts the **real** HFA system (app + server + encrypted database) online at an address such as
-`https://app.healthyfutureafrica.org`. The public website `www.healthyfutureafrica.org` stays the
-demo hosted on Cloudflare.
+`https://app.healthyfutureafrica.org`. The public website `www.healthyfutureafrica.org` on Cloudflare
+stays the public information site (Free Health Hub and the anonymous symptom check); it holds no accounts.
 
 Time needed: about one hour. You need a cloud account (Google Cloud or Oracle Cloud), access to the
 Cloudflare account that manages `healthyfutureafrica.org`, and this repository.
@@ -70,7 +70,7 @@ sudo docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml ps
 
 All three services (`caddy`, `web`, `backend`) should show *running / healthy* after a minute.
 Open `https://app.healthyfutureafrica.org`: the padlock should show, and `/api/config` should report
-`"demoAccounts":false` and `"requireAdminMfa":true`.
+`"requireAdminMfa":true`.
 
 ## 6. First sign-in
 
@@ -125,7 +125,7 @@ The `FILE_ENCRYPTION_KEY` must be identical on both machines.
 ## Checklist before real patients
 
 - [ ] Legal opinion on hosting location and Law No. 2024/017 authorisation
-- [ ] `DEMO_ACCOUNTS=false`, `REQUIRE_ADMIN_MFA=true` (`/api/config` shows both)
+- [ ] `REQUIRE_ADMIN_MFA=true` (`/api/config` shows it)
 - [ ] Encryption key stored offline in two safe places
 - [ ] Backups running and one restore tested
 - [ ] Clinical records moved to the server (see the platform audit: *Server-backed clinical records*)
