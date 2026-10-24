@@ -2161,13 +2161,6 @@ function updateStaticHTML() {
   const vol2 = $('vo-live-lbl'); if(vol2) vol2.textContent = t('live');
   const votl2 = $('vo-type-label'); if(votl2) votl2.textContent = t('voice_call_title');
   const vows2 = $('vo-status'); if(vows2) vows2.textContent = t('connected');
-  // Landing page stat labels
-  const lstats = document.querySelectorAll('.hs-lbl');
-  if(lstats.length>=3){
-    lstats[0].textContent = LANG==='fr'?'Patients à servir':'Patients Served';
-    lstats[1].textContent = LANG==='fr'?'Prestataires':'Providers';
-    lstats[2].textContent = LANG==='fr'?'Disponibilité':'Uptime';
-  }
   // Landing nav buttons
   const lnr = document.querySelectorAll('.land-nav-btn');
   // Auth screen title
