@@ -109,6 +109,22 @@ missed urgency must be 0 and is checked in CI), **real-world monitoring** for cl
 `GET /api/v1/ai/metrics`), outbreak signals, the six WHO principles for AI in health and the limits. The scenarios
 were written by the team with the rules, so independent clinical review is still required.
 
+## Accounts and everyday operations
+
+- **Forgotten password** (no email or SMS cost): the person calls or visits their clinic; an administrator checks
+  who they are and creates a one-time code (Users → edit → *Create password reset code*); the person enters it
+  under **Forgot password?** on the sign-in screen with a new password. Codes are hashed, expire after 30 minutes,
+  allow 5 attempts, and resetting signs the account out everywhere (`backend/account-recovery.js`).
+- **Notifications** reach the other person on their own device (bookings, messages, lab results, referrals…),
+  only between people who work together, always with generic text; patients also get them on WhatsApp when they
+  opted in (`backend/notify.js`).
+- **Identity documents** are uploaded to the server and verified by an administrator on the Pending Approvals
+  page (open, mark verified or not valid).
+- **Doctor portraits** are shown to patients only after an administrator approves them; a rejected replacement
+  keeps the approved photo (`backend/doctor-photos.js`).
+- **Free Health Hub statistics** are anonymous counts on the server (topic, type, language, day; never search
+  words or identities) (`backend/hub-stats.js`).
+
 ## Payments (MTN Mobile Money)
 
 Consultation fees, Basic and Premium plans, nurse home visits and patient rescheduling are paid with **MTN Mobile

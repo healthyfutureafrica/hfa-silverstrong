@@ -21,6 +21,11 @@ const { installAiAssistRoutes } = require('./ai-assist');
 const { installClinicalRoutes } = require('./clinical');
 const { Payments, installPaymentRoutes, installPaymentWebhook, mtnConfig } = require('./payments');
 const { installCallRoutes } = require('./calls');
+const { installAccountRecovery } = require('./account-recovery');
+const { installNotifyRoutes } = require('./notify');
+const { installDoctorPhotoRoutes } = require('./doctor-photos');
+const { installHubStats } = require('./hub-stats');
+const { passwordProblem } = require('./account-security');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -64,7 +69,8 @@ const patchSchema = z.object({
   name: personName.optional(), phone: contactPhone.optional(), status: z.enum(['active', 'suspended', 'pending_approval', 'rejected']).optional(),
   assignedDoctor: z.string().max(100).nullable().optional(), assignedNurse: z.string().max(100).nullable().optional(),
   consultationFee: z.number().min(5).max(20).optional(),
-  pharmacyCredentialReview:z.boolean().optional()
+  pharmacyCredentialReview:z.boolean().optional(),
+  idVerificationStatus:z.enum(['verified','rejected']).optional()
 }).strict();
 // Returns the decoded file, or an error message naming the field.
 function decodeDocument(field,document) {
@@ -114,7 +120,7 @@ function createApp(config, store, provider) {
   // Live calls poll for connection messages and have their own per-person limit (backend/calls.js).
   app.use('/api', rateLimit({ windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false, skip: request => /^\/v1\/calls\/[^/]+\/signals$/.test(request.path) }));
   const smallJson=express.json({ limit: '32kb' });
-  const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist'];
+  const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist', '/api/v1/account/id-document', '/api/v1/doctor-photo'];
   app.use((request, response, next) => documentRoutes.includes(request.path) || /^\/api\/v1\/clinical\/[^/]+\/[^/]+$/.test(request.path) || /^\/api\/v1\/users\/[^/]+\/health-profile$/.test(request.path) ? next() : smallJson(request, response, next));
   app.use('/api', (request, response, next) => {
     response.set('Cache-Control', 'no-store');
@@ -155,6 +161,27 @@ function createApp(config, store, provider) {
   });
   const sessionPayload = user => ({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
   const security = installAccountSecurity(app, config, store, authenticated, { authLimit, startSession, sessionPayload, cookieToken });
+  installAccountRecovery(app, store, authenticated, admin, { authLimit, passwordProblem });
+  installNotifyRoutes(app, config, store, authenticated);
+  installDoctorPhotoRoutes(app, config, store, authenticated, admin);
+  installHubStats(app, store, authenticated, admin);
+  // Replace one's own identity document (CNI or passport) after registration; an administrator then verifies it.
+  app.post('/api/v1/account/id-document', authenticated, express.json({ limit: '4mb' }), (request, response) => {
+    if (request.impersonator || request.user.role === 'admin') return response.status(403).json({ error: 'Only the account holder can upload their identity document' });
+    if (!filesConfigured(config)) return response.status(503).json({ error: 'Encrypted document storage is not configured' });
+    const input = z.object({ idDocumentType: z.enum(['national_id','passport']), idDocument: uploadedDocument }).strict().parse(request.body);
+    const identity = decodeDocument('idDocument', input.idDocument);
+    if (identity.error) return response.status(400).json({ error: identity.error });
+    const idDocument = { id: randomUUID(), fileName: identity.fileName, mime: identity.mime, size: identity.bytes.length };
+    store.db.exec('BEGIN IMMEDIATE');
+    try {
+      saveEncryptedFile(config, store, request.user.id, idDocument.id, { fileName: identity.fileName, category: 'registration:identity', notes: '', relatedApptId: '' }, identity.bytes, identity.mime);
+      store.updateUser(request.user.id, { profile: { idDocumentType: input.idDocumentType, idDocument, idVerificationStatus: 'pending', idUploadedAt: new Date().toISOString() } });
+      store.audit(request.user.id, 'ID_DOCUMENT_UPLOADED', { targetId: request.user.id, ip: request.ip });
+      store.db.exec('COMMIT');
+    } catch (error) { store.db.exec('ROLLBACK'); throw error; }
+    response.status(201).json({ user: store.user(request.user.id) });
+  });
   const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee', 'laboratory', 'labRegion', 'labTown', 'hospitalOther'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
   // A patient may only register under a hospital that is on the public list (has active clinicians).
   const listedHospital = id => id ? store.listedHospitals().find(hospital => hospital.id === id) : null;
@@ -326,7 +353,7 @@ function createApp(config, store, provider) {
     for (const [key, role] of [['assignedDoctor', 'doctor'], ['assignedNurse', 'nurse']]) {
       if (patch[key] && (store.user(patch[key])?.role !== role || store.user(patch[key]).status !== 'active')) return response.status(400).json({ error: 'Invalid provider assignment' });
     }
-    const updated = store.updateUser(user.id, { ...patch, profile: {...(patch.consultationFee === undefined ? {} : { consultationFee: patch.consultationFee }),...(user.role==='pharmacist'&&patch.status==='active'?{pharmacyValidatedBy:request.user.id,pharmacyValidatedAt:new Date().toISOString()}: {})} });
+    const updated = store.updateUser(user.id, { ...patch, profile: {...(patch.consultationFee === undefined ? {} : { consultationFee: patch.consultationFee }),...(user.role==='pharmacist'&&patch.status==='active'?{pharmacyValidatedBy:request.user.id,pharmacyValidatedAt:new Date().toISOString()}: {}),...(patch.idVerificationStatus?{idVerificationStatus:patch.idVerificationStatus,idVerifiedBy:request.user.id,idVerifiedAt:new Date().toISOString()}:{})} });
     if (JSON.stringify(updated) !== JSON.stringify(user)) store.audit(request.user.id, 'ACCOUNT_UPDATED_BY_ADMIN', { targetId: user.id, details: { fields: Object.keys(patch) }, ip: request.ip });
     if (user.role === 'patient' && JSON.stringify(updated) !== JSON.stringify(user)) store.activity(request.user, { eventId: require('node:crypto').randomUUID(), patientId: user.id, resource: 'Account' }, config.ready, message);
     response.json({ user: updated });
