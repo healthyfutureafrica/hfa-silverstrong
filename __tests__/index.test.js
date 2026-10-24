@@ -1119,6 +1119,11 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("if (noAccounts()) return showAccountsUnavailable();");
   });
 
+  test('shows only true facts: no invented figures, placeholder contacts or made-up IP addresses', () => {
+    for (const text of ['500+', 'Patients Served', '99.9%', '@hfa.org', '+237 677 000 1', "'192.168.'+", 'HIPAA-Grade']) expect(content).not.toContain(text);
+    expect(content).toContain("const HFA_CONTACT_EMAIL = 'healthyfutureafrica@gmail.com';");
+  });
+
   test('uses the HFA logo asset across the app', () => {
     expect(fs.existsSync(path.join(__dirname, '..', 'assets', 'hfa-logo.svg'))).toBe(true);
     // The HFA logo is for HFA's own branding only; portals use their own icons.

@@ -995,9 +995,9 @@ body{font-size:15px}
         <button type="button" class="btn blg" onclick="goAuth('login')" style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)" data-i18n="sign_in">Sign In</button>
       </div>
       <div class="hst">
-        <div><div class="hsv">500+</div><div class="hsl hs-lbl" id="hs-l1">Patients Served</div></div>
-        <div><div class="hsv">50+</div><div class="hsl hs-lbl" id="hs-l2">Providers</div></div>
-        <div><div class="hsv">99.9%</div><div class="hsl hs-lbl" id="hs-l3">Uptime</div></div>
+        <div><div class="hsv">2</div><div class="hsl hs-lbl" id="hs-l1">Languages</div></div>
+        <div><div class="hsv" id="hs-v2">7 days</div><div class="hsl hs-lbl" id="hs-l2">Offline use</div></div>
+        <div><div class="hsv">WHO</div><div class="hsl hs-lbl" id="hs-l3">Based symptom check</div></div>
       </div>
     </div>
     <div class="pg">
@@ -1034,7 +1034,7 @@ body{font-size:15px}
     </div>
   </div>
   <div class="lft">
-    <div class="lf" id="lf1"><span class="lfd">●</span> HIPAA-Grade Security</div>
+    <div class="lf" id="lf1"><span class="lfd">●</span> HIPAA-aligned safeguards</div>
     <div class="lf" id="lf2"><span class="lfd">●</span> Encrypted Video Calls</div>
     <div class="lf" id="lf3"><span class="lfd">●</span> Role-Based Access</div>
     <div class="lf" id="lf4"><span class="lfd">●</span> Full Audit Trail</div>
@@ -1542,7 +1542,7 @@ const T = {
 
     // Free Health Hub
     free_hub_nav:'Free Health Hub', free_hub_title:'Free Health Hub',
-    fh_hero_eyebrow:'Healthy Future Africa · Open to everyone', fh_stat_topics:'self-care topics, reviewed', fh_stat_free:'cost · no account needed', fh_stat_langs:'languages · English & Français',
+    fh_hero_eyebrow:'Healthy Future Africa · Open to everyone', fh_stat_topics:'self-care topics', fh_stat_free:'cost · no account needed', fh_stat_langs:'languages · English & Français',
     fh_sec_library:'Self-care library', fh_sec_essentials:'Everyday essentials', fh_essentials_title:'Simple habits for a healthier life',
     free_hub_sub:'Evidence-informed nutrition, exercise, and self-care guidance — free for everyone, patient or not.',
     fh_disclaimer_title:'Educational information, not a diagnosis',
@@ -1877,7 +1877,7 @@ const T = {
 
     // Free Health Hub
     free_hub_nav:'Espace Santé Gratuit', free_hub_title:'Espace Santé Gratuit',
-    fh_hero_eyebrow:'Healthy Future Africa · Ouvert à tous', fh_stat_topics:'thèmes de soins, vérifiés', fh_stat_free:'coût · sans compte', fh_stat_langs:'langues · English & Français',
+    fh_hero_eyebrow:'Healthy Future Africa · Ouvert à tous', fh_stat_topics:'thèmes de soins', fh_stat_free:'coût · sans compte', fh_stat_langs:'langues · English & Français',
     fh_sec_library:'Bibliothèque de soins', fh_sec_essentials:'Les essentiels du quotidien', fh_essentials_title:'Des habitudes simples pour une vie plus saine',
     free_hub_sub:'Conseils gratuits fondés sur des données probantes en nutrition, exercice et bien-être — pour tous, patient ou non.',
     fh_disclaimer_title:'Information éducative, pas un diagnostic',
@@ -2142,7 +2142,7 @@ function updateStaticHTML() {
   const fhb = $('fh-back'); if(fhb) fhb.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
   // Landing footer features
   const lfmap = {
-    'lf1': LANG==='fr'?'Sécurité HIPAA':'HIPAA-Grade Security',
+    'lf1': LANG==='fr'?'Garanties alignées sur HIPAA':'HIPAA-aligned safeguards',
     'lf2': LANG==='fr'?'Appels Vidéo Chiffrés':'Encrypted Video Calls',
     'lf3': LANG==='fr'?'Accès par les Rôles':'Role-Based Access',
     'lf4': LANG==='fr'?'Piste d\'Audit Complète':'Full Audit Trail',
@@ -2150,9 +2150,11 @@ function updateStaticHTML() {
   };
   Object.entries(lfmap).forEach(([id,val])=>{ const el=$(id); if(el) el.innerHTML='<span class="lfd">●</span> '+val; });
   // Landing hero stat labels
-  const hs1=$('hs-l1'); if(hs1) hs1.textContent=LANG==='fr'?'Patients Servis':'Patients Served';
-  const hs2=$('hs-l2'); if(hs2) hs2.textContent=LANG==='fr'?'Prestataires':'Providers';
-  const hs3=$('hs-l3'); if(hs3) hs3.textContent=LANG==='fr'?'Disponibilité':'Uptime';
+  // Facts only: no invented user counts or uptime figures.
+  const hs1=$('hs-l1'); if(hs1) hs1.textContent=LANG==='fr'?'Langues':'Languages';
+  const hv2=$('hs-v2'); if(hv2) hv2.textContent=LANG==='fr'?'7 jours':'7 days';
+  const hs2=$('hs-l2'); if(hs2) hs2.textContent=LANG==='fr'?'Utilisation hors ligne':'Offline use';
+  const hs3=$('hs-l3'); if(hs3) hs3.textContent=LANG==='fr'?'Vérification des symptômes fondée sur l’OMS':'Based symptom check';
   // Voice/video call overlay labels
   const vcl = $('vc-live-lbl'); if(vcl) vcl.textContent = t('live');
   const vctl = $('vc-type-label'); if(vctl) vctl.textContent = t('video_call_title');
@@ -2177,6 +2179,9 @@ function updateStaticHTML() {
 // ═══════════════════════ UTILITIES & APP CODE ════════════════════════════════
 
 // ═══════════════════════ DATA STORE ═══════════════════════
+// HFA's contact address for compliance and data-protection questions (shown on the legal pages).
+const HFA_CONTACT_EMAIL = 'healthyfutureafrica@gmail.com';
+
 // Clinical data comes only from real accounts on the HFA server (see clinical-sync.js); nothing is built in.
 const DB = {
   users: [], appointments: [], messages: [], auditLogs: [], careNotes: [], doctorReports: [], carePlans: [], triageCases: [],
@@ -2595,7 +2600,8 @@ const fmtD = d => { try{if(!d)return{day:'--',mon:'---'};const p=d.split('-'),m=
 const nowT = () => new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 const todayD = () => new Date().toISOString().slice(0,10);
 const tsNow = () => new Date().toISOString().replace('T',' ').slice(0,19);
-const log = (action, resource, status='success') => { if(!CU) return; DB.auditLogs.unshift({id:'lg'+Date.now(),userId:CU.id,userName:CU.name,action,resource,timestamp:tsNow(),ip:'192.168.'+Math.floor(Math.random()*5+1)+'.'+Math.floor(Math.random()*200+10),status}); };
+// Actions in this browser session. The audit trail that counts is the server's (Audit Logs page); no IP is invented here.
+const log = (action, resource, status='success') => { if(!CU) return; DB.auditLogs.unshift({id:'lg'+Date.now(),userId:CU.id,userName:CU.name,action,resource,timestamp:tsNow(),ip:'',status}); };
 const auditActionLabel = action => action==='INCIDENT_REPORT' ? t('incident_report_action') : action==='CONFIDENTIALITY_PLEDGE' ? t('confidentiality_pledge_action') : action;
 const lt = value => value[LANG] || value.en;
 const convBetween = (a,b) => DB.messages.filter(m=>(m.from===a&&m.to===b)||(m.from===b&&m.to===a));
@@ -3474,20 +3480,22 @@ function resolveSafetyAlert(id) { const alert=DB.medicationSafetyAlerts.find(ite
 function renderAudit(pc) {
   $('tbt').textContent=t('audit_title');
   pc.innerHTML=`<div class="page">
-    <div class="ph"><h2>${t('audit_title')}</h2><p>${LANG==='fr'?'Journal complet pour la conformité et le suivi':'Complete log of all platform actions for compliance and monitoring'}</p></div>
-    <div class="card"><div class="tw"><table>
-      <thead><tr><th>#</th><th>${t('user')}</th><th>${t('action')}</th><th>${t('resource')}</th><th>${t('timestamp')}</th><th>IP</th><th>${t('status')}</th></tr></thead>
-      <tbody>${DB.auditLogs.map((l,i)=>`<tr style="${l.status==='failed'?'background:#fff8f8':''}">
-        <td class="mu sm">${DB.auditLogs.length-i}</td>
-        <td><div class="bo" style="font-size:.82rem">${l.userName}</div><div class="mu sm">${l.userId}</div></td>
-        <td><code class="tg" style="${l.status==='failed'?'background:#fce8e8;color:#6e1a13':''}">${l.action}</code></td>
-        <td class="sm">${tv(l.resource)}</td>
-        <td class="mu sm" style="white-space:nowrap">${l.timestamp}</td>
-        <td><code style="font-family:var(--fm);font-size:.72rem;color:var(--t3)">${l.ip}</code></td>
-        <td>${l.status==='success'?`<span class="badge bsu">${IC.chk}${t('success')}</span>`:`<span class="badge bda">${IC.x}${t('failed')}</span>`}</td>
-      </tr>`).join('')}</tbody>
-    </table></div></div>
+    <div class="ph"><h2>${t('audit_title')}</h2><p>${LANG==='fr'?'Journal permanent du serveur pour la conformité et le suivi':'Permanent server log for compliance and monitoring'}</p></div>
+    <div class="card"><div class="tw" id="audit-body"><p class="mu sm">…</p></div></div>
   </div>`;
+  const body=$('audit-body');
+  if (!ApiState.enabled) { body.innerHTML=`<p class="mu sm">${t('accounts_unavailable_body')}</p>`; return; }
+  apiRequest('/api/v1/admin/audit').then(({data})=>{
+    if (!body.isConnected) return;
+    body.innerHTML=`<table><thead><tr><th>${t('user')}</th><th>${t('action')}</th><th>${t('resource')}</th><th>${t('timestamp')}</th><th>IP</th></tr></thead>
+      <tbody>${data.entries.map(entry=>`<tr>
+        <td><div class="bo" style="font-size:.82rem">${hx(entry.actorName||'—')}</div></td>
+        <td><code class="tg">${hx(entry.action)}</code></td>
+        <td class="sm">${hx(entry.targetName||'')}${entry.targetRole?` <span class="mu">· ${hx(tv(entry.targetRole))}</span>`:''}</td>
+        <td class="mu sm" style="white-space:nowrap">${hx(String(entry.createdAt).replace('T',' ').slice(0,19))}</td>
+        <td><code style="font-family:var(--fm);font-size:.72rem;color:var(--t3)">${hx(entry.ip||'')}</code></td>
+      </tr>`).join('')}</tbody></table>`;
+  }).catch(error=>{ body.innerHTML=`<div class="alt ae">${hx(error.message)}</div>`; });
 }
 
 function renderCompliance(pc) {
@@ -3524,7 +3532,7 @@ function renderCompliance(pc) {
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Problèmes de conformité et solutions':'Compliance issues and solutions'}</div></div><div class="issue-list">${issues.map(item=>`<div class="issue-pair"><div class="problem-block"><strong>${LANG==='fr'?'Problème':'Problem'}</strong>${lt(item.p)}</div><div class="solution-block"><strong>${LANG==='fr'?'Solution':'Solution'}</strong>${lt(item.s)}</div></div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Vos obligations légales':'Your legal obligations'}</div></div><div class="legal-numbered">${obligations.map(item=>`<div class="legal-duty">${lt(item)}</div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${t('report_incident')}</div></div><form onsubmit="submitIncidentReport();return false;"><div class="fr"><div class="fg"><label class="fl">${LANG==='fr'?'Type d\'incident':'Incident Type'}</label><select class="fc" id="ir-type" required><option value="Credential sharing">${LANG==='fr'?'Partage d\'identifiants':'Credential sharing'}</option><option value="Unauthorised access">${LANG==='fr'?'Accès non autorisé':'Unauthorised access'}</option><option value="Off-platform consultation">${LANG==='fr'?'Consultation hors plateforme':'Off-platform consultation'}</option><option value="False care note">${LANG==='fr'?'Fausse note de soins':'False care note'}</option><option value="Other">${LANG==='fr'?'Autre':'Other'}</option></select></div><div class="fg"><label class="fl">${LANG==='fr'?'Urgence':'Urgency'}</label><select class="fc" id="ir-urgency" required><option>${LANG==='fr'?'Routine':'Routine'}</option><option>${LANG==='fr'?'Urgent':'Urgent'}</option><option>${LANG==='fr'?'Critique':'Critical'}</option></select></div></div><div class="fg"><label class="fl">${LANG==='fr'?'Détails':'Details'}</label><textarea class="fc" id="ir-details" required placeholder="${LANG==='fr'?'Décrivez ce qui s\'est passé...':'Describe what happened...'}"></textarea></div><button class="btn bp" type="submit">${IC.shield}${t('submit_incident')}</button><div id="incident-confirm" style="margin-top:12px"></div></form></div>
-    <div class="contact-card"><div class="legal-badge">HFA</div><div><h3>${LANG==='fr'?'Contact conformité':'Compliance Contact'}</h3><p>${LANG==='fr'?'Responsable conformité HFA SilverStrong<br>Email : compliance@hfa.org<br>Téléphone : +237 677 000 119':'HFA SilverStrong Compliance Officer<br>Email: compliance@hfa.org<br>Phone: +237 677 000 119'}</p></div></div>
+    <div class="contact-card"><div class="legal-badge">HFA</div><div><h3>${LANG==='fr'?'Contact conformité':'Compliance Contact'}</h3><p>${LANG==='fr'?`Responsable conformité HFA SilverStrong<br>Email : <a href="mailto:${HFA_CONTACT_EMAIL}">${HFA_CONTACT_EMAIL}</a>`:`HFA SilverStrong Compliance Officer<br>Email: <a href="mailto:${HFA_CONTACT_EMAIL}">${HFA_CONTACT_EMAIL}</a>`}</p></div></div>
   </div>`;
 }
 
@@ -3565,7 +3573,7 @@ function renderPrivacy(pc) {
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Droits sur les données':'Data rights'}</div><button type="button" class="btn bp bsm" onclick="navigate('my-data')">${t('pc_nav')}</button></div><div class="g2">${rights.map(item=>`<div class="legal-card"><h3>${lt(item.title)}</h3><p>${lt(item.text)}</p></div>`).join('')}</div></div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Durées de conservation':'Data retention periods'}</div></div>${retention.map(item=>`<div class="retention-row"><strong>${lt(item[0])}</strong><span>${typeof item[1]==='string'?item[1]:lt(item[1])}</span></div>`).join('')}</div>
     <div class="card mb18"><div class="ch"><div class="ct">${LANG==='fr'?'Problèmes de confidentialité et solutions':'Data privacy issues and solutions'}</div></div><div class="issue-list">${issues.map(item=>`<div class="issue-pair"><div class="problem-block"><strong>${LANG==='fr'?'Problème':'Problem'}</strong>${lt(item.p)}</div><div class="solution-block"><strong>${LANG==='fr'?'Solution':'Solution'}</strong>${lt(item.s)}</div></div>`).join('')}</div></div>
-    <div class="contact-card"><div class="legal-badge">DPO</div><div><h3>${LANG==='fr'?'Délégué à la Protection des Données':'Data Protection Officer'}</h3><p>${LANG==='fr'?'Email : dpo@hfa.org<br>Téléphone : +237 677 000 120<br>Délai cible de réponse : 30 jours':'Email: dpo@hfa.org<br>Phone: +237 677 000 120<br>Target response time: 30 days'}</p></div></div>
+    <div class="contact-card"><div class="legal-badge">DPO</div><div><h3>${LANG==='fr'?'Délégué à la Protection des Données':'Data Protection Officer'}</h3><p>${LANG==='fr'?`Email : <a href="mailto:${HFA_CONTACT_EMAIL}">${HFA_CONTACT_EMAIL}</a><br>Délai de réponse : 30 jours au plus`:`Email: <a href="mailto:${HFA_CONTACT_EMAIL}">${HFA_CONTACT_EMAIL}</a><br>Response time: 30 days at most`}</p></div></div>
   </div>`;
 }
 
