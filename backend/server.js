@@ -17,6 +17,7 @@ const { installPrivacyRoutes } = require('./privacy');
 const { installTriageRoutes } = require('./triage');
 const { aiConfigured } = require('./triage-ai');
 const { WhatsAppTriage } = require('./whatsapp-triage');
+const { installAiAssistRoutes } = require('./ai-assist');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -134,6 +135,7 @@ function createApp(config, store, provider) {
   installAdminAccessRoutes(app,config,store,authenticated,admin,{ cookieToken, withHealth });
   installPrivacyRoutes(app,config,store,authenticated,admin);
   installTriageRoutes(app,config,store,authenticated);
+  installAiAssistRoutes(app,config,store,authenticated);
   // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });

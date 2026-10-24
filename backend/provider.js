@@ -18,8 +18,11 @@ function configuration(env = process.env) {
     demoAccounts: env.DEMO_ACCOUNTS === 'true',
     // Administrators must use two-step sign-in unless explicitly turned off.
     requireAdminMfa: env.REQUIRE_ADMIN_MFA !== 'false',
-    // SLY Triage AI help (Claude). Off by default: needs data-protection approval for transfers abroad.
-    aiTriageEnabled: env.AI_TRIAGE_ENABLED === 'true'
+    // SLY AI help (Claude): triage reading, scribe, explanations. Off by default: needs data-protection approval
+    // for transfers abroad. AI_TRIAGE_ENABLED is the earlier name of AI_ENABLED.
+    aiTriageEnabled: env.AI_ENABLED === 'true' || env.AI_TRIAGE_ENABLED === 'true',
+    // Cost control: AI requests per person per day (all AI features together).
+    aiDailyLimit: Number(env.AI_DAILY_LIMIT || 30)
   };
   if (!/^https?:\/\//.test(config.origin) || new URL(config.origin).origin !== config.origin ||
       !/^https?:\/\//.test(config.loginUrl) || !/^v\d+\.\d+$/.test(config.graphVersion) ||

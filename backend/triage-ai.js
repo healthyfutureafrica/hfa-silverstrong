@@ -94,4 +94,4 @@ async function readSymptoms(config, { text, answers, user }) {
   }
 }
 
-module.exports = { readSymptoms, deidentify, aiConfigured, MODEL, SYSTEM };
+module.exports = { readSymptoms, deidentify, aiConfigured, client, MODEL, SYSTEM, TIMEOUT_MS };

@@ -84,6 +84,27 @@ how long and how bad. An emergency sign ends the questions at once.
   `GET /api/v1/triage/queue`, `POST /api/v1/triage/:id/review`. Case contents are AES-256-GCM encrypted with
   `FILE_ENCRYPTION_KEY`.
 
+## SLY AI across the care journey
+
+One switch (`AI_ENABLED=true` plus `ANTHROPIC_API_KEY`; the older `AI_TRIAGE_ENABLED` still works) turns on
+Claude help everywhere; `AI_DAILY_LIMIT` (default 30) caps requests per person per day. All AI uses Claude Haiku
+5.5 at low effort (about USD 0.0005 a request), sends no names, phone numbers or ID numbers, stores nothing, and
+returns drafts a person checks. Every feature works without AI.
+
+| Step | Feature | Without AI |
+|---|---|---|
+| Before care | **SLY Triage** (app and WhatsApp), see above | WHO rules |
+| During care | **Clinical scribe** in the doctor's report window: rough notes → SOAP note, up to 3 ICD-11 codes (malformed codes dropped, codes on HFA's verified list marked), safety flags (e.g. allergy conflicts) and missing information. Uses the patient's latest symptom check when there is one. `POST /api/v1/ai/scribe` | SOAP template with the notes |
+| After care | **Explain in simple words** on the patient's doctor reports and released lab results, in English or French, with questions to ask the doctor; never changes treatment. `POST /api/v1/ai/explain` | Built-in bilingual medical dictionary |
+| Population | **Outbreak early warning** (`hfa-surveillance.js`): WHO IDSR syndromes (suspected cholera, meningitis, measles/mpox, bloody diarrhoea; fever, respiratory and diarrhoea trends) by region and division; alert clusters and Poisson-tested trends (p < 0.01); weekly CSV export in DHIS2 style with counts under 3 hidden. `GET /api/v1/ai/outbreak` | Statistics only: no AI, no cost |
+
+**SLY AI page** (sidebar, every portal): a model card for each feature (what it does, method, data sent, human
+check, cost), the **safety evaluation** (`hfa-ai-eval.js`: 43 WHO-based scenarios run live through the rules;
+missed urgency must be 0 and is checked in CI), **real-world monitoring** for clinicians and administrators
+(agreement between SLY and clinicians, levels raised or lowered by clinicians, AI requests and estimated cost,
+`GET /api/v1/ai/metrics`), outbreak signals, the six WHO principles for AI in health and the limits. The scenarios
+were written by the team with the rules, so independent clinical review is still required.
+
 ## Environment notes
 
 - CI runs on GitHub-hosted Ubuntu runners and validates HTML linting, Jest tests, Node backend security/provider tests, Docker image build, and a frontend container smoke test.

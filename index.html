@@ -3353,6 +3353,7 @@ function renderPage(page) {
   if (page==='security' && typeof HFASecurity!=='undefined') return HFASecurity.renderPage(pc);
   if (page==='my-data' && typeof HFAPrivacy!=='undefined') return HFAPrivacy.renderPage(pc);
   if (page==='privacy-requests' && r==='admin' && typeof HFAPrivacy!=='undefined') return HFAPrivacy.renderAdmin(pc);
+  if (page==='ai-centre' && typeof HFAAiCentre!=='undefined') return HFAAiCentre.renderPage(pc);
   if (page==='triage' && r==='patient' && typeof HFATriageUI!=='undefined') return HFATriageUI.renderPatient(pc);
   if (page==='triage-queue' && ['doctor','nurse','admin'].includes(r) && typeof HFATriageUI!=='undefined') return HFATriageUI.renderQueue(pc);
   if (page==='portal-access' && isSuperAdmin(CU) && typeof PortalAccess!=='undefined') return PortalAccess.renderPage(pc);
@@ -3480,6 +3481,7 @@ function showDoctorReport(appointmentId) {
   const apt=DB.appointments.find(a=>a.id===appointmentId), patient=G(apt?.patientId);
   if(!apt||!patient) return;
   openMo(`<div class="mh"><div><div class="mt2">${t('add_doctor_report')}</div><div class="mu sm">${hx(patient.name)} · ${apt.date} ${t('at')} ${apt.time}</div></div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
+    ${typeof HFAAssist!=='undefined'?HFAAssist.scribeBlock(appointmentId):''}
     <div class="fg"><label class="fl">${t('diagnosis_summary')}</label><input class="fc" id="dr-summary" placeholder="${t('i_report_summary_ph')}"></div>
     <div class="fg"><label class="fl">${t('treatment_plan')}</label><textarea class="fc" id="dr-plan" placeholder="${t('report_notes_ph')}"></textarea></div>
     <div id="dr-status" class="mu sm"></div>
@@ -3600,6 +3602,7 @@ function renderCompliance(pc) {
     {badge:'WCAG 2.2',title:{en:'Accessible to everyone',fr:'Accessible à tous'},text:{en:'Built to WCAG 2.2 level AA: keyboard use, visible focus, screen-reader labels, large touch targets, reduced motion, high-contrast colours, and plain English and French.',fr:'Conçu selon le niveau AA des WCAG 2.2 : clavier, focus visible, libellés pour lecteurs d’écran, grandes zones tactiles, animations réduites, couleurs contrastées et français et anglais simples.'}},
     {badge:'OWASP',title:{en:'Secure development',fr:'Développement sécurisé'},text:{en:'Designed against the OWASP Application Security Verification Standard: validated input, escaped output, strict cookies, rate limits, security headers and encrypted files. An independent penetration test is required before production.',fr:'Conçu selon le standard OWASP ASVS : entrées validées, sorties échappées, cookies stricts, limites de débit, en-têtes de sécurité et fichiers chiffrés. Un test d’intrusion indépendant est requis avant la production.'}},
     {badge:'WHO',title:{en:'WHO Global Strategy on Digital Health',fr:'Stratégie mondiale de l’OMS pour la santé numérique'},text:{en:'People-centred, interoperable and secure digital health, with clinician review of triage and guidance that never replaces emergency care.',fr:'Une santé numérique centrée sur la personne, interopérable et sûre, avec revue clinique du triage et des conseils qui ne remplacent jamais les urgences.'}},
+    {badge:'WHO AI',title:{en:'WHO Ethics and Governance of AI for Health',fr:'Éthique et gouvernance de l’IA en santé (OMS)'},text:{en:'SLY’s AI follows the six WHO principles: consent, safety rules that AI cannot lower, labelled AI drafts, an audit trail, access on basic phones, and live monitoring. See the SLY AI page for the evaluation and limits.',fr:'L’IA de SLY suit les six principes de l’OMS : consentement, règles de sécurité que l’IA ne peut pas abaisser, brouillons IA signalés, piste d’audit, accès sur téléphones simples et suivi en direct. Voir la page IA SLY pour l’évaluation et les limites.'}},
     {badge:'ANTIC',title:{en:'ANTIC Registration',fr:'Enregistrement ANTIC'},text:{en:'Provider operations are prepared for national registration and audit expectations from Cameroon\'s ICT regulator.',fr:'Les opérations du prestataire sont préparées aux attentes d\'enregistrement et d\'audit du régulateur TIC camerounais.'}},
   ];
   const issues = [
@@ -4032,7 +4035,8 @@ function doctorReportList(patientId) {
     <div style="padding:10px 0;border-bottom:1px solid var(--bd)">
       <div style="display:flex;justify-content:space-between;gap:12px"><div class="bo sm">${hx(r.summary)}</div><span class="badge bin">${r.consultationDate} ${t('at')} ${r.consultationTime}</span></div>
       <div class="mu sm">${hx(doc?.name||t('doctor'))} · ${tv(doc?.specialty||'')}</div>
-      <div class="sm" style="margin-top:4px">${hx(r.plan)}</div>
+      <div class="sm" style="margin-top:4px;white-space:pre-wrap">${hx(r.plan)}</div>
+      ${typeof HFAAssist!=='undefined'?HFAAssist.explainButton('report',r.id):''}
     </div>`;}).join('');
 }
 
@@ -4057,7 +4061,7 @@ function labResultList(scope='patient', patientId=null) {
   return results.length?results.map(result=>{const patient=G(result.patientId), specialist=G(result.specialistDoctorId), lab=G(result.labTechId);const canOpen=scope==='specialist'&&result.status==='pending';const canRelease=scope==='specialist'&&result.status==='opened';const canView=scope==='specialist'||(scope==='patient'&&result.status==='released');return`
     <div class="code-item">
       <code class="code-chip">${hx(result.testType)}</code>
-      <div style="flex:1"><strong>${hx(patient?.name||t('patient'))} · ${hx(specialist?.name||t('doctor'))}</strong><span>${hx(result.fileName)} · ${result.uploadedAt} · ${lab?.laboratory||lab?.name||t('laboratory')}</span>${result.notes?`<span>${hx(result.notes)}</span>`:''}</div>
+      <div style="flex:1"><strong>${hx(patient?.name||t('patient'))} · ${hx(specialist?.name||t('doctor'))}</strong><span>${hx(result.fileName)} · ${result.uploadedAt} · ${lab?.laboratory||lab?.name||t('laboratory')}</span>${result.notes?`<span>${hx(result.notes)}</span>`:''}${scope==='patient'&&typeof HFAAssist!=='undefined'?HFAAssist.explainButton('lab',result.id):''}</div>
       ${labResultStatusBadge(result.status)}
       ${canOpen?`<button class="btn bp bsm" onclick="openLabResultFirst('${result.id}')">${t('open_lab_result')}</button>`:''}
       ${canRelease?`<button class="btn bg2 bsm" onclick="releaseLabResult('${result.id}')">${t('release_result')}</button>`:''}
@@ -5367,6 +5371,10 @@ window.addEventListener('load',()=>{
 <script src="session-guard.js"></script>
 <script src="hfa-triage.js"></script>
 <script src="triage-assistant.js"></script>
+<script src="hfa-surveillance.js"></script>
+<script src="hfa-ai-eval.js"></script>
+<script src="ai-assist.js"></script>
+<script src="ai-centre.js"></script>
 <script src="offline.js"></script>
 </body>
 </html>
