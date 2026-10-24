@@ -77,8 +77,9 @@ how long and how bad. An emergency sign ends the questions at once.
   never paid templates; no AI is used; replies are capped at 60 per number per day. A patient whose WhatsApp
   number is verified on their account gets a case in their care team's queue; anyone else gets the advice and an
   invitation to register, and nothing about them is kept. Conversation state is encrypted and forgotten after 2
-  hours. Needs `WHATSAPP_ENABLED=true`, `META_ACCESS_TOKEN` and `META_PHONE_NUMBER_ID`. The older standalone
-  `hfa-whatsapp-bot/` scaffold (PostgreSQL, Redis, OpenAI) is not needed for this.
+  hours. Needs `WHATSAPP_ENABLED=true`, `META_ACCESS_TOKEN` and `META_PHONE_NUMBER_ID`. An earlier standalone
+  bot scaffold was removed; its 7-option menu (symptom check, booking, pharmacy, lab results, find a provider,
+  emergency, talk to a person) and English/French wording are in commit `20b56bd` for when those are added here.
 - API: `POST /api/v1/triage` (patient, idempotent `requestId`), `GET /api/v1/triage/mine`,
   `GET /api/v1/triage/queue`, `POST /api/v1/triage/:id/review`. Case contents are AES-256-GCM encrypted with
   `FILE_ENCRYPTION_KEY`.
