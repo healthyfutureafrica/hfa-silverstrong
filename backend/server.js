@@ -20,6 +20,7 @@ const { WhatsAppTriage } = require('./whatsapp-triage');
 const { installAiAssistRoutes } = require('./ai-assist');
 const { installClinicalRoutes } = require('./clinical');
 const { Payments, installPaymentRoutes, installPaymentWebhook, mtnConfig } = require('./payments');
+const { installCallRoutes } = require('./calls');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -110,7 +111,8 @@ function createApp(config, store, provider) {
   const payments = new Payments(config, store, { mtn: config.mtn || mtnConfig(), client: config.mtnClient || null });
   app.locals.payments = payments;
   installPaymentWebhook(app, payments);
-  app.use('/api', rateLimit({ windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false }));
+  // Live calls poll for connection messages and have their own per-person limit (backend/calls.js).
+  app.use('/api', rateLimit({ windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false, skip: request => /^\/v1\/calls\/[^/]+\/signals$/.test(request.path) }));
   const smallJson=express.json({ limit: '32kb' });
   const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist'];
   app.use((request, response, next) => documentRoutes.includes(request.path) || /^\/api\/v1\/clinical\/[^/]+\/[^/]+$/.test(request.path) || /^\/api\/v1\/users\/[^/]+\/health-profile$/.test(request.path) ? next() : smallJson(request, response, next));
@@ -144,6 +146,7 @@ function createApp(config, store, provider) {
   installAiAssistRoutes(app,config,store,authenticated);
   installClinicalRoutes(app,config,store,authenticated);
   installPaymentRoutes(app,config,store,authenticated,payments);
+  installCallRoutes(app,config,store,authenticated);
   // Only failed attempts count, so switching between valid accounts is not blocked but guessing is.
   const authLimit = rateLimit({ windowMs: 15 * 60000, limit: 10, skipSuccessfulRequests: true, standardHeaders: 'draft-8', legacyHeaders: false });
   const eventLimit = rateLimit({ windowMs: 60000, limit: 20, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
