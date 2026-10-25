@@ -310,6 +310,8 @@ function createApp(config, store, provider) {
     if (returnCookie) store.logout(returnCookie.slice(RETURN_COOKIE.length + 1));
     response.clearCookie(RETURN_COOKIE, { path: '/api' }).clearCookie('hfa_session', { path: '/api' }).sendStatus(204);
   });
+  // Lets a visitor's browser ask whether it is signed in without an error response (no session details).
+  app.get('/api/session/status', (request, response) => response.json({ signedIn: !!store.sessionDetails(cookieToken(request)) }));
   app.get('/api/session', authenticated, (request, response) => response.json({ user: withHealth(config, store, request.user, [request.user])[0], users: withHealth(config, store, request.user, store.visibleUsers(request.user)), notifications: store.notifications(request.user.id),
     ...(request.impersonator ? { impersonatedBy: { id: request.impersonator.id, name: request.impersonator.name } } : {}) }));
   app.get('/api/notifications', authenticated, (request, response) => response.json({ notifications: store.notifications(request.user.id) }));

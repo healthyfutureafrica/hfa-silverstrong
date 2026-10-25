@@ -35,6 +35,9 @@ test('a person who forgot their password gets a one-time code from their clinic 
   const app = await startServer(store);
   try {
     const { admin, patient, cookies } = await people(store, app);
+    // Visitors can ask whether they are signed in without getting an error response.
+    assert.deepEqual(await (await app.request('/api/session/status')).json(), { signedIn: false });
+    assert.deepEqual(await (await app.request('/api/session/status', undefined, cookies.pat)).json(), { signedIn: true });
     assert.equal((await app.request(`/api/v1/admin/users/${patient.id}/reset-code`, {}, cookies.doc)).status, 403, 'administrators only');
     assert.equal((await app.request(`/api/v1/admin/users/${admin.id}/reset-code`, {}, cookies.admin)).status, 403, 'not for oneself');
     const created = await (await app.request(`/api/v1/admin/users/${patient.id}/reset-code`, {}, cookies.admin)).json();

@@ -230,6 +230,16 @@ tbody tr:hover{background:#fcfdfe}
 .cn2{font-weight:600;font-size:.82rem}
 .cs2{font-size:.72rem;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
 .ca{display:flex;flex-direction:column;background:var(--ow)}
+.cw-back{display:none}
+/* Phones: the conversation list, or one conversation, takes the whole width. */
+@media (max-width:700px){
+  .cw{grid-template-columns:minmax(0,1fr);height:calc(100vh - 57px)}
+  .cw.has-chat .cl{display:none}
+  .cw:not(.has-chat) .ca{display:none}
+  .cw-back{display:inline-flex;flex-shrink:0}
+  .cw-back span{display:none}
+  .cs2{max-width:60vw}
+}
 .cahdr{background:var(--sf);border-bottom:1px solid var(--bd);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
 .canm{font-weight:600;font-size:.9rem}
 .carl{font-size:.73rem;color:var(--t3)}
@@ -2491,7 +2501,9 @@ async function initializeBackend() {
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
     updateStaticHTML();
     if (ApiState.offline) return;
-    const session=await fetch('/api/session',{credentials:'same-origin'});
+    // Ask quietly first, so visitors who are not signed in see no error in their browser.
+    const status=await fetch('/api/session/status',{credentials:'same-origin',cache:'no-store'}).then(response=>response.ok?response.json():{signedIn:true}).catch(()=>({signedIn:true}));
+    const session=status.signedIn?await fetch('/api/session',{credentials:'same-origin'}):{ok:false};
     if (session.ok) { const data=await session.json(); installBackendSession(data); await HFAOffline.afterSessionRestore(data.user); LANG_RETURN_SCREEN='app'; }
   } catch (error) { ApiState.failed=true; }
   finally { ApiState.loading=false; }
@@ -4763,7 +4775,7 @@ function renderMessages(pc) {
   $('tbt').textContent=t('comm_title');
   pc.style.padding='0';
   const contacts=myContacts(), selId=SC?.id;
-  pc.innerHTML=`<div class="cw">
+  pc.innerHTML=`<div class="cw${SC?' has-chat':''}">
     <div class="cl">
       <div class="clh"><h3>Conversations</h3>
         <input class="fc" placeholder="${LANG==='fr'?'Rechercher des contacts...':'Search contacts...'}" oninput="filterCts(this.value)" style="font-size:.78rem;padding:7px 11px">
@@ -4788,6 +4800,7 @@ function chatView() {
   const c=SC, conv=convBetween(CU.id,c.id), col=RCOL[c.role]||'#8a9bb0';
   return `<div class="cahdr">
     <div style="display:flex;align-items:center;gap:10px">
+      <button type="button" class="btn bgh bsm cw-back" onclick="SC=null;renderMessages($('pgc'))" aria-label="${t('comm_title')}">← <span>${t('comm_title')}</span></button>
       <div class="cav" style="background:${col}22;border-color:${col}44;color:${col};width:36px;height:36px">${hx(ini(c.name))}</div>
       <div><div class="canm">${hx(c.name)}</div><div class="carl">${tv(c.specialty||c.department||c.role)}${c.hospital?' · '+c.hospital:''}</div></div>
     </div>

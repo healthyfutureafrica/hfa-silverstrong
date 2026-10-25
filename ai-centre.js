@@ -149,7 +149,7 @@
           <div class="sm">${esc(lang(SV.SYNDROMES[signal.syndrome].action))}</div></div>
           <span class="badge ${signal.level === 'alert' ? 'bda' : 'bwa'}">${esc(t(signal.level === 'alert' ? 'aic_alert' : 'aic_watch'))}</span></div>`).join('') : `<p class="mu sm">${esc(t('aic_no_signals'))}</p>`}
         <p class="mu sm mt8">${esc(tf('aic_counted', { counted: data.counted, unknown: data.unknownPlace }))}</p>
-        <button type="button" class="btn bs bsm mt8" id="aic-export">⬇️ ${esc(t('aic_export'))}</button>`;
+        <button type="button" class="btn bs bsm mt8" id="aic-export" style="white-space:normal;max-width:100%;text-align:left">⬇️ ${esc(t('aic_export'))}</button>`;
       $('aic-export').onclick = () => {
         const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([SV.toCsv(data.weekly)], { type: 'text/csv' })), download: `hfa-syndromic-weekly-${new Date().toISOString().slice(0, 10)}.csv` });
         document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
