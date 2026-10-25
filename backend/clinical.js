@@ -44,6 +44,23 @@ const COLLECTIONS = {
     schema: z.object({ patientId: userId, ownerId: userId, title: z.string().max(200), status: z.string().max(40) }).passthrough() }
 };
 
+// Free text the screens escape before display (see hx() in index.html): any characters are kept.
+const FREE_TEXT = new Set(['text', 'notes', 'summary', 'plan', 'reason', 'illness', 'comment', 'fileName', 'testType', 'location', 'symptoms', 'title', 'message', 'details', 'label', 'serviceName', 'specialtyNote']);
+// Embedded files: only real documents and pictures, never a script link (javascript:, data:text/html…).
+const FILE_DATA = /^data:(application\/pdf|image\/(png|jpeg|webp));base64,[A-Za-z0-9+/]+={0,2}$/;
+/** Every other text value must not carry markup, so no screen can be tricked into running it. */
+function unsafeValue(value, key = '', depth = 0) {
+  if (depth > 6) return 'too deeply nested';
+  if (typeof value === 'string') {
+    if (key === 'fileData') return value && !FILE_DATA.test(value) ? 'fileData must be a PDF, PNG, JPEG or WebP file' : null;
+    if (!FREE_TEXT.has(key) && /[<>"`]/.test(value)) return `${key || 'value'}: remove < > " and \` characters`;
+    return null;
+  }
+  if (Array.isArray(value)) { for (const item of value) { const problem = unsafeValue(item, key, depth + 1); if (problem) return problem; } return null; }
+  if (value && typeof value === 'object') { for (const [name, item] of Object.entries(value)) { const problem = unsafeValue(item, name, depth + 1); if (problem) return problem; } }
+  return null;
+}
+
 function ensureClinicalTable(store) {
   store.db.exec(`CREATE TABLE IF NOT EXISTS clinical_records (
     collection TEXT NOT NULL, id TEXT NOT NULL, patient_id TEXT, people TEXT NOT NULL, version INTEGER NOT NULL,
@@ -118,6 +135,8 @@ function installClinicalRoutes(app, config, store, authenticated) {
     const input = z.object({ data: z.record(z.string(), z.unknown()), baseVersion: z.number().int().min(0).default(0) }).strict().parse(request.body);
     let data = { ...rule.schema.parse(input.data), id: request.params.id };
     if (Buffer.byteLength(JSON.stringify(data)) > MAX_RECORD) return response.status(413).json({ error: 'This record is too large' });
+    const problem = unsafeValue(data);
+    if (problem) return response.status(400).json({ error: problem });
     const actor = request.user, existing = store.db.prepare('SELECT * FROM clinical_records WHERE collection=? AND id=?').get(collection, request.params.id);
     const patientId = patientOf(store, collection, data);
     for (const person of peopleOf(collection, data)) if (!store.user(person) || store.user(person).status === 'deleted') return response.status(400).json({ error: 'A person named in this record does not exist' });
@@ -175,4 +194,4 @@ function patientRecords(config, store, patientId) {
   return out;
 }
 
-module.exports = { installClinicalRoutes, patientRecords, ensureClinicalTable, careTeam, COLLECTIONS };
+module.exports = { installClinicalRoutes, patientRecords, ensureClinicalTable, careTeam, unsafeValue, COLLECTIONS };

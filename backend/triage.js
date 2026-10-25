@@ -66,7 +66,7 @@ async function submitCase(config, store, patient, input, { ip = null, source = '
   const result = Triage.assess(Triage.merge(answers, ai.findings));
   const payload = {
     answers: result.answers, text: input.text || '', reasons: result.reasons, checkedNegative: result.checkedNegative, rulesVersion: result.rulesVersion,
-    rulesSummary: Triage.clinicianSummary(result, { text: input.text, health }), aiConsent: !!input.aiConsent, source,
+    rulesSummary: Triage.clinicianSummary(result, { text: input.text, health }), rulesSummaryFr: Triage.clinicianSummary(result, { text: input.text, health, language: 'fr' }), aiConsent: !!input.aiConsent, source,
     ...(ai.findings ? { findings: { complaints: ai.findings.complaints, dangerSigns: ai.findings.dangerSigns, language: ai.findings.language }, aiSummary: ai.findings.clinicianSummary, aiModel: ai.model } : { aiError: ai.error })
   };
   const id = randomUUID(), now = new Date().toISOString(), sealed = seal(config, `triage-case:${id}`, Buffer.from(JSON.stringify(payload)));
@@ -102,7 +102,7 @@ function installTriageRoutes(app, config, store, authenticated) {
     const payload = open(row), patient = store.user(row.patient_id);
     return {
       ...patientView(row), patientId: row.patient_id, patientName: patient?.name, hfaId: patient?.hfaId, text: payload.text,
-      rulesSummary: payload.rulesSummary, aiSummary: payload.aiSummary || null, aiModel: payload.aiModel || null,
+      rulesSummary: payload.rulesSummary, rulesSummaryFr: payload.rulesSummaryFr || null, aiSummary: payload.aiSummary || null, aiModel: payload.aiModel || null,
       checkedNegative: payload.checkedNegative, findings: payload.findings || null
     };
   };

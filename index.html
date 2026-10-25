@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>try{if(localStorage.getItem('hfa-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+<link rel="icon" href="assets/hfa-logo.svg" type="image/svg+xml">
 <title>HFA SilverStrong — Healthcare Telehealth Platform</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1116,7 +1117,7 @@ body{font-size:15px}
         <div class="fr"><div class="fg"><label class="fl" data-i18n="specialty">Specialty</label><select class="fc" id="rsp" required data-i18n-values><option value="" id="rsp-def">Select...</option><option value="General Medicine">General Medicine</option><option value="Family Medicine">Family Medicine</option><option value="Internal Medicine">Internal Medicine</option><option value="Emergency Medicine">Emergency Medicine</option><option value="Cardiology">Cardiology</option><option value="Endocrinology">Endocrinology</option><option value="Gastroenterology">Gastroenterology</option><option value="Nephrology">Nephrology</option><option value="Neurology">Neurology</option><option value="Oncology">Oncology</option><option value="Pediatrics">Pediatrics</option><option value="Geriatrics">Geriatrics</option><option value="Obstetrics and Gynecology">Obstetrics and Gynecology</option><option value="Dermatology">Dermatology</option><option value="Ophthalmology">Ophthalmology</option><option value="Otolaryngology (ENT)">Otolaryngology (ENT)</option><option value="Orthopedics">Orthopedics</option><option value="Urology">Urology</option><option value="General Surgery">General Surgery</option><option value="Anesthesiology">Anesthesiology</option><option value="Radiology">Radiology</option><option value="Pathology">Pathology</option><option value="Infectious Disease">Infectious Disease</option><option value="Pulmonology">Pulmonology</option><option value="Rheumatology">Rheumatology</option><option value="Physiotherapy">Physiotherapy</option><option value="Physical Medicine and Rehabilitation">Physical Medicine and Rehabilitation</option><option value="Psychiatry">Psychiatry</option><option value="Mental Health">Mental Health</option><option value="Clinical Psychology">Clinical Psychology</option><option value="Counseling Psychology">Counseling Psychology</option><option value="Behavioral Health">Behavioral Health</option><option value="Psychotherapy">Psychotherapy</option><option value="Public Health">Public Health</option></select></div><div class="fg"><label class="fl" data-i18n="license_no">License No.</label><input class="fc" type="text" id="rli" placeholder="CM-MED-YYYY-XXXX"></div></div>
         <div class="fr"><div class="fg"><label class="fl" data-i18n="hospital">Hospital / Clinic</label><input class="fc" type="text" id="rhd" placeholder="Institution name" data-i18n-ph="i_institution_ph" list="hfa-hospitals" autocomplete="organization"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
         <div class="fg"><label class="fl" for="rid-type-d" id="lbl-id-type-d">ID Document Type</label><select class="fc" id="rid-type-d" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option></select></div>
-        <div class="fg"><label class="fl" for="rid-d" id="lbl-id-doc-d">National ID Card or Passport</label><input class="fc" type="file" id="rid-d" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-d" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
+        <div class="fg"><label class="fl" for="rid-d" id="lbl-id-doc-d">National ID Card or Passport</label><input class="fc" type="file" id="rid-d" accept="application/pdf,image/png,image/jpeg,image/webp"><p class="mu sm" id="lbl-id-doc-ph-d" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
       </div>
       <div id="nf" class="hid">
         <div class="fr"><div class="fg"><label class="fl" data-i18n="department">Department</label><select class="fc" id="rde" data-i18n-values><option value="" id="rde-def">Select...</option><option value="Emergency Care">Emergency Care</option><option value="Pediatrics">Pediatrics</option><option value="ICU">ICU</option><option value="General Ward">General Ward</option><option value="Operating Room">Operating Room</option><option value="Outpatient">Outpatient</option><option value="Oncology">Oncology</option><option value="Maternity">Maternity</option></select></div><div class="fg"><label class="fl" data-i18n="i_nursing_specialty">Nursing Specialty</label><select class="fc" id="rns" required data-i18n-values><option value="" id="rns-def">Select...</option><option value="General Nursing">General Nursing</option><option value="Critical Care Nursing">Critical Care Nursing</option><option value="Emergency Nursing">Emergency Nursing</option><option value="Pediatric Nursing">Pediatric Nursing</option><option value="Neonatal Nursing">Neonatal Nursing</option><option value="Oncology Nursing">Oncology Nursing</option><option value="Surgical and Perioperative Nursing">Surgical and Perioperative Nursing</option><option value="Maternal and Midwifery Care">Maternal and Midwifery Care</option><option value="Psychiatric and Mental Health Nursing">Psychiatric and Mental Health Nursing</option><option value="Community and Public Health Nursing">Community and Public Health Nursing</option><option value="Geriatric Nursing">Geriatric Nursing</option><option value="Renal Nursing">Renal Nursing</option><option value="Cardiac Nursing">Cardiac Nursing</option><option value="Infection Prevention and Control">Infection Prevention and Control</option><option value="Nurse Anesthesia">Nurse Anesthesia</option><option value="Rehabilitation Nursing">Rehabilitation Nursing</option><option value="Occupational Health Nursing">Occupational Health Nursing</option></select></div></div>
@@ -1124,7 +1125,7 @@ body{font-size:15px}
         <div class="fg"><label class="fl" data-i18n="hospital">Hospital / Clinic</label><input class="fc" type="text" id="rhn" placeholder="Institution name" data-i18n-ph="i_institution_ph" list="hfa-hospitals" autocomplete="organization"></div>
         <div class="fg"><label class="fl" data-i18n="qualifications">Qualifications</label><input class="fc" type="text" id="rqu" placeholder="e.g. BSN, ICU Certified" data-i18n-ph="quals_ph"></div>
         <div class="fg"><label class="fl" for="rid-type-n" id="lbl-id-type-n">ID Document Type</label><select class="fc" id="rid-type-n" required><option value="">Select ID document type</option><option value="national_id">National ID Card</option><option value="passport">Passport</option></select></div>
-        <div class="fg"><label class="fl" for="rid-n" id="lbl-id-doc-n">National ID Card or Passport</label><input class="fc" type="file" id="rid-n" accept="image/*,.pdf"><p class="mu sm" id="lbl-id-doc-ph-n" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
+        <div class="fg"><label class="fl" for="rid-n" id="lbl-id-doc-n">National ID Card or Passport</label><input class="fc" type="file" id="rid-n" accept="application/pdf,image/png,image/jpeg,image/webp"><p class="mu sm" id="lbl-id-doc-ph-n" style="margin-top:4px">National ID card or passport (JPG, PNG, or PDF)</p></div>
       </div>
       <datalist id="hfa-hospitals"></datalist>
       <div id="pf"><div id="pwz" aria-live="polite"></div></div>
@@ -1849,7 +1850,7 @@ const T = {
     consent_registry_title:'Registre de consentement des patients', verify_title:'Vérification des cliniciens', manage_admins_btn:'Gérer les Administrateurs',
     safety_integrations:'Sécurité & Intégrations', fhir_title:'Échange clinique', med_safety_title:'Sécurité des médicaments', triage_title:'File d\'attente urgente', review_integrations_btn:'Vérifier les Intégrations',
     integrations_title:'Intégrations de la Plateforme', integrations_sub:'État de préparation des connexions pour les services cliniques en production',
-    demo_config_title:'État des intégrations', demo_config_desc:'Les connexions marquées « configuration requise » ne sont pas encore actives. Les dossiers cliniques, le triage et les exports fonctionnent sur le serveur HFA.'intégration requises. Aucun serveur FHIR réel, serveur de terminologie, coffre-fort de clés de chiffrement, fournisseur d\'identité ou service d\'urgence n\'est connecté par cette version statique.',
+    demo_config_title:'État des intégrations', demo_config_desc:'Les connexions marquées « configuration requise » ne sont pas encore actives. Les dossiers cliniques, le triage et les exports fonctionnent sur le serveur HFA.',
     triage_queue_title:'File d\'Attente Urgente', triage_queue_sub:'Examiner les demandes de triage soumises par les patients et documenter l\'escalade', no_open_triage:'Aucune demande de triage ouverte.', close_btn:'Fermer',
     safety_title:'Sécurité, Consentement & Vérification', safety_sub:'Examiner les signaux de sécurité clinique et les autorisations des patients',
     med_alerts_title:'Alertes de Sécurité des Médicaments', no_med_alerts:'Aucune alerte de sécurité des médicaments.', resolve_btn:'Résoudre', consent_registry:'Registre de Consentement',
@@ -2175,17 +2176,18 @@ function updateStaticHTML() {
 // HFA's contact address for compliance and data-protection questions (shown on the legal pages).
 const HFA_CONTACT_EMAIL = 'healthyfutureafrica@gmail.com';
 
+// Status of each outside connection, shown to administrators. Kept outside DB, whose lists are emptied at sign-out.
+const INTEGRATIONS = [
+  {id:'int1',name:'HL7 FHIR R4 export',purpose:'Patients download their record; GET /api/v1/me/fhir',status:'connected',environment:'production'},
+  {id:'int2',name:'Terminology service',purpose:'ICD-11, SNOMED CT, LOINC validation',status:'configuration required',environment:'production'},
+  {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'production'},
+];
+
 // Clinical data comes only from real accounts on the HFA server (see clinical-sync.js); nothing is built in.
 const DB = {
   users: [], appointments: [], messages: [], auditLogs: [], careNotes: [], doctorReports: [], carePlans: [], triageCases: [],
   labResults: [], notifications: [], specialistReferrals: [], reviews: [], fhAnalytics: [], clinicianVerifications: [], consents: [],
   medicationSafetyAlerts: [],
-  // Status of each outside connection, shown to administrators.
-  integrations: [
-    {id:'int1',name:'HL7 FHIR R4 export',purpose:'Patients download their record; GET /api/v1/me/fhir',status:'connected',environment:'production'},
-    {id:'int2',name:'Terminology service',purpose:'ICD-11, SNOMED CT, LOINC validation',status:'configuration required',environment:'production'},
-    {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'production'},
-  ],
   subscriptions: [], homeVisits: [], payments: [], whatsappAlerts: [], medicalDocuments: [],
 };
 
@@ -3450,13 +3452,13 @@ function renderAdminControl(pc) {
   pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('admin_control_title')}</h2><p>${t('admin_control_sub')}</p></div>
     <div class="stats"><div class="sc ce"><div class="sv">${DB.users.filter(u=>u.role==='admin'&&u.status==='active').length}</div><div class="sl">${t('active_admins')}</div></div><div class="sc cb"><div class="sv">${verified}</div><div class="sl">${t('verified_clinicians')}</div></div><div class="sc cr"><div class="sv">${openAlerts}</div><div class="sl">${t('open_safety_alerts')}</div></div><div class="sc cg"><div class="sv">${activeConsents}</div><div class="sl">${t('active_consents')}</div></div></div>
     <div class="g2"><div class="card"><div class="ch"><div class="ct">${t('access_governance')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">RBAC</code><div><strong>${t('rbac_title')}</strong><span>${t('rbac_desc')}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_consent')}</code><div><strong>${t('consent_registry_title')}</strong><span>${tfmt('i_consent_records',{n:activeConsents})}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_verify')}</code><div><strong>${t('verify_title')}</strong><span>${tfmt('i_verified_records',{n:verified})}</span></div></div></div><button class="btn bp bsm w100 mt8" onclick="navigate('mgr-a')">${t('manage_admins_btn')}</button></div>
-      <div class="card"><div class="ch"><div class="ct">${t('safety_integrations')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">FHIR R4</code><div><strong>${t('fhir_title')}</strong><span>${tfmt('i_config_status',{status:tv(DB.integrations[0].status)})}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_med_safe')}</code><div><strong>${t('med_safety_title')}</strong><span>${tfmt('i_open_alerts',{n:openAlerts})}</span></div></div><div class="code-item"><code class="code-chip">TRIAGE</code><div><strong>${t('triage_title')}</strong><span>${tfmt('i_triage_requests',{n:DB.triageCases.filter(c=>c.status!=='closed').length})}</span></div></div></div><button class="btn bgh bsm w100 mt8" onclick="navigate('integrations')">${t('review_integrations_btn')}</button></div></div>
+      <div class="card"><div class="ch"><div class="ct">${t('safety_integrations')}</div></div><div class="code-list"><div class="code-item"><code class="code-chip">FHIR R4</code><div><strong>${t('fhir_title')}</strong><span>${tfmt('i_config_status',{status:tv(INTEGRATIONS[0].status)})}</span></div></div><div class="code-item"><code class="code-chip">${t('i_chip_med_safe')}</code><div><strong>${t('med_safety_title')}</strong><span>${tfmt('i_open_alerts',{n:openAlerts})}</span></div></div><div class="code-item"><code class="code-chip">TRIAGE</code><div><strong>${t('triage_title')}</strong><span>${tfmt('i_triage_requests',{n:DB.triageCases.filter(c=>c.status!=='closed').length})}</span></div></div></div><button class="btn bgh bsm w100 mt8" onclick="navigate('integrations')">${t('review_integrations_btn')}</button></div></div>
   </div>`;
 }
 
 function renderIntegrations(pc) {
   $('tbt').textContent=t('integrations_title');
-  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('integrations_title')}</h2><p>${t('integrations_sub')}</p></div><div class="card"><div class="code-list">${DB.integrations.map(item=>`<div class="code-item"><code class="code-chip">${tv(item.name)}</code><div style="flex:1"><strong>${tv(item.purpose)}</strong><span>${tfmt('i_env_status',{env:tv(item.environment),status:tv(item.status)})}</span></div><span class="badge ${item.status==='connected'?'bsu':'bwa'}">${tv(item.status)}</span></div>`).join('')}</div><div class="safety-banner mt18"><div>i</div><div><strong>${t('demo_config_title')}</strong><p>${t('demo_config_desc')}</p></div></div></div></div>`;
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('integrations_title')}</h2><p>${t('integrations_sub')}</p></div><div class="card"><div class="code-list">${INTEGRATIONS.map(item=>`<div class="code-item"><code class="code-chip">${tv(item.name)}</code><div style="flex:1"><strong>${tv(item.purpose)}</strong><span>${tfmt('i_env_status',{env:tv(item.environment),status:tv(item.status)})}</span></div><span class="badge ${item.status==='connected'?'bsu':'bwa'}">${tv(item.status)}</span></div>`).join('')}</div><div class="safety-banner mt18"><div>i</div><div><strong>${t('demo_config_title')}</strong><p>${t('demo_config_desc')}</p></div></div></div></div>`;
 }
 
 function renderTriageQueue(pc) {
@@ -3750,7 +3752,7 @@ function idVerificationCard() {
 function showIdUpload() {
   openMo(`<div class="mh"><div class="mt2">${t('id_verification_title')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div class="fg"><label class="fl" for="pf-id-type">${t('id_type_label')}</label><select class="fc" id="pf-id-type" required>${idDocumentTypeOptions(CU.idDocumentType)}</select></div>
-    <div class="fg"><label class="fl" for="pf-id">${t('id_document_label')}</label><input class="fc" type="file" id="pf-id" accept="image/*,.pdf"><p class="mu sm" style="margin-top:4px">${t('id_document_ph')}</p></div>
+    <div class="fg"><label class="fl" for="pf-id">${t('id_document_label')}</label><input class="fc" type="file" id="pf-id" accept="application/pdf,image/png,image/jpeg,image/webp"><p class="mu sm" style="margin-top:4px">${t('id_document_ph')}</p></div>
     <div id="pf-id-status" class="mu sm" role="alert"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveIdUpload()">${t('upload_id_document')}</button></div>`);
 }
@@ -4120,7 +4122,7 @@ function showLabUpload() {
     <div class="fg"><label class="fl">${t('tag_patient')}</label><select class="fc" id="lr-patient"><option value="">${t('select')}</option>${patients.map(p=>`<option value="${p.id}">${hx(p.name)} · ${p.hfaId||''}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">${t('tag_specialist')}</label><select class="fc" id="lr-specialist"><option value="">${t('select')}</option>${specialists.map(d=>`<option value="${d.id}">${hx(d.name)} — ${tv(d.specialty)}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">${t('test_type')}</label><input class="fc" id="lr-test" placeholder="${t('i_lab_test_ph')}"></div>
-    <div class="fg"><label class="fl">${t('lab_result_file')}</label><input class="fc" type="file" id="lr-file" accept="image/*,.pdf"></div>
+    <div class="fg"><label class="fl">${t('lab_result_file')}</label><input class="fc" type="file" id="lr-file" accept="application/pdf,image/png,image/jpeg,image/webp"></div>
     <div class="fg"><label class="fl">${t('lab_result_notes')}</label><textarea class="fc" id="lr-notes" placeholder="${t('lab_result_notes_ph')}"></textarea></div>
     <div id="lr-status" class="mu sm"></div>
     <div class="mf"><button class="btn bs" onclick="closeMo()">${t('cancel')}</button><button class="btn bp" onclick="saveLabResult()">${t('upload_lab_result')}</button></div>`);
@@ -4731,7 +4733,7 @@ function showUploadDocument() {
       <option value="${t('document_category_prescription')}">${t('document_category_prescription')}</option>
       <option value="${t('document_category_other')}">${t('document_category_other')}</option>
     </select></div>
-    <div class="fg"><label class="fl">${t('document_file')}</label><input class="fc" type="file" id="ud-file" accept="image/*,.pdf" multiple></div>
+    <div class="fg"><label class="fl">${t('document_file')}</label><input class="fc" type="file" id="ud-file" accept="application/pdf,image/png,image/jpeg,image/webp" multiple></div>
     ${myApts.length?`<div class="fg"><label class="fl">${t('document_related_apt')}</label><select class="fc" id="ud-apt"><option value="">${t('none_lbl')}</option>${myApts.map(a=>`<option value="${a.id}">${a.date} · ${tv(a.serviceName||a.type)}</option>`).join('')}</select></div>`:''}
     <div class="fg"><label class="fl">${t('document_notes')}</label><textarea class="fc" id="ud-notes" placeholder="${t('document_notes_ph')}"></textarea></div>
     <div id="ud-status" class="mu sm"></div>

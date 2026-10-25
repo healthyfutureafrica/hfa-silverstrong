@@ -36,6 +36,14 @@ test('clinical records are shared between patient and care team on any device, w
     const put = (cookie, collection, id, data, baseVersion = 0) => app.request(`/api/v1/clinical/${collection}/${id}`, { data, baseVersion }, cookie);
     const list = async cookie => (await (await app.request('/api/v1/clinical', undefined, cookie)).json()).data.records;
 
+    // Nothing that a screen could run is accepted: markup in short fields, or a script link instead of a file.
+    const base = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: '2026-11-02', time: '09:30', status: 'scheduled', mode: 'video' };
+    assert.equal((await put(patientCookie, 'appointments', 'apt-xss', { ...base, status: '<img src=x onerror=alert(1)>' })).status, 400);
+    assert.equal((await put(patientCookie, 'appointments', 'apt-xss', { ...base, type: 'consultation"><script>' })).status, 400);
+    assert.equal((await put(patientCookie, 'medicalDocuments', 'doc-xss', { patientId: patient.id, uploadedBy: patient.id, fileName: 'x.pdf', fileData: 'javascript:alert(1)' })).status, 400);
+    assert.equal((await put(patientCookie, 'medicalDocuments', 'doc-ok', { patientId: patient.id, uploadedBy: patient.id, fileName: 'x.pdf', category: 'Prescription', fileData: 'data:application/pdf;base64,JVBERi0=' })).status, 201);
+    assert.equal((await put(patientCookie, 'appointments', 'apt-notes', { ...base, notes: 'Temp > 38 since Monday, BP<120' })).status, 201, 'clinical free text keeps its symbols');
+
     // The patient books on their phone; the doctor sees it on another device.
     const appointment = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: '2026-11-02', time: '09:30', status: 'scheduled', notes: 'Cough for a week', mode: 'video' };
     assert.equal((await put(patientCookie, 'appointments', 'apt-1', appointment)).status, 201);

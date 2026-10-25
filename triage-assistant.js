@@ -215,7 +215,7 @@
         status(`<div class="alt ao" role="status">${raised ? esc(t('st_updated')) + ' ' : ''}${esc(t('st_sent'))}${response.data.aiUsed ? ' ' + esc(t('st_ai_used')) : ''}</div>`);
       } else {
         const item = { id: 'tr' + Date.now(), patientId: CU.id, level: local.level, priority: local.level, status: 'awaiting_review', answers: local.answers, reasons: local.reasons,
-          checkedNegative: local.checkedNegative, rulesVersion: local.rulesVersion, text: submitted.text.trim(), rulesSummary: TR.clinicianSummary(local, { text: submitted.text.trim(), health: CU.healthProfile }),
+          checkedNegative: local.checkedNegative, rulesVersion: local.rulesVersion, text: submitted.text.trim(), rulesSummary: TR.clinicianSummary(local, { text: submitted.text.trim(), health: CU.healthProfile }), rulesSummaryFr: TR.clinicianSummary(local, { text: submitted.text.trim(), health: CU.healthProfile, language: 'fr' }),
           symptoms: [...local.answers.complaints.map(item => L('c_' + item)), submitted.text.trim()].filter(Boolean).join(', '), location: '', createdAt: new Date().toISOString() };
         DB.triageCases.unshift(item);
         for (const clinicianId of [CU.assignedDoctor, CU.assignedNurse].filter(Boolean)) if (typeof notifyUser === 'function') notifyUser(clinicianId, local.level === 'emergency' ? 'Emergency triage needs your review now.' : 'A new symptom check needs your review.', 'Urgent Care');
@@ -285,9 +285,9 @@
     return `<div class="card mb18 tq-case tq-${esc(item.finalLevel || item.level)}"><div class="ch" style="flex-wrap:wrap;gap:8px"><div><div class="ct">${esc(item.patientName || '—')} <code class="code-chip">${esc(item.hfaId || '')}</code></div>
       <div class="mu sm">${esc(tf('tq_since', { time: ago(item.createdAt) }))} · ${esc(L('age_' + item.answers?.ageGroup))}${item.answers?.forSomeoneElse ? ' · ' + esc(t('st_who_other')) : ''}</div></div>
       <div>${esc(t('tq_suggested'))}: ${levelBadge(item.level)}${item.finalLevel ? ` · ${esc(t('tq_final'))}: ${levelBadge(item.finalLevel)}` : ''}</div></div>
-      <ul class="st-reasons">${(item.reasons || []).map(reason => `<li>${esc(TR.reasonText(reason, LANG))} <span class="mu sm">(${esc(reason.source)})</span></li>`).join('')}</ul>
+      <ul class="st-reasons">${(item.reasons || []).map(reason => `<li>${esc(TR.reasonText(reason, LANG))} <span class="mu sm">(${esc(TR.sourceLabel(reason.source, LANG))})</span></li>`).join('')}</ul>
       ${item.aiSummary ? `<div class="sm"><strong>🤖 ${esc(t('tq_ai_draft'))}</strong><div class="st-ai-box">${esc(item.aiSummary)}</div></div>` : ''}
-      <details ${item.aiSummary ? '' : 'open'}><summary class="sm">${esc(t('tq_rules_summary'))}</summary><div class="st-pre">${esc(item.rulesSummary || '')}</div></details>
+      <details ${item.aiSummary ? '' : 'open'}><summary class="sm">${esc(t('tq_rules_summary'))}</summary><div class="st-pre">${esc((LANG === 'fr' && item.rulesSummaryFr) || item.rulesSummary || '')}</div></details>
       ${open ? `<div class="mt8"><div class="fg"><label class="fl" for="tq-note-${id}">${esc(t('tq_note'))}</label><textarea class="fc" id="tq-note-${id}" rows="2" maxlength="1000" placeholder="${esc(t('tq_note_ph'))}"></textarea></div>
         <div class="pc-actions"><button type="button" class="btn bp" data-confirm="${id}">${esc(tf('tq_confirm', { level: L('level_' + item.level) }))}</button>
         <select class="fc" id="tq-level-${id}" style="max-width:240px" aria-label="${esc(t('tq_change'))}">${TR.LEVELS.slice().reverse().filter(level => level !== item.level).map(level => `<option value="${level}">${esc(L('level_' + level))}</option>`).join('')}</select>

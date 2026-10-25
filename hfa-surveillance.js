@@ -96,10 +96,17 @@
     return { signals, weekly: rows, counted, unknownPlace };
   }
 
+  /** The rule that raised a signal, in English or French. */
+  function ruleText(signal, language = 'en') {
+    const fr = language === 'fr';
+    if (signal.level === 'alert') return fr ? `${SYNDROMES[signal.syndrome].min} cas ou plus dans un même département en 7 jours` : `${SYNDROMES[signal.syndrome].min}+ cases in one division within 7 days`;
+    return fr ? 'Nombre inhabituellement élevé cette semaine par rapport aux 4 semaines précédentes (Poisson p < 0,01)' : 'Unusually high this week compared with the previous 4 weeks (Poisson p < 0.01)';
+  }
+
   /** Weekly aggregate as CSV (DHIS2-style data values: period, org unit, data element, value). */
   function toCsv(weekly) {
     return ['period,region,syndrome,value', ...weekly.map(row => [row.week, row.region, row.syndrome, row.count].join(','))].join('\n');
   }
 
-  return { SYNDROMES, SMALL_CELL, syndromesOf, poissonTail, analyse, toCsv, isoWeek };
+  return { SYNDROMES, SMALL_CELL, syndromesOf, poissonTail, analyse, toCsv, isoWeek, ruleText };
 });

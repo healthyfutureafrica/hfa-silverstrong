@@ -199,6 +199,45 @@
       crisis: 'Si vous pensez à mettre fin à votre vie, vous n’êtes pas seul. Restez avec une personne de confiance et appelez maintenant le {number}.'
     }
   };
+  // French names of the rule sources (WHO guidance and clinical reasons) shown with each result.
+  const SOURCE_FR = {
+    'WHO IMCI young infant': 'OMS PCIME jeune nourrisson',
+    'WHO IMCI general danger sign': 'OMS PCIME signe général de danger',
+    'WHO danger sign in pregnancy': 'OMS signe de danger pendant la grossesse',
+    'Emergency red flag': 'Signe d’alerte d’urgence',
+    'Sickle cell: fever can mean serious infection': 'Drépanocytose : la fièvre peut signaler une infection grave',
+    'WHO malaria guidance: test suspected malaria the same day': 'OMS paludisme : tester un paludisme suspect le jour même',
+    'WHO IMCI: assess dehydration': 'OMS PCIME : évaluer la déshydratation',
+    'Diabetes: risk of dangerous blood sugar': 'Diabète : risque de glycémie dangereuse',
+    'WHO antenatal and postnatal care': 'OMS soins prénatals et postnatals',
+    'Older adults can become seriously ill quickly': 'Les personnes âgées peuvent s’aggraver très vite',
+    'Patient reports severe symptoms': 'Le patient signale des symptômes forts',
+    'Abdominal pain needs examination': 'Une douleur abdominale doit être examinée',
+    'Injury needs examination': 'Une blessure doit être examinée',
+    'WHO: cough of 2 weeks or more needs a TB test': 'OMS : une toux de 2 semaines ou plus nécessite un test de tuberculose',
+    'WHO mhGAP: offer support and follow-up': 'OMS mhGAP : proposer soutien et suivi',
+    'Lasting problems need a consultation': 'Un problème durable nécessite une consultation',
+    'Mild, recent, low-risk problem': 'Problème léger, récent et à faible risque',
+    'Default: a clinician should see every other problem': 'Par défaut : un soignant doit voir tout autre problème',
+    'WHO IMCI': 'OMS PCIME',
+    'WHO danger signs in pregnancy': 'OMS signes de danger pendant la grossesse',
+    'Adult emergency red flag': 'Signe d’alerte d’urgence chez l’adulte',
+    'WHO malaria guidance': 'OMS recommandations paludisme',
+    'WHO TB screening': 'OMS dépistage de la tuberculose',
+    'WHO cholera guidance': 'OMS recommandations choléra',
+    'Children are not offered self-care': 'Pas de soins à domicile proposés aux enfants',
+    'WHO mhGAP': 'OMS mhGAP',
+    'WHO meningitis guidance': 'OMS recommandations méningite',
+    'Sickle cell fever is a medical emergency': 'La fièvre chez le drépanocytaire est une urgence médicale',
+    'Diabetes sick-day guidance': 'Diabète : conduite à tenir en cas de maladie',
+    'Clinical examination needed': 'Examen clinique nécessaire',
+    'WHO IDSR bloody diarrhoea': 'OMS SIMR diarrhée sanglante',
+    'Primary care': 'Soins primaires',
+    'Self-care': 'Soins à domicile',
+    'Older adults are not offered self-care': 'Pas de soins à domicile proposés aux personnes âgées',
+    'WHO postnatal care': 'OMS soins postnatals'
+  };
+  const sourceLabel = (source, language = 'en') => language === 'fr' ? SOURCE_FR[source] || source : source;
   const label = (key, language = 'en') => (L[language] || L.en)[key] || L.en[key] || key;
   /** The sentence explaining one rule that fired. */
   function reasonText(reason, language = 'en') {
@@ -210,20 +249,21 @@
   function clinicianSummary(result, { text = '', health = null, language = 'en' } = {}) {
     const a = result.answers, out = [];
     out.push(`${label('age_' + a.ageGroup, language)}${a.maternal !== 'no' ? `, ${label('maternal_' + a.maternal, language).toLowerCase()}` : ''}.`);
-    if (a.complaints.length) out.push(`${language === 'fr' ? 'Problèmes' : 'Problems'}: ${a.complaints.map(item => label('c_' + item, language).toLowerCase()).join(', ')}${a.duration ? ` — ${label('d_' + a.duration, language).toLowerCase()}` : ''}${a.severity ? `; ${label('s_' + a.severity, language).split(' — ')[0].toLowerCase()}` : ''}.`);
-    out.push(a.dangerSigns.length ? `${language === 'fr' ? 'Signes de danger signalés' : 'Danger signs reported'}: ${a.dangerSigns.map(sign => label('sign_' + sign, language)).join('; ')}.`
+    if (a.complaints.length) out.push(`${language === 'fr' ? 'Problèmes :' : 'Problems:'} ${a.complaints.map(item => label('c_' + item, language).toLowerCase()).join(', ')}${a.duration ? ` — ${label('d_' + a.duration, language).toLowerCase()}` : ''}${a.severity ? `${language === 'fr' ? ' ;' : ';'} ${label('s_' + a.severity, language).split(' — ')[0].toLowerCase()}` : ''}.`);
+    out.push(a.dangerSigns.length ? `${language === 'fr' ? 'Signes de danger signalés :' : 'Danger signs reported:'} ${a.dangerSigns.map(sign => label('sign_' + sign, language)).join('; ')}.`
       : `${language === 'fr' ? 'Aucun des' : 'None of the'} ${result.checkedNegative.length} ${language === 'fr' ? 'signes de danger demandés' : 'danger signs asked about'}.`);
     const medical = health?.medical;
     if (medical) {
-      const allergies = (medical.drugAllergies || []).map(item => `${item.name} (${item.severity})`);
-      if (allergies.length) out.push(`${language === 'fr' ? 'Allergies' : 'Allergies'}: ${allergies.join(', ')}.`);
-      if (medical.conditions?.length) out.push(`${language === 'fr' ? 'Affections déclarées' : 'Reported conditions'}: ${medical.conditions.join(', ').replace(/_/g, ' ')}.`);
-      if (medical.medications?.length) out.push(`${language === 'fr' ? 'Médicaments' : 'Medicines'}: ${medical.medications.map(item => [item.name, item.dose].filter(Boolean).join(' ')).join(', ')}.`);
+      const severity = { mild: ['mild', 'légère'], moderate: ['moderate', 'modérée'], severe: ['severe', 'sévère'], anaphylaxis: ['anaphylaxis', 'anaphylaxie'] };
+      const allergies = (medical.drugAllergies || []).map(item => `${item.name} (${(severity[item.severity] || [item.severity, item.severity])[language === 'fr' ? 1 : 0]})`);
+      if (allergies.length) out.push(`${language === 'fr' ? 'Allergies :' : 'Allergies:'} ${allergies.join(', ')}.`);
+      if (medical.conditions?.length) out.push(`${language === 'fr' ? 'Affections déclarées :' : 'Reported conditions:'} ${medical.conditions.join(', ').replace(/_/g, ' ')}.`);
+      if (medical.medications?.length) out.push(`${language === 'fr' ? 'Médicaments :' : 'Medicines:'} ${medical.medications.map(item => [item.name, item.dose].filter(Boolean).join(' ')).join(', ')}.`);
     }
-    if (text) out.push(`${language === 'fr' ? 'Mots du patient' : "Patient's words"}: “${String(text).slice(0, 600)}”`);
-    out.push(`${language === 'fr' ? 'Règles' : 'Rules'} ${result.rulesVersion}: ${label('level_' + result.level, language)} — ${result.reasons.map(reason => reasonText(reason, language)).join(' ')}`);
+    if (text) out.push(language === 'fr' ? `Mots du patient : « ${String(text).slice(0, 600)} »` : `Patient's words: “${String(text).slice(0, 600)}”`);
+    out.push(`${language === 'fr' ? 'Règles' : 'Rules'} ${result.rulesVersion}${language === 'fr' ? ' :' : ':'} ${label('level_' + result.level, language)} — ${result.reasons.map(reason => reasonText(reason, language)).join(' ')}`);
     return out.join('\n');
   }
 
-  return { RULES_VERSION, EMERGENCY_NUMBER, LEVELS, AGE_GROUPS, COMPLAINTS, DURATIONS, SEVERITIES, MATERNAL, SIGNS, ALL_SIGNS, URGENT_SIGNS, rank, signsFor, asksMaternal, normalise, assess, merge, label, reasonText, clinicianSummary };
+  return { sourceLabel, SOURCE_FR, RULES_VERSION, EMERGENCY_NUMBER, LEVELS, AGE_GROUPS, COMPLAINTS, DURATIONS, SEVERITIES, MATERNAL, SIGNS, ALL_SIGNS, URGENT_SIGNS, rank, signsFor, asksMaternal, normalise, assess, merge, label, reasonText, clinicianSummary };
 });

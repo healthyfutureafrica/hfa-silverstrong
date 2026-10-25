@@ -57,6 +57,53 @@
     v('oa-headache', 'Man of 70 with a mild headache today', { ageGroup: 'older_adult', complaints: ['headache'], duration: 'hours', severity: 'mild' }, 'routine', 'Older adults are not offered self-care')
   ];
 
+  const TITLES_FR = {
+    'yi-fever': 'Bébé de 3 semaines au corps chaud',
+    'yi-feeding': 'Bébé de 5 semaines qui tète mal',
+    'yi-jaundice': 'Bébé de 10 jours aux plantes des pieds jaunes',
+    'ch-drink': 'Enfant de 2 ans avec fièvre qui ne peut pas boire',
+    'ch-convulse': 'Enfant de 3 ans qui a convulsé',
+    'ch-indrawing': 'Enfant de 1 an qui tousse avec tirage sous-costal',
+    'ch-lethargic': 'Enfant de 4 ans anormalement endormi, avec diarrhée',
+    'ch-dehydrated': 'Enfant de 2 ans avec diarrhée et yeux enfoncés',
+    'ch-fever': 'Enfant de 3 ans avec fièvre depuis 2 jours, boit bien',
+    'ch-diarrhoea': 'Enfant de 2 ans avec diarrhée depuis ce matin',
+    'ch-awd': 'Enfant de 4 ans avec selles très liquides abondantes',
+    'oc-rash': 'Enfant de 8 ans avec fièvre et éruption',
+    'oc-headache': 'Enfant de 10 ans avec un léger mal de tête aujourd’hui',
+    'ad-chest': 'Homme de 50 ans avec douleur thoracique',
+    'ad-stroke': 'Femme de 60 ans au visage soudain affaissé',
+    'ad-anaphylaxis': 'Lèvres gonflées après une injection',
+    'ad-suicidal': 'Adulte qui pense à mettre fin à sa vie',
+    'ad-poison': 'Adulte ayant avalé un pesticide',
+    'ad-bleeding': 'Plaie profonde qui saigne beaucoup',
+    'ad-breathing': 'Adulte qui ne peut pas finir une phrase',
+    'ad-meningitis': 'Fièvre et raideur de la nuque',
+    'ad-sickle': 'Adulte drépanocytaire avec fièvre',
+    'ad-fever': 'Adulte avec fièvre depuis 2 jours',
+    'ad-diabetes': 'Adulte diabétique qui vomit',
+    'ad-abdomen': 'Mal au ventre empêchant de travailler',
+    'ad-injury': 'Cheville enflée et douloureuse après une chute',
+    'ad-blood-stool': 'Adulte avec du sang dans les selles',
+    'ad-cough-tb': 'Toux depuis 3 semaines',
+    'ad-urinary': 'Brûlures en urinant depuis 4 jours',
+    'ad-mental': 'Tristesse et stress, sans idée de se faire du mal',
+    'ad-headache': 'Adulte en bonne santé avec un léger mal de tête aujourd’hui',
+    'ad-rash': 'Adulte en bonne santé avec de légères démangeaisons depuis hier',
+    'ad-cold': 'Adulte en bonne santé avec une légère toux aujourd’hui',
+    'pr-bleeding': 'Femme enceinte avec saignement vaginal',
+    'pr-preeclampsia': 'Femme enceinte avec mal de tête violent et vision floue',
+    'pr-movement': 'Femme enceinte dont le bébé bouge moins',
+    'pr-waters': 'Femme enceinte perdant du liquide avant le travail',
+    'pr-fever': 'Femme enceinte avec fièvre',
+    'pr-headache': 'Femme enceinte avec un léger mal de tête',
+    'pp-fever': 'Femme avec fièvre 2 semaines après l’accouchement',
+    'oa-fever': 'Homme de 72 ans avec fièvre',
+    'oa-confusion': 'Femme de 80 ans nouvellement confuse',
+    'oa-headache': 'Homme de 70 ans avec un léger mal de tête aujourd’hui'
+  };
+  const title = (item, language = 'en') => language === 'fr' ? TITLES_FR[item.id] || item.title : item.title;
+
   /** Runs every vignette through the rules and reports the safety metrics. */
   function evaluate(Triage) {
     const results = VIGNETTES.map(item => {
@@ -74,5 +121,5 @@
     };
   }
 
-  return { VIGNETTES, evaluate };
+  return { VIGNETTES, evaluate, title, TITLES_FR };
 });

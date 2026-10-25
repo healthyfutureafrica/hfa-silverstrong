@@ -10,6 +10,14 @@ describe('index.html sanity checks', () => {
     content = fs.readFileSync(indexPath, 'utf8');
   });
 
+  test('every script in the page and every site script file is valid JavaScript', () => {
+    const inline = [...content.matchAll(/<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/g)].map(match => match[1]);
+    expect(inline.length).toBeGreaterThan(0);
+    inline.forEach(code => expect(() => new Function(code)).not.toThrow());
+    for (const file of [...content.matchAll(/<script src="([^"]+)"/g)].map(match => match[1]))
+      expect(() => new Function(fs.readFileSync(path.join(__dirname, '..', file), 'utf8'))).not.toThrow();
+  });
+
   test('file exists and is not empty', () => {
     expect(content).toBeTruthy();
     expect(content.length).toBeGreaterThan(0);
@@ -1127,7 +1135,7 @@ describe('index.html sanity checks', () => {
   test('uses the HFA logo asset across the app', () => {
     expect(fs.existsSync(path.join(__dirname, '..', 'assets', 'hfa-logo.svg'))).toBe(true);
     // The HFA logo is for HFA's own branding only; portals use their own icons.
-    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(4);
+    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(5); // includes the favicon
     expect(content).not.toMatch(/id="lnd-pharmacist-card"[^]*?hfa-logo\.svg[^]*?id="lnd-pharmacist-title"/);
     expect(content).toContain('alt="HFA SilverStrong logo"');
   });

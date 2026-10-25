@@ -226,6 +226,7 @@ test('old demo accounts are retired at startup, real accounts with the same addr
   const { DEMO_ACCOUNTS } = require('../retire-demo-accounts');
   const older=DEMO_ACCOUNTS.find(account=>account.role==='nurse');
   const oldDemo=store.createUser({name:older.name,email:older.email,role:older.role},await hashPassword('Some-old-demo-pass'),'active');
+  store.db.prepare('UPDATE users SET created_at=? WHERE id=?').run('2026-10-01T08:00:00.000Z',oldDemo.id); // created by an earlier version
   // Same name, role and address but registered after demo accounts were removed: a real person, kept.
   const later=DEMO_ACCOUNTS.find(account=>account.role==='pharmacist');
   const laterUser=store.createUser({name:later.name,email:later.email,role:later.role},await hashPassword('Real-pharmacist-pass-1'),'active');

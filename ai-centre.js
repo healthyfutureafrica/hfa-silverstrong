@@ -100,7 +100,7 @@
         <div class="stats mt8">${tile(evaluation.total, t('aic_cases'))}${tile(evaluation.exact, t('aic_exact'))}${tile(evaluation.underTriage.length, t('aic_under'), evaluation.underTriage.length ? 'var(--dg)' : 'var(--em)')}${tile(percent(evaluation.emergencySensitivity), t('aic_sensitivity'), 'var(--em)')}${tile(evaluation.overTriage.length, t('aic_over'))}</div>
         <p class="mu sm mt8">${esc(t('aic_eval_caveat'))}</p>
         <details class="mt8"><summary class="sm">${esc(t('aic_show_cases'))}</summary><div class="tw"><table><thead><tr><th>${esc(t('aic_cases'))}</th><th>${esc(t('aic_expected'))}</th><th>${esc(t('aic_got'))}</th><th>${esc(t('aic_source'))}</th></tr></thead><tbody>
-          ${evaluation.results.map(item => `<tr><td>${esc(item.title)}</td><td>${esc(TR.label('level_' + item.expected, LANG))}</td><td>${item.outcome === 'exact' ? '✅' : item.outcome === 'under' ? '❌' : '⬆️'} ${esc(TR.label('level_' + item.got, LANG))}</td><td class="mu sm">${esc(item.source)}</td></tr>`).join('')}</tbody></table></div></details></div>
+          ${evaluation.results.map(item => `<tr><td>${esc(EV.title(item, LANG))}</td><td>${esc(TR.label('level_' + item.expected, LANG))}</td><td>${item.outcome === 'exact' ? '✅' : item.outcome === 'under' ? '❌' : '⬆️'} ${esc(TR.label('level_' + item.got, LANG))}</td><td class="mu sm">${esc(TR.sourceLabel(item.source, LANG))}</td></tr>`).join('')}</tbody></table></div></details></div>
       ${staff() ? `<div class="card mb18"><div class="ch"><div class="ct">📊 ${esc(t('aic_monitor'))}</div></div><div id="aic-metrics"><p class="mu sm">…</p></div></div>
       <div class="card mb18"><div class="ch"><div class="ct">📈 ${esc(t('aic_outbreak'))}</div></div><p class="mu sm">${esc(t('aic_outbreak_intro'))}</p><div id="aic-outbreak"><p class="mu sm">…</p></div></div>` : ''}
       <div class="card mb18"><div class="ch"><div class="ct">🌍 ${esc(t('aic_principles'))}</div></div><div class="legal-grid">${PRINCIPLES.map(([title, text]) => `<div class="legal-card"><span class="legal-badge">WHO</span><h3>${esc(lang(title))}</h3><p>${esc(lang(text))}</p></div>`).join('')}</div></div>
@@ -145,7 +145,7 @@
       if (!box.isConnected) return;
       const place = signal => [signal.division, signal.region === 'unknown' ? '—' : signal.region.replace(/_/g, ' ')].filter(Boolean).join(', ');
       box.innerHTML = `        ${data.signals.length ? data.signals.map(signal => `<div class="pc-row"><div><strong>${esc(lang(SV.SYNDROMES[signal.syndrome].label))}</strong> · ${esc(place(signal))}
-          <div class="mu sm">${esc(tf('aic_signal_count', { current: signal.current, baseline: signal.baselinePerWeek.toFixed(1) }))} · ${esc(signal.rule)}</div>
+          <div class="mu sm">${esc(tf('aic_signal_count', { current: signal.current, baseline: signal.baselinePerWeek.toFixed(1) }))} · ${esc(SV.ruleText(signal, LANG))}</div>
           <div class="sm">${esc(lang(SV.SYNDROMES[signal.syndrome].action))}</div></div>
           <span class="badge ${signal.level === 'alert' ? 'bda' : 'bwa'}">${esc(t(signal.level === 'alert' ? 'aic_alert' : 'aic_watch'))}</span></div>`).join('') : `<p class="mu sm">${esc(t('aic_no_signals'))}</p>`}
         <p class="mu sm mt8">${esc(tf('aic_counted', { counted: data.counted, unknown: data.unknownPlace }))}</p>
