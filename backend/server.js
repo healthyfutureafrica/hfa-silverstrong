@@ -28,6 +28,8 @@ const { installDoctorPhotoRoutes } = require('./doctor-photos');
 const { installHubStats } = require('./hub-stats');
 const { installGovernanceRoutes } = require('./governance');
 const { installNurseWorkforceRoutes, recordApplication, nurseApplication } = require('./nurse-workforce');
+const { installEarningsRoutes } = require('./earnings');
+const { createPayoutProvider } = require('./payouts');
 const { passwordProblem } = require('./account-security');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
@@ -163,6 +165,8 @@ function createApp(config, store, provider) {
   installPrivacyRoutes(app,config,store,authenticated,admin);
   installGovernanceRoutes(app,config,store,authenticated,admin);
   const workforce = installNurseWorkforceRoutes(app,config,store,authenticated,admin);
+  // Nurses' and doctors' earnings; withdrawals are paid only by the automatic payout provider (payouts.js).
+  app.locals.earnings = installEarningsRoutes(app,config,store,authenticated,admin,{ provider: config.payoutProvider === undefined ? createPayoutProvider() : config.payoutProvider });
   installTriageRoutes(app,config,store,authenticated);
   installAiAssistRoutes(app,config,store,authenticated);
   installClinicalRoutes(app,config,store,authenticated);
@@ -420,6 +424,7 @@ async function start() {
   const app = createApp(config, store, provider);
   const paymentWorker = setInterval(() => app.locals.payments.pollDue().catch(() => console.error('Payment status check failed')), 5000);
   paymentWorker.unref();
+  setInterval(() => app.locals.earnings.processQueue().catch(() => console.error('Payout queue failed')), 60000).unref();
   const server = app.listen(config.port, '0.0.0.0', () => {
     console.log(`HFA backend listening on port ${config.port}; WhatsApp delivery ${config.ready ? 'configured' : 'disabled'}`);
   });

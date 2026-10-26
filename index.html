@@ -3311,6 +3311,7 @@ function renderPage(page) {
   if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
   if (page==='facilities' && r==='admin' && typeof HFAFacilities!=='undefined') return HFAFacilities.renderRegister(pc);
   if (typeof HFANurses!=='undefined' && HFANurses.handles(page, r)) return HFANurses.renderPage(page, pc);
+  if (typeof HFAEarnings!=='undefined' && HFAEarnings.handles(page, r)) return HFAEarnings.renderPage(page, pc);
   if (page==='dashboard' && typeof HFACompletion!=='undefined') {
     const result = renderRolePage(page, r, pc);
     // Profile card (avatar + completion ring) on every dashboard; patients also get the Vital Health Card.
@@ -5353,6 +5354,7 @@ window.addEventListener('load',()=>{
 <script src="ai-assist.js"></script>
 <script src="ai-centre.js"></script>
 <script src="nurse-workforce.js"></script>
+<script src="earnings.js"></script>
 <script src="validation.js"></script>
 <script src="offline.js"></script>
 </body>

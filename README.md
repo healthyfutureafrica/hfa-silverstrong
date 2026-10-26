@@ -161,13 +161,27 @@ Server: `backend/nurse-workforce.js`; screens: `nurse-workforce.js`; tests: `bac
   booked with a doctor in charge (the patient's own doctor first, then doctors at their hospital); if that doctor
   stops being active, the patient's assigned doctor takes over, and otherwise administrators are alerted and assign
   one from *Home visits*. Each step is recorded by that person only. The 3,000 FCFA is credited to the nurse's
-  account (*My account*, with a counter on the nurse's dashboard), which accrues visit after visit. From 10 credited
-  visits the nurse can withdraw the whole balance to a mobile money number or bank account. Administrators pay each
-  request outside the app and record the reference under *Nurse payments*, or decline it with the reason (the amount
-  returns to the nurse's account).
+  earnings account (see below).
 - **Weekly timetable.** Each nurse keeps their weekly working hours under *My availability* and confirms or updates
   them at least every 7 days. Until it is current, a reminder shows on every page and the nurse cannot be booked; a
   home visit must fall within the nurse's hours (checked on the server), and patients see those hours when booking.
+
+## Earnings accounts (nurses and doctors)
+
+Server: `backend/earnings.js`, `backend/payouts.js`; screens: `earnings.js`; tests in `backend/test/nurse-workforce.test.js`.
+
+- **Nurses** are credited 3,000 FCFA per completed home visit (report, patient feedback, doctor confirmation).
+- **Doctors** are credited, for each completed consultation, what the patient actually paid for it: their own
+  consultation fee, through a mobile money payment the operator confirmed. Payments are matched to completed
+  consultations with the same patient, oldest first, each payment once. An unpaid consultation adds nothing.
+- *My account* shows the balance, a counter towards **10** credits (visits or paid consultations), totals and the
+  history; a card on the dashboard shows the same. From 10 credits the whole balance can be withdrawn to a mobile money
+  number or a bank account.
+- **No one pays by hand.** Withdrawals are paid only by the automatic payout service (Maviance) through
+  `backend/payouts.js`. Until it is connected, `createPayoutProvider()` returns `null` and requests wait in the queue
+  (the owner can cancel one still waiting). Administrators see the queue under *Payouts*, read-only. A payout the
+  service refuses returns the money to the account with the reason. To connect Maviance, implement `send()` and
+  `check()` as described at the top of `backend/payouts.js`; the queue is processed every minute.
 
 ## Data entry checks
 

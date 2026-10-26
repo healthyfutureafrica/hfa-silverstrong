@@ -2,13 +2,15 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { Store, hashPassword } = require('../store');
 const { createApp } = require('../server');
+const { seal } = require('../records');
 
 const config = { origin: 'http://localhost:8080', ready: false, fileEncryptionKey: '9c'.repeat(32) };
 const PASS = 'Synthetic-pass-123';
 
-async function start() {
+async function start(extra = {}) {
   const store = new Store();
-  const server = createApp(config, store, {}).listen(0, '127.0.0.1');
+  const app = createApp({ ...config, ...extra }, store, {});
+  const server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   const call = (path, body, cookie, method = body === undefined ? 'GET' : 'POST') => fetch(base + path, {
@@ -17,7 +19,7 @@ async function start() {
   });
   const login = async email => { const response = await call('/api/auth/login', { email, password: PASS }); return response.status === 200 ? response.headers.get('set-cookie').split(';')[0] : response.status; };
   const make = async (role, email, extra = {}) => store.createUser({ name: `Synthetic ${role} ${email.slice(0, 3)}`, email, role, ...extra }, await hashPassword(PASS), 'active');
-  return { store, call, login, make, close: async () => { await new Promise(resolve => server.close(resolve)); store.close(); } };
+  return { store, call, login, make, earnings: app.locals.earnings, close: async () => { await new Promise(resolve => server.close(resolve)); store.close(); } };
 }
 const json = async response => (await response.json());
 const day = offset => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
@@ -118,7 +120,11 @@ test('weekly timetable: required, kept current, and home visits must fit it', as
 });
 
 test('3,000 FCFA credited per home visit once the report, the patient feedback and the doctor confirmation are in; withdrawal from 10 visits', async () => {
-  const app = await start();
+  // A stand-in for the automatic payout service: refuses the first payout (wrong number), pays the second.
+  const sent = [];
+  const provider = { async send(payout) { sent.push(payout); if (sent.length === 1) throw Object.assign(new Error('Number not registered for mobile money'), { permanent: true }); return { status: 'processing', reference: 'MAV-' + sent.length }; },
+    async check({ reference }) { return { status: 'paid', reference }; } };
+  const app = await start({ payoutProvider: provider });
   try {
     const nurse = await app.make('nurse', 'pay-nurse@example.com');
     const other = await app.make('nurse', 'other-nurse@example.com');
@@ -154,21 +160,23 @@ test('3,000 FCFA credited per home visit once the report, the patient feedback a
     // The doctor asks for more; the nurse completes the report; then the doctor confirms.
     assert.equal((await app.call(`${visit}/return`, { note: 'Add the respiratory rate please' }, doctorCookie)).status, 200);
     assert.equal((await app.call(`${visit}/confirm`, {}, doctorCookie)).status, 409);
-    assert.equal((await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data.balance, 0, 'nothing credited yet');
+    assert.equal((await json(await app.call('/api/v1/earnings/account', undefined, nurseCookie))).data.balance, 0, 'nothing credited yet');
     assert.equal((await app.call(`${visit}/report`, { ...report, vitals: { ...report.vitals, respiratoryRate: 18 } }, nurseCookie)).status, 201);
     assert.equal((await app.call(`${visit}/confirm`, { note: 'All data received' }, doctorCookie)).status, 200);
     assert.equal((await app.call(`${visit}/report`, report, nurseCookie)).status, 409, 'no changes after confirmation');
 
-    let account = (await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data;
-    assert.deepEqual([account.balance, account.availableVisits, account.minimumVisits, account.canWithdraw], [3000, 1, 10, false]);
-    assert.equal(account.credits[0].visitDate, day(0));
+    const accountOf = async cookie => (await json(await app.call('/api/v1/earnings/account', undefined, cookie))).data;
+    const withdraw = (body, cookie = nurseCookie) => app.call('/api/v1/earnings/withdrawals', body, cookie);
+    let account = await accountOf(nurseCookie);
+    assert.deepEqual([account.balance, account.availableCredits, account.minimumCredits, account.canWithdraw, account.unit], [3000, 1, 10, false, 'home_visit']);
+    assert.equal(account.credits[0].date, day(0));
     // What each person sees: the administrator follows progress without the clinical report.
     const adminView = (await json(await app.call('/api/v1/home-visits/progress', undefined, adminCookie))).data.visits[0];
     assert.equal(adminView.report, null);
     assert.equal(adminView.payout.status, 'available');
     assert.equal((await json(await app.call('/api/v1/home-visits/progress', undefined, doctorCookie))).data.visits[0].report.vitals.respiratoryRate, 18);
     // Fewer than 10 visits: no withdrawal yet.
-    assert.match((await json(await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '677112233' }, nurseCookie))).error, /after 10 completed visits \(1 so far\)/);
+    assert.match((await json(await withdraw({ method: 'mobile_money', destination: '677112233' }))).error, /after 10 completed home visits \(1 so far\)/);
 
     // Nine more completed visits: the account accrues to 30,000 FCFA.
     for (let n = 2; n <= 10; n++) {
@@ -178,34 +186,40 @@ test('3,000 FCFA credited per home visit once the report, the patient feedback a
       await app.call(`${path}/feedback`, { rating: 5 }, patientCookie);
       await app.call(`${path}/confirm`, {}, doctorCookie);
     }
-    account = (await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data;
-    assert.deepEqual([account.balance, account.availableVisits, account.canWithdraw], [30000, 10, true]);
+    account = await accountOf(nurseCookie);
+    assert.deepEqual([account.balance, account.availableCredits, account.canWithdraw], [30000, 10, true]);
     // The withdrawal takes the whole balance to the nurse's mobile money number (typed locally, stored as +237…).
-    assert.equal((await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '12345' }, nurseCookie)).status, 400);
-    assert.equal((await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '677 11 22 33' }, patientCookie)).status, 403);
-    const requested = await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '677 11 22 33' }, nurseCookie);
+    assert.equal((await withdraw({ method: 'mobile_money', destination: '12345' })).status, 400);
+    assert.equal((await withdraw({ method: 'mobile_money', destination: '677 11 22 33' }, patientCookie)).status, 403);
+    const requested = await withdraw({ method: 'mobile_money', destination: '677 11 22 33' });
     assert.equal(requested.status, 201);
     account = (await json(requested)).data;
-    assert.deepEqual([account.balance, account.pending.amount, account.pending.visits, account.pending.destination, account.canWithdraw], [0, 30000, 10, '+237677112233', false]);
-    assert.equal((await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '677112233' }, nurseCookie)).status, 409, 'one request at a time');
-    // The administrator declines (money back), the nurse asks again, the administrator pays.
-    const admin = async () => (await json(await app.call('/api/v1/admin/nurse-withdrawals', undefined, adminCookie))).data;
-    let list = await admin();
-    assert.equal(list.requested, 30000);
-    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${list.withdrawals[0].id}/decline`, { note: 'no' }, adminCookie)).status, 400, 'say why');
-    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${list.withdrawals[0].id}/decline`, { note: 'This number is not registered for mobile money' }, adminCookie)).status, 200);
-    assert.equal((await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data.balance, 30000, 'declined: back in the account');
-    assert.equal((await app.call('/api/v1/nurse/withdrawals', { method: 'bank_transfer', destination: 'Afriland First Bank, Ayuk, 10005 00001 01234567890 12' }, nurseCookie)).status, 201);
-    list = await admin();
-    const open = list.withdrawals.find(item => item.status === 'requested');
-    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${open.id}/paid`, { reference: '' }, adminCookie)).status, 400);
-    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${open.id}/paid`, { reference: 'VIR-2026-10-26-0042' }, nurseCookie)).status, 403);
-    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${open.id}/paid`, { reference: 'VIR-2026-10-26-0042' }, adminCookie)).status, 200);
-    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${open.id}/paid`, { reference: 'again' }, adminCookie)).status, 409);
-    account = (await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data;
-    assert.deepEqual([account.balance, account.totalPaid, account.totalEarned, account.withdrawals[0].reference], [0, 30000, 30000, 'VIR-2026-10-26-0042']);
-    assert.equal(app.store.db.prepare('SELECT COUNT(*) AS n FROM nurse_payouts').get().n, 10, 'one credit per visit');
-    assert.equal((await app.call('/api/v1/admin/nurse-payouts/x/paid', { method: 'cash', reference: 'x123' }, adminCookie)).status, 404, 'single visits are no longer paid one by one');
+    assert.deepEqual([account.balance, account.pending.amount, account.pending.credits, account.pending.destination, account.pending.status], [0, 30000, 10, '+237677112233', 'queued']);
+    assert.equal((await withdraw({ method: 'mobile_money', destination: '677112233' })).status, 409, 'one request at a time');
+
+    // Nobody pays or declines by hand: the administrator's old actions are gone and the overview is read-only.
+    for (const path of ['/api/v1/admin/nurse-withdrawals/x/paid', '/api/v1/admin/nurse-withdrawals/x/decline', '/api/v1/admin/nurse-payouts/x/paid'])
+      assert.equal((await app.call(path, { reference: 'x123', note: 'xxxxx' }, adminCookie)).status, 404, path);
+    const overview = (await json(await app.call('/api/v1/admin/earnings', undefined, adminCookie))).data;
+    assert.deepEqual([overview.waiting, overview.automaticPayouts], [30000, true]);
+    // The payout service refuses the first payout: the money returns to the account with the reason.
+    await app.earnings.processQueue();
+    account = await accountOf(nurseCookie);
+    assert.deepEqual([account.balance, account.withdrawals[0].status, account.withdrawals[0].reason], [30000, 'failed', 'Number not registered for mobile money']);
+    // Asked again, cancelled by the nurse while waiting, asked a third time: paid automatically.
+    const again = (await json(await withdraw({ method: 'bank_transfer', destination: 'Afriland First Bank, Ayuk, 10005 00001 01234567890 12' }))).data.pending;
+    assert.equal((await app.call(`/api/v1/earnings/withdrawals/${again.id}/cancel`, {}, patientCookie)).status, 403);
+    assert.equal((await app.call(`/api/v1/earnings/withdrawals/${again.id}/cancel`, {}, nurseCookie)).status, 200);
+    assert.equal((await accountOf(nurseCookie)).balance, 30000, 'cancelled: back in the account');
+    await withdraw({ method: 'mobile_money', destination: '677112233' });
+    await app.earnings.processQueue(); // sent: processing
+    assert.equal((await accountOf(nurseCookie)).pending.status, 'processing');
+    assert.equal((await app.call(`/api/v1/earnings/withdrawals/${(await accountOf(nurseCookie)).pending.id}/cancel`, {}, nurseCookie)).status, 409, 'too late to cancel');
+    await app.earnings.processQueue(); // confirmed: paid
+    account = await accountOf(nurseCookie);
+    assert.deepEqual([account.balance, account.totalPaid, account.totalEarned, account.withdrawals[0].status, account.withdrawals[0].reference], [0, 30000, 30000, 'paid', 'MAV-2']);
+    assert.equal(sent.at(-1).amount, 30000);
+    assert.equal(app.store.db.prepare("SELECT COUNT(*) AS n FROM earnings_credits WHERE source='home_visit'").get().n, 10, 'one credit per visit');
   } finally { await app.close(); }
 });
 
@@ -238,7 +252,58 @@ test('a visit whose doctor has left gets a new doctor in charge, so the nurse ca
     assert.equal(seen[0]?.doctorName, 'Synthetic doctor dc-');
     assert.equal((await app.call('/api/v1/home-visits/hv-dc/feedback', { rating: 4 }, patientCookie)).status, 201);
     assert.equal((await app.call('/api/v1/home-visits/hv-dc/confirm', {}, newCookie)).status, 200);
-    assert.equal((await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data.balance, 3000);
+    assert.equal((await json(await app.call('/api/v1/earnings/account', undefined, nurseCookie))).data.balance, 3000);
     assert.equal((await app.call('/api/v1/admin/home-visits/hv-dc/doctor', { doctorId: replacement.id }, adminCookie)).status, 409, 'no change after confirmation');
+  } finally { await app.close(); }
+});
+
+test('doctors: each completed consultation the patient paid for credits what they paid; withdrawal after 10 consultations', async () => {
+  const app = await start();
+  try {
+    const doctor = await app.make('doctor', 'earn-doc@example.com', { profile: { consultationFee: 10 } });
+    const patient = await app.make('patient', 'earn-pat@example.com', { phone: '+237677000555' });
+    app.store.updateUser(patient.id, { assignedDoctor: doctor.id });
+    const [doctorCookie, patientCookie] = await Promise.all(['earn-doc', 'earn-pat'].map(name => app.login(`${name}@example.com`)));
+    const today = day(0);
+    // A consultation record as the doctor's screens leave it (stored directly so the test does not depend on the clock).
+    const consult = async (n, status = 'completed') => {
+      const data = { id: `apt-earn-${n}`, patientId: patient.id, doctorId: doctor.id, nurseId: '', date: today, time: '09:00', durationMinutes: 30, mode: 'video', status };
+      const sealed = seal(config, `clinical:appointments:${data.id}`, Buffer.from(JSON.stringify(data))), now = new Date().toISOString();
+      app.store.db.prepare('INSERT INTO clinical_records VALUES (?,?,?,?,?,?,?,?,?,?,?,?)').run('appointments', data.id, patient.id, JSON.stringify([patient.id, doctor.id]), 1, sealed.nonce, sealed.encrypted, sealed.tag, now, doctor.id, now, doctor.id);
+    };
+    // A consultation fee confirmed by mobile money (as recorded by payments.js after MTN confirms).
+    let paymentNo = 0;
+    const pay = (usd, status = 'successful') => app.store.db.prepare(`INSERT INTO payments (id,payer_id,purpose,target_id,details,amount,currency,usd,provider,provider_reference,idempotency_key,status,created_at,completed_at,expires_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(`pay-${++paymentNo}`, patient.id, 'consultation_fee', doctor.id, '{}', Math.round(usd * 600), 'XAF', usd, 'mtn_momo', `ref-${paymentNo}`, `key-${paymentNo}`, status, new Date().toISOString(), new Date().toISOString(), Date.now());
+    const account = async () => (await json(await app.call('/api/v1/earnings/account', undefined, doctorCookie))).data;
+
+    await consult(1);
+    assert.equal((await account()).balance, 0, 'completed but not paid: nothing');
+    pay(10, 'failed');
+    assert.equal((await account()).balance, 0, 'a failed payment pays nothing');
+    pay(10);
+    let a = await account();
+    assert.deepEqual([a.balance, a.availableCredits, a.unit, a.credits[0].patientName], [6000, 1, 'consultation', 'Synthetic patient ear']);
+    pay(10);
+    assert.equal((await account()).balance, 6000, 'paid but the consultation has not happened yet: nothing more');
+    await consult(2, 'scheduled');
+    assert.equal((await account()).balance, 6000, 'booked, not completed: nothing more');
+    await consult(3);
+    assert.equal((await account()).balance, 12000);
+    // The doctor raises their fee: what each patient actually paid is what is credited.
+    app.store.updateUser(doctor.id, { profile: { consultationFee: 15 } });
+    for (let n = 4; n <= 10; n++) { pay(15); await consult(n); }
+    a = await account();
+    assert.deepEqual([a.availableCredits, a.balance, a.canWithdraw], [9, 12000 + 7 * 9000, false]);
+    assert.match((await json(await app.call('/api/v1/earnings/withdrawals', { method: 'mobile_money', destination: '699887766' }, doctorCookie))).error, /after 10 paid consultations \(9 so far\)/);
+    pay(15); await consult(11);
+    a = await account();
+    assert.deepEqual([a.availableCredits, a.balance, a.canWithdraw], [10, 12000 + 8 * 9000, true]);
+    const requested = (await json(await app.call('/api/v1/earnings/withdrawals', { method: 'mobile_money', destination: '699887766' }, doctorCookie))).data;
+    assert.deepEqual([requested.pending.amount, requested.pending.credits, requested.pending.status, requested.automaticPayouts], [84000, 10, 'queued', false]);
+    // No payout service connected yet: the request waits; nothing pays it by hand.
+    await app.earnings.processQueue();
+    assert.equal((await account()).pending.status, 'queued');
+    assert.equal(app.store.db.prepare("SELECT COUNT(DISTINCT payment_id) AS n FROM earnings_credits WHERE source='consultation'").get().n, 10, 'each payment counted once');
   } finally { await app.close(); }
 });
