@@ -59,7 +59,7 @@
     nw_observations: 'What you found', nw_care: 'Care given', nw_recs: 'Recommendations and follow-up (optional)', nw_send_report: 'Send report', nw_bp: 'Blood pressure',
     nw_rate: 'How was this visit?', nw_comment: 'Comment (optional)', nw_send_feedback: 'Send feedback', nw_your_rating: 'Rating: {stars}',
     nw_confirm_receipt: 'All data received — confirm', nw_ask_more: 'Ask the nurse for more', nw_ask_note: 'What is missing?', nw_confirm_note: 'Note (optional)',
-    nw_confirmed_on: 'Confirmed by {name} on {date}', nw_no_doctor: 'No doctor in charge yet: an administrator must assign one to this patient.',
+    nw_confirmed_on: 'Confirmed by {name} on {date}', nw_no_doctor: 'An administrator is assigning the doctor in charge of this visit.', nw_assign_doctor: 'Assign doctor in charge', nw_assign_hint: 'This visit has no active doctor in charge. Choose one: they confirm the visit data before the nurse is paid.',
     nw_pay_due: 'Due: {amount}', nw_pay_paid: 'Paid: {amount} on {date}', nw_pay_pending: 'After the three steps',
     nw_earn_nav: 'My earnings', nw_earn_title: 'My earnings', nw_earn_intro: '{amount} per home visit, due once your report, the patient’s feedback and the doctor’s confirmation are all in.',
     nw_due_total: 'Due to you', nw_paid_total: 'Paid to you', nw_due_admin: 'Due to nurses', nw_tt_s_current: 'Up to date', nw_tt_s_overdue: 'Out of date', nw_tt_s_missing: 'Not published', nw_no_payouts: 'No payments yet.', nw_visit: 'Visit', nw_amount: 'Amount', nw_reference: 'Reference', nw_method_paid: 'Method',
@@ -116,7 +116,7 @@
     nw_observations: 'Ce que vous avez constaté', nw_care: 'Soins donnés', nw_recs: 'Recommandations et suivi (facultatif)', nw_send_report: 'Envoyer le rapport', nw_bp: 'Tension artérielle',
     nw_rate: 'Comment s’est passée cette visite ?', nw_comment: 'Commentaire (facultatif)', nw_send_feedback: 'Envoyer mon avis', nw_your_rating: 'Note : {stars}',
     nw_confirm_receipt: 'Toutes les données reçues — confirmer', nw_ask_more: 'Demander des compléments', nw_ask_note: 'Que manque-t-il ?', nw_confirm_note: 'Note (facultatif)',
-    nw_confirmed_on: 'Confirmé par {name} le {date}', nw_no_doctor: 'Pas encore de médecin responsable : un administrateur doit en attribuer un à ce patient.',
+    nw_confirmed_on: 'Confirmé par {name} le {date}', nw_no_doctor: 'Un administrateur attribue le médecin responsable de cette visite.', nw_assign_doctor: 'Attribuer le médecin responsable', nw_assign_hint: 'Cette visite n’a pas de médecin responsable actif. Choisissez-en un : il confirme les données de la visite avant le paiement de l’infirmier(e).',
     nw_pay_due: 'À payer : {amount}', nw_pay_paid: 'Payé : {amount} le {date}', nw_pay_pending: 'Après les trois étapes',
     nw_earn_nav: 'Mes gains', nw_earn_title: 'Mes gains', nw_earn_intro: '{amount} par visite à domicile, dû dès que votre rapport, l’avis du patient et la confirmation du médecin sont enregistrés.',
     nw_due_total: 'Dû', nw_paid_total: 'Payé', nw_due_admin: 'Dû aux infirmiers', nw_tt_s_current: 'À jour', nw_tt_s_overdue: 'Pas à jour', nw_tt_s_missing: 'Non publié', nw_no_payouts: 'Aucun paiement pour l’instant.', nw_visit: 'Visite', nw_amount: 'Montant', nw_reference: 'Référence', nw_method_paid: 'Moyen',
@@ -393,15 +393,19 @@
     return `<div class="card mb18"><div class="ch" style="flex-wrap:wrap;gap:8px"><div><div class="ct">${esc(v.visitDate || '')} ${esc(v.visitTime || '')}</div>
         <div class="mu sm">${esc(t('nw_patient'))}: ${esc(v.patientName || '—')} · ${esc(t('nw_nurse'))}: ${esc(v.nurseName || '—')} · ${esc(t('nw_doctor'))}: ${esc(v.doctorName || '—')}</div></div><span class="badge ${v.status === 'completed' ? 'bin' : 'bsu'}">${esc(tv(v.status || ''))}</span></div>
       <div>${stepChip(t('nw_step_report'), filed)}${stepChip(t('nw_step_feedback'), !!v.feedback)}${stepChip(t('nw_step_doctor'), !!v.confirmedAt)}${stepChip(`${t('nw_step_pay')}: ${pay}`, v.payout?.status === 'paid')}</div>
-      ${!v.doctorId ? `<div class="alt ai mt8">${esc(t('nw_no_doctor'))}</div>` : ''}
+      ${!v.doctorId ? role === 'admin' && !v.confirmedAt ? `<form class="mt8" onsubmit="return false"><div class="alt ae">${esc(t('nw_assign_hint'))}</div>
+          <div class="pc-actions" style="align-items:center"><label class="sr-only" for="nw-ad-${esc(v.visitId)}">${esc(t('nw_doctor'))}</label><select class="fc" id="nw-ad-${esc(v.visitId)}" required style="max-width:280px">${doctorOptions()}</select>
+          <button type="button" class="btn bp bsm" data-assign="${esc(v.visitId)}">${esc(t('nw_assign_doctor'))}</button></div></form>` : `<div class="alt ai mt8">${esc(t('nw_no_doctor'))}</div>` : ''}
       ${v.returnedAt && v.returnedNote ? `<div class="alt ae mt8">${esc(tf('nw_returned', { note: v.returnedNote }))}</div>` : ''}
       ${v.feedback ? `<p class="sm mt8">${esc(tf('nw_your_rating', { stars: stars(v.feedback.rating) }))}${v.feedback.comment ? ' — ' + esc(v.feedback.comment) : ''}</p>` : ''}
       ${v.confirmedAt ? `<p class="mu sm">${esc(tf('nw_confirmed_on', { name: v.confirmedBy || '', date: date(v.confirmedAt) }))}${v.confirmNote ? ' — ' + esc(v.confirmNote) : ''}</p>` : ''}
       ${reportHtml(v.report)}${actions}<div id="nw-vm-${esc(v.visitId)}" class="mt8"></div></div>`;
   }
+  const doctorOptions = () => `<option value="">—</option>${DB.users.filter(u => u.role === 'doctor' && u.status === 'active').sort((a, b) => a.name.localeCompare(b.name)).map(d => `<option value="${esc(d.id)}">${esc(d.name)}${d.hospital ? ' · ' + esc(d.hospital) : ''}</option>`).join('')}`;
   function bindVisits(box, visits) {
     const refresh = () => renderVisits($('pgc'));
     const call = async (id, request) => { try { await request(); refresh(); } catch (error) { fail($(`nw-vm-${id}`), error); } };
+    box.querySelectorAll('[data-assign]').forEach(button => button.addEventListener('click', () => { const id = button.dataset.assign; call(id, () => apiRequest(`/api/v1/admin/home-visits/${encodeURIComponent(id)}/doctor`, 'POST', { doctorId: $(`nw-ad-${id}`).value })); }));
     box.querySelectorAll('[data-report]').forEach(button => button.addEventListener('click', () => openReport(visits.find(v => v.visitId === button.dataset.report))));
     box.querySelectorAll('[data-feedback]').forEach(button => button.addEventListener('click', () => {
       const id = button.dataset.feedback, rating = Number(box.querySelector(`input[name="nw-r-${CSS.escape(id)}"]:checked`)?.value || 0);

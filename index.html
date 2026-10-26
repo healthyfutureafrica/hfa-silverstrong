@@ -4440,6 +4440,7 @@ function scheduleHomeVisit() {
   const defaultDate=new Date(new Date().setDate(new Date().getDate()+3)).toISOString().split('T')[0];
   openMo(`<div class="mh"><div class="mt2">${t('schedule_visit')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <div class="fg"><label class="fl">${t('choose_nurse')}</label><select class="fc" id="hv-nurse" onchange="renderHomeVisitFee()">${nurses.map(n=>`<option value="${n.id}">${hx(n.name)} — ${tv(n.specialty||n.department||'')}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl" for="hv-doctor">${t('nw_doctor')}</label><select class="fc" id="hv-doctor" required>${homeVisitDoctorOptions()}</select></div>
     <div class="fr"><div class="fg"><label class="fl">${t('visit_date')}</label><input class="fc" type="date" id="hv-date" data-v="future-date" required value="${defaultDate}" onchange="renderHomeVisitFee()"></div><div class="fg"><label class="fl">${t('visit_time')}</label><input class="fc" type="time" id="hv-time" data-v="time" data-date="hv-date" required value="14:00"></div></div>
     <div class="fg"><label class="fl">${t('visit_location')}</label><input class="fc" id="hv-location" minlength="3" maxlength="200" required value="${CU.address||`${hx(CU.name)}'s home`}"></div>
     <div class="fg"><label class="fl">${t('visit_notes')}</label><textarea class="fc" id="hv-notes" maxlength="2000" placeholder="${t('home_visit_notes_ph')}"></textarea></div>
@@ -4449,6 +4450,12 @@ function scheduleHomeVisit() {
   renderHomeVisitFee();
 }
 
+// The doctor in charge confirms the nurse's visit data: the patient's own doctor first, then doctors at their hospital.
+function homeVisitDoctorOptions() {
+  const doctors=DB.users.filter(u=>u.role==='doctor'&&u.status==='active');
+  const rank=d=>d.id===CU.assignedDoctor?0:(CU.facilityName&&d.hospital===CU.facilityName)?1:2;
+  return doctors.length?doctors.sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name)).map(d=>`<option value="${d.id}" ${d.id===CU.assignedDoctor?'selected':''}>${hx(d.name)}${d.specialty?' — '+tv(d.specialty):''}${d.hospital?' · '+hx(d.hospital):''}</option>`).join(''):`<option value="">${t('no_doctors_available')}</option>`;
+}
 function renderHomeVisitFee() {
   const nurse=G($('hv-nurse')?.value), visitDate=$('hv-date')?.value; const box=$('hv-fee'), payMethod=$('hv-payment-method'), btn=$('hv-pay-btn');
   if(!box||!nurse) return;
@@ -4463,12 +4470,14 @@ async function confirmHomeVisitBooking() {
   const nurse=G($('hv-nurse')?.value); if(!nurse) return;
   const visitDate=$('hv-date').value, visitTime=$('hv-time').value, location=$('hv-location').value.trim(), notes=$('hv-notes').value.trim()||t('visit_notes_default');
   if(!visitDate||!visitTime||!location) return;
+  const doctorId=$('hv-doctor')?.value||'';
+  if(!doctorId){$('hv-status').textContent=t('no_doctors_available');return;}
   const included=hasIncludedPremiumHomeVisit(CU.id, visitDate), fee=included?0:Number(nurse.homeVisitFee||10), btn=$('hv-pay-btn'), status=$('hv-status');
   btn.disabled=true; status.textContent=included?t('home_visit_included_desc'):t('processing_payment');
   try {
     const receipt=included?null:await Payment.create().from(CU.id).to(nurse.id).amount(fee).currency('USD').purpose('nurse_home_visit')
       .describe(`Nurse home visit — ${nurse.name}`).method($('hv-pay-md').value).meta({nurseName:nurse.name,visitDate,visitTime}).process();
-    DB.homeVisits.push({id:'hv'+Date.now(),patientId:CU.id,nurseId:nurse.id,doctorId:CU.assignedDoctor||'',visitDate,visitTime,status:'scheduled',location,notes,fee,currency:'USD',premiumIncluded:included,paymentId:receipt?.id||null,paymentReference:receipt?.reference||null,paymentStatus:included?'included':receipt.status,createdAt:tsNow()});
+    DB.homeVisits.push({id:'hv'+Date.now(),patientId:CU.id,nurseId:nurse.id,doctorId,visitDate,visitTime,status:'scheduled',location,notes,fee,currency:'USD',premiumIncluded:included,paymentId:receipt?.id||null,paymentReference:receipt?.reference||null,paymentStatus:included?'included':receipt.status,createdAt:tsNow()});
     const sub=getSubscription(CU.id); if(included&&sub) sub.monthlyVisitsUsed=(sub.monthlyVisitsUsed||0)+1;
     notifyPatientActivity(CU.id,'Home Visits');
     log('SCHEDULE_HOME_VISIT','Healthcare');

@@ -89,10 +89,11 @@ test('weekly timetable: required, kept current, and home visits must fit it', as
   try {
     const nurse = await app.make('nurse', 'tt-nurse@example.com');
     const patient = await app.make('patient', 'tt-pat@example.com', { phone: '+237677000222' });
+    const doctor = await app.make('doctor', 'tt-doc@example.com');
     app.store.updateUser(patient.id, { assignedNurse: nurse.id });
     const [nurseCookie, patientCookie] = [await app.login('tt-nurse@example.com'), await app.login('tt-pat@example.com')];
     const date = day(2), weekday = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][new Date(`${date}T00:00:00Z`).getUTCDay()];
-    const book = (id, time) => app.call(`/api/v1/clinical/homeVisits/${id}`, { data: { patientId: patient.id, nurseId: nurse.id, doctorId: '', visitDate: date, visitTime: time, status: 'scheduled', location: 'Home, Molyko' }, baseVersion: 0 }, patientCookie, 'PUT');
+    const book = (id, time, doctorId = doctor.id) => app.call(`/api/v1/clinical/homeVisits/${id}`, { data: { patientId: patient.id, nurseId: nurse.id, doctorId, visitDate: date, visitTime: time, status: 'scheduled', location: 'Home, Molyko' }, baseVersion: 0 }, patientCookie, 'PUT');
 
     assert.equal((await json(await app.call('/api/v1/nurse/availability', undefined, nurseCookie))).data.status, 'missing');
     assert.match((await json(await book('hv-0', '10:00'))).error, /not published a weekly timetable/);
@@ -102,6 +103,7 @@ test('weekly timetable: required, kept current, and home visits must fit it', as
     assert.equal((await put({ [weekday]: [{ start: '08:00', end: '12:00' }, { start: '14:00', end: '17:00' }] })).status, 200);
     assert.equal((await json(await app.call('/api/v1/nurse/availability', undefined, nurseCookie))).data.status, 'current');
     assert.match((await json(await book('hv-1', '13:00'))).error, /not available then.*08:00–12:00, 14:00–17:00/);
+    assert.match((await json(await book('hv-2', '09:30', ''))).error, /doctor in charge/, 'every visit has a doctor in charge');
     assert.equal((await book('hv-2', '09:30')).status, 201);
     // Not confirmed for over a week: out of date, not bookable, until the nurse confirms or updates it.
     app.store.db.prepare('UPDATE nurse_availability SET confirmed_at=? WHERE nurse_id=?').run(new Date(Date.now() - 8 * 86400000).toISOString(), nurse.id);
@@ -174,5 +176,39 @@ test('3,000 FCFA per home visit once the report is filed, the patient has given 
     const after = (await json(await app.call('/api/v1/nurse/earnings', undefined, nurseCookie))).data;
     assert.deepEqual([after.due, after.paid], [0, 3000]);
     assert.equal(app.store.db.prepare('SELECT COUNT(*) AS n FROM nurse_payouts').get().n, 1, 'one payment per visit');
+  } finally { await app.close(); }
+});
+
+test('a visit whose doctor has left gets a new doctor in charge, so the nurse can still be confirmed and paid', async () => {
+  const app = await start();
+  try {
+    const nurse = await app.make('nurse', 'dc-nurse@example.com');
+    const leaving = await app.make('doctor', 'dc-leaving@example.com');
+    const replacement = await app.make('doctor', 'dc-new@example.com');
+    const patient = await app.make('patient', 'dc-pat@example.com', { phone: '+237677000444' });
+    const admin = await app.make('admin', 'dc-admin@example.com');
+    app.store.updateUser(patient.id, { assignedNurse: nurse.id });
+    const [nurseCookie, patientCookie, adminCookie, newCookie] = await Promise.all(['dc-nurse', 'dc-pat', 'dc-admin', 'dc-new'].map(name => app.login(`${name}@example.com`)));
+    const all = Object.fromEntries(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(name => [name, [{ start: '00:00', end: '23:59' }]]));
+    await app.call('/api/v1/nurse/availability', { slots: all }, nurseCookie, 'PUT');
+    assert.equal((await app.call('/api/v1/clinical/homeVisits/hv-dc', { data: { patientId: patient.id, nurseId: nurse.id, doctorId: leaving.id, visitDate: day(0), visitTime: '23:00', status: 'scheduled', location: 'Home, Akwa' }, baseVersion: 0 }, patientCookie, 'PUT')).status, 201);
+    // The doctor leaves; the patient has no assigned doctor.
+    app.store.updateUser(leaving.id, { status: 'suspended' });
+    const report = { vitals: { temperatureC: 36.9, systolic: 120, diastolic: 80, pulse: 72 }, observations: 'Patient comfortable, eating well.', careGiven: 'Medicines reviewed.' };
+    const before = app.store.notifications(admin.id).length;
+    assert.equal((await app.call('/api/v1/home-visits/hv-dc/report', report, nurseCookie)).status, 201);
+    assert.ok(app.store.notifications(admin.id).length > before, 'administrators are asked to assign a doctor');
+    const view = (await json(await app.call('/api/v1/home-visits/progress', undefined, adminCookie))).data.visits[0];
+    assert.equal(view.doctorId, null);
+    assert.equal((await app.call('/api/v1/admin/home-visits/hv-dc/doctor', { doctorId: leaving.id }, adminCookie)).status, 400, 'only an active doctor');
+    assert.equal((await app.call('/api/v1/admin/home-visits/hv-dc/doctor', { doctorId: replacement.id }, nurseCookie)).status, 403);
+    assert.equal((await app.call('/api/v1/admin/home-visits/hv-dc/doctor', { doctorId: replacement.id }, adminCookie)).status, 200);
+    // The new doctor sees the visit and confirms; the patient's feedback completes it.
+    const seen = (await json(await app.call('/api/v1/home-visits/progress', undefined, newCookie))).data.visits;
+    assert.equal(seen[0]?.doctorName, 'Synthetic doctor dc-');
+    assert.equal((await app.call('/api/v1/home-visits/hv-dc/feedback', { rating: 4 }, patientCookie)).status, 201);
+    assert.equal((await app.call('/api/v1/home-visits/hv-dc/confirm', {}, newCookie)).status, 200);
+    assert.equal((await json(await app.call('/api/v1/nurse/earnings', undefined, nurseCookie))).data.due, 3000);
+    assert.equal((await app.call('/api/v1/admin/home-visits/hv-dc/doctor', { doctorId: replacement.id }, adminCookie)).status, 409, 'no change after confirmation');
   } finally { await app.close(); }
 });

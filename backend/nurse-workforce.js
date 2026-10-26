@@ -64,7 +64,10 @@ function ensureTables(store) {
       id TEXT PRIMARY KEY, visit_id TEXT NOT NULL UNIQUE, nurse_id TEXT NOT NULL, amount INTEGER NOT NULL, currency TEXT NOT NULL,
       status TEXT NOT NULL, due_at TEXT NOT NULL, paid_at TEXT, paid_by TEXT, method TEXT, reference TEXT
     );`);
+  // A doctor in charge set by an administrator (visits booked without one, or whose doctor has left).
+  if (!store.db.prepare('PRAGMA table_info(home_visit_steps)').all().some(column => column.name === 'doctor_id')) store.db.exec('ALTER TABLE home_visit_steps ADD COLUMN doctor_id TEXT');
 }
+const activeDoctor = (store, id) => { const user = id && store.user(id); return user?.role === 'doctor' && user.status === 'active' ? id : null; };
 
 const notify = (store, userId, resource, message) => {
   if (userId) store.db.prepare('INSERT INTO notifications VALUES (?,?,?,?,?)').run(randomUUID(), userId, message, resource, new Date().toISOString());
@@ -94,6 +97,9 @@ const toMinutes = value => Number(value.slice(0, 2)) * 60 + Number(value.slice(3
  */
 function visitScheduleProblem(store, data, existing) {
   if (!data.nurseId || ['cancelled', 'missed'].includes(data.status)) return null;
+  // Every visit has a doctor in charge from the start: they confirm the visit data before the nurse is paid.
+  if (!existing && !data.doctorId) return 'doctorId: choose the doctor in charge of this home visit';
+  if (data.doctorId && data.doctorId !== existing?.doctorId && !activeDoctor(store, data.doctorId)) return 'doctorId: choose an active doctor';
   const moved = !existing || ['nurseId', 'visitDate', 'visitTime'].some(field => data[field] !== existing[field]);
   if (!moved) return null;
   ensureTables(store);
@@ -242,7 +248,9 @@ function installNurseWorkforceRoutes(app, config, store, authenticated, admin) {
     const row = store.db.prepare("SELECT * FROM clinical_records WHERE collection='homeVisits' AND id=?").get(visitId);
     return row ? { row, data: JSON.parse(unseal(config, `clinical:homeVisits:${row.id}`, row).toString()) } : null;
   };
-  const doctorInCharge = visit => visit.doctorId || store.user(visit.patientId)?.assignedDoctor || null;
+  // The doctor an administrator assigned, else the visit's doctor, else the patient's assigned doctor (active only).
+  const doctorInCharge = visit => activeDoctor(store, stepsOf(visit.id)?.doctor_id) || activeDoctor(store, visit.doctorId) || activeDoctor(store, store.user(visit.patientId)?.assignedDoctor);
+  const tellAdmins = message => { for (const row of store.db.prepare("SELECT id FROM users WHERE role='admin' AND status='active'").all()) notify(store, row.id, 'Home Visits', message); };
   const stepsOf = visitId => store.db.prepare('SELECT * FROM home_visit_steps WHERE visit_id=?').get(visitId);
   const reportOf = steps => steps?.report_encrypted ? JSON.parse(unseal(config, `homevisit-report:${steps.visit_id}`, { nonce: steps.report_nonce, encrypted: steps.report_encrypted, tag: steps.report_tag }).toString()) : null;
   const payoutOf = visitId => store.db.prepare('SELECT * FROM nurse_payouts WHERE visit_id=?').get(visitId);
@@ -294,14 +302,28 @@ function installNurseWorkforceRoutes(app, config, store, authenticated, admin) {
 
   app.get('/api/v1/home-visits/progress', authenticated, storage, (request, response) => {
     const actor = request.user;
-    const rows = store.db.prepare(`SELECT * FROM clinical_records WHERE collection='homeVisits'${actor.role === 'admin' ? '' : ' AND (people LIKE ? OR patient_id=? OR patient_id IN (SELECT id FROM users WHERE assigned_doctor=?))'} ORDER BY updated_at DESC`)
-      .all(...(actor.role === 'admin' ? [] : [`%"${actor.id}"%`, actor.id, actor.id]));
+    const rows = store.db.prepare(`SELECT * FROM clinical_records WHERE collection='homeVisits'${actor.role === 'admin' ? '' : ' AND (people LIKE ? OR patient_id=? OR patient_id IN (SELECT id FROM users WHERE assigned_doctor=?) OR id IN (SELECT visit_id FROM home_visit_steps WHERE doctor_id=?))'} ORDER BY updated_at DESC`)
+      .all(...(actor.role === 'admin' ? [] : [`%"${actor.id}"%`, actor.id, actor.id, actor.id]));
     const visits = [];
     for (const row of rows) {
       const data = JSON.parse(unseal(config, `clinical:homeVisits:${row.id}`, row).toString());
       if (roleIn(actor, data) && data.status !== 'cancelled') visits.push(progressView(actor, data, stepsOf(row.id)));
     }
     response.json(ok({ visits, payPerVisit: { amount: VISIT_PAY_XAF, currency: 'XAF' } }));
+  });
+
+  // An administrator names the doctor in charge when a visit has none (or its doctor is no longer active).
+  app.post('/api/v1/admin/home-visits/:id/doctor', authenticated, admin, storage, (request, response) => {
+    const { doctorId } = z.object({ doctorId: z.string().min(1).max(100) }).strict().parse(request.body);
+    const visit = visitOf(request.params.id);
+    if (!visit || visit.data.status === 'cancelled') return response.sendStatus(404);
+    if (!activeDoctor(store, doctorId)) return response.status(400).json({ error: 'doctorId: choose an active doctor' });
+    const steps = ensureSteps(visit.data);
+    if (steps.confirmed_at) return response.status(409).json({ error: 'This visit has already been confirmed by its doctor' });
+    store.db.prepare('UPDATE home_visit_steps SET doctor_id=? WHERE visit_id=?').run(doctorId, visit.data.id);
+    store.audit(request.user.id, 'HOME_VISIT_DOCTOR_ASSIGNED', { targetId: visit.data.patientId, details: { visitId: visit.data.id, doctorId }, ip: request.ip });
+    notify(store, doctorId, 'Home Visits', 'HFA SilverStrong: You are the doctor in charge of a home visit. Sign in to review it.');
+    response.json(ok(progressView(request.user, visit.data, stepsOf(visit.data.id)), 'Doctor in charge assigned'));
   });
 
   app.post('/api/v1/home-visits/:id/report', authenticated, own, storage, (request, response) => {
@@ -320,7 +342,9 @@ function installNurseWorkforceRoutes(app, config, store, authenticated, admin) {
       store.db.exec('COMMIT');
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     if (!steps.feedback_at) notify(store, visit.data.patientId, 'Home Visits', 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.');
-    notify(store, doctorInCharge(visit.data), 'Home Visits', 'HFA SilverStrong: A home visit report is waiting for your confirmation. Sign in to review it.');
+    const doctorId = doctorInCharge(visit.data);
+    if (doctorId) notify(store, doctorId, 'Home Visits', 'HFA SilverStrong: A home visit report is waiting for your confirmation. Sign in to review it.');
+    else tellAdmins('HFA SilverStrong: A home visit report has no doctor in charge. Sign in and assign one under Home visits.');
     settle(visit.data);
     response.status(201).json(ok(progressView(request.user, visitOf(visit.data.id).data, stepsOf(visit.data.id)), 'Report filed'));
   });

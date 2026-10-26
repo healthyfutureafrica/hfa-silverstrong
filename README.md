@@ -157,8 +157,10 @@ Server: `backend/nurse-workforce.js`; screens: `nurse-workforce.js`; tests: `bac
   added by an administrator go through the same validation; nurses active before this existed keep working.
 - **3,000 FCFA per home visit.** The pay becomes due when the nurse has filed the visit report (temperature, blood
   pressure, pulse, findings, care given; stored encrypted), the patient has given feedback, and the doctor in charge
-  (the visit's doctor or the patient's assigned doctor) has confirmed receiving all the data, or after the nurse has
-  completed a report the doctor sent back. Each step is recorded by that person only. Administrators pay outside the
+  has confirmed receiving all the data, or after the nurse has completed a report the doctor sent back. Every visit is
+  booked with a doctor in charge (the patient's own doctor first, then doctors at their hospital); if that doctor
+  stops being active, the patient's assigned doctor takes over, and otherwise administrators are alerted and assign
+  one from *Home visits*. Each step is recorded by that person only. Administrators pay outside the
   app (mobile money, bank transfer or cash) and record the reference under *Nurse payments*; the nurse sees it under
   *My earnings*.
 - **Weekly timetable.** Each nurse keeps their weekly working hours under *My availability* and confirms or updates
