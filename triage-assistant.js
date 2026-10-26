@@ -315,7 +315,8 @@
   }
 
   // ───── Public symptom check (no account) ─────
-  function openPublic() {
+  // keep: redraw (after a language change) without losing the answers so far.
+  function openPublic({ keep = false } = {}) {
     let page = document.getElementById('public-triage');
     if (!page) {
       page = document.createElement('main');
@@ -325,15 +326,18 @@
     }
     ['land', 'auth-wrap', 'app-wrap', 'free-hub'].forEach(id => document.getElementById(id)?.classList.add('hid'));
     page.classList.remove('hid');
-    S = fresh();
-    $('public-triage-body').innerHTML = `<div class="pub-topbar"><button type="button" class="btn bs bsm" onclick="goLand()">← ${esc(t('st_public_back'))}</button></div>
+    if (!keep || !S) S = fresh();
+    $('public-triage-body').innerHTML = `<div class="pub-topbar"><button type="button" class="btn bs bsm" onclick="goLand()">← ${esc(t('st_public_back'))}</button>${typeof langToggle === 'function' ? langToggle('btn bs bsm') : ''}</div>
       <div class="ph"><h2>${esc(t('st_title'))}</h2><p>${esc(t('st_public_intro'))}</p></div>
       <div class="st-emergency" role="note"><span>🚨 ${esc(t('st_emergency_now'))} ${esc(L('advice_emergency'))}</span>${callButton()}</div>
       <div class="card mb18" id="st-card" aria-live="polite"></div>`;
     paintStep();
+    if (typeof updateLangButtons === 'function') updateLangButtons();
+    if (keep) return;
     page.focus();
     window.scrollTo(0, 0);
   }
+  const repaintPublic = () => { if (document.getElementById('public-triage')?.classList.contains('hid') === false) openPublic({ keep: true }); };
   // Leaving the public check by any route hides it.
   for (const name of ['goLand', 'goAuth', 'goFreeHub']) {
     const original = window[name];
@@ -343,5 +347,5 @@
   // The old urgent-help form asked patients to choose their own urgency; every entry point now opens SLY.
   window.showTriage = () => { closeMo(); S = null; navigate('triage'); };
   window.renderTriageQueue = renderQueue;
-  window.HFATriageUI = { renderPatient, renderQueue, ageGroupOf, openPublic };
+  window.HFATriageUI = { renderPatient, renderQueue, ageGroupOf, openPublic, repaintPublic, keepWords: () => { if (S) keepWords(); } };
 })();
