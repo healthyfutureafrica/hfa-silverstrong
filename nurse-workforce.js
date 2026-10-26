@@ -47,7 +47,7 @@
     nw_tt_missing: 'You have not published your weekly timetable yet. Patients cannot book home visits with you until you do.',
     nw_tt_banner_btn: 'Update my availability', nw_tt_saved: 'Saved. Your timetable is up to date.', nw_tt_bad: '{day}: times overlap or end before they start.',
     nw_hv_nav: 'Home visits', nw_hv_title: 'Home visits',
-    nw_hv_intro_nurse: 'File the report after each visit. You are paid {amount} per visit once the patient has given feedback and the doctor in charge confirms receiving all the data.',
+    nw_hv_intro_nurse: 'File the report after each visit. {amount} is added to your HFA account once the patient has given feedback and the doctor in charge confirms receiving all the data.',
     nw_hv_intro_doctor: 'Reports from nurses’ home visits to your patients. Confirm when you have received all the data you need, or ask the nurse for more.',
     nw_hv_intro_patient: 'Your nurse home visits. After a visit, tell us how it went.',
     nw_hv_intro_admin: 'Progress of every home visit, from the nurse’s report to the nurse’s payment.',
@@ -104,7 +104,7 @@
     nw_tt_missing: 'Vous n’avez pas encore publié vos disponibilités. Les patients ne peuvent pas réserver de visite à domicile avec vous avant cela.',
     nw_tt_banner_btn: 'Mettre à jour mes disponibilités', nw_tt_saved: 'Enregistré. Vos disponibilités sont à jour.', nw_tt_bad: '{day} : des heures se chevauchent ou finissent avant de commencer.',
     nw_hv_nav: 'Visites à domicile', nw_hv_title: 'Visites à domicile',
-    nw_hv_intro_nurse: 'Remplissez le rapport après chaque visite. Vous êtes payé(e) {amount} par visite dès que le patient a donné son avis et que le médecin responsable confirme avoir reçu toutes les données.',
+    nw_hv_intro_nurse: 'Remplissez le rapport après chaque visite. {amount} sont ajoutés à votre compte HFA dès que le patient a donné son avis et que le médecin responsable confirme avoir reçu toutes les données.',
     nw_hv_intro_doctor: 'Les rapports des visites à domicile des infirmiers chez vos patients. Confirmez quand vous avez reçu toutes les données nécessaires, ou demandez des compléments.',
     nw_hv_intro_patient: 'Vos visites infirmières à domicile. Après une visite, dites-nous comment elle s’est passée.',
     nw_hv_intro_admin: 'Le suivi de chaque visite à domicile, du rapport de l’infirmier(e) à son paiement.',
@@ -126,13 +126,46 @@
     nw_hours_on: '{name} travaille le {day} : {hours}.', nw_hours_none: '{name} ne travaille pas le {day}. Choisissez un autre jour ou une autre personne.', nw_stale: 'disponibilités non à jour', nw_outside: 'Choisissez une heure dans les heures de travail de l’infirmier(e).'
   });
 
+  Object.assign(T.en, {
+    nw_earn_nav: 'My account', nw_earn_title: 'My HFA account',
+    nw_earn_intro: '{amount} is added to your account for each completed home visit (your report, the patient’s feedback and the doctor’s confirmation). You can withdraw your balance once it holds {min} visits.',
+    nw_balance: 'Balance', nw_visits_in: '{n} visit(s) in your account', nw_progress_to: '{n} of {min} visits: {left} more before you can withdraw.', nw_can_withdraw: 'You can withdraw your balance.',
+    nw_withdraw: 'Withdraw {amount}', nw_withdraw_how: 'Pay me by', nw_to_mm: 'Mobile money number', nw_to_bank: 'Bank details (bank, account holder, account number or RIB)', nw_send_withdraw: 'Request withdrawal',
+    nw_confirm_withdraw: 'Withdraw your whole balance of {amount}? HFA pays it within a few working days.',
+    nw_pending: 'Withdrawal of {amount} requested on {date}, to {destination}. HFA is processing it.', nw_declined_note: 'Withdrawal declined on {date}: {note}. The amount is back in your account.',
+    nw_total_earned: 'Earned in total', nw_total_paid: 'Paid to you', nw_history: 'History', nw_credit_line: 'Home visit · {patient}', nw_withdraw_line: 'Withdrawal · {method}',
+    nw_status_available: 'In your account', nw_status_requested: 'Being paid', nw_status_declined: 'Declined',
+    nw_pay_credited: 'Credited: {amount}', nw_pay_requested: 'Being paid: {amount}',
+    nw_dash_account: 'My HFA account', nw_open_account: 'Open my account',
+    nw_pay_intro: 'Nurses withdraw their balance once it holds 10 completed visits. Pay each request by mobile money or bank transfer, then record the reference; or decline it with the reason (the amount returns to the nurse’s account).',
+    nw_requested_total: 'Requested', nw_credited_total: 'In nurses’ accounts ({n} visits)', nw_no_withdrawals: 'No withdrawal requests yet.',
+    nw_decline: 'Decline', nw_decline_note: 'Reason for declining', nw_confirm_decline: 'Decline this withdrawal? The amount returns to the nurse’s account.',
+    nw_confirm_paid: 'Record this withdrawal as paid? Check the reference first.', nw_destination: 'Pay to', nw_visits_n: '{n} visits', nw_amount: 'Amount', nw_reference: 'Reference'
+  });
+  Object.assign(T.fr, {
+    nw_earn_nav: 'Mon compte', nw_earn_title: 'Mon compte HFA',
+    nw_earn_intro: '{amount} sont ajoutés à votre compte pour chaque visite à domicile terminée (votre rapport, l’avis du patient et la confirmation du médecin). Vous pouvez retirer votre solde dès qu’il compte {min} visites.',
+    nw_balance: 'Solde', nw_visits_in: '{n} visite(s) sur votre compte', nw_progress_to: '{n} sur {min} visites : encore {left} avant de pouvoir retirer.', nw_can_withdraw: 'Vous pouvez retirer votre solde.',
+    nw_withdraw: 'Retirer {amount}', nw_withdraw_how: 'Me payer par', nw_to_mm: 'Numéro mobile money', nw_to_bank: 'Coordonnées bancaires (banque, titulaire, numéro de compte ou RIB)', nw_send_withdraw: 'Demander le retrait',
+    nw_confirm_withdraw: 'Retirer la totalité de votre solde, soit {amount} ? HFA le paie sous quelques jours ouvrables.',
+    nw_pending: 'Retrait de {amount} demandé le {date}, vers {destination}. HFA le traite.', nw_declined_note: 'Retrait refusé le {date} : {note}. Le montant est de retour sur votre compte.',
+    nw_total_earned: 'Gagné au total', nw_total_paid: 'Payé', nw_history: 'Historique', nw_credit_line: 'Visite à domicile · {patient}', nw_withdraw_line: 'Retrait · {method}',
+    nw_status_available: 'Sur votre compte', nw_status_requested: 'En paiement', nw_status_declined: 'Refusé',
+    nw_pay_credited: 'Crédité : {amount}', nw_pay_requested: 'En paiement : {amount}',
+    nw_dash_account: 'Mon compte HFA', nw_open_account: 'Ouvrir mon compte',
+    nw_pay_intro: 'Les infirmiers retirent leur solde dès qu’il compte 10 visites terminées. Payez chaque demande par mobile money ou virement, puis enregistrez la référence ; ou refusez-la en donnant la raison (le montant revient sur le compte de l’infirmier(e)).',
+    nw_requested_total: 'Demandé', nw_credited_total: 'Sur les comptes des infirmiers ({n} visites)', nw_no_withdrawals: 'Aucune demande de retrait pour l’instant.',
+    nw_decline: 'Refuser', nw_decline_note: 'Raison du refus', nw_confirm_decline: 'Refuser ce retrait ? Le montant revient sur le compte de l’infirmier(e).',
+    nw_confirm_paid: 'Enregistrer ce retrait comme payé ? Vérifiez d’abord la référence.', nw_destination: 'Payer à', nw_visits_n: '{n} visites', nw_amount: 'Montant', nw_reference: 'Référence'
+  });
+
   const fcfa = amount => `${Number(amount || 0).toLocaleString(LANG === 'fr' ? 'fr-FR' : 'en-US')} FCFA`;
   const date = value => String(value || '').slice(0, 10);
   const fail = (box, error) => { if (box) box.innerHTML = `<div class="alt ae" role="alert">${esc(error.message)}</div>`; };
   const needsServer = pc => { pc.innerHTML = `<div class="page"><div class="card"><p class="mu">${esc(t('nw_needs_server'))}</p></div></div>`; };
   const wrap = (name, replacement) => { const original = window[name]; if (typeof original === 'function') window[name] = (...args) => replacement(original, ...args); };
   const field = (id, label, attrs = '', type = 'text') => `<div class="fg"><label class="fl" for="${id}">${esc(label)}</label><input class="fc" id="${id}" type="${type}" ${attrs}></div>`;
-  const badge = status => `<span class="badge ${status === 'confirmed' || status === 'paid' ? 'bsu' : status === 'problem' ? 'bda' : 'bwa'}">${esc(t('nw_status_' + status))}</span>`;
+  const badge = status => `<span class="badge ${status === 'confirmed' || status === 'paid' ? 'bsu' : status === 'problem' || status === 'declined' ? 'bda' : status === 'available' ? 'bin' : 'bwa'}">${esc(t('nw_status_' + status))}</span>`;
   const options = (prefix, values) => values.map(value => `<option value="${value}">${esc(t(prefix + value))}</option>`).join('');
 
   // ───── Menus ─────
@@ -341,6 +374,15 @@
   // A reminder on every page while the timetable is missing or out of date.
   wrap('renderPage', (original, page) => {
     const result = original(page);
+    if (CU?.role === 'nurse' && online() && page === 'dashboard') {
+      apiRequest('/api/v1/nurse/account').then(({ data }) => {
+        if (CP !== 'dashboard' || document.getElementById('nw-dash-account')) return;
+        const host = $('pgc')?.querySelector('.page') || $('pgc');
+        const anchor = host?.querySelector('.ph');
+        const card = `<div class="card mb18" id="nw-dash-account"><div class="ch"><div class="ct">💰 ${esc(t('nw_dash_account'))}</div><button type="button" class="btn ${data.canWithdraw ? 'bp' : 'bs'} bsm" onclick="navigate('nurse-earnings')">${esc(data.canWithdraw ? tf('nw_withdraw', { amount: fcfa(data.balance) }) : t('nw_open_account'))}</button></div>${counter(data)}</div>`;
+        if (anchor) anchor.insertAdjacentHTML('afterend', card); else host?.insertAdjacentHTML('afterbegin', card);
+      }).catch(() => {});
+    }
     if (CU?.role === 'nurse' && online() && page !== 'nurse-timetable') {
       loadAvailability().then(a => {
         if (a.status === 'current' || CP !== page || document.getElementById('nw-banner')) return;
@@ -377,7 +419,7 @@
   }
   function visitCard(v) {
     const role = CU.role, today = new Date().toISOString().slice(0, 10), filed = !!v.reportAt && !v.returnedAt;
-    const pay = v.payout ? (v.payout.status === 'paid' ? tf('nw_pay_paid', { amount: fcfa(v.payout.amount), date: date(v.payout.paidAt) }) : tf('nw_pay_due', { amount: fcfa(v.payout.amount) })) : t('nw_pay_pending');
+    const pay = !v.payout ? t('nw_pay_pending') : v.payout.status === 'paid' ? tf('nw_pay_paid', { amount: fcfa(v.payout.amount), date: date(v.payout.paidAt) }) : tf(v.payout.status === 'requested' ? 'nw_pay_requested' : 'nw_pay_credited', { amount: fcfa(v.payout.amount) });
     let actions = '';
     if (role === 'nurse') {
       actions = v.confirmedAt ? '' : v.visitDate > today ? `<p class="mu sm">${esc(t('nw_after_visit'))}</p>`
@@ -441,41 +483,68 @@
     });
   }
 
-  // ───── Nurses: earnings; administrators: payments ─────
+  // ───── Nurses: their HFA account (balance, withdrawal from 10 visits) ─────
+  const counter = a => {
+    const left = Math.max(0, a.minimumVisits - a.availableVisits), percent = Math.min(100, Math.round(a.availableVisits / a.minimumVisits * 100));
+    return `<div class="nw-counter"><div class="mu sm">${esc(t('nw_balance'))}</div><div class="nw-balance">${esc(fcfa(a.balance))}</div>
+      <div class="sm">${esc(tf('nw_visits_in', { n: a.availableVisits }))}</div>
+      <div class="st-progress mt8" role="progressbar" aria-valuemin="0" aria-valuemax="${a.minimumVisits}" aria-valuenow="${Math.min(a.availableVisits, a.minimumVisits)}"><span style="width:${percent}%"></span></div>
+      <div class="sm mt8">${esc(a.pending ? tf('nw_pending', { amount: fcfa(a.pending.amount), date: date(a.pending.requestedAt), destination: a.pending.destination }) : left ? tf('nw_progress_to', { n: a.availableVisits, min: a.minimumVisits, left }) : t('nw_can_withdraw'))}</div></div>`;
+  };
   async function renderEarnings(pc) {
     $('tbt').textContent = t('nw_earn_title');
     pc.innerHTML = `<div class="page"><div class="ph"><h2>${esc(t('nw_earn_title'))}</h2><p id="nw-e-intro"></p></div><div id="nw-e"><div class="card"><p class="mu sm">…</p></div></div></div>`;
     const box = $('nw-e');
     try {
-      const data = (await apiRequest('/api/v1/nurse/earnings')).data;
+      const a = (await apiRequest('/api/v1/nurse/account')).data;
       if (!box.isConnected) return;
-      $('nw-e-intro').textContent = tf('nw_earn_intro', { amount: fcfa(data.payPerVisit) });
-      box.innerHTML = `<div class="stats"><div class="sc cg"><div class="sv">${esc(fcfa(data.due))}</div><div class="sl">${esc(t('nw_due_total'))}</div></div><div class="sc ce"><div class="sv">${esc(fcfa(data.paid))}</div><div class="sl">${esc(t('nw_paid_total'))}</div></div></div>
-        <div class="card">${payoutTable(data.payouts, false)}</div>`;
+      $('nw-e-intro').textContent = tf('nw_earn_intro', { amount: fcfa(a.payPerVisit), min: a.minimumVisits });
+      const declined = a.withdrawals.find(item => item.status === 'declined' && !a.withdrawals.some(other => other.status !== 'declined' && other.requestedAt > item.requestedAt));
+      const history = [
+        ...a.credits.map(c => ({ at: c.dueAt, text: tf('nw_credit_line', { patient: c.patientName || '—' }) + (c.visitDate ? ` (${c.visitDate})` : ''), amount: `+${fcfa(c.amount)}`, status: c.status })),
+        ...a.withdrawals.map(w => ({ at: w.requestedAt, text: tf('nw_withdraw_line', { method: t('nw_m_' + w.method) }) + ` · ${w.destination}${w.reference ? ` · ${t('nw_reference')}: ${w.reference}` : ''}${w.note ? ` · ${w.note}` : ''}`, amount: `−${fcfa(w.amount)}`, status: w.status }))
+      ].sort((x, y) => String(y.at).localeCompare(String(x.at)));
+      box.innerHTML = `<div class="card mb18">${counter(a)}
+          ${declined ? `<div class="alt ae mt8">${esc(tf('nw_declined_note', { date: date(declined.decidedAt), note: declined.note || '' }))}</div>` : ''}
+          ${a.canWithdraw ? `<form class="mt18" id="nw-wd" onsubmit="return false"><div class="fr"><div class="fg"><label class="fl" for="nw-wd-method">${esc(t('nw_withdraw_how'))}</label><select class="fc" id="nw-wd-method">${options('nw_m_', ['mobile_money', 'bank_transfer'])}</select></div>
+              <div class="fg"><label class="fl" for="nw-wd-to" id="nw-wd-label">${esc(t('nw_to_mm'))}</label><input class="fc" id="nw-wd-to" data-v="phone" maxlength="200" required value="${esc(CU.phone || '')}"></div></div>
+              <div id="nw-wd-msg"></div><button type="button" class="btn bp" id="nw-wd-send" data-confirm="${esc(tf('nw_confirm_withdraw', { amount: fcfa(a.balance) }))}">${esc(tf('nw_withdraw', { amount: fcfa(a.balance) }))}</button></form>` : ''}</div>
+        <div class="stats"><div class="sc ce"><div class="sv">${esc(fcfa(a.totalEarned))}</div><div class="sl">${esc(t('nw_total_earned'))}</div></div><div class="sc cb"><div class="sv">${esc(fcfa(a.totalPaid))}</div><div class="sl">${esc(t('nw_total_paid'))}</div></div></div>
+        <div class="card"><div class="ch"><div class="ct">${esc(t('nw_history'))}</div></div>${history.length ? `<div class="tw"><table><tbody>${history.map(item => `<tr><td class="sm mu" style="white-space:nowrap">${esc(date(item.at))}</td><td class="sm">${esc(item.text)}</td><td class="sm bo" style="white-space:nowrap">${esc(item.amount)}</td><td>${badge(item.status)}</td></tr>`).join('')}</tbody></table></div>` : `<p class="mu sm">${esc(t('nw_no_payouts'))}</p>`}</div>`;
+      const method = $('nw-wd-method');
+      method?.addEventListener('change', () => {
+        const to = $('nw-wd-to'), bank = method.value === 'bank_transfer';
+        $('nw-wd-label').textContent = t(bank ? 'nw_to_bank' : 'nw_to_mm');
+        if (bank) { to.removeAttribute('data-v'); to.setAttribute('minlength', '10'); to.value = ''; } else { to.setAttribute('data-v', 'phone'); to.removeAttribute('minlength'); to.value = CU.phone || ''; }
+      });
+      $('nw-wd-send')?.addEventListener('click', async () => {
+        try { await apiRequest('/api/v1/nurse/withdrawals', 'POST', { method: method.value, destination: $('nw-wd-to').value.trim() }); renderEarnings($('pgc')); }
+        catch (error) { fail($('nw-wd-msg'), error); }
+      });
     } catch (error) { fail(box, error); }
   }
-  function payoutTable(payouts, admin) {
-    if (!payouts.length) return `<p class="mu sm">${esc(t('nw_no_payouts'))}</p>`;
-    return `<div class="tw"><table><thead><tr>${admin ? `<th>${esc(t('nw_nurse'))}</th>` : ''}<th>${esc(t('nw_visit'))}</th><th>${esc(t('nw_amount'))}</th><th>${t('status')}</th><th>${esc(t('nw_reference'))}</th></tr></thead><tbody>${payouts.map(p => `<tr>
-      ${admin ? `<td class="sm"><strong>${esc(p.nurseName || '')}</strong></td>` : ''}<td class="sm">${esc(date(p.dueAt))} · <code class="code-chip">${esc(p.visitId)}</code></td><td class="sm">${esc(fcfa(p.amount))}</td><td>${badge(p.status)}</td>
-      <td class="sm">${p.status === 'paid' ? `${esc(t('nw_m_' + p.method))} · ${esc(p.reference || '')}<div class="mu sm">${esc(date(p.paidAt))}${p.paidBy ? ' · ' + esc(p.paidBy) : ''}</div>` : admin
-        ? `<form class="pc-actions" style="margin:0;flex-wrap:wrap" onsubmit="return false"><label class="sr-only" for="nw-pm-${esc(p.id)}">${esc(t('nw_method_paid'))}</label><select class="fc" id="nw-pm-${esc(p.id)}" style="max-width:150px">${options('nw_m_', ['mobile_money', 'bank_transfer', 'cash'])}</select>
-          <label class="sr-only" for="nw-pr-${esc(p.id)}">${esc(t('nw_reference'))}</label><input class="fc" id="nw-pr-${esc(p.id)}" placeholder="${esc(t('nw_reference'))}" minlength="3" maxlength="80" required style="max-width:170px">
-          <button type="button" class="btn bp bsm" data-paid="${esc(p.id)}" data-confirm="${esc(t('nw_confirm_paid'))}">${esc(t('nw_mark_paid'))}</button></form><div id="nw-pmsg-${esc(p.id)}"></div>` : '—'}</td></tr>`).join('')}</tbody></table></div>`;
-  }
+
+  // ───── Administrators: withdrawal requests ─────
   async function renderPayouts(pc) {
     $('tbt').textContent = t('nw_pay_title');
     pc.innerHTML = `<div class="page"><div class="ph"><h2>${esc(t('nw_pay_title'))}</h2><p>${esc(t('nw_pay_intro'))}</p></div><div id="nw-p"><div class="card"><p class="mu sm">…</p></div></div></div>`;
     const box = $('nw-p');
     try {
-      const data = (await apiRequest('/api/v1/admin/nurse-payouts')).data;
+      const data = (await apiRequest('/api/v1/admin/nurse-withdrawals')).data;
       if (!box.isConnected) return;
-      box.innerHTML = `<div class="stats"><div class="sc cg"><div class="sv">${esc(fcfa(data.due))}</div><div class="sl">${esc(t('nw_due_admin'))}</div></div></div><div class="card">${payoutTable(data.payouts, true)}</div>`;
-      box.querySelectorAll('[data-paid]').forEach(button => button.addEventListener('click', async () => {
-        const id = button.dataset.paid;
-        try { await apiRequest(`/api/v1/admin/nurse-payouts/${encodeURIComponent(id)}/paid`, 'POST', { method: $(`nw-pm-${id}`).value, reference: $(`nw-pr-${id}`).value.trim() }); renderPayouts($('pgc')); }
-        catch (error) { fail($(`nw-pmsg-${id}`), error); }
-      }));
+      box.innerHTML = `<div class="stats"><div class="sc cg"><div class="sv">${esc(fcfa(data.requested))}</div><div class="sl">${esc(t('nw_requested_total'))}</div></div><div class="sc cb"><div class="sv">${esc(fcfa(data.credited))}</div><div class="sl">${esc(tf('nw_credited_total', { n: data.creditedVisits }))}</div></div></div>
+        <div class="card">${data.withdrawals.length ? `<div class="tw"><table><thead><tr><th>${esc(t('nw_nurse'))}</th><th>${esc(t('nw_amount'))}</th><th>${esc(t('nw_destination'))}</th><th>${t('status')}</th></tr></thead><tbody>${data.withdrawals.map(w => `<tr>
+          <td class="sm"><strong>${esc(w.nurseName || '')}</strong><div class="mu sm">${esc(date(w.requestedAt))}</div></td>
+          <td class="sm"><strong>${esc(fcfa(w.amount))}</strong><div class="mu sm">${esc(tf('nw_visits_n', { n: w.visits }))}</div></td>
+          <td class="sm">${esc(t('nw_m_' + w.method))}<div>${esc(w.destination)}</div></td>
+          <td>${badge(w.status)}${w.status === 'paid' ? `<div class="mu sm">${esc(w.reference || '')} · ${esc(date(w.decidedAt))}${w.decidedBy ? ' · ' + esc(w.decidedBy) : ''}</div>` : w.status === 'declined' ? `<div class="mu sm">${esc(w.note || '')}</div>` : `
+            <form class="pc-actions" style="margin:6px 0 0;flex-wrap:wrap" onsubmit="return false"><label class="sr-only" for="nw-ref-${esc(w.id)}">${esc(t('nw_reference'))}</label><input class="fc" id="nw-ref-${esc(w.id)}" placeholder="${esc(t('nw_reference'))}" minlength="3" maxlength="80" required style="max-width:200px">
+              <button type="button" class="btn bp bsm" data-paid="${esc(w.id)}" data-confirm="${esc(t('nw_confirm_paid'))}">${esc(t('nw_mark_paid'))}</button></form>
+            <form class="pc-actions" style="margin:6px 0 0;flex-wrap:wrap" onsubmit="return false"><label class="sr-only" for="nw-dec-${esc(w.id)}">${esc(t('nw_decline_note'))}</label><input class="fc" id="nw-dec-${esc(w.id)}" placeholder="${esc(t('nw_decline_note'))}" minlength="5" maxlength="500" required style="max-width:200px">
+              <button type="button" class="btn bd2 bsm" data-decline="${esc(w.id)}" data-confirm="${esc(t('nw_confirm_decline'))}">${esc(t('nw_decline'))}</button></form><div id="nw-pmsg-${esc(w.id)}"></div>`}</td></tr>`).join('')}</tbody></table></div>` : `<p class="mu sm">${esc(t('nw_no_withdrawals'))}</p>`}</div>`;
+      const act = async (id, path, body) => { try { await apiRequest(`/api/v1/admin/nurse-withdrawals/${encodeURIComponent(id)}/${path}`, 'POST', body); renderPayouts($('pgc')); } catch (error) { fail($(`nw-pmsg-${id}`), error); } };
+      box.querySelectorAll('[data-paid]').forEach(button => button.addEventListener('click', () => act(button.dataset.paid, 'paid', { reference: $(`nw-ref-${button.dataset.paid}`).value.trim() })));
+      box.querySelectorAll('[data-decline]').forEach(button => button.addEventListener('click', () => act(button.dataset.decline, 'decline', { note: $(`nw-dec-${button.dataset.decline}`).value.trim() })));
     } catch (error) { fail(box, error); }
   }
 
@@ -514,6 +583,7 @@
     return original(...args);
   });
 
+  document.head.insertAdjacentHTML('beforeend', '<style>.nw-balance{font-size:2rem;font-weight:800;color:var(--em);line-height:1.2}</style>');
   installRegistrationFields();
   window.HFANurses = { handles, renderPage, openVerification, application, adminFields: () => ({ licenseNo: ($('au-ni')?.value || '').trim(), qualifications: ($('au-qu')?.value || '').trim(), nurseApplication: application('au') }) };
 })();

@@ -160,9 +160,11 @@ Server: `backend/nurse-workforce.js`; screens: `nurse-workforce.js`; tests: `bac
   has confirmed receiving all the data, or after the nurse has completed a report the doctor sent back. Every visit is
   booked with a doctor in charge (the patient's own doctor first, then doctors at their hospital); if that doctor
   stops being active, the patient's assigned doctor takes over, and otherwise administrators are alerted and assign
-  one from *Home visits*. Each step is recorded by that person only. Administrators pay outside the
-  app (mobile money, bank transfer or cash) and record the reference under *Nurse payments*; the nurse sees it under
-  *My earnings*.
+  one from *Home visits*. Each step is recorded by that person only. The 3,000 FCFA is credited to the nurse's
+  account (*My account*, with a counter on the nurse's dashboard), which accrues visit after visit. From 10 credited
+  visits the nurse can withdraw the whole balance to a mobile money number or bank account. Administrators pay each
+  request outside the app and record the reference under *Nurse payments*, or decline it with the reason (the amount
+  returns to the nurse's account).
 - **Weekly timetable.** Each nurse keeps their weekly working hours under *My availability* and confirms or updates
   them at least every 7 days. Until it is current, a reminder shows on every page and the nurse cannot be booked; a
   home visit must fall within the nurse's hours (checked on the server), and patients see those hours when booking.

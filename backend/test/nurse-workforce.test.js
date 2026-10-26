@@ -117,7 +117,7 @@ test('weekly timetable: required, kept current, and home visits must fit it', as
   } finally { await app.close(); }
 });
 
-test('3,000 FCFA per home visit once the report is filed, the patient has given feedback and the doctor confirms', async () => {
+test('3,000 FCFA credited per home visit once the report, the patient feedback and the doctor confirmation are in; withdrawal from 10 visits', async () => {
   const app = await start();
   try {
     const nurse = await app.make('nurse', 'pay-nurse@example.com');
@@ -154,28 +154,58 @@ test('3,000 FCFA per home visit once the report is filed, the patient has given 
     // The doctor asks for more; the nurse completes the report; then the doctor confirms.
     assert.equal((await app.call(`${visit}/return`, { note: 'Add the respiratory rate please' }, doctorCookie)).status, 200);
     assert.equal((await app.call(`${visit}/confirm`, {}, doctorCookie)).status, 409);
-    assert.equal((await json(await app.call('/api/v1/nurse/earnings', undefined, nurseCookie))).data.payouts.length, 0, 'nothing due yet');
+    assert.equal((await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data.balance, 0, 'nothing credited yet');
     assert.equal((await app.call(`${visit}/report`, { ...report, vitals: { ...report.vitals, respiratoryRate: 18 } }, nurseCookie)).status, 201);
     assert.equal((await app.call(`${visit}/confirm`, { note: 'All data received' }, doctorCookie)).status, 200);
     assert.equal((await app.call(`${visit}/report`, report, nurseCookie)).status, 409, 'no changes after confirmation');
 
-    const earnings = (await json(await app.call('/api/v1/nurse/earnings', undefined, nurseCookie))).data;
-    assert.equal(earnings.due, 3000);
-    assert.equal(earnings.payouts[0].currency, 'XAF');
+    let account = (await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data;
+    assert.deepEqual([account.balance, account.availableVisits, account.minimumVisits, account.canWithdraw], [3000, 1, 10, false]);
+    assert.equal(account.credits[0].visitDate, day(0));
     // What each person sees: the administrator follows progress without the clinical report.
     const adminView = (await json(await app.call('/api/v1/home-visits/progress', undefined, adminCookie))).data.visits[0];
     assert.equal(adminView.report, null);
-    assert.equal(adminView.payout.status, 'due');
+    assert.equal(adminView.payout.status, 'available');
     assert.equal((await json(await app.call('/api/v1/home-visits/progress', undefined, doctorCookie))).data.visits[0].report.vitals.respiratoryRate, 18);
-    // The administrator pays (outside the app) and records it.
-    const payout = (await json(await app.call('/api/v1/admin/nurse-payouts', undefined, adminCookie))).data.payouts[0];
-    assert.equal((await app.call(`/api/v1/admin/nurse-payouts/${payout.id}/paid`, { method: 'mobile_money', reference: '' }, adminCookie)).status, 400);
-    assert.equal((await app.call(`/api/v1/admin/nurse-payouts/${payout.id}/paid`, { method: 'mobile_money', reference: 'MP261026.1201.A12345' }, adminCookie)).status, 200);
-    assert.equal((await app.call(`/api/v1/admin/nurse-payouts/${payout.id}/paid`, { method: 'mobile_money', reference: 'again' }, adminCookie)).status, 409);
-    assert.equal((await app.call(`/api/v1/admin/nurse-payouts/${payout.id}/paid`, { method: 'cash', reference: 'x123' }, nurseCookie)).status, 403);
-    const after = (await json(await app.call('/api/v1/nurse/earnings', undefined, nurseCookie))).data;
-    assert.deepEqual([after.due, after.paid], [0, 3000]);
-    assert.equal(app.store.db.prepare('SELECT COUNT(*) AS n FROM nurse_payouts').get().n, 1, 'one payment per visit');
+    // Fewer than 10 visits: no withdrawal yet.
+    assert.match((await json(await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '677112233' }, nurseCookie))).error, /after 10 completed visits \(1 so far\)/);
+
+    // Nine more completed visits: the account accrues to 30,000 FCFA.
+    for (let n = 2; n <= 10; n++) {
+      const id = `hv-pay-${n}`, path = `/api/v1/home-visits/${id}`;
+      assert.equal((await app.call(`/api/v1/clinical/homeVisits/${id}`, { data: { patientId: patient.id, nurseId: nurse.id, doctorId: doctor.id, visitDate: day(0), visitTime: '23:00', status: 'scheduled', location: 'Home, Bonamoussadi' }, baseVersion: 0 }, patientCookie, 'PUT')).status, 201);
+      await app.call(`${path}/report`, report, nurseCookie);
+      await app.call(`${path}/feedback`, { rating: 5 }, patientCookie);
+      await app.call(`${path}/confirm`, {}, doctorCookie);
+    }
+    account = (await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data;
+    assert.deepEqual([account.balance, account.availableVisits, account.canWithdraw], [30000, 10, true]);
+    // The withdrawal takes the whole balance to the nurse's mobile money number (typed locally, stored as +237…).
+    assert.equal((await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '12345' }, nurseCookie)).status, 400);
+    assert.equal((await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '677 11 22 33' }, patientCookie)).status, 403);
+    const requested = await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '677 11 22 33' }, nurseCookie);
+    assert.equal(requested.status, 201);
+    account = (await json(requested)).data;
+    assert.deepEqual([account.balance, account.pending.amount, account.pending.visits, account.pending.destination, account.canWithdraw], [0, 30000, 10, '+237677112233', false]);
+    assert.equal((await app.call('/api/v1/nurse/withdrawals', { method: 'mobile_money', destination: '677112233' }, nurseCookie)).status, 409, 'one request at a time');
+    // The administrator declines (money back), the nurse asks again, the administrator pays.
+    const admin = async () => (await json(await app.call('/api/v1/admin/nurse-withdrawals', undefined, adminCookie))).data;
+    let list = await admin();
+    assert.equal(list.requested, 30000);
+    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${list.withdrawals[0].id}/decline`, { note: 'no' }, adminCookie)).status, 400, 'say why');
+    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${list.withdrawals[0].id}/decline`, { note: 'This number is not registered for mobile money' }, adminCookie)).status, 200);
+    assert.equal((await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data.balance, 30000, 'declined: back in the account');
+    assert.equal((await app.call('/api/v1/nurse/withdrawals', { method: 'bank_transfer', destination: 'Afriland First Bank, Ayuk, 10005 00001 01234567890 12' }, nurseCookie)).status, 201);
+    list = await admin();
+    const open = list.withdrawals.find(item => item.status === 'requested');
+    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${open.id}/paid`, { reference: '' }, adminCookie)).status, 400);
+    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${open.id}/paid`, { reference: 'VIR-2026-10-26-0042' }, nurseCookie)).status, 403);
+    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${open.id}/paid`, { reference: 'VIR-2026-10-26-0042' }, adminCookie)).status, 200);
+    assert.equal((await app.call(`/api/v1/admin/nurse-withdrawals/${open.id}/paid`, { reference: 'again' }, adminCookie)).status, 409);
+    account = (await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data;
+    assert.deepEqual([account.balance, account.totalPaid, account.totalEarned, account.withdrawals[0].reference], [0, 30000, 30000, 'VIR-2026-10-26-0042']);
+    assert.equal(app.store.db.prepare('SELECT COUNT(*) AS n FROM nurse_payouts').get().n, 10, 'one credit per visit');
+    assert.equal((await app.call('/api/v1/admin/nurse-payouts/x/paid', { method: 'cash', reference: 'x123' }, adminCookie)).status, 404, 'single visits are no longer paid one by one');
   } finally { await app.close(); }
 });
 
@@ -208,7 +238,7 @@ test('a visit whose doctor has left gets a new doctor in charge, so the nurse ca
     assert.equal(seen[0]?.doctorName, 'Synthetic doctor dc-');
     assert.equal((await app.call('/api/v1/home-visits/hv-dc/feedback', { rating: 4 }, patientCookie)).status, 201);
     assert.equal((await app.call('/api/v1/home-visits/hv-dc/confirm', {}, newCookie)).status, 200);
-    assert.equal((await json(await app.call('/api/v1/nurse/earnings', undefined, nurseCookie))).data.due, 3000);
+    assert.equal((await json(await app.call('/api/v1/nurse/account', undefined, nurseCookie))).data.balance, 3000);
     assert.equal((await app.call('/api/v1/admin/home-visits/hv-dc/doctor', { doctorId: replacement.id }, adminCookie)).status, 409, 'no change after confirmation');
   } finally { await app.close(); }
 });

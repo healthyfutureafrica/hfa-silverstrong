@@ -3,10 +3,11 @@
 //    qualifications and licence number. An administrator contacts the supervisor, checks every item (identity,
 //    licence with its expiry, qualifications, education, workplace, supervisor) and only then validates the
 //    account. Supervisor contact details are a third party's personal data: only administrators see them.
-// 2. Pay per home visit: VISIT_PAY_XAF (3,000 FCFA) becomes due once (a) the nurse has filed the visit report,
-//    (b) the patient has given feedback and (c) the doctor in charge has confirmed receiving all the data. Each step
-//    is recorded here by the person concerned, never by the nurse on someone else's behalf. Administrators pay
-//    outside the app (mobile money or bank) and record the reference.
+// 2. Pay per home visit: VISIT_PAY_XAF (3,000 FCFA) is credited to the nurse's account once (a) the nurse has
+//    filed the visit report, (b) the patient has given feedback and (c) the doctor in charge has confirmed receiving
+//    all the data. Each step is recorded here by the person concerned, never by the nurse on someone else's behalf.
+//    The balance accrues; from MIN_WITHDRAWAL_VISITS (10) credited visits the nurse can withdraw it all.
+//    Administrators pay outside the app (mobile money or bank) and record the reference, or decline (money returns).
 // 3. Weekly availability: each nurse keeps a weekly timetable and confirms or updates it at least every 7 days.
 //    Until it is current the nurse cannot be booked for home visits, and bookings must fit the timetable.
 const { randomUUID } = require('node:crypto');
@@ -16,6 +17,7 @@ const { filesConfigured } = require('./files');
 const { ensureClinicalTable } = require('./clinical');
 
 const VISIT_PAY_XAF = 3000;
+const MIN_WITHDRAWAL_VISITS = 10;
 const TIMETABLE_DAYS = 7;
 const CHECKS = ['identity', 'licence', 'qualifications', 'education', 'employment', 'supervisor'];
 const DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']; // index = Date#getUTCDay()
@@ -63,7 +65,14 @@ function ensureTables(store) {
     CREATE TABLE IF NOT EXISTS nurse_payouts (
       id TEXT PRIMARY KEY, visit_id TEXT NOT NULL UNIQUE, nurse_id TEXT NOT NULL, amount INTEGER NOT NULL, currency TEXT NOT NULL,
       status TEXT NOT NULL, due_at TEXT NOT NULL, paid_at TEXT, paid_by TEXT, method TEXT, reference TEXT
+    );
+    CREATE TABLE IF NOT EXISTS nurse_withdrawals (
+      id TEXT PRIMARY KEY, nurse_id TEXT NOT NULL, amount INTEGER NOT NULL, visits INTEGER NOT NULL, method TEXT NOT NULL, destination TEXT NOT NULL,
+      status TEXT NOT NULL, requested_at TEXT NOT NULL, decided_at TEXT, decided_by TEXT, reference TEXT, note TEXT
     );`);
+  // Each visit's pay is a credit to the nurse's account: available, then requested (in a withdrawal), then paid.
+  if (!store.db.prepare('PRAGMA table_info(nurse_payouts)').all().some(column => column.name === 'withdrawal_id')) store.db.exec('ALTER TABLE nurse_payouts ADD COLUMN withdrawal_id TEXT');
+  store.db.exec("UPDATE nurse_payouts SET status='available' WHERE status='due'");
   // A doctor in charge set by an administrator (visits booked without one, or whose doctor has left).
   if (!store.db.prepare('PRAGMA table_info(home_visit_steps)').all().some(column => column.name === 'doctor_id')) store.db.exec('ALTER TABLE home_visit_steps ADD COLUMN doctor_id TEXT');
 }
@@ -294,10 +303,9 @@ function installNurseWorkforceRoutes(app, config, store, authenticated, admin) {
   function settle(visit) {
     const steps = stepsOf(visit.id);
     if (!steps?.report_at || steps.returned_at || !steps.feedback_at || !steps.confirmed_at || payoutOf(visit.id)) return;
-    store.db.prepare('INSERT INTO nurse_payouts (id,visit_id,nurse_id,amount,currency,status,due_at) VALUES (?,?,?,?,?,?,?)').run(randomUUID(), visit.id, visit.nurseId, VISIT_PAY_XAF, 'XAF', 'due', new Date().toISOString());
-    store.audit(visit.nurseId, 'NURSE_VISIT_PAY_DUE', { targetId: visit.nurseId, details: { visitId: visit.id, amount: VISIT_PAY_XAF, currency: 'XAF' } });
-    notify(store, visit.nurseId, 'Billing', 'HFA SilverStrong: A home visit is complete and your pay for it is due. Sign in to see your earnings.');
-    for (const row of store.db.prepare("SELECT id FROM users WHERE role='admin' AND status='active'").all()) notify(store, row.id, 'Billing', 'HFA SilverStrong: A nurse home visit payment is due. Sign in to review Nurse payments.');
+    store.db.prepare('INSERT INTO nurse_payouts (id,visit_id,nurse_id,amount,currency,status,due_at) VALUES (?,?,?,?,?,?,?)').run(randomUUID(), visit.id, visit.nurseId, VISIT_PAY_XAF, 'XAF', 'available', new Date().toISOString());
+    store.audit(visit.nurseId, 'NURSE_VISIT_CREDITED', { targetId: visit.nurseId, details: { visitId: visit.id, amount: VISIT_PAY_XAF, currency: 'XAF' } });
+    notify(store, visit.nurseId, 'Billing', 'HFA SilverStrong: 3,000 FCFA for a completed home visit has been added to your HFA account. Sign in to see your balance.');
   }
 
   app.get('/api/v1/home-visits/progress', authenticated, storage, (request, response) => {
@@ -386,27 +394,89 @@ function installNurseWorkforceRoutes(app, config, store, authenticated, admin) {
     response.json(ok(progressView(request.user, visit.data, stepsOf(visit.data.id)), 'Sent back to the nurse'));
   });
 
-  app.get('/api/v1/nurse/earnings', authenticated, nurseOnly, (request, response) => {
-    const payouts = store.db.prepare('SELECT * FROM nurse_payouts WHERE nurse_id=? ORDER BY due_at DESC').all(request.user.id).map(payoutView);
-    const sum = status => payouts.filter(item => item.status === status).reduce((total, item) => total + item.amount, 0);
-    response.json(ok({ payouts, due: sum('due'), paid: sum('paid'), currency: 'XAF', payPerVisit: VISIT_PAY_XAF }));
+  // ───── The nurse's account: 3,000 FCFA credited per completed visit; withdrawal from 10 visits ─────
+  const withdrawalView = row => row && { id: row.id, nurseId: row.nurse_id, nurseName: nameOf(row.nurse_id), amount: row.amount, visits: row.visits, currency: 'XAF', method: row.method, destination: row.destination,
+    status: row.status, requestedAt: row.requested_at, decidedAt: row.decided_at, decidedBy: nameOf(row.decided_by), reference: row.reference, note: row.note };
+  function account(nurseId) {
+    const credits = store.db.prepare('SELECT * FROM nurse_payouts WHERE nurse_id=? ORDER BY due_at DESC').all(nurseId);
+    const sum = status => credits.filter(row => !status || row.status === status).reduce((total, row) => total + row.amount, 0);
+    const available = credits.filter(row => row.status === 'available');
+    const withdrawals = store.db.prepare('SELECT * FROM nurse_withdrawals WHERE nurse_id=? ORDER BY requested_at DESC').all(nurseId).map(withdrawalView);
+    return {
+      balance: sum('available'), availableVisits: available.length, minimumVisits: MIN_WITHDRAWAL_VISITS, payPerVisit: VISIT_PAY_XAF, currency: 'XAF',
+      canWithdraw: available.length >= MIN_WITHDRAWAL_VISITS && !withdrawals.some(item => item.status === 'requested'),
+      pending: withdrawals.find(item => item.status === 'requested') || null,
+      totalEarned: sum(), totalPaid: sum('paid'), totalVisits: credits.length,
+      credits: credits.map(row => { const visit = visitOf(row.visit_id)?.data; return { ...payoutView(row), visitDate: visit?.visitDate || null, patientName: visit ? nameOf(visit.patientId) : null }; }),
+      withdrawals
+    };
+  }
+  app.get('/api/v1/nurse/account', authenticated, nurseOnly, storage, (request, response) => response.set('Cache-Control', 'no-store').json(ok(account(request.user.id))));
+  app.post('/api/v1/nurse/withdrawals', authenticated, own, nurseOnly, storage, (request, response) => {
+    const input = z.object({ method: z.enum(['mobile_money', 'bank_transfer']), destination: z.string().trim().min(5).max(200).regex(/^[^<>\u0000-\u001f]+$/, 'remove < and > characters') }).strict().parse(request.body);
+    let destination = input.destination;
+    if (input.method === 'mobile_money') {
+      destination = destination.replace(/[\s().-]/g, '');
+      if (/^[26]\d{8}$/.test(destination)) destination = '+237' + destination;
+      if (!/^\+2376\d{8}$/.test(destination)) return response.status(400).json({ error: 'destination: Enter a Cameroon mobile money number, e.g. +237 6XX XX XX XX' });
+    } else if (destination.length < 10) return response.status(400).json({ error: 'destination: Give the bank name, account holder and account number (RIB)' });
+    const now = new Date().toISOString(), id = randomUUID();
+    store.db.exec('BEGIN IMMEDIATE');
+    try {
+      const current = account(request.user.id);
+      if (current.pending) { store.db.exec('ROLLBACK'); return response.status(409).json({ error: 'You already have a withdrawal being processed' }); }
+      if (current.availableVisits < MIN_WITHDRAWAL_VISITS) { store.db.exec('ROLLBACK'); return response.status(409).json({ error: `You can withdraw after ${MIN_WITHDRAWAL_VISITS} completed visits (${current.availableVisits} so far)` }); }
+      store.db.prepare('INSERT INTO nurse_withdrawals (id,nurse_id,amount,visits,method,destination,status,requested_at) VALUES (?,?,?,?,?,?,?,?)').run(id, request.user.id, current.balance, current.availableVisits, input.method, destination, 'requested', now);
+      store.db.prepare("UPDATE nurse_payouts SET status='requested', withdrawal_id=? WHERE nurse_id=? AND status='available'").run(id, request.user.id);
+      store.audit(request.user.id, 'NURSE_WITHDRAWAL_REQUESTED', { targetId: request.user.id, details: { amount: current.balance, visits: current.availableVisits, method: input.method }, ip: request.ip });
+      store.db.exec('COMMIT');
+    } catch (error) { store.db.exec('ROLLBACK'); throw error; }
+    for (const row of store.db.prepare("SELECT id FROM users WHERE role='admin' AND status='active'").all()) notify(store, row.id, 'Billing', 'HFA SilverStrong: A nurse has asked to withdraw their home visit earnings. Sign in to review Nurse payments.');
+    response.status(201).json(ok(account(request.user.id), 'Withdrawal requested'));
   });
-  app.get('/api/v1/admin/nurse-payouts', authenticated, admin, (request, response) => {
-    const payouts = store.db.prepare("SELECT * FROM nurse_payouts ORDER BY CASE status WHEN 'due' THEN 0 ELSE 1 END, due_at DESC").all().map(payoutView);
-    response.json(ok({ payouts, due: payouts.filter(item => item.status === 'due').reduce((total, item) => total + item.amount, 0), currency: 'XAF' }));
+
+  app.get('/api/v1/admin/nurse-withdrawals', authenticated, admin, (request, response) => {
+    const withdrawals = store.db.prepare("SELECT * FROM nurse_withdrawals ORDER BY CASE status WHEN 'requested' THEN 0 ELSE 1 END, requested_at DESC").all().map(withdrawalView);
+    const credited = store.db.prepare("SELECT COALESCE(SUM(amount),0) AS total, COUNT(*) AS visits FROM nurse_payouts WHERE status='available'").get();
+    response.json(ok({ withdrawals, requested: withdrawals.filter(item => item.status === 'requested').reduce((total, item) => total + item.amount, 0), credited: credited.total, creditedVisits: credited.visits, currency: 'XAF' }));
   });
-  app.post('/api/v1/admin/nurse-payouts/:id/paid', authenticated, admin, (request, response) => {
-    const input = z.object({ method: z.enum(['mobile_money', 'bank_transfer', 'cash']), reference: text(80, 3) }).strict().parse(request.body);
-    const row = store.db.prepare('SELECT * FROM nurse_payouts WHERE id=?').get(request.params.id);
-    if (!row) return response.sendStatus(404);
-    if (row.status === 'paid') return response.status(409).json({ error: 'Already marked as paid' });
-    store.db.prepare("UPDATE nurse_payouts SET status='paid',paid_at=?,paid_by=?,method=?,reference=? WHERE id=?").run(new Date().toISOString(), request.user.id, input.method, input.reference, row.id);
-    store.audit(request.user.id, 'NURSE_VISIT_PAID', { targetId: row.nurse_id, details: { visitId: row.visit_id, amount: row.amount, method: input.method }, ip: request.ip });
-    notify(store, row.nurse_id, 'Billing', 'HFA SilverStrong: A home visit payment has been sent to you. Sign in to see the details.');
-    response.json(ok(payoutView(store.db.prepare('SELECT * FROM nurse_payouts WHERE id=?').get(row.id)), 'Marked as paid'));
+  const decide = (request, response) => {
+    const row = store.db.prepare('SELECT * FROM nurse_withdrawals WHERE id=?').get(request.params.id);
+    if (!row) { response.sendStatus(404); return null; }
+    if (row.status !== 'requested') { response.status(409).json({ error: 'This withdrawal has already been handled' }); return null; }
+    return row;
+  };
+  // The administrator pays (mobile money or bank transfer) outside the app, then records the reference.
+  app.post('/api/v1/admin/nurse-withdrawals/:id/paid', authenticated, admin, (request, response) => {
+    const input = z.object({ reference: text(80, 3) }).strict().parse(request.body);
+    const row = decide(request, response); if (!row) return;
+    const now = new Date().toISOString();
+    store.db.exec('BEGIN IMMEDIATE');
+    try {
+      store.db.prepare("UPDATE nurse_withdrawals SET status='paid',decided_at=?,decided_by=?,reference=? WHERE id=?").run(now, request.user.id, input.reference, row.id);
+      store.db.prepare("UPDATE nurse_payouts SET status='paid',paid_at=?,paid_by=?,method=?,reference=? WHERE withdrawal_id=?").run(now, request.user.id, row.method, input.reference, row.id);
+      store.audit(request.user.id, 'NURSE_WITHDRAWAL_PAID', { targetId: row.nurse_id, details: { amount: row.amount, visits: row.visits, method: row.method }, ip: request.ip });
+      store.db.exec('COMMIT');
+    } catch (error) { store.db.exec('ROLLBACK'); throw error; }
+    notify(store, row.nurse_id, 'Billing', 'HFA SilverStrong: Your withdrawal has been paid. Sign in to see the reference.');
+    response.json(ok(withdrawalView(store.db.prepare('SELECT * FROM nurse_withdrawals WHERE id=?').get(row.id)), 'Marked as paid'));
+  });
+  // Declined (e.g. wrong number): the money goes back to the nurse's account.
+  app.post('/api/v1/admin/nurse-withdrawals/:id/decline', authenticated, admin, (request, response) => {
+    const input = z.object({ note: text(500, 5) }).strict().parse(request.body);
+    const row = decide(request, response); if (!row) return;
+    store.db.exec('BEGIN IMMEDIATE');
+    try {
+      store.db.prepare("UPDATE nurse_withdrawals SET status='declined',decided_at=?,decided_by=?,note=? WHERE id=?").run(new Date().toISOString(), request.user.id, input.note, row.id);
+      store.db.prepare("UPDATE nurse_payouts SET status='available', withdrawal_id=NULL WHERE withdrawal_id=?").run(row.id);
+      store.audit(request.user.id, 'NURSE_WITHDRAWAL_DECLINED', { targetId: row.nurse_id, details: { amount: row.amount }, ip: request.ip });
+      store.db.exec('COMMIT');
+    } catch (error) { store.db.exec('ROLLBACK'); throw error; }
+    notify(store, row.nurse_id, 'Billing', 'HFA SilverStrong: Your withdrawal could not be paid and the amount is back in your account. Sign in to see why.');
+    response.json(ok(withdrawalView(store.db.prepare('SELECT * FROM nurse_withdrawals WHERE id=?').get(row.id)), 'Declined'));
   });
 
   return { activationBlocked };
 }
 
-module.exports = { installNurseWorkforceRoutes, recordApplication, visitScheduleProblem, nurseApplication, availabilityOf, VISIT_PAY_XAF, CHECKS };
+module.exports = { installNurseWorkforceRoutes, recordApplication, visitScheduleProblem, nurseApplication, availabilityOf, VISIT_PAY_XAF, MIN_WITHDRAWAL_VISITS, CHECKS };
