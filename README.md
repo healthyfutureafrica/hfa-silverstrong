@@ -6,7 +6,9 @@ A three-in-one application that covers 1. healthcare, 2. fitness & health tips a
 **To put the real system online (app + server + encrypted database with automatic HTTPS), follow [DEPLOY.md](DEPLOY.md).**
 It uses `deploy/docker-compose.prod.yml` (Caddy + Let's Encrypt), `deploy/production.env.example`,
 `deploy/setup-ubuntu.sh` and daily backups with `deploy/backup.sh`. Production forces two-step sign-in for
-administrators.
+administrators. If the Super Admin's phone is unavailable, the sign-in screen can email a one-time code (valid
+10 minutes, at most 3 per sign-in, a minute apart, audited) once `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` and
+`MAIL_FROM` are set (`backend/mailer.js`; a Gmail app password is free). Recovery codes keep working too.
 
 The public website `www.healthyfutureafrica.org` runs on Cloudflare (`wrangler.jsonc`) without the server, with an
 edge script (`worker/index.js`) that forces HTTPS and adds security headers. It offers what works without an

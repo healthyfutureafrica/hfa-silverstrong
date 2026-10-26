@@ -107,3 +107,64 @@ test('two-step sign-in: setup, sign-in with a code, no code reuse, recovery code
     assert.deepEqual(app.store.auditLog().map(entry => entry.action).filter(action => action.startsWith('MFA')).sort(), ['MFA_ENABLED', 'MFA_RECOVERY_CODE_USED']);
   } finally { await app.close(); }
 });
+
+test('Super Admin backup: a sign-in code by email when the phone is unavailable', async () => {
+  const sent = [];
+  let failing = false;
+  const app = await start({ requireAdminMfa: true, mailTransport: { sendMail: async message => { if (failing) throw new Error('smtp down'); sent.push(message); } } });
+  try {
+    app.store.createUser({ name: 'Synthetic Owner', email: 'owner@example.com', role: 'admin' }, await hashPassword('Synthetic-admin-pass-9'), 'active');
+    app.store.createUser({ name: 'Synthetic Nurse', email: 'nurse-mail@example.com', role: 'nurse' }, await hashPassword('Synthetic-nurse-pass-9'), 'active');
+    const turnOn = async (email, password) => {
+      const browser = client(app.base);
+      await browser.call('/api/auth/login', { email, password });
+      const setup = await (await browser.call('/api/v1/account/mfa/setup', {})).json();
+      await browser.call('/api/v1/account/mfa/enable', { code: codeFor(setup.secret) });
+      return browser;
+    };
+    const owner = await turnOn('owner@example.com', 'Synthetic-admin-pass-9');
+    await turnOn('nurse-mail@example.com', 'Synthetic-nurse-pass-9');
+    assert.deepEqual(await (await owner.call('/api/v1/account/mfa/email-backup')).json(), { eligible: true, sentTo: 'ow•••@example.com', configured: true });
+
+    const login = async (browser, email, password) => (await browser.call('/api/auth/login', { email, password })).json();
+    const phoneDown = client(app.base);
+    const first = await login(phoneDown, 'owner@example.com', 'Synthetic-admin-pass-9');
+    assert.equal(first.emailCode, 'ow•••@example.com', 'the sign-in screen offers the email option');
+    const delivered = await phoneDown.call('/api/auth/mfa/email', { challenge: first.challenge });
+    assert.equal(delivered.status, 200);
+    assert.equal(sent.length, 1);
+    assert.equal(sent[0].to, 'owner@example.com');
+    const code = sent[0].subject.slice(0, 6);
+    assert.match(code, /^\d{6}$/);
+    assert.equal((await phoneDown.call('/api/auth/mfa/email', { challenge: first.challenge })).status, 429, 'a minute between emails');
+    assert.equal((await phoneDown.call('/api/session')).status, 401, 'the email alone signs nobody in');
+    const signedIn = await phoneDown.call('/api/auth/mfa', { challenge: first.challenge, code });
+    assert.equal(signedIn.status, 200);
+    assert.equal((await signedIn.json()).user.email, 'owner@example.com');
+    // The code worked once, for that sign-in only.
+    const second = await login(client(app.base), 'owner@example.com', 'Synthetic-admin-pass-9');
+    assert.equal((await client(app.base).call('/api/auth/mfa', { challenge: second.challenge, code })).status, 401);
+    // A wrong challenge or a non-admin account gets nothing.
+    assert.equal((await client(app.base).call('/api/auth/mfa/email', { challenge: 'x'.repeat(64) })).status, 401);
+    const nurse = await login(client(app.base), 'nurse-mail@example.com', 'Synthetic-nurse-pass-9');
+    assert.equal(nurse.emailCode, null);
+    assert.equal((await client(app.base).call('/api/auth/mfa/email', { challenge: nurse.challenge })).status, 403);
+    assert.equal(sent.length, 1);
+    // A mail failure says so and points to the other options.
+    failing = true;
+    const third = await login(client(app.base), 'owner@example.com', 'Synthetic-admin-pass-9');
+    assert.equal((await client(app.base).call('/api/auth/mfa/email', { challenge: third.challenge })).status, 502);
+    const actions = app.store.auditLog().map(entry => entry.action);
+    for (const action of ['MFA_EMAIL_CODE_SENT', 'MFA_EMAIL_CODE_USED', 'MFA_EMAIL_CODE_FAILED']) assert.ok(actions.includes(action), action);
+  } finally { await app.close(); }
+});
+
+test('without an email service the backup is not offered', async () => {
+  const app = await start({ requireAdminMfa: true });
+  try {
+    app.store.createUser({ name: 'Synthetic Owner', email: 'owner2@example.com', role: 'admin' }, await hashPassword('Synthetic-admin-pass-9'), 'active');
+    const browser = client(app.base);
+    await browser.call('/api/auth/login', { email: 'owner2@example.com', password: 'Synthetic-admin-pass-9' });
+    assert.deepEqual(await (await browser.call('/api/v1/account/mfa/email-backup')).json(), { eligible: true, sentTo: null, configured: false });
+  } finally { await app.close(); }
+});

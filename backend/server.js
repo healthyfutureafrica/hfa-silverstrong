@@ -4,6 +4,7 @@ const { rateLimit } = require('express-rate-limit');
 const { z } = require('zod');
 const { Store, hashPassword, verifyPassword, SESSION_TTL } = require('./store');
 const { configuration, validSignature, MetaProvider } = require('./provider');
+const { createMailer } = require('./mailer');
 const { randomUUID } = require('node:crypto');
 const { installFileRoutes, filesConfigured, fileMime, saveEncryptedFile, decodeFile } = require('./files');
 const { installPharmacyRoutes } = require('./pharmacy');
@@ -165,7 +166,7 @@ function createApp(config, store, provider) {
     httpOnly: true, sameSite: 'strict', secure: config.origin.startsWith('https://'), path: '/api', maxAge: SESSION_TTL
   });
   const sessionPayload = user => ({ user: withHealth(config, store, user, [user])[0], users: withHealth(config, store, user, store.visibleUsers(user)), notifications: store.notifications(user.id) });
-  const security = installAccountSecurity(app, config, store, authenticated, { authLimit, startSession, sessionPayload, cookieToken });
+  const security = installAccountSecurity(app, config, store, authenticated, { authLimit, startSession, sessionPayload, cookieToken, mailer: createMailer(config) });
   installAccountRecovery(app, store, authenticated, admin, { authLimit, passwordProblem });
   installNotifyRoutes(app, config, store, authenticated);
   installDoctorPhotoRoutes(app, config, store, authenticated, admin);
@@ -300,7 +301,7 @@ function createApp(config, store, provider) {
     if (user.status !== 'active') return response.status(403).json({ error: 'Account is not active; administrator review may be required' });
     // Two-step sign-in: no session until the code from the authenticator app is checked (POST /api/auth/mfa).
     const challenge = security.challengeFor(user);
-    if (challenge) return response.json({ mfaRequired: true, challenge });
+    if (challenge) return response.json({ mfaRequired: true, challenge, emailCode: security.emailBackupFor(user) });
     startSession(response, user);
     response.json(sessionPayload(user));
   });

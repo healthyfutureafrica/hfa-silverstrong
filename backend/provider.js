@@ -1,5 +1,6 @@
 const { createHmac, timingSafeEqual, randomBytes } = require('node:crypto');
 const { digest } = require('./store');
+const { mailConfiguration } = require('./mailer');
 
 function configuration(env = process.env) {
   const config = {
@@ -21,7 +22,9 @@ function configuration(env = process.env) {
     // for transfers abroad. AI_TRIAGE_ENABLED is the earlier name of AI_ENABLED.
     aiTriageEnabled: env.AI_ENABLED === 'true' || env.AI_TRIAGE_ENABLED === 'true',
     // Cost control: AI requests per person per day (all AI features together).
-    aiDailyLimit: Number(env.AI_DAILY_LIMIT || 30)
+    aiDailyLimit: Number(env.AI_DAILY_LIMIT || 30),
+    // Email for the Super Admin's backup sign-in codes (see mailer.js).
+    smtp: mailConfiguration(env)
   };
   if (!/^https?:\/\//.test(config.origin) || new URL(config.origin).origin !== config.origin ||
       !/^https?:\/\//.test(config.loginUrl) || !/^v\d+\.\d+$/.test(config.graphVersion) ||

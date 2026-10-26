@@ -1,16 +1,21 @@
 // Account security: change password and two-step sign-in (TOTP, RFC 6238) with recovery codes.
 // Administrators must have two-step sign-in before admin tools work (see requireAdminMfa in server.js).
-const { createHmac, randomBytes, createCipheriv, createDecipheriv, timingSafeEqual } = require('node:crypto');
+const { createHmac, randomBytes, randomInt, createCipheriv, createDecipheriv, timingSafeEqual } = require('node:crypto');
 const { z } = require('zod');
 const QRCode = require('qrcode');
 const { digest, hashPassword, verifyPassword } = require('./store');
 const { filesConfigured } = require('./files');
+const { maskEmail } = require('./mailer');
 
 const ISSUER = 'HFA SilverStrong';
 const STEP_SECONDS = 30;
 const CHALLENGE_TTL = 5 * 60 * 1000;
 const MAX_CHALLENGE_ATTEMPTS = 5;
 const RECOVERY_CODES = 8;
+// Backup codes by email (Super Admin, when the phone is unavailable).
+const EMAIL_CODE_TTL = 10 * 60 * 1000;
+const EMAIL_RESEND_WAIT = 60 * 1000;
+const MAX_EMAIL_SENDS = 3;
 // Passwords people (and attackers) try first; compared after lower-casing and removing digits and symbols.
 const COMMON = ['password', 'passw', 'motdepasse', 'admin', 'administrator', 'superadmin', 'welcome', 'bienvenue', 'qwerty', 'azerty', 'letmein',
   'hfa', 'silverstrong', 'healthyfutureafrica', 'cameroon', 'cameroun', 'doctor', 'nurse', 'patient', 'pharmacist', 'iloveyou', 'abc', 'test', 'changeme'];
@@ -78,6 +83,10 @@ function ensureTables(store) {
   store.db.exec(`CREATE TABLE IF NOT EXISTS mfa_challenges (
     token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL, expires_at INTEGER NOT NULL, attempts INTEGER NOT NULL DEFAULT 0
   )`);
+  const challengeColumns = store.db.prepare('PRAGMA table_info(mfa_challenges)').all().map(column => column.name);
+  for (const [name, type] of [['email_code_hash', 'TEXT'], ['email_code_expires', 'INTEGER'], ['email_sends', 'INTEGER NOT NULL DEFAULT 0'], ['email_sent_at', 'INTEGER']]) {
+    if (!challengeColumns.includes(name)) store.db.exec(`ALTER TABLE mfa_challenges ADD COLUMN ${name} ${type}`);
+  }
 }
 
 /** Checks the strength of a new password. Returns an error message or null. */
@@ -94,8 +103,10 @@ function passwordProblem(password, user) {
   return null;
 }
 
-function installAccountSecurity(app, config, store, authenticated, { authLimit, startSession, sessionPayload, cookieToken }) {
+function installAccountSecurity(app, config, store, authenticated, { authLimit, startSession, sessionPayload, cookieToken, mailer }) {
   ensureTables(store);
+  // Only the Super Admin (every server administrator) may receive sign-in codes by email, and only with a real address.
+  const emailBackupFor = user => mailer && user?.role === 'admin' && /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(user.email || '') && !/\.invalid$/i.test(user.email) ? maskEmail(user.email) : null;
   const mfaRow = id => store.db.prepare('SELECT mfa_secret,mfa_pending_secret,mfa_enabled_at,mfa_last_step,mfa_recovery FROM users WHERE id=?').get(id);
   const notForSomeoneElse = (request, response, next) => request.impersonator ? response.status(403).json({ error: 'Only the account owner can change sign-in settings' }) : next();
   const storageReady = (request, response, next) => filesConfigured(config) ? next() : response.status(503).json({ error: 'Encrypted storage is not configured' });
@@ -160,6 +171,40 @@ function installAccountSecurity(app, config, store, authenticated, { authLimit, 
     response.json({ user: store.user(request.user.id) });
   });
 
+  // Whether backup codes by email are ready for this account (shown on the Account security page).
+  app.get('/api/v1/account/mfa/email-backup', authenticated, (request, response) => {
+    response.json({ eligible: request.user.role === 'admin', sentTo: emailBackupFor(request.user), configured: !!mailer });
+  });
+
+  // Sign-in step 2, backup: a one-time code sent to the Super Admin's email when the phone is unavailable.
+  // The password has already been checked (the challenge exists); at most 3 emails per sign-in, a minute apart.
+  app.post('/api/auth/mfa/email', authLimit, async (request, response) => {
+    const { challenge } = z.object({ challenge: z.string().min(20).max(200) }).strict().parse(request.body);
+    const tokenHash = digest(challenge), now = Date.now();
+    const pending = store.db.prepare('SELECT * FROM mfa_challenges WHERE token_hash=? AND expires_at>?').get(tokenHash, now);
+    if (!pending) return response.status(401).json({ error: 'This sign-in has expired. Enter your password again.' });
+    const user = store.user(pending.user_id);
+    if (!user || user.status !== 'active' || !mfaRow(user.id)?.mfa_secret) return response.status(401).json({ error: 'Sign in again' });
+    if (!emailBackupFor(user)) return response.status(403).json({ error: 'Codes by email are not available for this account' });
+    if (pending.attempts >= MAX_CHALLENGE_ATTEMPTS || pending.email_sends >= MAX_EMAIL_SENDS) return response.status(429).json({ error: 'Too many codes sent. Enter your password again later.' });
+    if (pending.email_sent_at && now - pending.email_sent_at < EMAIL_RESEND_WAIT) return response.status(429).json({ error: 'A code was just sent. Wait a minute before asking for another.', retryAfter: Math.ceil((EMAIL_RESEND_WAIT - (now - pending.email_sent_at)) / 1000) });
+    const code = String(randomInt(0, 1000000)).padStart(6, '0');
+    // A new code replaces the previous one; the sign-in stays open long enough to read the email.
+    store.db.prepare('UPDATE mfa_challenges SET email_code_hash=?, email_code_expires=?, email_sends=email_sends+1, email_sent_at=?, expires_at=MAX(expires_at, ?) WHERE token_hash=?')
+      .run(digest(`${tokenHash}:${code}`), now + EMAIL_CODE_TTL, now, now + EMAIL_CODE_TTL, tokenHash);
+    try {
+      await mailer.send({
+        to: user.email, subject: `${code} is your HFA SilverStrong sign-in code`,
+        text: `Your HFA SilverStrong sign-in code is ${code}\n\nIt works once, for 10 minutes. Somebody entered your password to sign in; if this was not you, change your password now.\n\nVotre code de connexion HFA SilverStrong est ${code}\n\nIl est valable une fois, pendant 10 minutes. Quelqu’un a saisi votre mot de passe pour se connecter ; si ce n’est pas vous, changez votre mot de passe maintenant.`
+      });
+    } catch (error) {
+      store.audit(user.id, 'MFA_EMAIL_CODE_FAILED', { targetId: user.id, ip: request.ip });
+      return response.status(502).json({ error: 'The email could not be sent. Use your authenticator app or a recovery code.' });
+    }
+    store.audit(user.id, 'MFA_EMAIL_CODE_SENT', { targetId: user.id, ip: request.ip });
+    response.json({ sentTo: maskEmail(user.email), expiresIn: EMAIL_CODE_TTL / 1000 });
+  });
+
   // Sign-in step 2: the code (or a one-time recovery code) for a pending challenge.
   app.post('/api/auth/mfa', authLimit, (request, response) => {
     const { challenge, code } = z.object({ challenge: z.string().min(20).max(200), code: z.string().trim().min(6).max(20) }).strict().parse(request.body);
@@ -175,6 +220,10 @@ function installAccountSecurity(app, config, store, authenticated, { authLimit, 
       const step = matchTotp(openSecret(config, user.id, row.mfa_secret), cleaned);
       // A code can be used only once (replay protection).
       if (step !== null && step > (row.mfa_last_step ?? -1)) { ok = true; store.db.prepare('UPDATE users SET mfa_last_step=? WHERE id=?').run(step, user.id); }
+      // Otherwise, the code sent by email for this sign-in (valid once, 10 minutes).
+      else if (pending.email_code_hash && pending.email_code_expires > Date.now() && timingSafeEqual(Buffer.from(pending.email_code_hash), Buffer.from(digest(`${tokenHash}:${cleaned}`)))) {
+        ok = true; store.audit(user.id, 'MFA_EMAIL_CODE_USED', { targetId: user.id, ip: request.ip });
+      }
     } else {
       const formatted = cleaned.replace(/-/g, '').match(/.{1,5}/g)?.join('-') || '';
       const hashes = JSON.parse(row.mfa_recovery || '[]'), index = hashes.indexOf(digest(formatted));
@@ -198,7 +247,9 @@ function installAccountSecurity(app, config, store, authenticated, { authLimit, 
       store.db.prepare('INSERT INTO mfa_challenges (token_hash,user_id,expires_at) VALUES (?,?,?)').run(digest(token), user.id, Date.now() + CHALLENGE_TTL);
       return token;
     },
-    mfaEnabled: userId => !!mfaRow(userId)?.mfa_enabled_at
+    mfaEnabled: userId => !!mfaRow(userId)?.mfa_enabled_at,
+    /** The masked address a backup code can be sent to, or null. */
+    emailBackupFor
   };
 }
 

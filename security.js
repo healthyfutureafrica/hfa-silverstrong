@@ -21,7 +21,11 @@
     sec_mfa_disable: 'Turn off', sec_mfa_disable_title: 'Turn off two-step sign-in', sec_mfa_disable_body: 'Enter your password and a current code to turn it off.',
     sec_mfa_demo: 'Two-step sign-in works when the app is connected to the HFA server.',
     sec_login_code_title: 'Enter your sign-in code', sec_login_code_body: 'Open your authenticator app and type the 6-digit code for HFA SilverStrong.',
-    sec_login_recovery: 'Lost your phone? Type one of your recovery codes instead.', sec_login_verify: 'Verify', sec_login_back: 'Back'
+    sec_login_recovery: 'Lost your phone? Type one of your recovery codes instead.', sec_login_verify: 'Verify', sec_login_back: 'Back',
+    sec_login_email: 'Phone unavailable? Send a code to {email}', sec_login_email_sent: 'We sent a 6-digit code to {email}. Type it below; it works once, for 10 minutes. Check your spam folder if it has not arrived.',
+    sec_login_email_wait: 'Send another code in {seconds} s', sec_login_email_again: 'Send another code by email',
+    sec_mfa_email_ready: 'Backup if your phone is unavailable: a sign-in code by email to {email}.',
+    sec_mfa_email_off: 'Backup by email: not set up yet. The server needs an email service (SMTP_HOST, SMTP_USER, SMTP_PASS, MAIL_FROM in .env).'
   });
   Object.assign(T.fr, {
     sec_nav: 'Sécurité du compte', sec_title: 'Sécurité du compte', sec_intro: 'Protégez votre compte : utilisez un mot de passe solide et activez la connexion en deux étapes.',
@@ -41,7 +45,11 @@
     sec_mfa_disable: 'Désactiver', sec_mfa_disable_title: 'Désactiver la connexion en deux étapes', sec_mfa_disable_body: 'Saisissez votre mot de passe et un code actuel pour la désactiver.',
     sec_mfa_demo: 'La connexion en deux étapes fonctionne lorsque l’application est connectée au serveur HFA.',
     sec_login_code_title: 'Saisissez votre code de connexion', sec_login_code_body: 'Ouvrez votre application d’authentification et saisissez le code à 6 chiffres pour HFA SilverStrong.',
-    sec_login_recovery: 'Téléphone perdu ? Saisissez plutôt un de vos codes de secours.', sec_login_verify: 'Vérifier', sec_login_back: 'Retour'
+    sec_login_recovery: 'Téléphone perdu ? Saisissez plutôt un de vos codes de secours.', sec_login_verify: 'Vérifier', sec_login_back: 'Retour',
+    sec_login_email: 'Téléphone indisponible ? Envoyer un code à {email}', sec_login_email_sent: 'Nous avons envoyé un code à 6 chiffres à {email}. Saisissez-le ci-dessous ; il est valable une fois, pendant 10 minutes. Vérifiez vos courriers indésirables s’il n’est pas arrivé.',
+    sec_login_email_wait: 'Nouveau code possible dans {seconds} s', sec_login_email_again: 'Envoyer un autre code par e-mail',
+    sec_mfa_email_ready: 'Secours si votre téléphone est indisponible : un code de connexion par e-mail à {email}.',
+    sec_mfa_email_off: 'Secours par e-mail : pas encore configuré. Le serveur a besoin d’un service e-mail (SMTP_HOST, SMTP_USER, SMTP_PASS, MAIL_FROM dans .env).'
   });
 
   const needsMfa = () => ApiState.enabled && ApiState.requireAdminMfa && CU?.role === 'admin' && !CU.mfaEnabled && !window.HFA_IMPERSONATED_BY;
@@ -84,6 +92,11 @@
       </div>
     </div>`;
     document.getElementById('sec-pw-form').addEventListener('submit', changePassword);
+    if (ApiState.enabled && CU.role === 'admin' && !window.HFA_IMPERSONATED_BY) {
+      apiRequest('/api/v1/account/mfa/email-backup').then(status => {
+        document.getElementById('sec-mfa-card')?.insertAdjacentHTML('beforeend', `<p class="mu sm mt8" id="sec-mfa-email">✉️ ${esc(status.sentTo ? tf('sec_mfa_email_ready', { email: status.sentTo }) : t('sec_mfa_email_off'))}</p>`);
+      }).catch(() => {});
+    }
   }
 
   async function changePassword(event) {
@@ -153,23 +166,47 @@
 
   // Sign-in step 2 (shown in the sign-in form when the server asks for a code).
   let pending = null;
-  function askCode(challenge, email, password) {
+  // emailCode: the masked address the server can send a backup code to (Super Admin), or null.
+  function askCode(challenge, email, password, emailCode = null) {
     pending = { challenge, email, password };
     $('amsg').innerHTML = '';
     const form = $('fl');
     form.dataset.mfa = '1';
     [...form.children].forEach(child => { if (!child.classList.contains('sec-login-step')) child.hidden = true; });
     form.insertAdjacentHTML('beforeend', `<div class="sec-login-step">
-      <h3>${esc(t('sec_login_code_title'))}</h3><p class="mu sm">${esc(t('sec_login_code_body'))}</p>
+      <h3>${esc(t('sec_login_code_title'))}</h3><p class="mu sm" id="sec-login-body">${esc(t('sec_login_code_body'))}</p>
       ${field('sec-login-code', t('sec_mfa_code'), 'text', 'inputmode="numeric" autocomplete="one-time-code" maxlength="12"')}
       <p class="mu sm">${esc(t('sec_login_recovery'))}</p>
       <button type="button" class="btn bp w100 mt8" id="sec-login-verify">${esc(t('sec_login_verify'))}</button>
+      ${emailCode ? `<button type="button" class="btn bs w100 mt8" id="sec-login-email">✉️ ${esc(tf('sec_login_email', { email: emailCode }))}</button>` : ''}
       <button type="button" class="btn bgh w100 mt8" id="sec-login-back">${esc(t('sec_login_back'))}</button></div>`);
     const input = $('sec-login-code');
     input.focus();
     input.addEventListener('keydown', event => { if (event.key === 'Enter') verify(); });
     $('sec-login-verify').addEventListener('click', verify);
     $('sec-login-back').addEventListener('click', resetLogin);
+    $('sec-login-email')?.addEventListener('click', sendEmailCode);
+  }
+  // Phone unavailable: the server emails a one-time code (10 minutes); another can be asked for after a minute.
+  async function sendEmailCode() {
+    if (!pending) return;
+    const button = $('sec-login-email'); button.disabled = true;
+    try {
+      const result = await apiRequest('/api/auth/mfa/email', 'POST', { challenge: pending.challenge });
+      $('sec-login-body').textContent = tf('sec_login_email_sent', { email: result.sentTo });
+      $('amsg').innerHTML = '';
+      $('sec-login-code').value = ''; $('sec-login-code').focus();
+      let wait = 60;
+      const tick = () => {
+        const current = document.getElementById('sec-login-email'); if (!current) return;
+        if (wait <= 0) { current.disabled = false; current.textContent = `✉️ ${t('sec_login_email_again')}`; return; }
+        current.textContent = `✉️ ${tf('sec_login_email_wait', { seconds: wait-- })}`; setTimeout(tick, 1000);
+      };
+      tick();
+    } catch (error) {
+      amsg(error.message);
+      if (/expired|Sign in again/i.test(error.message)) resetLogin(); else button.disabled = false;
+    }
   }
   function resetLogin() {
     pending = null;

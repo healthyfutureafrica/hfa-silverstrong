@@ -406,6 +406,8 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 /* ═══ FREE HEALTH HUB ═══ */
 #free-hub{min-height:100vh;background:var(--ow)}
 .fh-nav{background:var(--na);position:sticky;top:0;z-index:20;box-shadow:0 2px 14px rgba(8,20,40,.25)}
+/* The landing menu bar (logo, Free Health Hub, sign in) stays on top while scrolling. */
+#land .lnav{background:var(--na);position:sticky;top:0;z-index:20;box-shadow:0 2px 14px rgba(8,20,40,.25)}
 .fh-shell{width:100%}
 /* Hero: the landing page's navy with emerald and gold light */
 .fh-hero{position:relative;overflow:hidden;color:#fff;padding:64px 28px 96px;
@@ -548,8 +550,11 @@ code.tg{font-family:var(--fm);font-size:.72rem;background:var(--si-p);padding:2p
 body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 .creator-credit--picker{margin-top:32px;padding:16px 0 0;background:transparent;width:calc(100% - 40px);max-width:352px}
 @media(max-width:700px){
-  #land .lnav{flex-wrap:wrap;gap:12px;padding:16px}
-  #land .lnr{flex-wrap:wrap;max-width:100%}
+  #land .lnav{flex-wrap:wrap;gap:8px;padding:10px 16px}
+  /* Pinned on phones too, so the buttons are compact (every one stays visible). */
+  #land .lnr{flex-wrap:wrap;max-width:100%;gap:6px}
+  #land .land-nav-btn{padding:7px 11px;font-size:.78rem;white-space:nowrap}
+  #land .llogo .landing-mark{width:32px;height:32px}
   .pharmacy-row{flex-wrap:wrap}
   .offline-status{flex-wrap:wrap}
   .offline-actions{max-width:100%}
@@ -882,6 +887,7 @@ body{font-size:15px}
 :root:not([data-theme="dark"]) .bg2{background:var(--go-l);color:#1A1300}
 :root:not([data-theme="dark"]) .bg2:hover{background:#FFDD33}
 :root:not([data-theme="dark"]) .lnav{border-bottom-color:rgba(255,255,255,.18)}
+:root:not([data-theme="dark"]) #land .lnav{background:#00853F}
 :root:not([data-theme="dark"]) .lft{background:rgba(255,255,255,.08);border-top-color:rgba(255,255,255,.18)}
 :root:not([data-theme="dark"]) .lp-prompt,:root:not([data-theme="dark"]) .lp-btn-name{color:rgba(255,255,255,.9)}
 :root:not([data-theme="dark"]) .lp-sub{color:var(--go-l)}
@@ -2515,7 +2521,7 @@ async function backendLogin(email, password) {
     if (ApiState.offline) throw new TypeError('offline');
     const button=document.querySelector('#fl > .btn.bp'); if (button) { button.dataset.label=button.textContent; button.disabled=true; button.textContent=t('i_signing_in'); }
     const data=await apiRequest('/api/auth/login','POST',{email,password});
-    if (data.mfaRequired) { HFASecurity.askCode(data.challenge,email,password); return; } // two-step sign-in
+    if (data.mfaRequired) { HFASecurity.askCode(data.challenge,email,password,data.emailCode); return; } // two-step sign-in
     installBackendSession(data); $('lp').value=''; await HFAOffline.afterOnlineLogin(data.user,password); goApp();
   } catch(error) {
     if (error.status) { $('amsg').textContent=error.message; return; }
