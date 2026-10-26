@@ -5,6 +5,8 @@
 // - Doctors: for each completed consultation, what the patient actually paid for it (the doctor's own consultation
 //   fee, through a confirmed mobile money payment). A consultation nobody paid for adds nothing and does not count.
 //   Payments are matched to completed consultations with the same patient, oldest first; each payment once.
+// - At withdrawal HFA withholds a platform maintenance fee (PLATFORM_FEE: doctors 10%, nurses 5%, rounded to the
+//   franc); the payout service sends the rest. Each withdrawal records the gross amount, the fee and the net paid.
 // - Withdrawals are paid automatically by the payout provider (payouts.js, Maviance). Nobody can mark a withdrawal
 //   paid or decline it by hand. Until the provider is connected, requests wait in the queue; the owner can cancel a
 //   request still waiting. A payout refused by the provider returns the money to the account.
@@ -15,6 +17,9 @@ const { filesConfigured } = require('./files');
 const { ensureClinicalTable } = require('./clinical');
 
 const MIN_WITHDRAWAL_CREDITS = 10;
+const PLATFORM_FEE = { doctor: 0.10, nurse: 0.05 };
+/** The fee HFA keeps and what the person receives, for a withdrawal of `gross` FCFA. */
+const feeFor = (role, gross) => { const rate = PLATFORM_FEE[role] || 0, fee = Math.round(gross * rate); return { rate, fee, net: gross - fee }; };
 const SOURCES = { nurse: 'home_visit', doctor: 'consultation' };
 
 function ensureEarningsTables(store) {
@@ -30,6 +35,10 @@ function ensureEarningsTables(store) {
       status TEXT NOT NULL, requested_at TEXT NOT NULL, updated_at TEXT NOT NULL, provider_reference TEXT, failure_reason TEXT, attempts INTEGER NOT NULL DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS earnings_credits_user ON earnings_credits(user_id, status);`);
+  // Platform maintenance fee withheld at withdrawal (requests made before it existed: no fee).
+  const withdrawalColumns = store.db.prepare('PRAGMA table_info(earnings_withdrawals)').all().map(column => column.name);
+  for (const [name, type] of [['fee_rate', 'REAL NOT NULL DEFAULT 0'], ['fee', 'INTEGER NOT NULL DEFAULT 0'], ['net', 'INTEGER']]) if (!withdrawalColumns.includes(name)) store.db.exec(`ALTER TABLE earnings_withdrawals ADD COLUMN ${name} ${type}`);
+  store.db.exec('UPDATE earnings_withdrawals SET net=amount WHERE net IS NULL');
   // Accounts kept by the first version (nurses only, paid by hand) carry over.
   const has = name => !!store.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(name);
   if (has('nurse_withdrawals')) {
@@ -93,7 +102,7 @@ function installEarningsRoutes(app, config, store, authenticated, admin, { provi
   const own = (request, response, next) => request.impersonator ? response.status(403).json({ error: 'Only the account holder can do this' }) : next();
   const nameOf = id => (id && store.user(id)?.name) || null;
 
-  const withdrawalView = row => row && { id: row.id, userId: row.user_id, name: nameOf(row.user_id), role: store.user(row.user_id)?.role || null, amount: row.amount, credits: row.credits, currency: 'XAF',
+  const withdrawalView = row => row && { id: row.id, userId: row.user_id, name: nameOf(row.user_id), role: store.user(row.user_id)?.role || null, amount: row.amount, feeRate: row.fee_rate, fee: row.fee, net: row.net ?? row.amount, credits: row.credits, currency: 'XAF',
     method: row.method, destination: row.destination, status: row.status, requestedAt: row.requested_at, updatedAt: row.updated_at, reference: row.provider_reference, reason: row.failure_reason };
   function describe(row) {
     const details = JSON.parse(row.details || '{}');
@@ -112,7 +121,10 @@ function installEarningsRoutes(app, config, store, authenticated, admin, { provi
     return {
       role: user.role, unit: SOURCES[user.role], balance: sum('available'), availableCredits: available.length, minimumCredits: MIN_WITHDRAWAL_CREDITS, currency: 'XAF',
       canWithdraw: available.length >= MIN_WITHDRAWAL_CREDITS && !open, pending: open, automaticPayouts: !!provider,
-      totalEarned: sum(), totalPaid: sum('paid'), totalCredits: credits.length, consultationFee: user.role === 'doctor' ? user.consultationFee || null : null,
+      // What a withdrawal of the whole balance would be now: the fee HFA keeps and what the person receives.
+      withdrawal: feeFor(user.role, sum('available')),
+      totalEarned: sum(), totalPaid: withdrawals.filter(item => item.status === 'paid').reduce((total, item) => total + item.net, 0),
+      totalFees: withdrawals.filter(item => item.status === 'paid').reduce((total, item) => total + item.fee, 0), totalCredits: credits.length, consultationFee: user.role === 'doctor' ? user.consultationFee || null : null,
       credits: credits.map(row => ({ id: row.id, source: row.source, amount: row.amount, status: row.status, creditedAt: row.credited_at, paidAt: row.paid_at, ...describe(row) })),
       withdrawals
     };
@@ -135,9 +147,10 @@ function installEarningsRoutes(app, config, store, authenticated, admin, { provi
       const available = store.db.prepare("SELECT COUNT(*) AS n, COALESCE(SUM(amount),0) AS total FROM earnings_credits WHERE user_id=? AND status='available'").get(user.id);
       const unit = user.role === 'doctor' ? 'paid consultations' : 'completed home visits';
       if (available.n < MIN_WITHDRAWAL_CREDITS) { store.db.exec('ROLLBACK'); return response.status(409).json({ error: `You can withdraw after ${MIN_WITHDRAWAL_CREDITS} ${unit} (${available.n} so far)` }); }
-      store.db.prepare('INSERT INTO earnings_withdrawals (id,user_id,amount,credits,method,destination,status,requested_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)').run(id, user.id, available.total, available.n, input.method, destination, 'queued', now, now);
+      const { rate, fee, net } = feeFor(user.role, available.total);
+      store.db.prepare('INSERT INTO earnings_withdrawals (id,user_id,amount,fee_rate,fee,net,credits,method,destination,status,requested_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)').run(id, user.id, available.total, rate, fee, net, available.n, input.method, destination, 'queued', now, now);
       store.db.prepare("UPDATE earnings_credits SET status='queued', withdrawal_id=? WHERE user_id=? AND status='available'").run(id, user.id);
-      store.audit(user.id, 'WITHDRAWAL_REQUESTED', { targetId: user.id, details: { amount: available.total, credits: available.n, method: input.method }, ip: request.ip });
+      store.audit(user.id, 'WITHDRAWAL_REQUESTED', { targetId: user.id, details: { amount: available.total, fee, net, credits: available.n, method: input.method }, ip: request.ip });
       store.db.exec('COMMIT');
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     response.status(201).json(ok(account(store.user(user.id)), 'Withdrawal requested'));
@@ -160,7 +173,8 @@ function installEarningsRoutes(app, config, store, authenticated, admin, { provi
   app.get('/api/v1/admin/earnings', authenticated, admin, (request, response) => {
     const withdrawals = store.db.prepare("SELECT * FROM earnings_withdrawals ORDER BY CASE status WHEN 'processing' THEN 0 WHEN 'queued' THEN 1 ELSE 2 END, requested_at DESC").all().map(withdrawalView);
     const balances = store.db.prepare("SELECT u.role AS role, COALESCE(SUM(c.amount),0) AS total, COUNT(c.id) AS credits FROM earnings_credits c JOIN users u ON u.id=c.user_id WHERE c.status='available' GROUP BY u.role").all();
-    response.json(ok({ withdrawals, waiting: withdrawals.filter(item => ['queued', 'processing'].includes(item.status)).reduce((total, item) => total + item.amount, 0), balances, automaticPayouts: !!provider, currency: 'XAF' }));
+    const fees = store.db.prepare("SELECT COALESCE(SUM(fee),0) AS total FROM earnings_withdrawals WHERE status='paid'").get().total;
+    response.json(ok({ withdrawals, waiting: withdrawals.filter(item => ['queued', 'processing'].includes(item.status)).reduce((total, item) => total + item.net, 0), balances, feesWithheld: fees, platformFee: PLATFORM_FEE, automaticPayouts: !!provider, currency: 'XAF' }));
   });
 
   /** Sends queued withdrawals to the payout provider and follows those in progress (run every minute). */
@@ -173,7 +187,7 @@ function installEarningsRoutes(app, config, store, authenticated, admin, { provi
         store.db.prepare('UPDATE earnings_withdrawals SET status=?, provider_reference=COALESCE(?,provider_reference), failure_reason=?, updated_at=? WHERE id=?').run(status, reference, reason, now, row.id);
         if (status === 'paid') store.db.prepare("UPDATE earnings_credits SET status='paid', paid_at=? WHERE withdrawal_id=?").run(now, row.id);
         if (status === 'failed') store.db.prepare("UPDATE earnings_credits SET status='available', withdrawal_id=NULL WHERE withdrawal_id=?").run(row.id);
-        store.audit(row.user_id, status === 'paid' ? 'WITHDRAWAL_PAID' : status === 'failed' ? 'WITHDRAWAL_FAILED' : 'WITHDRAWAL_PROCESSING', { targetId: row.user_id, details: { amount: row.amount, reference, reason } });
+        store.audit(row.user_id, status === 'paid' ? 'WITHDRAWAL_PAID' : status === 'failed' ? 'WITHDRAWAL_FAILED' : 'WITHDRAWAL_PROCESSING', { targetId: row.user_id, details: { amount: row.amount, fee: row.fee, net: row.net ?? row.amount, reference, reason } });
         store.db.exec('COMMIT');
       } catch (error) { store.db.exec('ROLLBACK'); throw error; }
       if (status === 'paid') notify(store, row.user_id, 'HFA SilverStrong: Your withdrawal has been paid. Sign in to see the reference.');
@@ -183,7 +197,7 @@ function installEarningsRoutes(app, config, store, authenticated, admin, { provi
       try {
         store.db.prepare('UPDATE earnings_withdrawals SET attempts=attempts+1 WHERE id=?').run(row.id);
         const result = row.status === 'queued'
-          ? await provider.send({ id: row.id, amount: row.amount, currency: 'XAF', method: row.method, destination: row.destination, name: nameOf(row.user_id) })
+          ? await provider.send({ id: row.id, amount: row.net ?? row.amount, currency: 'XAF', method: row.method, destination: row.destination, name: nameOf(row.user_id) })
           : await provider.check({ id: row.id, reference: row.provider_reference });
         if (result?.status === 'paid') finish(row, 'paid', { reference: result.reference });
         else if (result?.status === 'failed') finish(row, 'failed', { reason: result.reason || 'refused by the payment service' });
@@ -197,4 +211,4 @@ function installEarningsRoutes(app, config, store, authenticated, admin, { provi
   return { processQueue, account };
 }
 
-module.exports = { installEarningsRoutes, credit, creditFor, syncConsultationCredits, ensureEarningsTables, MIN_WITHDRAWAL_CREDITS };
+module.exports = { installEarningsRoutes, credit, creditFor, syncConsultationCredits, ensureEarningsTables, feeFor, MIN_WITHDRAWAL_CREDITS, PLATFORM_FEE };

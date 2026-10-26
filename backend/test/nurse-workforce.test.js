@@ -188,20 +188,21 @@ test('3,000 FCFA credited per home visit once the report, the patient feedback a
     }
     account = await accountOf(nurseCookie);
     assert.deepEqual([account.balance, account.availableCredits, account.canWithdraw], [30000, 10, true]);
+    assert.deepEqual(account.withdrawal, { rate: 0.05, fee: 1500, net: 28500 }, 'HFA keeps 5% of a nurse withdrawal');
     // The withdrawal takes the whole balance to the nurse's mobile money number (typed locally, stored as +237…).
     assert.equal((await withdraw({ method: 'mobile_money', destination: '12345' })).status, 400);
     assert.equal((await withdraw({ method: 'mobile_money', destination: '677 11 22 33' }, patientCookie)).status, 403);
     const requested = await withdraw({ method: 'mobile_money', destination: '677 11 22 33' });
     assert.equal(requested.status, 201);
     account = (await json(requested)).data;
-    assert.deepEqual([account.balance, account.pending.amount, account.pending.credits, account.pending.destination, account.pending.status], [0, 30000, 10, '+237677112233', 'queued']);
+    assert.deepEqual([account.balance, account.pending.amount, account.pending.fee, account.pending.net, account.pending.credits, account.pending.destination, account.pending.status], [0, 30000, 1500, 28500, 10, '+237677112233', 'queued']);
     assert.equal((await withdraw({ method: 'mobile_money', destination: '677112233' })).status, 409, 'one request at a time');
 
     // Nobody pays or declines by hand: the administrator's old actions are gone and the overview is read-only.
     for (const path of ['/api/v1/admin/nurse-withdrawals/x/paid', '/api/v1/admin/nurse-withdrawals/x/decline', '/api/v1/admin/nurse-payouts/x/paid'])
       assert.equal((await app.call(path, { reference: 'x123', note: 'xxxxx' }, adminCookie)).status, 404, path);
     const overview = (await json(await app.call('/api/v1/admin/earnings', undefined, adminCookie))).data;
-    assert.deepEqual([overview.waiting, overview.automaticPayouts], [30000, true]);
+    assert.deepEqual([overview.waiting, overview.automaticPayouts, overview.platformFee], [28500, true, { doctor: 0.1, nurse: 0.05 }]);
     // The payout service refuses the first payout: the money returns to the account with the reason.
     await app.earnings.processQueue();
     account = await accountOf(nurseCookie);
@@ -217,8 +218,9 @@ test('3,000 FCFA credited per home visit once the report, the patient feedback a
     assert.equal((await app.call(`/api/v1/earnings/withdrawals/${(await accountOf(nurseCookie)).pending.id}/cancel`, {}, nurseCookie)).status, 409, 'too late to cancel');
     await app.earnings.processQueue(); // confirmed: paid
     account = await accountOf(nurseCookie);
-    assert.deepEqual([account.balance, account.totalPaid, account.totalEarned, account.withdrawals[0].status, account.withdrawals[0].reference], [0, 30000, 30000, 'paid', 'MAV-2']);
-    assert.equal(sent.at(-1).amount, 30000);
+    assert.deepEqual([account.balance, account.totalPaid, account.totalFees, account.totalEarned, account.withdrawals[0].status, account.withdrawals[0].reference], [0, 28500, 1500, 30000, 'paid', 'MAV-2']);
+    assert.equal(sent.at(-1).amount, 28500, 'the payout service sends the amount after the fee');
+    assert.equal((await json(await app.call('/api/v1/admin/earnings', undefined, adminCookie))).data.feesWithheld, 1500);
     assert.equal(app.store.db.prepare("SELECT COUNT(*) AS n FROM earnings_credits WHERE source='home_visit'").get().n, 10, 'one credit per visit');
   } finally { await app.close(); }
 });
@@ -300,7 +302,7 @@ test('doctors: each completed consultation the patient paid for credits what the
     a = await account();
     assert.deepEqual([a.availableCredits, a.balance, a.canWithdraw], [10, 12000 + 8 * 9000, true]);
     const requested = (await json(await app.call('/api/v1/earnings/withdrawals', { method: 'mobile_money', destination: '699887766' }, doctorCookie))).data;
-    assert.deepEqual([requested.pending.amount, requested.pending.credits, requested.pending.status, requested.automaticPayouts], [84000, 10, 'queued', false]);
+    assert.deepEqual([requested.pending.amount, requested.pending.fee, requested.pending.net, requested.pending.credits, requested.pending.status, requested.automaticPayouts], [84000, 8400, 75600, 10, 'queued', false], 'HFA keeps 10% of a doctor withdrawal');
     // No payout service connected yet: the request waits; nothing pays it by hand.
     await app.earnings.processQueue();
     assert.equal((await account()).pending.status, 'queued');

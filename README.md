@@ -177,6 +177,10 @@ Server: `backend/earnings.js`, `backend/payouts.js`; screens: `earnings.js`; tes
 - *My account* shows the balance, a counter towards **10** credits (visits or paid consultations), totals and the
   history; a card on the dashboard shows the same. From 10 credits the whole balance can be withdrawn to a mobile money
   number or a bank account.
+- **Platform maintenance fee.** At withdrawal HFA withholds 10% from doctors and 5% from nurses (`PLATFORM_FEE` in
+  `backend/earnings.js`, rounded to the franc). The breakdown (balance, fee, amount received) is shown before
+  confirming; each withdrawal records the gross amount, the fee and the net amount, and the payout service sends the
+  net amount. Administrators see the total fees withheld under *Payouts*.
 - **No one pays by hand.** Withdrawals are paid only by the automatic payout service (Maviance) through
   `backend/payouts.js`. Until it is connected, `createPayoutProvider()` returns `null` and requests wait in the queue
   (the owner can cancel one still waiting). Administrators see the queue under *Payouts*, read-only. A payout the
