@@ -170,8 +170,10 @@ tbody tr:hover{background:#fcfdfe}
 .dmb strong{color:var(--go-l)}
 .dmb .dr{margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
 .dmb code{font-family:var(--fm);font-size:.7rem;background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,.8)}
-.ar{width:460px;background:var(--sf);display:flex;flex-direction:column;justify-content:center;padding:56px 44px;overflow-y:auto}
-.auth-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.ar{width:460px;background:var(--sf);display:flex;flex-direction:column;justify-content:center;padding:56px 44px}
+/* Top bars stay visible while scrolling (sign-in / register, public symptom check). */
+.auth-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 -44px 20px;padding:10px 44px;position:sticky;top:0;z-index:20;background:var(--sf);border-bottom:1px solid var(--bd)}
+.pub-topbar{position:sticky;top:0;z-index:20;background:var(--ow);margin:-24px -16px 12px;padding:10px 16px;border-bottom:1px solid var(--bd)}
 .ar h2{font-family:var(--fd);font-size:1.7rem;color:var(--t1);margin-bottom:6px}
 .asb{color:var(--t3);font-size:.85rem;margin-bottom:24px}
 .atbs{display:flex;gap:3px;background:var(--si-p);border-radius:var(--rs);padding:3px;margin-bottom:22px}
@@ -774,7 +776,7 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 .wz-link{background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline}
 .wz-file{margin-top:4px;color:var(--em);display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow-wrap:anywhere}
 /* Phones: the sign-up form uses the full width (the brand panel would squeeze it). */
-@media (max-width:700px){#auth-wrap .al{display:none}#auth-wrap .ar{width:100%;padding:24px 16px}}
+@media (max-width:700px){#auth-wrap .al{display:none}#auth-wrap .ar{width:100%;padding:24px 16px}#auth-wrap .auth-top-actions{margin:0 -16px 20px;padding:10px 16px}}
 @media (max-width:520px){.wz-lbl{display:none}.wz-steps{gap:4px}.wz-nav .btn{flex:1;justify-content:center}}
 
 /* ── Vital Health Card ── */

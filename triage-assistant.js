@@ -326,7 +326,7 @@
     ['land', 'auth-wrap', 'app-wrap', 'free-hub'].forEach(id => document.getElementById(id)?.classList.add('hid'));
     page.classList.remove('hid');
     S = fresh();
-    $('public-triage-body').innerHTML = `<button type="button" class="btn bs bsm mb12" onclick="goLand()">← ${esc(t('st_public_back'))}</button>
+    $('public-triage-body').innerHTML = `<div class="pub-topbar"><button type="button" class="btn bs bsm" onclick="goLand()">← ${esc(t('st_public_back'))}</button></div>
       <div class="ph"><h2>${esc(t('st_title'))}</h2><p>${esc(t('st_public_intro'))}</p></div>
       <div class="st-emergency" role="note"><span>🚨 ${esc(t('st_emergency_now'))} ${esc(L('advice_emergency'))}</span>${callButton()}</div>
       <div class="card mb18" id="st-card" aria-live="polite"></div>`;
