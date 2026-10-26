@@ -97,6 +97,8 @@ function installGovernanceRoutes(app, config, store, authenticated, admin) {
     if (!clinician || !['doctor', 'nurse'].includes(clinician.role)) return response.sendStatus(404);
     if (input.status === 'verified' && !clinician.licenseNo) return response.status(409).json({ error: 'This clinician has no licence number on file' });
     if (input.status === 'verified' && (!input.expiresOn || input.expiresOn <= new Date().toISOString().slice(0, 10))) return response.status(400).json({ error: 'expiresOn: Enter the licence expiry date (in the future)' });
+    // Licences are renewed every few years: more than 10 years ahead is almost always a typo (2206 for 2026).
+    if (input.expiresOn && (input.expiresOn > `${new Date().getFullYear() + 10}-12-31` || Number.isNaN(Date.parse(input.expiresOn)) || new Date(`${input.expiresOn}T00:00:00Z`).toISOString().slice(0, 10) !== input.expiresOn)) return response.status(400).json({ error: 'expiresOn: check the expiry date (a real date within 10 years)' });
     const verification = { status: input.status, expiresOn: input.expiresOn || null, authority: input.authority || (clinician.role === 'doctor' ? 'Ordre National des Médecins du Cameroun' : 'Nursing council'), note: input.note, by: request.user.id, at: new Date().toISOString() };
     store.updateUser(clinician.id, { profile: { licenceVerification: verification } });
     store.audit(request.user.id, input.status === 'verified' ? 'LICENCE_VERIFIED' : 'LICENCE_REJECTED', { targetId: clinician.id, details: { expiresOn: verification.expiresOn }, ip: request.ip });

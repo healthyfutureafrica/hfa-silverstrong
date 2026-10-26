@@ -88,7 +88,7 @@ test('clinical records are shared between patient and care team on any device, w
     assert.equal((await list(adminCookie)).some(item => item.collection === 'messages'), false);
 
     // Lab results: filed by the laboratory, opened and released by the specialist, seen by the patient only once released.
-    const result = { patientId: patient.id, labTechId: lab.id, specialistDoctorId: specialist.id, testType: 'Malaria RDT', status: 'pending', fileName: 'rdt.pdf' };
+    const result = { patientId: patient.id, labTechId: lab.id, specialistDoctorId: specialist.id, testType: 'Malaria RDT', status: 'pending', fileName: 'rdt.pdf', fileData: 'data:application/pdf;base64,JVBERi0=' };
     assert.equal((await put(labCookie, 'labResults', 'lr-1', result)).status, 201);
     assert.equal((await list(patientCookie)).some(item => item.id === 'lr-1'), false, 'not before release');
     assert.equal((await put(labCookie, 'labResults', 'lr-1', { ...result, status: 'released' }, 1)).status, 403, 'only the specialist releases');

@@ -12,6 +12,7 @@ const { z } = require('zod');
 const express = require('express');
 const { filesConfigured } = require('./files');
 const { seal, unseal } = require('./records');
+const { contentProblem } = require('./clinical-rules');
 
 const MAX_RECORD = 6 * 1024 * 1024; // documents and lab results carry their file (5 MB max) as a data URL
 const id = z.string().regex(/^[A-Za-z0-9._:-]{1,100}$/);
@@ -137,6 +138,7 @@ function installClinicalRoutes(app, config, store, authenticated) {
     if (Buffer.byteLength(JSON.stringify(data)) > MAX_RECORD) return response.status(413).json({ error: 'This record is too large' });
     const problem = unsafeValue(data);
     if (problem) return response.status(400).json({ error: problem });
+    const previous = store.db.prepare('SELECT * FROM clinical_records WHERE collection=? AND id=?').get(collection, request.params.id);
     const actor = request.user, existing = store.db.prepare('SELECT * FROM clinical_records WHERE collection=? AND id=?').get(collection, request.params.id);
     const patientId = patientOf(store, collection, data);
     for (const person of peopleOf(collection, data)) if (!store.user(person) || store.user(person).status === 'deleted') return response.status(400).json({ error: 'A person named in this record does not exist' });
@@ -170,6 +172,9 @@ function installClinicalRoutes(app, config, store, authenticated) {
       if (rule.releaseField && actor.id === current.patientId) return refuse('Patients cannot change lab results');
       if (rule.releaseField && data.status !== current.status && actor.id !== current.specialistDoctorId) return refuse('Only the specialist can open or release a result');
     }
+    // What the record says must make sense (dates, people in the right roles, nothing empty by mistake).
+    const mistake = contentProblem(store, collection, data, previous ? open(previous) : null);
+    if (mistake) return response.status(400).json({ error: mistake });
     const version = (existing?.version || 0) + 1, people = JSON.stringify(peopleOf(collection, data));
     const sealed = seal(config, context(collection, request.params.id), Buffer.from(JSON.stringify(data)));
     if (existing) store.db.prepare('UPDATE clinical_records SET patient_id=?,people=?,version=?,nonce=?,encrypted=?,tag=?,updated_at=?,updated_by=? WHERE collection=? AND id=?')

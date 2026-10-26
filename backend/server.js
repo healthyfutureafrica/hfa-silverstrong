@@ -30,7 +30,8 @@ const { passwordProblem } = require('./account-security');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
-const personName=plain.regex(/^[\p{L}\p{M}\p{N} .'-]+$/u);
+// A real name: at least 2 characters including a letter (catches "1", ".." or a field left with a space).
+const personName=plain.regex(/^[\p{L}\p{M}\p{N} .'-]+$/u).refine(value=>value.length>=2&&/\p{L}/u.test(value),'Enter the full name (at least 2 letters)');
 const contactPhone=z.string().max(40).regex(/^[+0-9\s()-]*$/);
 const phone = z.string().regex(/^\+[1-9]\d{7,14}$/);
 const MAX_REGISTRATION_DOCUMENT=2*1024*1024;

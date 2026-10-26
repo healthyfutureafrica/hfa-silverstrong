@@ -15,7 +15,8 @@ const currentYear = () => new Date().getFullYear();
 
 const healthProfile = z.object({
   identity: z.object({
-    dateOfBirth: pastDate.refine(value => value >= '1900-01-01', 'Invalid date of birth'),
+    // No one is older than 120: catches 1826 typed for 1926.
+    dateOfBirth: pastDate.refine(value => value >= '1900-01-01' && value >= `${currentYear() - 120}-01-01`, 'Check the year of birth'),
     gender: z.enum(['male', 'female', 'undisclosed']),
     cniNumber: text(40, 1).optional()
   }).strict(),

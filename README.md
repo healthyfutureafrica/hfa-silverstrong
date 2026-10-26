@@ -141,6 +141,25 @@ All three are held on the server (`backend/governance.js`, `governance-ui.js`):
   their sidebar) and resolve them with a written note; administrators see counts only. A clinician should review
   the drug lists before use with real patients.
 
+## Data entry checks
+
+Built around the mistakes people really make. Two layers; the server is the authority.
+
+- **On the server** (`backend/server.js`, `backend/patient-profile.js`, `backend/governance.js`,
+  `backend/clinical-rules.js`): every request body has a strict schema; names need letters; birth dates must be real
+  and believable; licence expiry dates must be real; clinical records are checked for content (real calendar dates,
+  bookings and home visits not in the past or more than 2 years ahead, valid times, a 10–180 minute consultation,
+  the right kind of person in each field — a nurse cannot be picked as the doctor —, no empty notes, reports or
+  messages, a file attached to lab results and documents, ratings 1–5, care-plan progress 0–100). Each refusal says
+  which field to correct (`backend/test/data-entry.test.js`).
+- **In the browser** (`validation.js`): fields carry rules (`data-v`, `required`, `minlength`, `maxlength`, file
+  `accept` and `data-max-mb`). When a person leaves a field it is tidied (extra spaces, email case, local phone
+  numbers to `+237…`) and checked, with an English or French message under it. Unusual but possible values (an
+  appointment at 02:00, a patient over 100, `gmial.com`) warn and go through on a second press. A save button is held
+  while a field is wrong; a second tap within 1.5 s is ignored, so one tap never makes two records; releasing a lab
+  result, closing an urgent case, resolving a safety alert and suspending an account ask for confirmation first.
+  The patient registration wizard keeps its own step checks (`__tests__/validation.test.js`).
+
 ## Payments (MTN Mobile Money)
 
 Consultation fees, Basic and Premium plans, nurse home visits and patient rescheduling are paid with **MTN Mobile
