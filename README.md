@@ -143,6 +143,28 @@ All three are held on the server (`backend/governance.js`, `governance-ui.js`):
   their sidebar) and resolve them with a written note; administrators see counts only. A clinician should review
   the drug lists before use with real patients.
 
+## Nurses working with HFA
+
+Server: `backend/nurse-workforce.js`; screens: `nurse-workforce.js`; tests: `backend/test/nurse-workforce.test.js`.
+
+- **Validation before work.** A nurse registers with their licence number, qualifications, nursing school,
+  graduation year and a supervisor (name, position, institution, phone, optional email). The account stays pending
+  (no sign-in) until an administrator, under *Nurse validation* or *Pending approvals*, has contacted the supervisor
+  (call, WhatsApp or email links; every contact is logged with what was said) and confirmed six items: identity,
+  licence (recorded with its expiry date in the licence register), qualifications, education, workplace and
+  supervisor. The supervisor item can be confirmed only after a contact in which the supervisor vouched for the nurse.
+  *Validate nurse* then activates the account. Supervisor contact details are seen only by administrators. Nurses
+  added by an administrator go through the same validation; nurses active before this existed keep working.
+- **3,000 FCFA per home visit.** The pay becomes due when the nurse has filed the visit report (temperature, blood
+  pressure, pulse, findings, care given; stored encrypted), the patient has given feedback, and the doctor in charge
+  (the visit's doctor or the patient's assigned doctor) has confirmed receiving all the data, or after the nurse has
+  completed a report the doctor sent back. Each step is recorded by that person only. Administrators pay outside the
+  app (mobile money, bank transfer or cash) and record the reference under *Nurse payments*; the nurse sees it under
+  *My earnings*.
+- **Weekly timetable.** Each nurse keeps their weekly working hours under *My availability* and confirms or updates
+  them at least every 7 days. Until it is current, a reminder shows on every page and the nurse cannot be booked; a
+  home visit must fall within the nurse's hours (checked on the server), and patients see those hours when booking.
+
 ## Data entry checks
 
 Built around the mistakes people really make. Two layers; the server is the authority.

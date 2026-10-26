@@ -2557,6 +2557,7 @@ async function backendRegister(localUser) {
   const licence=localUser.licenseNo||(localUser.role==='nurse'?localUser.nurseId:'');
   if (licence) payload.licenseNo=String(licence).trim().slice(0,60);
   if (localUser.qualifications) payload.qualifications=localUser.qualifications;
+  if (localUser.nurseApplication) payload.nurseApplication=localUser.nurseApplication; // school, graduation year, supervisor
   if (localUser.idDocumentData) payload.idDocument={fileName:localUser.idDocumentName.replace(/[<>\u0000-\u001f/\\]/g,'_').slice(0,180),content:localUser.idDocumentData.slice(localUser.idDocumentData.indexOf(',')+1)};
   try {
     const {data,queued}=await HFAOffline.submitRegistration('/api/auth/register',payload);
@@ -3309,6 +3310,7 @@ function renderPage(page) {
   if (page==='complete-profile' && r==='patient' && typeof HFAPatientRegistration!=='undefined') return HFAPatientRegistration.renderPage(pc);
   if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
   if (page==='facilities' && r==='admin' && typeof HFAFacilities!=='undefined') return HFAFacilities.renderRegister(pc);
+  if (typeof HFANurses!=='undefined' && HFANurses.handles(page, r)) return HFANurses.renderPage(page, pc);
   if (page==='dashboard' && typeof HFACompletion!=='undefined') {
     const result = renderRolePage(page, r, pc);
     // Profile card (avatar + completion ring) on every dashboard; patients also get the Vital Health Card.
@@ -5177,6 +5179,7 @@ function saveAddUser(role) {
     if(role==='patient'){payload.whatsappNumber=normalizeWhatsAppNumber($('au-wa').value);payload.whatsappNotificationsConsent=false;}
     if(role==='doctor'){payload.specialty=$('au-sp').value;payload.consultationFee=Number($('au-cf').value);}
     if(role==='nurse'&&$('au-ns').value)payload.specialty=$('au-ns').value;
+    if(role==='nurse'&&typeof HFANurses!=='undefined')Object.assign(payload,HFANurses.adminFields());
     apiRequest('/api/admin/users','POST',payload).then(result=>{DB.users.push(result.user);closeMo();navigate(CP);}).catch(error=>alert(error.message));
     return;
   }
@@ -5340,6 +5343,7 @@ window.addEventListener('load',()=>{
 <script src="hfa-ai-eval.js"></script>
 <script src="ai-assist.js"></script>
 <script src="ai-centre.js"></script>
+<script src="nurse-workforce.js"></script>
 <script src="validation.js"></script>
 <script src="offline.js"></script>
 </body>

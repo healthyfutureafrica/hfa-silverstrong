@@ -27,6 +27,7 @@ const { installNotifyRoutes } = require('./notify');
 const { installDoctorPhotoRoutes } = require('./doctor-photos');
 const { installHubStats } = require('./hub-stats');
 const { installGovernanceRoutes } = require('./governance');
+const { installNurseWorkforceRoutes, recordApplication, nurseApplication } = require('./nurse-workforce');
 const { passwordProblem } = require('./account-security');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
@@ -47,8 +48,15 @@ const registration = z.object({
   idDocumentType: z.enum(['national_id','passport']).optional(), idDocument: uploadedDocument.optional(),
   preferredLanguage: z.enum(['en','fr']).optional(), healthProfile: healthProfile.optional(), vaccinationDocument: uploadedDocument.optional(),
   hospitalId: z.string().max(100).optional(), hospitalOther: plain.optional(),
-  laboratory: plain.optional(), labRegion: z.enum(REGIONS).optional(), labTown: plain.optional()
+  laboratory: plain.optional(), labRegion: z.enum(REGIONS).optional(), labTown: plain.optional(),
+  // Nurses: nursing school, graduation year and a supervisor whom an administrator contacts (nurse-workforce.js).
+  nurseApplication: nurseApplication.optional()
 }).strict().superRefine((input, context) => {
+  if (input.role === 'nurse') {
+    if (!input.nurseApplication) context.addIssue({ code: 'custom', path: ['nurseApplication'], message: 'Nurses give their nursing school, graduation year and a supervisor' });
+    if (!input.licenseNo?.trim()) context.addIssue({ code: 'custom', path: ['licenseNo'], message: 'Enter your nursing licence (council registration) number' });
+    if (!input.qualifications) context.addIssue({ code: 'custom', path: ['qualifications'], message: 'Enter your nursing qualifications' });
+  } else if (input.nurseApplication) context.addIssue({ code: 'custom', path: ['nurseApplication'], message: 'Only nurses give this information' });
   if (input.role !== 'patient' && (input.hospitalId || input.hospitalOther)) context.addIssue({ code: 'custom', path: ['hospitalId'], message: 'Only patients register under a hospital' });
   // Only patients may register without an email; they then sign in with their primary phone number.
   if (input.role !== 'patient' && !input.email) context.addIssue({ code: 'custom', path: ['email'], message: 'Required' });
@@ -154,6 +162,7 @@ function createApp(config, store, provider) {
   installAdminAccessRoutes(app,config,store,authenticated,admin,{ cookieToken, withHealth });
   installPrivacyRoutes(app,config,store,authenticated,admin);
   installGovernanceRoutes(app,config,store,authenticated,admin);
+  const workforce = installNurseWorkforceRoutes(app,config,store,authenticated,admin);
   installTriageRoutes(app,config,store,authenticated);
   installAiAssistRoutes(app,config,store,authenticated);
   installClinicalRoutes(app,config,store,authenticated);
@@ -215,7 +224,7 @@ function createApp(config, store, provider) {
     const passwordHash = await hashPassword(input.password);
     const idDocument = identity && { id: randomUUID(), fileName: identity.fileName, mime: identity.mime, size: identity.bytes.length };
     const vaccinationDocument = vaccination && { id: randomUUID(), fileName: vaccination.fileName, mime: vaccination.mime, size: vaccination.bytes.length };
-    const { healthProfile: health, vaccinationDocument: unusedDocument, hospitalId, ...account } = input;
+    const { healthProfile: health, vaccinationDocument: unusedDocument, hospitalId, nurseApplication: application, ...account } = input;
     account.facilityId = hospitalId || undefined;
     store.db.exec('BEGIN IMMEDIATE');
     let user;
@@ -227,6 +236,7 @@ function createApp(config, store, provider) {
       if (idDocument) saveEncryptedFile(config, store, user.id, idDocument.id, { fileName: idDocument.fileName, category: 'registration:identity', notes: '', relatedApptId: '' }, identity.bytes, identity.mime);
       if (vaccinationDocument) saveEncryptedFile(config, store, user.id, vaccinationDocument.id, { fileName: vaccinationDocument.fileName, category: 'Vaccination record', notes: 'Uploaded at registration', relatedApptId: '' }, vaccination.bytes, vaccination.mime);
       if (health) saveHealthRecord(config, store, user.id, recordWithConsentTimes(health));
+      if (application) recordApplication(store, user.id, application);
       store.db.exec('COMMIT');
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     if (user.status === 'active') startSession(response, user);
@@ -349,7 +359,10 @@ function createApp(config, store, provider) {
   app.post('/api/admin/users', authenticated, admin, async (request, response) => {
     const input = registration.parse(request.body);
     if ((input.email && store.credentials(input.email)) || (!input.email && store.credentialsByPhone(input.phone))) return response.status(409).json({ error: 'Email or phone already registered' });
-    const user = store.createUser({ ...input, profile: profile(input) }, await hashPassword(input.password), 'active');
+    const { nurseApplication: application, ...account } = input;
+    // A nurse added by an administrator is validated like any other nurse before working.
+    const user = store.createUser({ ...account, profile: profile(input) }, await hashPassword(input.password), input.role === 'nurse' ? 'pending_approval' : 'active');
+    if (application) recordApplication(store, user.id, application);
     response.status(201).json({ user });
   });
   app.patch('/api/admin/users/:id', authenticated, admin, (request, response) => {
@@ -358,6 +371,7 @@ function createApp(config, store, provider) {
     const patch = patchSchema.parse(request.body);
     if (user.role==='pharmacist' && patch.status==='active' && patch.pharmacyCredentialReview!==true) return response.status(409).json({error:'Confirm original pharmacy credentials were reviewed before activation'});
     if (user.role==='pharmacist' && patch.status==='active' && !pharmacyComplete(user)) return response.status(409).json({error:'Pharmacy credentials or registration documents are incomplete'});
+    if (workforce.activationBlocked(user, patch)) return response.status(409).json({error:'Validate this nurse through the nurse verification checklist'});
     for (const [key, role] of [['assignedDoctor', 'doctor'], ['assignedNurse', 'nurse']]) {
       if (patch[key] && (store.user(patch[key])?.role !== role || store.user(patch[key]).status !== 'active')) return response.status(400).json({ error: 'Invalid provider assignment' });
     }

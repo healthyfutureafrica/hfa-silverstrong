@@ -173,7 +173,9 @@ function installClinicalRoutes(app, config, store, authenticated) {
       if (rule.releaseField && data.status !== current.status && actor.id !== current.specialistDoctorId) return refuse('Only the specialist can open or release a result');
     }
     // What the record says must make sense (dates, people in the right roles, nothing empty by mistake).
-    const mistake = contentProblem(store, collection, data, previous ? open(previous) : null);
+    const mistake = contentProblem(store, collection, data, previous ? open(previous) : null)
+      // A home visit must fit the nurse's current weekly timetable (required lazily: nurse-workforce uses this module).
+      || (collection === 'homeVisits' ? require('./nurse-workforce').visitScheduleProblem(store, data, previous ? open(previous) : null) : null);
     if (mistake) return response.status(400).json({ error: mistake });
     const version = (existing?.version || 0) + 1, people = JSON.stringify(peopleOf(collection, data));
     const sealed = seal(config, context(collection, request.params.id), Buffer.from(JSON.stringify(data)));

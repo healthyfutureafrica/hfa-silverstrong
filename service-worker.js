@@ -1,7 +1,7 @@
-const CACHE_NAME='hfa-public-v28';
+const CACHE_NAME='hfa-public-v29';
 const ROOT=new URL('./',self.location.href);
 // The page is stored under the directory URL: some hosts (Cloudflare) redirect /index.html to /.
-const SHELL=['./','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','hfa-numbering.js','i18n.js','hfa-ui.js','patient-registration.js','portal-access.js','security.js','hfa-fhir.js','privacy-centre.js','session-guard.js','clinical-sync.js','mobile-money.js','calls.js','real-world.js','governance-ui.js','hfa-triage.js','triage-assistant.js','hfa-surveillance.js','hfa-ai-eval.js','ai-assist.js','ai-centre.js','validation.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
+const SHELL=['./','offline.js','offline-uploads.js','offline-session.js','pharmacist.js','hfa-numbering.js','i18n.js','hfa-ui.js','patient-registration.js','portal-access.js','security.js','hfa-fhir.js','privacy-centre.js','session-guard.js','clinical-sync.js','mobile-money.js','calls.js','real-world.js','governance-ui.js','hfa-triage.js','triage-assistant.js','hfa-surveillance.js','hfa-ai-eval.js','ai-assist.js','ai-centre.js','nurse-workforce.js','validation.js','assets/hfa-logo.svg'].map(path=>new URL(path,ROOT).href);
 const INDEX=new URL('index.html',ROOT).href;
 
 // Browsers released before 2022 have no AbortSignal.timeout.
