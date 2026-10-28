@@ -25,6 +25,10 @@ countries have basic country names, calling codes and currency codes; their regi
 free text until administrative data is verified. Income bands remain hidden where they have not been locally
 reviewed. Nigeria's ID upload is optional in this product flow. These are product settings, not legal determinations.
 
+The country-for-prices selector also lists all 54 countries and shows each ISO currency code. Prices continue to
+use the established XAF conversion only for XAF countries (USD 1 = XAF 600); elsewhere, prices remain in USD
+until an approved fixed rate is configured. Other local currency codes are informational and are not conversions.
+
 **These profiles are not a declaration of legal, clinical, cultural or operational readiness.** The legal review
 status remains required for all countries. Country-specific clinician onboarding, pharmacy authorization,
 payment rails, emergency contacts, local languages and consent/terms still need implementation or qualified

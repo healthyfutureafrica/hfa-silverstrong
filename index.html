@@ -2053,7 +2053,7 @@ function priceCountry() {
 }
 
 function priceCurrency() {
-  return ['CM','CF','TD','CG','GQ','GA'].includes(priceCountry())?'XAF':'USD';
+  return typeof HFACountryData!=='undefined'&&HFACountryData.get(priceCountry())?.currency==='XAF'?'XAF':'USD';
 }
 
 function money(amount,currency='USD') {

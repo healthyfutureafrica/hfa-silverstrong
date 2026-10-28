@@ -1,3 +1,13 @@
+function priceCountryOptions(countries,language='en') {
+  const regionNames=language==='fr'&&typeof Intl.DisplayNames==='function'?new Intl.DisplayNames(['fr'],{type:'region'}):null;
+  const outside=language==='fr'?'Hors Afrique (prix USD)':'Outside Africa (USD prices)';
+  return [['OTHER',outside],...countries.map(country=>{
+    const name=country.name[language]||(regionNames&&regionNames.of(country.code))||country.name.en;
+    const pricing=country.currency==='XAF'?'USD 1 = XAF 600':language==='fr'?'prix USD':'USD prices';
+    return [country.code,`${name} (${country.currency}; ${pricing})`];
+  })];
+}
+
 (() => {
   const copy={
     en:{offline:'Offline - you can keep working for up to 7 days after your last connection. Uploads and changes are saved on this device and synchronize automatically when you reconnect. Consultations and payments need a connection.',ready:'Offline Health Hub ready',preparing:'Preparing offline Health Hub...',unsupported:'Offline reopening needs HTTPS and a supported browser.',failed:'Offline content could not be saved. Reconnect and try again.',refreshing:'Connected - checking for updated health content...',update:'Updated health content is ready. Reload when you have finished your current work.',reload:'Reload',retry:'Retry'},
@@ -14,11 +24,16 @@
   files.addEventListener('click',()=>OfflineUploads.open());
   const country=document.createElement('select');
   country.id='price-country';country.className='price-country';
-  const countries=[['OTHER','Outside CEMAC / Hors CEMAC'],['CM','Cameroon / Cameroun'],['CF','Central African Republic / Centrafrique'],['TD','Chad / Tchad'],['CG','Republic of the Congo / République du Congo'],['GQ','Equatorial Guinea / Guinée équatoriale'],['GA','Gabon']];
-  for (const [code,name] of countries) {
-    const option=document.createElement('option');option.value=code;option.textContent=name;country.append(option);
+  function updateCountryOptions() {
+    const selected=country.value||priceCountry();
+    const language=typeof LANG!=='undefined'&&LANG==='fr'?'fr':'en';
+    country.replaceChildren();
+    for (const [code,name] of priceCountryOptions(HFACountryData.all(),language)) {
+      const option=document.createElement('option');option.value=code;option.textContent=name;country.append(option);
+    }
+    country.value=selected;
   }
-  country.value=priceCountry();
+  updateCountryOptions();
   const modal=document.getElementById('movr');
   new MutationObserver(()=>{country.disabled=!modal.classList.contains('hid');}).observe(modal,{attributes:true,attributeFilter:['class']});
   country.addEventListener('change',()=>{
@@ -38,7 +53,8 @@
     action.textContent=labels[updateAvailable?'reload':'retry'];
     files.textContent=typeof LANG!=='undefined'&&LANG==='fr'?'Fichiers hors ligne':'Offline files';
     country.setAttribute('aria-label',typeof LANG!=='undefined'&&LANG==='fr'?'Pays actuel pour les prix':'Current country for prices');
-    country.title=priceCurrency()==='XAF'?'USD 1 = XAF 600':'Prices in USD';
+    const currency=HFACountryData.get(priceCountry())?.currency;
+    country.title=priceCurrency()==='XAF'?'USD 1 = XAF 600':typeof LANG!=='undefined'&&LANG==='fr'?`Prix en USD; ${currency||'devise locale'} à titre indicatif jusqu’à validation d’un taux`:`Prices in USD; ${currency||'local currency'} shown for reference until a rate is approved`;
   }
 
   async function reconnect() {
@@ -92,6 +108,6 @@
       if (navigator.onLine!==false && attempts<3) setTimeout(reconnect,1500*attempts);
     }
   });
-  new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['data-lang']});
+  new MutationObserver(()=>{updateCountryOptions();render();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-lang']});
   render(); setup();
 })();

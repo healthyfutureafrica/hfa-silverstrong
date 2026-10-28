@@ -185,11 +185,23 @@ describe('index.html sanity checks', () => {
 
   describe('CEMAC price conversion',()=>{
     function prices(country,lang='en') {
-      const context={LANG:lang,CU:null,Intl,localStorage:{getItem:()=>country}};
+      const context={LANG:lang,CU:null,Intl,HFACountryData:countryData,localStorage:{getItem:()=>country}};
       vm.createContext(context);
       ['priceCountry','priceCurrency','money','localPriceText'].forEach(name=>vm.runInContext(content.match(new RegExp(`^function ${name}\\([^]*?^}`, 'm'))[0],context));
       return context;
     }
+    test('lists all African countries and marks local currencies without implying unconfigured conversions',()=>{
+      const offline=fs.readFileSync(path.join(__dirname,'..','offline.js'),'utf8');
+      const helper=offline.match(/^function priceCountryOptions\([^]*?^}/m)[0];
+      const context={Intl};
+      vm.createContext(context);
+      vm.runInContext(helper,context);
+      const options=context.priceCountryOptions(countryData.all(),'en');
+      expect(options).toHaveLength(55);
+      expect(options.find(([code])=>code==='GH')[1]).toBe('Ghana (GHS; USD prices)');
+      expect(options.find(([code])=>code==='CM')[1]).toBe('Cameroon (XAF; USD 1 = XAF 600)');
+      expect(options[0]).toEqual(['OTHER','Outside Africa (USD prices)']);
+    });
     test.each(['CM','CF','TD','CG','GQ','GA'])('converts USD at 600 XAF for %s',country=>{
       const context=prices(country);
       expect(context.money(5)).toBe('XAF 3,000');
@@ -200,6 +212,7 @@ describe('index.html sanity checks', () => {
     });
     test('keeps USD outside CEMAC and rounds fractional XAF',()=>{
       expect(prices('OTHER').money(5)).toBe('USD 5.00');
+      expect(prices('GH').money(5)).toBe('USD 5.00');
       expect(prices('CM').money(0.01)).toBe('XAF 6');
       expect(prices('GA','fr').money(5)).toMatch(/^XAF 3\s000$/);
     });
