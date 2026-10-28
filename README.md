@@ -25,6 +25,13 @@ countries have basic country names, calling codes and currency codes; their regi
 free text until administrative data is verified. Income bands remain hidden where they have not been locally
 reviewed. Nigeria's ID upload is optional in this product flow. These are product settings, not legal determinations.
 
+The admin Safety & Consent page has a country review register for clinical content, privacy/legal review, emergency
+contacts, language, payments, and provider credentials. All countries begin pending. An approval requires a
+responsible reviewer/team, authoritative source, non-sensitive evidence reference, and a future re-review date;
+the administrator, timestamp, and every change are recorded. Expired reviews no longer count toward readiness.
+This register records evidence supplied by qualified reviewers; it does not verify sources or make legal/clinical
+decisions. No country is marked launch-ready by default.
+
 The country-for-prices selector also lists all 54 countries and shows each ISO currency code. Prices continue to
 use the established XAF conversion only for XAF countries (USD 1 = XAF 600); elsewhere, prices remain in USD
 until an approved fixed rate is configured. Other local currency codes are informational and are not conversions.
@@ -155,8 +162,12 @@ All three are held on the server (`backend/governance.js`, `governance-ui.js`):
 - **Consent register** (administrators / DPO): each patient's current choices (care team, research, Ministry
   statistics, SMS, WhatsApp), consent version, date and number of changes. Viewing it is audited.
 - **Clinician licence register** (administrators): the licence number entered at registration (now sent to the
-  server for doctors and nurses), verified against the Ordre National des Médecins du Cameroun or the nursing
-  council with an expiry date. Unverified, rejected, expired and soon-expiring (60 days) licences are flagged.
+  server for doctors and nurses), checked against the official licensing authority for the selected country.
+  Verification records require a country, method, source, non-sensitive evidence reference, reviewer, timestamp,
+  and expiry date. Missing-source legacy verifications must be reviewed again; expired, rejected, unverified and
+  soon-expiring (60 days) licences are flagged. Patients see only a limited HFA review status and date—not licence
+  numbers, source evidence, reviewer notes, or private documents. This is a record of HFA's manual check, not a
+  guarantee of a provider's competence or current authorization.
 - **Medication safety alerts**: each patient's recorded drug allergies are checked against their medicine list,
   doctors' consultation plans and pharmacy orders (penicillins, cephalosporins incl. penicillin cross-reaction,
   sulfonamides incl. cotrimoxazole and sulfadoxine, NSAIDs/aspirin, quinine, artemisinins, chloroquine,

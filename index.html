@@ -4573,7 +4573,7 @@ function scheduleHomeVisit() {
   const nurses=DB.users.filter(u=>u.role==='nurse'&&u.status==='active');
   const defaultDate=new Date(new Date().setDate(new Date().getDate()+3)).toISOString().split('T')[0];
   openMo(`<div class="mh"><div class="mt2">${t('schedule_visit')}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
-    <div class="fg"><label class="fl">${t('choose_nurse')}</label><select class="fc" id="hv-nurse" onchange="renderHomeVisitFee()">${nurses.map(n=>`<option value="${n.id}">${hx(n.name)} — ${tv(n.specialty||n.department||'')}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">${t('choose_nurse')}</label><select class="fc" id="hv-nurse" onchange="renderHomeVisitFee()">${nurses.map(n=>`<option value="${n.id}">${hx(n.name)} — ${tv(n.specialty||n.department||'')} · ${hx(providerCredentialText(n))}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl" for="hv-doctor">${t('nw_doctor')}</label><select class="fc" id="hv-doctor" required>${homeVisitDoctorOptions()}</select></div>
     <div class="fr"><div class="fg"><label class="fl">${t('visit_date')}</label><input class="fc" type="date" id="hv-date" data-v="future-date" required value="${defaultDate}" onchange="renderHomeVisitFee()"></div><div class="fg"><label class="fl">${t('visit_time')}</label><input class="fc" type="time" id="hv-time" data-v="time" data-date="hv-date" required value="14:00"></div></div>
     <div class="fg"><label class="fl">${t('visit_location')}</label><input class="fc" id="hv-location" minlength="3" maxlength="200" required value="${CU.address||`${hx(CU.name)}'s home`}"></div>
@@ -4588,7 +4588,7 @@ function scheduleHomeVisit() {
 function homeVisitDoctorOptions() {
   const doctors=DB.users.filter(u=>u.role==='doctor'&&u.status==='active');
   const rank=d=>d.id===CU.assignedDoctor?0:(CU.facilityName&&d.hospital===CU.facilityName)?1:2;
-  return doctors.length?doctors.sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name)).map(d=>`<option value="${d.id}" ${d.id===CU.assignedDoctor?'selected':''}>${hx(d.name)}${d.specialty?' — '+tv(d.specialty):''}${d.hospital?' · '+hx(d.hospital):''}</option>`).join(''):`<option value="">${t('no_doctors_available')}</option>`;
+  return doctors.length?doctors.sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name)).map(d=>`<option value="${d.id}" ${d.id===CU.assignedDoctor?'selected':''}>${hx(d.name)}${d.specialty?' — '+tv(d.specialty):''}${d.hospital?' · '+hx(d.hospital):''} · ${hx(providerCredentialText(d))}</option>`).join(''):`<option value="">${t('no_doctors_available')}</option>`;
 }
 function renderHomeVisitFee() {
   const nurse=G($('hv-nurse')?.value), visitDate=$('hv-date')?.value; const box=$('hv-fee'), payMethod=$('hv-payment-method'), btn=$('hv-pay-btn');
@@ -4845,11 +4845,24 @@ function renderProviderRatings(providers) {
     const stars=review ? '★'.repeat(review.rating)+'☆'.repeat(5-review.rating) : '☆☆☆☆☆';
     return `<div class="rating-row">
       <div class="av" style="background:${color}">${hx(ini(provider.name))}</div>
-      <div class="rating-info"><div class="bo sm">${hx(provider.name)}</div><div class="mu sm">${role} · ${tv(provider.specialty||provider.department||'')}</div></div>
+      <div class="rating-info"><div class="bo sm">${hx(provider.name)}</div><div class="mu sm">${role} · ${tv(provider.specialty||provider.department||'')}</div><div class="mu sm">${hx(providerCredentialText(provider))}</div></div>
       <div class="rating-stars" aria-label="${review?tfmt('i_rated',{n:review.rating}):t('i_not_rated')}">${stars}</div>
       <button class="btn ${review?'bs':'bp'} bsm" onclick="showRating('${provider.id}')">${review?t('edit_rating'):t('rate_btn')}</button>
     </div>`;
   }).join('')}</div>`;
+}
+
+function providerCredentialText(provider) {
+  const review = provider.credentialReview;
+  const legacy = provider.licenceVerification;
+  const status = review?.status || (legacy?.status === 'verified'
+    ? legacy.source && legacy.sourceReference && legacy.countryCode && legacy.verificationMethod && legacy.at && legacy.expiresOn
+      ? new Date(`${legacy.expiresOn}T23:59:59Z`) < new Date() ? 'expired' : 'verified'
+      : 'not_verified'
+    : 'not_verified');
+  if (status === 'verified') return tfmt('credential_review_checked', { date: (review?.reviewedAt || legacy?.at || '').slice(0, 10) });
+  if (status === 'expired') return t('credential_review_expired');
+  return t('credential_review_pending');
 }
 
 function showRating(providerId) {
@@ -5210,7 +5223,7 @@ function showNewApt() {
   const docs=DB.users.filter(u=>u.role==='doctor');
   openMo(`<div class="mh"><div class="mt2">${t('new_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="fg"><label class="fl">${t('patient_lbl')}</label><select class="fc" id="ap-p"><option value="">${t('i_select_patient')}</option>${pats.map(p=>`<option value="${p.id}">${hx(p.name)}</option>`).join('')}</select></div>
-    ${CU.role!=='doctor'?`<div class="fg"><label class="fl">${t('doctor')}</label><select class="fc" id="ap-d"><option value="">${t('i_select_doctor')}</option>${docs.map(d=>`<option value="${d.id}">${hx(d.name)}</option>`).join('')}</select></div>`:''}
+    ${CU.role!=='doctor'?`<div class="fg"><label class="fl">${t('doctor')}</label><select class="fc" id="ap-d"><option value="">${t('i_select_doctor')}</option>${docs.map(d=>`<option value="${d.id}">${hx(d.name)} · ${hx(providerCredentialText(d))}</option>`).join('')}</select></div>`:''}
     <div class="fr"><div class="fg"><label class="fl" for="ap-dt">${t('date_lbl')}</label><input type="date" class="fc" id="ap-dt" data-v="future-date" required></div><div class="fg"><label class="fl" for="ap-tm">${t('time_lbl')}</label><input type="time" class="fc" id="ap-tm" data-v="time" data-date="ap-dt" required></div></div>
     <div class="fg"><label class="fl" for="ap-duration">${t('consultation_duration')}</label><select class="fc" id="ap-duration" required>${consultationDurationOptions()}</select></div>
     <div class="fr"><div class="fg"><label class="fl">${t('apt_mode')}</label><select class="fc" id="ap-md"><option value="video">${t('video_call')}</option><option value="voice">${t('voice_call')}</option><option value="text">${t('text_chat')}</option></select></div>
@@ -5238,8 +5251,8 @@ function showBookApt(serviceCode='PC-VIRTUAL') {
   BOOKDOC = serviceCode==='SPECIALIST-REFERRAL'&&mySpec ? mySpec.id : (myDoc ? myDoc.id : (docs[0]?.id || null));
   APTSERVICE=VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-VIRTUAL';
   openMo(`<div class="mh"><div class="mt2">${t('book_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    ${myDoc?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()"><option value="${myDoc.id}" ${BOOKDOC===myDoc.id?'selected':''}>${hx(myDoc.name)} — ${tv(myDoc.specialty||t('doctor'))}</option>${mySpec?`<option value="${mySpec.id}" ${BOOKDOC===mySpec.id?'selected':''}>${hx(mySpec.name)} — ${tv(mySpec.specialty||t('assigned_specialist'))}</option>`:''}</select><div class="mu sm" style="margin-top:4px">${mySpec?t('generalist_first_notice'):''}</div></div><div id="bk-doc-fee"></div>`
-      :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${hx(d.name)} — ${tv(d.specialty||'')}${d.consultationFee?` (${money(d.consultationFee)})`:''}</option>`).join('')}</select></div>
+    ${myDoc?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()"><option value="${myDoc.id}" ${BOOKDOC===myDoc.id?'selected':''}>${hx(myDoc.name)} — ${tv(myDoc.specialty||t('doctor'))} · ${hx(providerCredentialText(myDoc))}</option>${mySpec?`<option value="${mySpec.id}" ${BOOKDOC===mySpec.id?'selected':''}>${hx(mySpec.name)} — ${tv(mySpec.specialty||t('assigned_specialist'))} · ${hx(providerCredentialText(mySpec))}</option>`:''}</select><div class="mu sm" style="margin-top:4px">${mySpec?t('generalist_first_notice'):''}</div></div><div id="bk-doc-fee"></div>`
+      :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${hx(d.name)} — ${tv(d.specialty||'')}${d.consultationFee?` (${money(d.consultationFee)})`:''} · ${hx(providerCredentialText(d))}</option>`).join('')}</select></div>
         <div id="bk-doc-fee"></div>`
       :`<div class="alt ae">${t('no_doctors_available')}</div>`}
     <div class="fg"><label class="fl" for="bk-sv">${t('virtual_services_title')}</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${tv(service.name)}</option>`).join('')}</select></div>

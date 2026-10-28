@@ -126,7 +126,8 @@ function installNurseWorkforceRoutes(app, config, store, authenticated, admin) {
   function checklist(nurse, row) {
     const saved = JSON.parse(row?.checks || '{}');
     const licence = nurse.licenceVerification;
-    const licenceStatus = !licence ? 'pending' : licence.status !== 'verified' ? 'problem' : licence.expiresOn && licence.expiresOn <= today() ? 'problem' : 'confirmed';
+    const completeLicenceReview = !!(licence?.countryCode && licence?.verificationMethod && licence?.source && licence?.sourceReference && licence?.by && licence?.at && licence?.expiresOn);
+    const licenceStatus = !licence ? 'pending' : licence.status !== 'verified' || !completeLicenceReview ? 'problem' : licence.expiresOn <= today() ? 'problem' : 'confirmed';
     return Object.fromEntries(CHECKS.map(item => [item, item === 'licence'
       ? { status: licenceStatus, note: licence?.note || (licence?.expiresOn ? `Valid until ${licence.expiresOn}` : ''), expiresOn: licence?.expiresOn || null, by: nameOf(licence?.by), at: licence?.at || null }
       : { status: saved[item]?.status || 'pending', note: saved[item]?.note || '', by: nameOf(saved[item]?.by), at: saved[item]?.at || null }]));

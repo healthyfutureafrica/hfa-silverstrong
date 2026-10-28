@@ -40,16 +40,30 @@ test('consent register, licence register and medication safety alerts are real, 
     // Licence register: unverified until an administrator checks it and records the expiry.
     let clinicians = (await (await app.request('/api/v1/admin/clinicians', undefined, adminCookie)).json()).data.clinicians;
     assert.equal(clinicians.find(item => item.id === doctor.id).alert, 'unverified');
-    assert.equal((await app.request(`/api/v1/admin/clinicians/${doctor.id}/licence`, { status: 'verified' }, adminCookie)).status, 400, 'expiry required');
+    const review = { status: 'verified', countryCode: 'CM', verificationMethod: 'official_registry', source: 'Synthetic official medical register', sourceReference: 'Synthetic registry record LIC-1' };
+    assert.equal((await app.request(`/api/v1/admin/clinicians/${doctor.id}/licence`, review, adminCookie)).status, 400, 'expiry required');
     const soon = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
-    const verified = await (await app.request(`/api/v1/admin/clinicians/${doctor.id}/licence`, { status: 'verified', expiresOn: soon }, adminCookie)).json();
+    const verified = await (await app.request(`/api/v1/admin/clinicians/${doctor.id}/licence`, { ...review, expiresOn: soon }, adminCookie)).json();
     assert.equal(verified.data.clinician.verification.status, 'verified');
+    assert.equal(verified.data.clinician.verification.source, review.source);
     assert.equal(verified.data.clinician.alert, 'expiring', 'expires within 60 days');
     assert.equal((await app.request(`/api/v1/admin/clinicians/${doctor.id}/licence`, { status: 'verified', expiresOn: soon }, doctorCookie)).status, 403);
+    const legacy = store.createUser({
+      name: 'Dr Legacy Verification', email: 'legacy-doc@example.invalid', role: 'doctor',
+      profile: { licenseNo: 'CM-MED-LEGACY', licenceVerification: { status: 'verified', countryCode: 'CM', verificationMethod: 'official_registry', source: 'Legacy registry', by: 'admin', at: new Date().toISOString(), expiresOn: soon } }
+    }, await hashPassword('Synthetic-pass-123'), 'active');
 
     // A patient at the doctor's hospital, allergic to penicillin, taking amoxicillin.
     const patientResponse = await app.request('/api/auth/register', { name: 'Synthetic Patient Allergy', password: 'Synthetic-pass-123', role: 'patient', phone: '+237677888001', hospitalId: store.listedHospitals().find(item => item.name === 'Synthetic Governance Hospital').id, healthProfile: profile() });
-    const patient = (await patientResponse.json()).user;
+    const patientPayload = await patientResponse.json(), patient = patientPayload.user;
+    const publicDoctor = patientPayload.users.find(item => item.id === doctor.id);
+    assert.equal(publicDoctor.credentialReview.status, 'verified');
+    assert.ok(publicDoctor.credentialReview.reviewedAt);
+    assert.equal(publicDoctor.licenseNo, undefined, 'patients do not receive the clinician licence number');
+    assert.equal(publicDoctor.licenceVerification, undefined, 'patients do not receive source evidence or review notes');
+    const publicLegacy = patientPayload.users.find(item => item.id === legacy.id);
+    assert.equal(publicLegacy.credentialReview.status, 'not_verified', 'legacy records without source evidence are not presented as checked');
+    assert.equal(publicLegacy.licenseNo, undefined);
     // The doctor's plan adds a cephalosporin (possible cross-reaction).
     await app.request(`/api/v1/clinical/doctorReports/dr-gov`, { data: { patientId: patient.id, doctorId: doctor.id, summary: 'Chest infection', plan: 'Start ceftriaxone 1 g daily' }, baseVersion: 0 }, doctorCookie, 'PUT');
 

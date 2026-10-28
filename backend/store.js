@@ -10,6 +10,15 @@ const deriveKey = promisify(scrypt);
 const digest = value => createHash('sha256').update(value).digest('hex');
 // Sessions outlive a 7-day offline period so queued work can sync without signing in again.
 const SESSION_TTL = 7 * 86400000;
+const today = () => new Date().toISOString().slice(0, 10);
+function publicCredentialReview(user) {
+  const verification = user.licenceVerification;
+  const supported = verification?.status === 'verified' && verification.countryCode && verification.source &&
+    verification.sourceReference && verification.verificationMethod && verification.by && verification.at && verification.expiresOn;
+  if (!supported) return { status: 'not_verified' };
+  if (verification.expiresOn < today()) return { status: 'expired', reviewedAt: verification.at, expiresOn: verification.expiresOn };
+  return { status: 'verified', reviewedAt: verification.at, expiresOn: verification.expiresOn };
+}
 // Patients may register without an email (many rural patients have none). The NOT NULL UNIQUE email
 // column then holds a reserved, undeliverable address derived from the phone; it is never shown.
 const PHONE_EMAIL_DOMAIN = '@phone.hfa.invalid';
@@ -242,7 +251,12 @@ class Store {
     return this.db.prepare('SELECT id FROM users WHERE status!=?').all('deleted')
       .map(row => this.user(row.id)).filter(user => actor.role === 'admin' || user.id === actor.id ||
         (user.role === 'patient' && (user.assignedDoctor === actor.id || user.assignedNurse === actor.id)) ||
-        (user.status === 'active' && ['doctor', 'nurse', 'labtech'].includes(user.role)));
+        (user.status === 'active' && ['doctor', 'nurse', 'labtech'].includes(user.role)))
+      .map(user => {
+        if (actor.role === 'admin' || user.id === actor.id || !['doctor', 'nurse'].includes(user.role)) return user;
+        const { licenseNo, licenceVerification, ...publicUser } = user;
+        return { ...publicUser, credentialReview: publicCredentialReview(user) };
+      });
   }
 
   createSession(userId, { impersonatorId = null, ttl = SESSION_TTL } = {}) {

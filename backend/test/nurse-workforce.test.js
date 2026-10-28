@@ -66,7 +66,10 @@ test('a nurse works only after an administrator has contacted the supervisor and
     assert.match((await json(await app.call(`${path}/validate`, {}, adminCookie))).error, /education, licence|licence, education|education|licence/);
     // The licence item comes from the licence register (with an expiry date).
     assert.equal((await app.call(`${path}/checks/licence`, { status: 'confirmed' }, adminCookie)).status, 400);
-    assert.equal((await app.call(`/api/v1/admin/clinicians/${nurse.id}/licence`, { status: 'verified', expiresOn: day(700) }, adminCookie)).status, 200);
+    assert.equal((await app.call(`/api/v1/admin/clinicians/${nurse.id}/licence`, {
+      status: 'verified', countryCode: 'CM', verificationMethod: 'direct_authority',
+      source: 'Synthetic nursing council', sourceReference: 'Synthetic contact record NUR-1', expiresOn: day(700)
+    }, adminCookie)).status, 200);
     assert.equal((await app.call(`${path}/checks/education`, { status: 'confirmed', note: 'Registrar confirmed the 2019 diploma' }, adminCookie)).status, 200);
     const validated = await app.call(`${path}/validate`, {}, adminCookie);
     assert.equal(validated.status, 200);
