@@ -96,7 +96,7 @@
       user.email && { system: 'email', value: user.email }
     ].filter(Boolean);
     const address = location.region || location.town
-      ? [{ use: 'home', type: 'physical', city: location.town, district: location.division, state: location.region, country: 'CM', ...(location.healthDistrict ? { text: `${location.town || ''}${location.town ? ', ' : ''}health district ${location.healthDistrict}` } : {}) }]
+      ? [{ use: 'home', type: 'physical', city: location.town, district: location.division, state: location.region, country: location.countryCode || user.countryCode || 'CM', ...(location.healthDistrict ? { text: `${location.town || ''}${location.town ? ', ' : ''}health district ${location.healthDistrict}` } : {}) }]
       : user.address ? [{ use: 'home', text: user.address }] : [];
     const contact = emergency?.name || emergency?.phone
       ? [{ relationship: [text(emergency.relationship || 'Emergency contact')], name: { text: emergency.name || '' }, telecom: emergency.phone ? [{ system: 'phone', value: emergency.phone }] : [] }]

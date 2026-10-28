@@ -130,4 +130,11 @@ test('FHIR bundle uses certain codes only, marks patient-reported data and expor
   assert.equal(note.date, '2026-10-21T09:15:00+01:00');
   assert.equal(resources.filter(resource => resource.resourceType === 'Practitioner').length, 1);
   assert.equal(resources.find(resource => resource.resourceType === 'Patient').identifier[0].value, 'HFA-PT-HFA-000001-3');
+
+  const ghanaBundle = Fhir.patientBundle({
+    user: { ...user, countryCode: 'GH' },
+    health: { ...profile(), location: { countryCode: 'GH', region: 'Greater Accra Region', division: 'Accra Metropolitan Area', town: 'Accra' } },
+    now: '2026-10-24T10:00:00Z'
+  });
+  assert.equal(ghanaBundle.entry.find(entry => entry.resource.resourceType === 'Patient').resource.address[0].country, 'GH');
 });

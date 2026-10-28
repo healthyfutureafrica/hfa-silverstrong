@@ -19,21 +19,19 @@ comes from real registrations on the server, and accounts left by earlier demo v
 
 ## Country rollout status
 
-The shared country registry (`country-data.js`) currently contains Cameroon and Nigeria profiles for the patient
-registration and health-profile flow. It supplies country calling codes, administrative regions, local currency
-labels, language baselines, health-insurance labels and professional regulator references. Nigeria's income
-question is withheld until locally reviewed income bands are configured; its ID upload is optional in this
-product flow. Those choices are product settings, not legal determinations.
+The patient country selector (`country-data.js`) lists the 54 UN member states in Africa. Cameroon and Nigeria
+have the first detailed patient-intake profiles, including verified administrative-area choices. The other 52
+countries have basic country names, calling codes and currency codes; their region and local-area fields are
+free text until administrative data is verified. Income bands remain hidden where they have not been locally
+reviewed. Nigeria's ID upload is optional in this product flow. These are product settings, not legal determinations.
 
 **These profiles are not a declaration of legal, clinical, cultural or operational readiness.** The legal review
-status remains required for both countries. Country-specific clinician onboarding, pharmacy authorization,
-payment rails and consent/terms still need implementation or qualified local review before being offered as
-country-ready. SLY triage uses the configured Cameroon emergency contact, which still needs local confirmation;
-for Nigeria or an unknown country it does not guess a number and instead directs people to local emergency
-services or the nearest hospital. Triage rules also require clinician review before live use. No other African
-country is configured. Do not copy a profile to another country without verifying its administrative data,
-regulator requirements, language with local users, privacy rules, health-care policies and payment options with
-qualified local experts.
+status remains required for all countries. Country-specific clinician onboarding, pharmacy authorization,
+payment rails, emergency contacts, local languages and consent/terms still need implementation or qualified
+local review before being offered as country-ready. SLY triage uses the configured Cameroon emergency contact,
+which still needs local confirmation; for other countries it does not guess a number and instead directs people
+to local emergency services or the nearest hospital. Triage rules also require clinician review before live use.
+Do not treat a country appearing in the selector as evidence of launch readiness.
 
 ## Patient rights, privacy and health-data standards
 

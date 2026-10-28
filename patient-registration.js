@@ -153,9 +153,10 @@
   const options = list => O[list].map(([value, en, fr]) => [value, LANG === 'fr' ? fr : en]);
 
   const countryProfile = code => window.HFACountryData.get(code);
+  const countryName = country => country.name[LANG] || (LANG === 'fr' ? new Intl.DisplayNames(['fr'], { type: 'region' }).of(country.code) : null) || country.name.en;
   const languageOptions = code => countryProfile(code).languages.map(language => [language, language === 'fr' ? 'Français' : 'English']);
-  const regionOptions = code => countryProfile(code).location.regions.map(region => [region.code, region.name[LANG] || region.name.en]);
-  const regionName = (code, region) => countryProfile(code)?.location.regions.find(item => item.code === region)?.name[LANG] || region;
+  const regionOptions = code => (countryProfile(code).location.regions || []).map(region => [region.code, region.name[LANG] || region.name.en]);
+  const regionName = (code, region) => countryProfile(code)?.location.regions?.find(item => item.code === region)?.name[LANG] || region;
   const blank = (countryCode = 'CM') => ({
     countryCode,
     name: '', dob: '', gender: '', cni: '', language: countryProfile(countryCode).languages.includes(LANG) ? LANG : countryProfile(countryCode).languages[0], idType: '',
@@ -299,7 +300,7 @@
     const photoUser = { name: d.name || '?', avatarPreview: RS.photo?.previewUrl };
     const hasId = RS.mode === 'complete' && !!(CU?.idDocument || CU?.idDocumentName);
     return `
-      ${select('countryCode', t('wz_country'), window.HFACountryData.all().map(item => [item.code, item.name[LANG] || item.name.en]), { required: true, rerender: true })}
+      ${select('countryCode', t('wz_country'), window.HFACountryData.all().map(item => [item.code, countryName(item)]), { required: true, rerender: true })}
       ${input('name', t('wz_full_name'), { required: true, hint: t('wz_full_name_hint'), attrs: 'autocomplete="name"', ...(RS.mode === 'complete' ? { attrs: 'readonly' } : {}) })}
       <div class="fr">
         ${wrap('dob', t('wz_dob'), `<input class="fc" id="w-dob" data-f="dob" type="date" max="${today()}" min="1900-01-01" value="${esc(d.dob)}" ${aria('dob', 'x', true)}><p class="mu sm wz-hint" id="wh-dob" aria-live="polite">${age !== null && age >= 0 ? esc(tf('wz_age', { age })) : ''}</p>`, { required: true })}
@@ -321,16 +322,19 @@
 
   function step2() {
     const d = D(), country = countryProfile(d.countryCode), divisions = DIVISIONS[d.region] || [];
-    const phoneExample = d.countryCode === 'NG' ? '+234 803 000 0000' : '+237 677 12 34 56';
+    const phoneExample = d.countryCode === 'CM' ? '+237 677 12 34 56' : d.countryCode === 'NG' ? '+234 803 000 0000' : `+${country.callingCode}`;
     const phoneHint = LANG === 'fr'
       ? `Vous pourrez vous connecter avec ce numéro. Exemple : ${phoneExample}`
       : `You can sign in with this number. Example: ${phoneExample}`;
+    const regionField = country.location.regions
+      ? select('region', country.location.regionLabel[LANG] || country.location.regionLabel.en, regionOptions(d.countryCode), { required: true, rerender: true })
+      : input('region', country.location.regionLabel[LANG] || country.location.regionLabel.en, { required: true, max: 120, attrs: 'autocomplete="address-level1"' });
     const areaField = d.countryCode === 'CM'
       ? select('division', country.location.subregionLabel[LANG] || country.location.subregionLabel.en, divisions.map(name => [name, name]), { required: true, placeholder: d.region ? '—' : t('wz_choose_region_first'), attrs: d.region ? '' : 'disabled' })
       : input('division', country.location.subregionLabel[LANG] || country.location.subregionLabel.en, { required: true, max: 80, attrs: 'autocomplete="address-level3"' });
     const gps = d.gps;
     return `
-      <p class="mu sm">${esc(t('wz_country'))}: <strong>${esc(country.name[LANG] || country.name.en)}</strong></p>
+      <p class="mu sm">${esc(t('wz_country'))}: <strong>${esc(countryName(country))}</strong></p>
       ${RS.mode === 'complete' ? `<div class="alt ai">${esc(t('wz_phone'))}: <strong>${esc(d.phone)}</strong>${d.email ? ` · ${esc(d.email)}` : ''}</div>` : `
       ${input('phone', t('wz_phone'), { type: 'tel', required: true, hint: phoneHint, max: 20, attrs: `inputmode="tel" autocomplete="tel" placeholder="+${country.callingCode}"` })}
       ${toggle('phoneIsWhatsApp', t('wz_is_whatsapp'))}
@@ -342,7 +346,7 @@
       ${input('phone2', t('wz_phone2'), { type: 'tel', optional: true, max: 20, attrs: 'inputmode="tel"' })}
       ${hospitalField()}
       <div class="fr">
-        ${select('region', country.location.regionLabel[LANG] || country.location.regionLabel.en, regionOptions(d.countryCode), { required: true, rerender: true })}
+        ${regionField}
         ${areaField}
       </div>
       <div class="fr">
@@ -438,7 +442,7 @@
     const whatsapp = RS.mode === 'complete' ? !!CU?.whatsappNumber : D().phoneIsWhatsApp;
     const law = countryProfile(D().countryCode).legalInstrument;
     return `
-      <p class="mu sm wz-note">${esc(t('wz_consent_intro'))} ${esc(law)}</p>
+      <p class="mu sm wz-note">${esc(t('wz_consent_intro'))}${law ? ` ${esc(law)}` : ''}</p>
       <p class="mu sm wz-note">${esc(t('wz_legal_review'))}</p>
       ${toggle('cData', t('wz_c_data'), { required: true })}
       ${toggle('cResearch', t('wz_c_research'))}

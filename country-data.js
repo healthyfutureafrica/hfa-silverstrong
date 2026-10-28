@@ -123,8 +123,97 @@
     }
   };
 
+  const africanCountryBaselines = [
+    ['DZ', 'Algeria', '213', 'DZD', ['en']],
+    ['AO', 'Angola', '244', 'AOA', ['en']],
+    ['BJ', 'Benin', '229', 'XOF', ['en', 'fr']],
+    ['BW', 'Botswana', '267', 'BWP', ['en']],
+    ['BF', 'Burkina Faso', '226', 'XOF', ['en', 'fr']],
+    ['BI', 'Burundi', '257', 'BIF', ['en', 'fr']],
+    ['CV', 'Cabo Verde', '238', 'CVE', ['en']],
+    ['CF', 'Central African Republic', '236', 'XAF', ['en', 'fr']],
+    ['TD', 'Chad', '235', 'XAF', ['en', 'fr']],
+    ['KM', 'Comoros', '269', 'KMF', ['en', 'fr']],
+    ['CG', 'Congo', '242', 'XAF', ['en', 'fr']],
+    ['CD', 'Democratic Republic of the Congo', '243', 'CDF', ['en', 'fr']],
+    ['CI', 'Côte d’Ivoire', '225', 'XOF', ['en', 'fr']],
+    ['DJ', 'Djibouti', '253', 'DJF', ['en', 'fr']],
+    ['EG', 'Egypt', '20', 'EGP', ['en']],
+    ['GQ', 'Equatorial Guinea', '240', 'XAF', ['en', 'fr']],
+    ['ER', 'Eritrea', '291', 'ERN', ['en']],
+    ['SZ', 'Eswatini', '268', 'SZL', ['en']],
+    ['ET', 'Ethiopia', '251', 'ETB', ['en']],
+    ['GA', 'Gabon', '241', 'XAF', ['en', 'fr']],
+    ['GM', 'Gambia', '220', 'GMD', ['en']],
+    ['GH', 'Ghana', '233', 'GHS', ['en']],
+    ['GN', 'Guinea', '224', 'GNF', ['en', 'fr']],
+    ['GW', 'Guinea-Bissau', '245', 'XOF', ['en', 'fr']],
+    ['KE', 'Kenya', '254', 'KES', ['en']],
+    ['LS', 'Lesotho', '266', 'LSL', ['en']],
+    ['LR', 'Liberia', '231', 'LRD', ['en']],
+    ['LY', 'Libya', '218', 'LYD', ['en']],
+    ['MG', 'Madagascar', '261', 'MGA', ['en', 'fr']],
+    ['MW', 'Malawi', '265', 'MWK', ['en']],
+    ['ML', 'Mali', '223', 'XOF', ['en', 'fr']],
+    ['MR', 'Mauritania', '222', 'MRU', ['en', 'fr']],
+    ['MU', 'Mauritius', '230', 'MUR', ['en', 'fr']],
+    ['MA', 'Morocco', '212', 'MAD', ['en', 'fr']],
+    ['MZ', 'Mozambique', '258', 'MZN', ['en']],
+    ['NA', 'Namibia', '264', 'NAD', ['en']],
+    ['NE', 'Niger', '227', 'XOF', ['en', 'fr']],
+    ['RW', 'Rwanda', '250', 'RWF', ['en', 'fr']],
+    ['ST', 'São Tomé and Príncipe', '239', 'STN', ['en', 'fr']],
+    ['SN', 'Senegal', '221', 'XOF', ['en', 'fr']],
+    ['SC', 'Seychelles', '248', 'SCR', ['en', 'fr']],
+    ['SL', 'Sierra Leone', '232', 'SLE', ['en']],
+    ['SO', 'Somalia', '252', 'SOS', ['en']],
+    ['ZA', 'South Africa', '27', 'ZAR', ['en']],
+    ['SS', 'South Sudan', '211', 'SSP', ['en']],
+    ['SD', 'Sudan', '249', 'SDG', ['en']],
+    ['TZ', 'Tanzania', '255', 'TZS', ['en']],
+    ['TG', 'Togo', '228', 'XOF', ['en', 'fr']],
+    ['TN', 'Tunisia', '216', 'TND', ['en', 'fr']],
+    ['UG', 'Uganda', '256', 'UGX', ['en']],
+    ['ZM', 'Zambia', '260', 'ZMW', ['en']],
+    ['ZW', 'Zimbabwe', '263', 'ZWG', ['en']]
+  ];
+
+  for (const [code, name, callingCode, currency, languages] of africanCountryBaselines) {
+    if (countries[code]) continue;
+    countries[code] = {
+      code,
+      name: { en: name },
+      callingCode,
+      currency,
+      languages,
+      emergencyNumber: null,
+      emergencyNumberReview: 'required',
+      legalInstrument: null,
+      legalReview: 'required',
+      registrationIdentityDocumentRequired: false,
+      healthInsuranceOptions: [
+        { code: 'none', label: { en: 'None', fr: 'Aucune' } },
+        { code: 'public_scheme', label: { en: 'Public health scheme', fr: 'Régime public de santé' } },
+        { code: 'private', label: { en: 'Private', fr: 'Privée' } },
+        { code: 'mutual', label: { en: 'Community-based scheme', fr: 'Mutuelle' } },
+        { code: 'other', label: { en: 'Other', fr: 'Autre' } }
+      ],
+      incomeBands: null,
+      location: {
+        regionLabel: { en: 'Region / province / state', fr: 'Région / province / État' },
+        subregionLabel: { en: 'District / local area', fr: 'District / localité' },
+        localityLabel: { en: 'Town / community', fr: 'Ville / communauté' },
+        regions: null
+      },
+      professionalRegulators: null
+    };
+  }
+
   const get = code => countries[code] || null;
-  const regionCodes = code => (get(code)?.location.regions || []).map(region => region.code);
-  const all = () => Object.values(countries);
+  const regionCodes = code => {
+    const regions = get(code)?.location.regions;
+    return Array.isArray(regions) ? regions.map(region => region.code) : null;
+  };
+  const all = () => Object.values(countries).sort((a, b) => a.name.en.localeCompare(b.name.en));
   return Object.freeze({ get, regionCodes, all });
 });

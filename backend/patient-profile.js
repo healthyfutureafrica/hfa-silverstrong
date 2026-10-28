@@ -22,9 +22,9 @@ const healthProfile = z.object({
     cniNumber: text(40, 1).optional()
   }).strict(),
   location: z.object({
-    countryCode: z.enum(['CM', 'NG']).default('CM'),
+    countryCode: z.enum(COUNTRY_DATA.all().map(country => country.code)).default('CM'),
     secondaryPhone: e164.optional(),
-    region: text(20, 1),
+    region: text(120, 1),
     division: text(80, 1),
     town: text(120, 1),
     healthDistrict: text(120, 1).optional(),
@@ -68,7 +68,8 @@ const healthProfile = z.object({
     ministry: z.boolean()
   }).strict()
 }).strict().superRefine((input, context) => {
-  if (!COUNTRY_DATA.regionCodes(input.location.countryCode).includes(input.location.region)) {
+  const allowedRegions = COUNTRY_DATA.regionCodes(input.location.countryCode);
+  if (allowedRegions && !allowedRegions.includes(input.location.region)) {
     context.addIssue({ code: 'custom', path: ['location', 'region'], message: 'Choose a region in the selected country' });
   }
   if (input.lifestyle.smoking !== 'current' && input.lifestyle.cigarettesPerDay !== undefined) context.addIssue({ code: 'custom', path: ['lifestyle', 'cigarettesPerDay'], message: 'Only for current smokers' });

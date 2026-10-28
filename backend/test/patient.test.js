@@ -137,6 +137,27 @@ test('Nigeria profiles use the country-aware location schema and reject mismatch
   } finally { await app.close(); store.close(); }
 });
 
+test('other African country profiles accept user-entered local areas without implying legal approval', async () => {
+  const store = new Store(), app = await startServer(store);
+  const ghana = patientInput();
+  ghana.countryCode = 'GH';
+  ghana.phone = '+233241234567';
+  ghana.whatsappNumber = '+233241234567';
+  ghana.healthProfile = {
+    ...fullProfile(),
+    location: { countryCode: 'GH', region: 'Greater Accra Region', division: 'Accra Metropolitan Area', town: 'Accra' }
+  };
+  try {
+    const registered = await app.request('/api/auth/register', ghana);
+    assert.equal(registered.status, 201);
+    const { user } = await registered.json();
+    assert.equal(user.countryCode, 'GH');
+    assert.equal(user.healthProfile.location.countryCode, 'GH');
+    assert.equal(user.healthProfile.location.region, 'Greater Accra Region');
+    assert.equal(user.healthProfile.location.division, 'Accra Metropolitan Area');
+  } finally { await app.close(); store.close(); }
+});
+
 test('profile pictures are validated, converted to WebP, encrypted, replaced and removed', async () => {
   const store = new Store(), app = await startServer(store);
   try {

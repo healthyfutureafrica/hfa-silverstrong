@@ -11,16 +11,25 @@ describe('index.html sanity checks', () => {
     content = fs.readFileSync(indexPath, 'utf8');
   });
 
-  test('country profiles cover the Cameroon and Nigeria intake pilot without claiming legal readiness', () => {
+  test('patient country selector lists all 54 African countries and marks detailed profile review as pending', () => {
     const cameroon = countryData.get('CM');
     const nigeria = countryData.get('NG');
+    const ghana = countryData.get('GH');
+    expect(countryData.all()).toHaveLength(54);
+    expect(countryData.all().map(country => country.code)).toEqual(expect.arrayContaining([
+      'DZ', 'AO', 'BJ', 'BW', 'BF', 'BI', 'CV', 'CM', 'CF', 'TD', 'KM', 'CG', 'CD', 'CI', 'DJ', 'EG', 'GQ', 'ER',
+      'SZ', 'ET', 'GA', 'GM', 'GH', 'GN', 'GW', 'KE', 'LS', 'LR', 'LY', 'MG', 'MW', 'ML', 'MR', 'MU', 'MA', 'MZ',
+      'NA', 'NE', 'NG', 'RW', 'ST', 'SN', 'SC', 'SL', 'SO', 'ZA', 'SS', 'SD', 'TZ', 'TG', 'TN', 'UG', 'ZM', 'ZW'
+    ]));
     expect(cameroon).toMatchObject({ callingCode: '237', currency: 'XAF', legalReview: 'required', registrationIdentityDocumentRequired: true, emergencyNumber: '1515' });
     expect(nigeria).toMatchObject({ callingCode: '234', currency: 'NGN', legalReview: 'required', registrationIdentityDocumentRequired: false, emergencyNumber: null, incomeBands: null });
+    expect(ghana).toMatchObject({ callingCode: '233', currency: 'GHS', legalReview: 'required', legalInstrument: null, emergencyNumber: null, incomeBands: null });
     expect(nigeria.healthInsuranceOptions.find(option => option.code === 'public_scheme').label.en).toContain('NHIA');
     expect(nigeria.location.regions).toHaveLength(37);
     expect(nigeria.location.regions.find(region => region.code === 'NG-LA').name.en).toBe('Lagos');
-    expect(countryData.get('GH')).toBeNull();
+    expect(ghana.location.regions).toBeNull();
     expect(countryData.regionCodes('NG')).toContain('NG-FC');
+    expect(countryData.regionCodes('GH')).toBeNull();
   });
 
   test('patient intake uses country-specific geography and displays local legal-review status', () => {
