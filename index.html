@@ -220,6 +220,32 @@ tbody tr:hover{background:#fcfdfe}
 .lft{background:rgba(255,255,255,.04);border-top:1px solid rgba(255,255,255,.07);padding:24px 56px;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
 .lf{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.55);font-size:.82rem}
 .lfd{color:var(--go)}
+.contact-page{min-height:100vh;background:var(--na);color:#fff}
+.contact-page .lnav{background:var(--na)}
+.contact-content{max-width:1000px;margin:0 auto;padding:52px 28px 72px}
+.contact-content>h1{font-family:var(--fd);font-size:2rem;color:#fff}
+.contact-intro{max-width:650px;color:rgba(255,255,255,.68);margin:8px 0 26px}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.contact-tile{padding:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--r)}
+.contact-tile h2{font-family:var(--fd);font-size:1rem;color:var(--go-l);margin-bottom:10px}
+.contact-tile p,.contact-tile a{display:block;color:rgba(255,255,255,.82);font-size:.88rem;line-height:1.7;overflow-wrap:anywhere}
+.contact-tile a:hover{color:var(--go-l)}
+.donate-dock{position:fixed;right:16px;bottom:16px;z-index:500;color:var(--t1);font-size:.78rem}
+.donate-dock summary{list-style:none;display:grid;gap:2px;max-width:260px;padding:10px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shl);cursor:pointer}
+.donate-dock summary::-webkit-details-marker{display:none}
+.donate-dock summary strong{font-size:.85rem;color:var(--em-d)}
+.donate-dock summary span{color:var(--t2);font-size:.72rem}
+.donate-panel{position:absolute;right:0;bottom:calc(100% + 8px);width:min(340px,calc(100vw - 24px));max-height:min(70vh,500px);overflow-y:auto;padding:16px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shl)}
+.donate-panel h2{font-family:var(--fd);font-size:1rem;color:var(--t1);margin-bottom:10px}
+.donate-panel dl{display:grid;grid-template-columns:minmax(105px,auto) 1fr;gap:7px 10px}
+.donate-panel dt{font-weight:600;color:var(--t2)}
+.donate-panel dd{margin:0;color:var(--t1);overflow-wrap:anywhere}
+@media(max-width:700px){
+  .contact-content{padding:32px 16px 100px}
+  .contact-content>h1{font-size:1.65rem}
+  .donate-dock{right:10px;bottom:10px}
+  body.has-bottom-nav .donate-dock{bottom:84px}
+}
 
 .cw{display:grid;grid-template-columns:290px 1fr;height:calc(100vh - 57px)}
 .cl{border-right:1px solid var(--bd);overflow-y:auto;background:var(--sf)}
@@ -962,6 +988,22 @@ body{font-size:15px}
 </head>
 <body>
 <a href="#pgc" class="skip-link" data-i18n="skip_main" onclick="skipToMain(event)">Skip to main content</a>
+<details class="donate-dock">
+  <summary><strong id="donate-label">🏦 Donate</strong><span id="donate-brief">UBA Cameroon · 16031000126</span></summary>
+  <section class="donate-panel" aria-labelledby="donate-title">
+    <h2 id="donate-title">Bank transfer</h2>
+    <dl>
+      <dt id="donate-account-name-label">Account name</dt><dd>HEALTHY FUTURE AFRICA</dd>
+      <dt id="donate-bank-label">Bank</dt><dd>UBA Cameroon</dd>
+      <dt id="donate-account-no-label">Account no</dt><dd>16031000126</dd>
+      <dt id="donate-bank-code-label">Bank code</dt><dd>10033</dd>
+      <dt id="donate-branch-code-label">Branch code</dt><dd>05216</dd>
+      <dt id="donate-key-label">Key</dt><dd>25</dd>
+      <dt id="donate-iban-label">IBAN</dt><dd>CM21 10033 05216 16031000126 25</dd>
+      <dt id="donate-swift-label">SWIFT</dt><dd>UNAFCMCX</dd>
+    </dl>
+  </section>
+</details>
 
 
 <!-- LANGUAGE PICKER -->
@@ -996,6 +1038,7 @@ body{font-size:15px}
     <div class="lnr">
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goFreeHub()" id="lnd-freehub" data-i18n="free_hub_title">Free Health Hub</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="HFATriageUI.openPublic()" id="lnd-triage" data-i18n="st_nav">Check my symptoms</button>
+      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goContact()" id="lnd-contact">Contact</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
       <button type="button" class="btn bgh land-nav-btn nav-ghost lang-toggle" onclick="toggleLang()" id="lnd-lang" lang="fr">🌐 Français</button>
       <button type="button" class="btn bg2 land-nav-btn" onclick="goAuth('register')" id="lnd-register">Register</button>
@@ -1061,12 +1104,45 @@ body{font-size:15px}
   </div>
 </div>
 
+<!-- PUBLIC CONTACT PAGE -->
+<div id="contact-page" class="contact-page hid">
+  <nav class="lnav" aria-label="Contact page navigation">
+    <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span>HFA <span>SilverStrong</span></span></div>
+    <div class="lnr">
+      <button type="button" class="btn bgh land-nav-btn" onclick="goLand()" id="contact-back">← Back to Home</button>
+      <button type="button" class="btn bgh land-nav-btn" onclick="goFreeHub()" id="contact-fh">Free Health Hub</button>
+      <button type="button" class="btn bgh land-nav-btn nav-ghost lang-toggle" onclick="toggleLang()" lang="fr">🌐 Français</button>
+    </div>
+  </nav>
+  <section class="contact-content" aria-labelledby="contact-title">
+    <h1 id="contact-title">Contact Healthy Future Africa</h1>
+    <p class="contact-intro" id="contact-intro">We’re here to help. Reach us by WhatsApp, email, or visit our office.</p>
+    <div class="contact-grid">
+      <section class="contact-tile">
+        <h2 id="contact-whatsapp-title">WhatsApp</h2>
+        <a href="https://wa.me/237676698072" target="_blank" rel="noopener noreferrer">+237 676698072</a>
+        <a href="https://wa.me/2349138841560" target="_blank" rel="noopener noreferrer">+2349138841560</a>
+      </section>
+      <section class="contact-tile">
+        <h2 id="contact-email-title">Email</h2>
+        <a href="mailto:csn@healthyfutureafrica.org">csn@healthyfutureafrica.org</a>
+        <a href="mailto:healthyfutureafrica@gmail.com">healthyfutureafrica@gmail.com</a>
+      </section>
+      <section class="contact-tile">
+        <h2 id="contact-address-title">Address</h2>
+        <p>Chenfor Junction, Mile 1, Limbe, SW Region, Cameroon</p>
+      </section>
+    </div>
+  </section>
+</div>
+
 <!-- FREE HEALTH HUB (public, no login required) -->
 <div id="free-hub" class="hid">
   <nav class="lnav fh-nav" aria-label="Free Health Hub navigation" data-i18n-aria="i_fh_nav">
     <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span>HFA <span>SilverStrong</span></span></div>
     <div class="lnr">
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goLand()" id="fh-back">← Back to Home</button>
+      <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goContact()" id="fh-contact">Contact</button>
       <button type="button" class="btn bgh land-nav-btn nav-ghost lang-toggle" onclick="toggleLang()" id="fh-lang" lang="fr">🌐 Français</button>
     </div>
   </nav>
@@ -2009,13 +2085,13 @@ function chooseLang(lang) {
 }
 
 function openLangPicker(returnScreen) {
-  LANG_RETURN_SCREEN = returnScreen || (!$('app-wrap').classList.contains('hid') ? 'app' : !$('auth-wrap').classList.contains('hid') ? 'auth' : !$('free-hub').classList.contains('hid') ? 'free-hub' : 'land');
-  hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub');
+  LANG_RETURN_SCREEN = returnScreen || (!$('app-wrap').classList.contains('hid') ? 'app' : !$('auth-wrap').classList.contains('hid') ? 'auth' : !$('free-hub').classList.contains('hid') ? 'free-hub' : !$('contact-page').classList.contains('hid') ? 'contact' : 'land');
+  hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); hide('contact-page');
   show('lang-pick');
 }
 
 function restoreAfterLanguageChoice() {
-  hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub');
+  hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); hide('contact-page');
   if (LANG_RETURN_SCREEN==='app' && CU) {
     show('app-wrap');
     buildSidebar();
@@ -2026,6 +2102,8 @@ function restoreAfterLanguageChoice() {
   } else if (LANG_RETURN_SCREEN==='free-hub') {
     show('free-hub');
     renderFreeHub($('free-hub-content'), true);
+  } else if (LANG_RETURN_SCREEN==='contact') {
+    show('contact-page');
   } else {
     show('land');
   }
@@ -2172,6 +2250,28 @@ function updateStaticHTML() {
     : 'HFA <span style="color:var(--go)">SilverStrong</span>';
   // Landing nav buttons
   const lsi = $('lnd-signin'); if(lsi) lsi.textContent = LANG==='fr'?'Se Connecter':'Sign In';
+  const lnc = $('lnd-contact'); if(lnc) lnc.textContent = 'Contact';
+  const fhc = $('fh-contact'); if(fhc) fhc.textContent = 'Contact';
+  const cb = $('contact-back'); if(cb) cb.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
+  const cfh = $('contact-fh'); if(cfh) cfh.textContent = LANG==='fr'?'Espace Santé Gratuit':'Free Health Hub';
+  const ctitle = $('contact-title'); if(ctitle) ctitle.textContent = LANG==='fr'?'Contacter Healthy Future Africa':'Contact Healthy Future Africa';
+  const cintro = $('contact-intro'); if(cintro) cintro.textContent = LANG==='fr'?'Nous sommes là pour vous aider. Contactez-nous par WhatsApp, e-mail ou rendez-vous à notre bureau.':'We’re here to help. Reach us by WhatsApp, email, or visit our office.';
+  const cwhatsapp = $('contact-whatsapp-title'); if(cwhatsapp) cwhatsapp.textContent = 'WhatsApp';
+  const cemail = $('contact-email-title'); if(cemail) cemail.textContent = LANG==='fr'?'E-mail':'Email';
+  const caddress = $('contact-address-title'); if(caddress) caddress.textContent = LANG==='fr'?'Adresse':'Address';
+  const donateLabels = {
+    'donate-label': LANG==='fr'?'🏦 Faire un don':'🏦 Donate',
+    'donate-title': LANG==='fr'?'Virement bancaire':'Bank transfer',
+    'donate-account-name-label': LANG==='fr'?'Nom du compte':'Account name',
+    'donate-bank-label': LANG==='fr'?'Banque':'Bank',
+    'donate-account-no-label': LANG==='fr'?'N° de compte':'Account no',
+    'donate-bank-code-label': LANG==='fr'?'Code bancaire':'Bank code',
+    'donate-branch-code-label': LANG==='fr'?'Code agence':'Branch code',
+    'donate-key-label': LANG==='fr'?'Clé':'Key',
+    'donate-iban-label': 'IBAN',
+    'donate-swift-label': 'SWIFT',
+  };
+  Object.entries(donateLabels).forEach(([id,text])=>{ const el=$(id); if(el) el.textContent=text; });
   const sbs = $('sb-site-lbl');  if(sbs) sbs.textContent  = LANG==='fr'?'Retour au Site':'Back to Website';
   const lrg = $('lnd-register'); if(lrg) lrg.textContent = LANG==='fr'?'Inscription':'Register';
   const fhb = $('fh-back'); if(fhb) fhb.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
@@ -2949,16 +3049,20 @@ const NAV = {
 // ═══════════════════════ SCREEN NAVIGATION ═══════════════════════
 // Skip link: jumps to whichever screen is showing (landing, sign-in, Free Health Hub or the app page).
 function skipToMain(event) {
-  const target=['pgc','public-triage','free-hub','auth-wrap','land'].map(id=>$(id)).find(el=>el&&el.offsetParent!==null);
+  const target=['pgc','public-triage','free-hub','contact-page','auth-wrap','land'].map(id=>$(id)).find(el=>el&&el.offsetParent!==null);
   if (!target) return;
   event.preventDefault();
   if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex','-1');
   target.focus();
 }
-function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); toggleSidebar(false); document.body.classList.remove('has-bottom-nav'); $('bottom-nav')?.remove(); }
+function goLand() { show('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); hide('contact-page'); toggleSidebar(false); document.body.classList.remove('has-bottom-nav'); $('bottom-nav')?.remove(); }
 function goFreeHub() {
-  hide('land'); hide('auth-wrap'); hide('app-wrap'); show('free-hub');
+  hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('contact-page'); show('free-hub');
   renderFreeHub($('free-hub-content'), true);
+}
+function goContact() {
+  hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); show('contact-page');
+  window.scrollTo(0,0);
 }
 // True on a copy of the site that has no HFA server behind it (the public information website).
 const noAccounts = () => !ApiState.enabled && !ApiState.loading && !ApiState.failed;
@@ -2970,7 +3074,7 @@ function showAccountsUnavailable() {
 function goAuth(tab, role) {
   if (ApiState.loading) { ApiState.ready.then(()=>goAuth(tab, role)); return; }
   if (noAccounts()) return showAccountsUnavailable();
-  hide('land'); show('auth-wrap'); hide('app-wrap');
+  hide('land'); hide('contact-page'); hide('free-hub'); show('auth-wrap'); hide('app-wrap');
   swtTab(tab || 'login');
   if (role) setRole(role);
   // Update back button text
@@ -5316,6 +5420,7 @@ hide('land');
 hide('auth-wrap');
 hide('app-wrap');
 hide('free-hub');
+hide('contact-page');
 show('lang-pick');
 ApiState.ready=initializeBackend();
 setInterval(refreshBackendNotifications,30000);

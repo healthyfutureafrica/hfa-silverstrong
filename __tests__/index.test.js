@@ -1132,10 +1132,32 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("const HFA_CONTACT_EMAIL = 'healthyfutureafrica@gmail.com';");
   });
 
+  test('provides public contact details and persistent donation information', () => {
+    for (const text of [
+      'id="contact-page"',
+      'onclick="goContact()" id="lnd-contact"',
+      'https://wa.me/237676698072',
+      '+237 676698072',
+      'https://wa.me/2349138841560',
+      '+2349138841560',
+      'mailto:csn@healthyfutureafrica.org',
+      'mailto:healthyfutureafrica@gmail.com',
+      'Chenfor Junction, Mile 1, Limbe, SW Region, Cameroon',
+      '<details class="donate-dock">',
+      'HEALTHY FUTURE AFRICA',
+      'UBA Cameroon',
+      '16031000126',
+      '10033',
+      '05216',
+      'CM21 10033 05216 16031000126 25',
+      'UNAFCMCX',
+    ]) expect(content).toContain(text);
+  });
+
   test('uses the HFA logo asset across the app', () => {
     expect(fs.existsSync(path.join(__dirname, '..', 'assets', 'hfa-logo.svg'))).toBe(true);
     // The HFA logo is for HFA's own branding only; portals use their own icons.
-    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(5); // includes the favicon
+    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(6); // includes the favicon and contact page
     expect(content).not.toMatch(/id="lnd-pharmacist-card"[^]*?hfa-logo\.svg[^]*?id="lnd-pharmacist-title"/);
     expect(content).toContain('alt="HFA SilverStrong logo"');
   });
