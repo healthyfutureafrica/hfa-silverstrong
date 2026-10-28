@@ -42,6 +42,11 @@ describe('index.html sanity checks', () => {
     expect(fs.readFileSync(path.join(__dirname, '..', 'scripts', 'build-static.js'), 'utf8')).toContain("'country-data.js'");
   });
 
+  test('persistent Donate button caption asks users to support HFA', () => {
+    expect(content).toContain('<strong id="donate-label">Donate</strong><span class="donate-support" id="donate-support">Support HFA</span>');
+    expect(content).toContain("'donate-support': LANG==='fr'?'Soutenez HFA':'Support HFA'");
+  });
+
   test('every script in the page and every site script file is valid JavaScript', () => {
     const inline = [...content.matchAll(/<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/g)].map(match => match[1]);
     expect(inline.length).toBeGreaterThan(0);
@@ -1193,7 +1198,7 @@ describe('index.html sanity checks', () => {
       'id="donate-panel"',
       'id="donate-intro"',
       'class="donate-account"',
-      'Support healthier futures',
+      'Support HFA',
       'HEALTHY FUTURE AFRICA',
       'UBA Cameroon',
       '16031000126',
