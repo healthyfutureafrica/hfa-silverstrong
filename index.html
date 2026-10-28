@@ -230,20 +230,35 @@ tbody tr:hover{background:#fcfdfe}
 .contact-tile h2{font-family:var(--fd);font-size:1rem;color:var(--go-l);margin-bottom:10px}
 .contact-tile p,.contact-tile a{display:block;color:rgba(255,255,255,.82);font-size:.88rem;line-height:1.7;overflow-wrap:anywhere}
 .contact-tile a:hover{color:var(--go-l)}
-.donate-dock{position:fixed;right:16px;bottom:16px;z-index:500;color:var(--t1);font-size:.78rem}
-.donate-dock summary{list-style:none;display:grid;gap:2px;max-width:260px;padding:10px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shl);cursor:pointer}
+.donate-dock{position:fixed;right:18px;bottom:18px;z-index:500;color:var(--t1);font-size:.78rem}
+.donate-dock summary{list-style:none;display:flex;align-items:center;gap:10px;min-width:220px;padding:10px 14px;background:linear-gradient(120deg,#005833,#007848);border:1px solid rgba(252,209,22,.55);border-radius:var(--rl);box-shadow:0 10px 28px rgba(0,55,33,.3);cursor:pointer;transition:var(--tr)}
 .donate-dock summary::-webkit-details-marker{display:none}
-.donate-dock summary strong{font-size:.85rem;color:var(--em-d)}
-.donate-dock summary span{color:var(--t2);font-size:.72rem}
-.donate-panel{position:absolute;right:0;bottom:calc(100% + 8px);width:min(340px,calc(100vw - 24px));max-height:min(70vh,500px);overflow-y:auto;padding:16px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shl)}
-.donate-panel h2{font-family:var(--fd);font-size:1rem;color:var(--t1);margin-bottom:10px}
-.donate-panel dl{display:grid;grid-template-columns:minmax(105px,auto) 1fr;gap:7px 10px}
+.donate-dock summary:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,55,33,.36)}
+.donate-dock summary:focus-visible{outline:3px solid var(--go-l);outline-offset:3px}
+.donate-mark{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:12px;background:var(--go-l);color:var(--em-d);font-size:1.15rem}
+.donate-summary-copy{display:grid;gap:1px;min-width:0}
+.donate-dock summary strong{font-size:.88rem;color:#fff;line-height:1.25}
+.donate-dock summary .donate-support{color:rgba(255,255,255,.77);font-size:.68rem;line-height:1.25}
+.donate-chevron{margin-left:auto;color:var(--go-l);font-size:1rem;transition:transform .18s ease}
+.donate-dock[open] .donate-chevron{transform:rotate(180deg)}
+.donate-panel{position:absolute;right:0;bottom:calc(100% + 12px);width:min(370px,calc(100vw - 24px));max-height:min(76vh,560px);overflow-y:auto;padding:0;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);box-shadow:var(--shl)}
+.donate-panel-head{padding:18px 20px 16px;background:linear-gradient(135deg,var(--em-d),var(--em));color:#fff}
+.donate-panel-head h2{font-family:var(--fd);font-size:1.08rem;color:#fff}
+.donate-panel-head p{margin-top:4px;color:rgba(255,255,255,.8);font-size:.74rem;line-height:1.45}
+.donate-panel-body{padding:16px 20px 20px}
+.donate-account{display:grid;gap:3px;margin-bottom:14px;padding:12px 14px;background:var(--em-p);border:1px solid rgba(0,107,63,.12);border-radius:var(--r)}
+.donate-account-label{color:var(--em-d);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.donate-account strong{color:var(--em-d);font-family:var(--fm);font-size:1.12rem;letter-spacing:.025em;overflow-wrap:anywhere}
+.donate-panel dl{display:grid;grid-template-columns:minmax(105px,auto) 1fr;gap:8px 12px}
 .donate-panel dt{font-weight:600;color:var(--t2)}
 .donate-panel dd{margin:0;color:var(--t1);overflow-wrap:anywhere}
+:root[data-theme="dark"] .donate-account{background:rgba(42,143,92,.16);border-color:rgba(42,143,92,.3)}
 @media(max-width:700px){
   .contact-content{padding:32px 16px 100px}
   .contact-content>h1{font-size:1.65rem}
-  .donate-dock{right:10px;bottom:10px}
+  .donate-dock{right:12px;bottom:12px}
+  .donate-dock summary{min-width:0;padding:9px 12px}
+  .donate-mark{width:34px;height:34px;flex-basis:34px}
   body.has-bottom-nav .donate-dock{bottom:84px}
 }
 
@@ -989,19 +1004,31 @@ body{font-size:15px}
 <body>
 <a href="#pgc" class="skip-link" data-i18n="skip_main" onclick="skipToMain(event)">Skip to main content</a>
 <details class="donate-dock">
-  <summary><strong id="donate-label">🏦 Donate</strong><span id="donate-brief">UBA Cameroon · 16031000126</span></summary>
-  <section class="donate-panel" aria-labelledby="donate-title">
-    <h2 id="donate-title">Bank transfer</h2>
-    <dl>
-      <dt id="donate-account-name-label">Account name</dt><dd>HEALTHY FUTURE AFRICA</dd>
-      <dt id="donate-bank-label">Bank</dt><dd>UBA Cameroon</dd>
-      <dt id="donate-account-no-label">Account no</dt><dd>16031000126</dd>
-      <dt id="donate-bank-code-label">Bank code</dt><dd>10033</dd>
-      <dt id="donate-branch-code-label">Branch code</dt><dd>05216</dd>
-      <dt id="donate-key-label">Key</dt><dd>25</dd>
-      <dt id="donate-iban-label">IBAN</dt><dd>CM21 10033 05216 16031000126 25</dd>
-      <dt id="donate-swift-label">SWIFT</dt><dd>UNAFCMCX</dd>
-    </dl>
+  <summary aria-controls="donate-panel">
+    <span class="donate-mark" aria-hidden="true">♥</span>
+    <span class="donate-summary-copy"><strong id="donate-label">Donate</strong><span class="donate-support" id="donate-support">Support healthier futures</span></span>
+    <span class="donate-chevron" aria-hidden="true">⌃</span>
+  </summary>
+  <section class="donate-panel" id="donate-panel" aria-labelledby="donate-title">
+    <header class="donate-panel-head">
+      <h2 id="donate-title">Bank transfer</h2>
+      <p id="donate-intro">Thank you for helping Healthy Future Africa make care more accessible.</p>
+    </header>
+    <div class="donate-panel-body">
+      <div class="donate-account">
+        <span class="donate-account-label" id="donate-account-no-label">Account number</span>
+        <strong>16031000126</strong>
+      </div>
+      <dl>
+        <dt id="donate-account-name-label">Account name</dt><dd>HEALTHY FUTURE AFRICA</dd>
+        <dt id="donate-bank-label">Bank</dt><dd>UBA Cameroon</dd>
+        <dt id="donate-bank-code-label">Bank code</dt><dd>10033</dd>
+        <dt id="donate-branch-code-label">Branch code</dt><dd>05216</dd>
+        <dt id="donate-key-label">Key</dt><dd>25</dd>
+        <dt id="donate-iban-label">IBAN</dt><dd>CM21 10033 05216 16031000126 25</dd>
+        <dt id="donate-swift-label">SWIFT</dt><dd>UNAFCMCX</dd>
+      </dl>
+    </div>
   </section>
 </details>
 
@@ -2260,11 +2287,13 @@ function updateStaticHTML() {
   const cemail = $('contact-email-title'); if(cemail) cemail.textContent = LANG==='fr'?'E-mail':'Email';
   const caddress = $('contact-address-title'); if(caddress) caddress.textContent = LANG==='fr'?'Adresse':'Address';
   const donateLabels = {
-    'donate-label': LANG==='fr'?'🏦 Faire un don':'🏦 Donate',
+    'donate-label': LANG==='fr'?'Faire un don':'Donate',
+    'donate-support': LANG==='fr'?'Soutenez un avenir en meilleure santé':'Support healthier futures',
     'donate-title': LANG==='fr'?'Virement bancaire':'Bank transfer',
+    'donate-intro': LANG==='fr'?'Merci de contribuer à rendre les soins plus accessibles avec Healthy Future Africa.':'Thank you for helping Healthy Future Africa make care more accessible.',
     'donate-account-name-label': LANG==='fr'?'Nom du compte':'Account name',
     'donate-bank-label': LANG==='fr'?'Banque':'Bank',
-    'donate-account-no-label': LANG==='fr'?'N° de compte':'Account no',
+    'donate-account-no-label': LANG==='fr'?'Numéro de compte':'Account number',
     'donate-bank-code-label': LANG==='fr'?'Code bancaire':'Bank code',
     'donate-branch-code-label': LANG==='fr'?'Code agence':'Branch code',
     'donate-key-label': LANG==='fr'?'Clé':'Key',
