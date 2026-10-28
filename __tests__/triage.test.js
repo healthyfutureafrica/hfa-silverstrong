@@ -15,6 +15,7 @@ describe('SLY Triage', () => {
       expect(read('Dockerfile')).toContain(file);
     }
     expect(read('backend/Dockerfile')).toContain('hfa-triage.js');
+    expect(read('backend/Dockerfile')).toContain('country-data.js');
     expect(page).toContain("page==='triage' && r==='patient'");
   });
 
@@ -22,6 +23,19 @@ describe('SLY Triage', () => {
     const screens = read('triage-assistant.js');
     expect(screens).toContain("window.showTriage = () =>");
     expect(screens).not.toMatch(/id="triage-level"/);
+  });
+
+  test('emergency contact advice uses the selected country profile and never guesses a number', () => {
+    const answers = { ageGroup: 'adult', complaints: ['pain_chest'], dangerSigns: ['chest_pain'] };
+    const cameroon = Triage.assess(answers, 'CM');
+    const nigeria = Triage.assess(answers, 'NG');
+    const unknown = Triage.assess(answers, null);
+    expect(cameroon.emergencyNumber).toBe('1515');
+    expect(nigeria.emergencyNumber).toBeNull();
+    expect(unknown.emergencyNumber).toBeNull();
+    expect(Triage.emergencyAdvice(nigeria, 'en')).toMatch(/local emergency services/);
+    expect(Triage.emergencyAdvice(nigeria, 'en')).not.toContain('1515');
+    expect(Triage.emergencyAdvice(cameroon, 'en')).toContain('1515');
   });
 
   test('every question and answer is translated into French', () => {

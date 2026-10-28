@@ -13,6 +13,7 @@ const { filesConfigured } = require('./files');
 const { seal, unseal, ensureRecordTables } = require('./records');
 const { submitCase, ensureTriageTable } = require('./triage');
 const Triage = require(join(__dirname, '..', 'hfa-triage.js'));
+const COUNTRY_DATA = require('../country-data.js');
 
 const SESSION_MS = 2 * 60 * 60 * 1000;
 const DAILY_REPLY_LIMIT = 60;
@@ -22,7 +23,8 @@ const FRENCH_HINTS = ['bonjour', 'bonsoir', 'salut', 'merci', 'svp', 'je ', "j'"
 const W = {
   en: {
     hello: '👋 Hello, I am *SLY*, the HFA SilverStrong health assistant. I will ask a few questions and tell you how soon to get care. I do not diagnose.\n_Répondez FR pour le français._',
-    emergency_line: '🚨 If someone is in danger now, call *{number}* or go to the nearest hospital.',
+    emergency_line: '🚨 If someone is in danger, contact local emergency services or go to the nearest hospital.',
+    emergency_line_numbered: '🚨 If someone is in danger, call *{number}* or go to the nearest hospital.',
     q_age: '*Who is unwell?* Reply with one number:', q_sex: '*Sex?* Reply 1 or 2:\n1. Female\n2. Male', q_maternal: '*Pregnancy?* Reply with one number:',
     q_complaints: '*What is the problem?* Reply with the numbers that match, for example *1 3*.\nYou can also describe it in your own words first.',
     words_saved: 'Thank you, I noted your words for your care team. Now reply with the numbers that match.',
@@ -32,11 +34,12 @@ const W = {
     register: 'To have a nurse or doctor check this, register or sign in at {url} and verify this WhatsApp number in your profile.',
     not_sent: '⚠️ I could not send this to your care team right now. Follow the advice above, and open the HFA app to send it again.',
     again: 'Reply *0* to start a new check.', not_diagnosis: 'SLY does not diagnose. If you are worried, see a health worker.',
-    unavailable: 'Sorry, the symptom check is not available right now. If someone is in danger, call {number}.'
+    unavailable: 'Sorry, the symptom check is not available right now. If someone is in danger, contact local emergency services or go to the nearest hospital.'
   },
   fr: {
     hello: '👋 Bonjour, je suis *SLY*, l’assistant santé de HFA SilverStrong. Je vais poser quelques questions et vous dire dans quel délai consulter. Je ne pose pas de diagnostic.\n_Reply EN for English._',
-    emergency_line: '🚨 Si une personne est en danger maintenant, appelez le *{number}* ou allez à l’hôpital le plus proche.',
+    emergency_line: '🚨 Si une personne est en danger, contactez les services d’urgence locaux ou rendez-vous à l’hôpital le plus proche.',
+    emergency_line_numbered: '🚨 Si une personne est en danger, appelez le *{number}* ou allez à l’hôpital le plus proche.',
     q_age: '*Qui est malade ?* Répondez avec un numéro :', q_sex: '*Sexe ?* Répondez 1 ou 2 :\n1. Femme\n2. Homme', q_maternal: '*Grossesse ?* Répondez avec un numéro :',
     q_complaints: '*Quel est le problème ?* Répondez avec les numéros qui correspondent, par exemple *1 3*.\nVous pouvez aussi d’abord l’expliquer avec vos mots.',
     words_saved: 'Merci, j’ai noté vos mots pour votre équipe de soins. Répondez maintenant avec les numéros qui correspondent.',
@@ -46,10 +49,18 @@ const W = {
     register: 'Pour qu’un infirmier ou un médecin vérifie, inscrivez-vous ou connectez-vous sur {url} et vérifiez ce numéro WhatsApp dans votre profil.',
     not_sent: '⚠️ Je n’ai pas pu transmettre ceci à votre équipe de soins pour le moment. Suivez le conseil ci-dessus et ouvrez l’application HFA pour le renvoyer.',
     again: 'Répondez *0* pour une nouvelle vérification.', not_diagnosis: 'SLY ne pose pas de diagnostic. En cas d’inquiétude, consultez un agent de santé.',
-    unavailable: 'Désolé, la vérification des symptômes n’est pas disponible pour le moment. Si une personne est en danger, appelez le {number}.'
+    unavailable: 'Désolé, la vérification des symptômes n’est pas disponible pour le moment. Si une personne est en danger, contactez les services d’urgence locaux ou rendez-vous à l’hôpital le plus proche.'
   }
 };
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (match, key) => values[key] ?? match);
+const countryForPhone = phone => {
+  const matches = COUNTRY_DATA.all().filter(country => phone.startsWith(`+${country.callingCode}`));
+  return matches.length === 1 ? matches[0].code : null;
+};
+const emergencyLine = (countryCode, language) => {
+  const t = W[language], number = COUNTRY_DATA.get(countryCode)?.emergencyNumber;
+  return number ? fill(t.emergency_line_numbered, { number }) : t.emergency_line;
+};
 const numbered = (values, labelKey) => values.map((value, index) => `${index + 1}. ${labelKey(value)}`).join('\n');
 /** "1, 3 5" → [1, 3, 5]; returns null when the reply contains no numbers. */
 function numbers(text) {
@@ -111,15 +122,16 @@ class WhatsAppTriage {
   /** Handles one incoming text message; returns the reply text (also sent when WhatsApp is configured). */
   async handle(phone, text) {
     const hash = digest(`wa:${phone}`), input = String(text || '').trim(), lower = input.toLowerCase();
-    if (!filesConfigured(this.config)) { const reply = fill(W.en.unavailable, { number: Triage.EMERGENCY_NUMBER }); await this.send(phone, hash, reply); return reply; }
+    if (!filesConfigured(this.config)) { const reply = W.en.unavailable; await this.send(phone, hash, reply); return reply; }
     let state = this.load(hash);
     // "0" means "none of these" on the danger-sign question and "start again" everywhere else.
     const restart = RESTART.includes(lower) && !(lower === '0' && state?.step === 'signs');
     const linked = this.patientFor(phone);
     const language = ['fr', 'français', 'francais', 'french'].includes(lower) ? 'fr' : ['en', 'english', 'anglais'].includes(lower) ? 'en'
       : state?.language || linked?.preferredLanguage || (FRENCH_HINTS.some(hint => lower.includes(hint)) ? 'fr' : 'en');
-    if (!state || restart || ['en', 'fr', 'english', 'french', 'français', 'francais', 'anglais'].includes(lower)) state = { step: 'age', language, answers: { complaints: [], dangerSigns: [] }, words: '', started: Date.now() };
+    if (!state || restart || ['en', 'fr', 'english', 'french', 'français', 'francais', 'anglais'].includes(lower)) state = { step: 'age', language, countryCode: linked?.countryCode || countryForPhone(phone), answers: { complaints: [], dangerSigns: [] }, words: '', started: Date.now() };
     state.language = language;
+    if (linked?.countryCode) state.countryCode = linked.countryCode;
     const reply = this.step(state, input, !restart && state.prompted);
     const lines = typeof reply === 'string' ? reply : await this.finish(state, linked);
     if (state.step === 'done') this.forget(hash); else this.save(hash, state);
@@ -130,7 +142,7 @@ class WhatsAppTriage {
   question(state) {
     const t = W[state.language], L = key => Triage.label(key, state.language), a = state.answers;
     state.prompted = true;
-    if (state.step === 'age') return `${t.hello}\n\n${fill(t.emergency_line, { number: Triage.EMERGENCY_NUMBER })}\n\n${t.q_age}\n${numbered(Triage.AGE_GROUPS, value => L('age_' + value))}`;
+    if (state.step === 'age') return `${t.hello}\n\n${emergencyLine(state.countryCode, state.language)}\n\n${t.q_age}\n${numbered(Triage.AGE_GROUPS, value => L('age_' + value))}`;
     if (state.step === 'sex') return t.q_sex;
     if (state.step === 'maternal') return `${t.q_maternal}\n${numbered(Triage.MATERNAL, value => L('maternal_' + value))}`;
     if (state.step === 'complaints') return `${t.q_complaints}\n${numbered(Triage.COMPLAINTS, value => L('c_' + value))}`;
@@ -192,7 +204,7 @@ class WhatsAppTriage {
 
   async finish(state, linked) {
     const t = W[state.language], language = state.language;
-    let result = Triage.assess(state.answers), saved = false, failed = false;
+    let result = Triage.assess(state.answers, state.countryCode || null), saved = false, failed = false;
     if (linked) {
       try {
         const case_ = await submitCase(this.config, this.store, linked, { requestId: crypto.randomUUID(), answers: { ...state.answers, forSomeoneElse: false }, text: state.words, aiConsent: false }, { source: 'whatsapp' });
@@ -200,12 +212,12 @@ class WhatsAppTriage {
       } catch (error) { failed = true; }
     }
     state.step = 'done';
-    const crisis = result.answers.dangerSigns.includes('suicidal') ? `\n\n${Triage.label('crisis', language).replace('{number}', Triage.EMERGENCY_NUMBER)}` : '';
+    const crisis = result.answers.dangerSigns.includes('suicidal') ? `\n\n${Triage.label('crisis', language)}` : '';
     return [
-      fill(t.result, { level: Triage.label('level_' + result.level, language).toUpperCase(), advice: Triage.label('advice_' + result.level, language) }) + crisis,
+      fill(t.result, { level: Triage.label('level_' + result.level, language).toUpperCase(), advice: result.level === 'emergency' ? Triage.emergencyAdvice(result, language) : Triage.label('advice_' + result.level, language) }) + crisis,
       `${t.why}\n${result.reasons.map(reason => `• ${Triage.reasonText(reason, language)}`).join('\n')}`,
       saved ? t.sent : failed ? t.not_sent : fill(t.register, { url: this.config.loginUrl || this.config.origin }),
-      `${fill(t.emergency_line, { number: Triage.EMERGENCY_NUMBER })}\n${t.not_diagnosis}\n${t.again}`
+      `${emergencyLine(state.countryCode, language)}\n${t.not_diagnosis}\n${t.again}`
     ].join('\n\n');
   }
 }

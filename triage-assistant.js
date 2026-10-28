@@ -15,12 +15,12 @@
     st_who: 'Who is unwell?', st_who_me: 'Me', st_who_child: 'My child', st_who_other: 'Someone else', st_age: 'Age', st_sex: 'Sex', st_male: 'Male', st_female: 'Female',
     st_maternal: 'Pregnancy', st_problems: 'What is the problem?', st_problems_hint: 'Choose all that apply.',
     st_words: 'Tell us in your own words (optional)', st_words_ph: 'For example: fever since yesterday, headache, vomited twice this morning…',
-    st_ai_consent: 'Let SLY’s AI read my words to help my care team. Names, phone numbers and ID numbers are removed first. My words may be processed by Anthropic (Claude) outside Cameroon.',
+    st_ai_consent: 'Let SLY’s AI read my words to help my care team. Names, phone numbers and ID numbers are removed first. My words may be processed by Anthropic (Claude) outside your country.',
     st_signs: 'Is any of this happening now?', st_signs_hint: 'Tick every one that is true. If none, choose “None of these”.', st_none: 'None of these',
     st_how_long: 'How long has it lasted?', st_how_bad: 'How bad is it?',
     st_pick_age: 'Choose the age group.', st_pick_problem: 'Choose at least one problem.', st_pick_signs: 'Tick the signs that are true, or choose “None of these”.', st_pick_duration: 'Choose how long and how bad.',
     st_result: 'Your result', st_why: 'Why', st_what_now: 'What to do now', st_book_urgent: 'Book an urgent consultation', st_book: 'Book a consultation', st_selfcare_tips: 'Self-care tips',
-    st_sent: 'Sent to your care team. A nurse or doctor will review it.', st_sending: 'Sending to your care team…', st_not_sent: 'Could not reach your care team: {error}. Follow the advice above. If it is an emergency, call {number}.',
+    st_sent: 'Sent to your care team. A nurse or doctor will review it.', st_sending: 'Sending to your care team…', st_not_sent: 'Could not reach your care team: {error}. Follow the advice above. If it is an emergency, contact local emergency services or go to the nearest hospital.',
     st_updated: 'Updated after SLY read your words.', st_ai_used: 'AI helped read your words.', st_history: 'My symptom checks', st_no_history: 'No symptom checks yet.',
     st_public_intro: 'No account needed. Answer a few questions and SLY tells you how soon to get care. Your answers stay on this screen and are not sent or kept.',
     st_public_nothing_kept: 'Nothing was sent or kept. When HFA SilverStrong accounts open in your area, you will be able to send your checks to a nurse or doctor.',
@@ -39,12 +39,12 @@
     st_who: 'Qui est malade ?', st_who_me: 'Moi', st_who_child: 'Mon enfant', st_who_other: 'Une autre personne', st_age: 'Âge', st_sex: 'Sexe', st_male: 'Homme', st_female: 'Femme',
     st_maternal: 'Grossesse', st_problems: 'Quel est le problème ?', st_problems_hint: 'Choisissez tout ce qui s’applique.',
     st_words: 'Expliquez avec vos mots (facultatif)', st_words_ph: 'Par exemple : fièvre depuis hier, mal de tête, a vomi deux fois ce matin…',
-    st_ai_consent: 'Laisser l’IA de SLY lire mes mots pour aider mon équipe de soins. Les noms, numéros de téléphone et d’identité sont retirés avant. Mes mots peuvent être traités par Anthropic (Claude) hors du Cameroun.',
+    st_ai_consent: 'Laisser l’IA de SLY lire mes mots pour aider mon équipe de soins. Les noms, numéros de téléphone et d’identité sont retirés avant. Mes mots peuvent être traités par Anthropic (Claude) hors de votre pays.',
     st_signs: 'L’un de ces signes est-il présent maintenant ?', st_signs_hint: 'Cochez tous ceux qui sont vrais. Sinon, choisissez « Aucun de ces signes ».', st_none: 'Aucun de ces signes',
     st_how_long: 'Depuis combien de temps ?', st_how_bad: 'Quelle intensité ?',
     st_pick_age: 'Choisissez la tranche d’âge.', st_pick_problem: 'Choisissez au moins un problème.', st_pick_signs: 'Cochez les signes présents ou choisissez « Aucun de ces signes ».', st_pick_duration: 'Choisissez la durée et l’intensité.',
     st_result: 'Votre résultat', st_why: 'Pourquoi', st_what_now: 'Que faire maintenant', st_book_urgent: 'Réserver une consultation urgente', st_book: 'Réserver une consultation', st_selfcare_tips: 'Conseils de soins',
-    st_sent: 'Envoyé à votre équipe de soins. Un infirmier ou un médecin va le vérifier.', st_sending: 'Envoi à votre équipe de soins…', st_not_sent: 'Impossible de joindre votre équipe de soins : {error}. Suivez le conseil ci-dessus. En cas d’urgence, appelez le {number}.',
+    st_sent: 'Envoyé à votre équipe de soins. Un infirmier ou un médecin va le vérifier.', st_sending: 'Envoi à votre équipe de soins…', st_not_sent: 'Impossible de joindre votre équipe de soins : {error}. Suivez le conseil ci-dessus. En cas d’urgence, contactez les services locaux ou rendez-vous à l’hôpital le plus proche.',
     st_updated: 'Mis à jour après la lecture de vos mots par SLY.', st_ai_used: 'L’IA a aidé à lire vos mots.', st_history: 'Mes vérifications de symptômes', st_no_history: 'Aucune vérification pour l’instant.',
     st_public_intro: 'Pas besoin de compte. Répondez à quelques questions et SLY vous dit dans quel délai consulter. Vos réponses restent sur cet écran et ne sont ni envoyées ni conservées.',
     st_public_nothing_kept: 'Rien n’a été envoyé ni conservé. Quand les comptes HFA SilverStrong ouvriront dans votre région, vous pourrez envoyer vos vérifications à un infirmier ou un médecin.',
@@ -88,7 +88,12 @@
 
   const levelBadge = level => `<span class="st-badge st-b-${esc(level)}">${esc(L('level_' + level))}</span>`;
   const backend = () => ApiState.enabled && ApiState.authenticated;
-  const callButton = () => `<a class="st-call" href="tel:${TR.EMERGENCY_NUMBER}">📞 ${esc(tf('st_call', { number: TR.EMERGENCY_NUMBER }))}</a>`;
+  const patientCountry = () => typeof CU !== 'undefined' && CU ? (CU.countryCode || CU.healthProfile?.location?.countryCode) : null;
+  const currentEmergencyNumber = () => {
+    const code = patientCountry();
+    return code ? window.HFACountryData.get(code)?.emergencyNumber || null : null;
+  };
+  const callButton = number => number ? `<a class="st-call" href="tel:${esc(number)}">📞 ${esc(tf('st_call', { number }))}</a>` : '';
   const ago = iso => { const minutes = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000)); return minutes < 60 ? `${minutes} min` : minutes < 2880 ? `${Math.round(minutes / 60)} h` : `${Math.round(minutes / 1440)} d`; };
 
   function ageGroupOf(dateOfBirth) {
@@ -112,7 +117,7 @@
     $('tbt').textContent = t('st_nav');
     if (!S) S = fresh();
     pc.innerHTML = `<div class="page"><div class="ph"><h2>${esc(t('st_title'))}</h2><p>${esc(t('st_intro'))}</p></div>
-      <div class="st-emergency" role="note"><span>🚨 ${esc(t('st_emergency_now'))} ${esc(L('advice_emergency'))}</span>${callButton()}</div>
+      <div class="st-emergency" role="note"><span>🚨 ${esc(t('st_emergency_now'))} ${esc(TR.emergencyAdvice({ emergencyNumber: currentEmergencyNumber() }, LANG))}</span>${callButton(currentEmergencyNumber())}</div>
       <div class="card mb18" id="st-card" aria-live="polite"></div>
       <div class="card"><div class="ch"><div class="ct">${esc(t('st_history'))}</div></div><div id="st-history"><p class="mu sm">…</p></div></div></div>`;
     paintStep();
@@ -178,13 +183,13 @@
   function resultCard(result, note = '') {
     const level = result.level, crisis = result.answers?.dangerSigns?.includes('suicidal') || (result.reasons || []).some(reason => reason.rule === 'sign_suicidal');
     const signedIn = typeof CU !== 'undefined' && !!CU;
-    const actions = level === 'emergency' ? callButton()
+    const actions = level === 'emergency' ? callButton(result.emergencyNumber)
       : !signedIn ? (level === 'self_care' ? `<button type="button" class="btn bp" onclick="goFreeHub()">${esc(t('st_selfcare_tips'))}</button>` : '')
       : level === 'urgent' ? `<button type="button" class="btn bp" onclick="showBookApt('URGENT-TRIAGE')">${esc(t('st_book_urgent'))}</button>`
       : level === 'routine' ? `<button type="button" class="btn bp" onclick="showBookApt()">${esc(t('st_book'))}</button>`
       : `<button type="button" class="btn bp" onclick="navigate('freehub')">${esc(t('st_selfcare_tips'))}</button>`;
-    return `<div class="st-result st-l-${esc(level)}" role="status"><p class="sm">${esc(t('st_result'))}</p><h3>${esc(L('level_' + level))}</h3><p>${esc(L('advice_' + level))}</p></div>
-      ${crisis ? `<div class="st-emergency">${esc(L('crisis').replace('{number}', TR.EMERGENCY_NUMBER))}</div>` : ''}
+    return `<div class="st-result st-l-${esc(level)}" role="status"><p class="sm">${esc(t('st_result'))}</p><h3>${esc(L('level_' + level))}</h3><p>${esc(level === 'emergency' ? TR.emergencyAdvice(result, LANG) : L('advice_' + level))}</p></div>
+      ${crisis ? `<div class="st-emergency">${esc(L('crisis'))}</div>` : ''}
       <div class="pc-actions">${actions}<button type="button" class="btn bs" id="st-again">${esc(t('st_again'))}</button></div>
       <div class="st-q mt18">${esc(t('st_why'))}</div><ul class="st-reasons">${(result.reasons || []).map(reason => `<li>${esc(TR.reasonText(reason, LANG))}</li>`).join('')}</ul>
       <p class="mu sm">${esc(t('st_not_diagnosis'))}</p><div id="st-status" class="mt8">${note}</div>`;
@@ -192,7 +197,7 @@
 
   async function finish() {
     const card = $('st-card'), answers = answersOf();
-    const local = TR.assess({ ...answers, conditions: (typeof CU !== 'undefined' && CU?.healthProfile?.medical?.conditions) || [] });
+    const local = TR.assess({ ...answers, conditions: (typeof CU !== 'undefined' && CU?.healthProfile?.medical?.conditions) || [] }, patientCountry());
     if (typeof CU === 'undefined' || !CU) {
       // Public symptom check: the result stays on this screen; nothing is sent or kept.
       card.innerHTML = resultCard(local, `<div class="alt ai">${esc(t(ApiState.enabled ? 'st_public_register' : 'st_public_nothing_kept'))}</div>${ApiState.enabled ? `<div class="pc-actions"><button type="button" class="btn bp" onclick="goAuth('register','patient')">${esc(t('register'))}</button><button type="button" class="btn bs" onclick="goAuth('login')">${esc(t('sign_in'))}</button></div>` : ''}`);
@@ -211,7 +216,7 @@
         const server = response.data.case;
         // The server may know more (the patient's words); it can only raise the level shown.
         const raised = TR.rank(server.level) > TR.rank(local.level);
-        if (raised && $('st-card')) { $('st-card').innerHTML = resultCard(server); $('st-again').onclick = again; }
+        if (raised && $('st-card')) { $('st-card').innerHTML = resultCard({ ...server, emergencyNumber: local.emergencyNumber }); $('st-again').onclick = again; }
         status(`<div class="alt ao" role="status">${raised ? esc(t('st_updated')) + ' ' : ''}${esc(t('st_sent'))}${response.data.aiUsed ? ' ' + esc(t('st_ai_used')) : ''}</div>`);
       } else {
         const item = { id: 'tr' + Date.now(), patientId: CU.id, level: local.level, priority: local.level, status: 'awaiting_review', answers: local.answers, reasons: local.reasons,
@@ -225,7 +230,7 @@
       }
       paintHistory();
     } catch (error) {
-      status(`<div class="alt ae" role="alert">${esc(tf('st_not_sent', { error: error.message, number: TR.EMERGENCY_NUMBER }))}</div>`);
+      status(`<div class="alt ae" role="alert">${esc(tf('st_not_sent', { error: error.message }))}</div>`);
       S = submitted; S.step = 4; // keep the answers so the patient can send again
     }
   }
@@ -329,7 +334,7 @@
     if (!keep || !S) S = fresh();
     $('public-triage-body').innerHTML = `<div class="pub-topbar"><button type="button" class="btn bs bsm" onclick="goLand()">← ${esc(t('st_public_back'))}</button>${typeof langToggle === 'function' ? langToggle('btn bs bsm') : ''}</div>
       <div class="ph"><h2>${esc(t('st_title'))}</h2><p>${esc(t('st_public_intro'))}</p></div>
-      <div class="st-emergency" role="note"><span>🚨 ${esc(t('st_emergency_now'))} ${esc(L('advice_emergency'))}</span>${callButton()}</div>
+      <div class="st-emergency" role="note"><span>🚨 ${esc(t('st_emergency_now'))} ${esc(TR.emergencyAdvice({ emergencyNumber: currentEmergencyNumber() }, LANG))}</span>${callButton(currentEmergencyNumber())}</div>
       <div class="card mb18" id="st-card" aria-live="polite"></div>`;
     paintStep();
     if (typeof updateLangButtons === 'function') updateLangButtons();

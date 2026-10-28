@@ -10,13 +10,13 @@
 // RULES_VERSION changes whenever a rule changes, and is stored with every case. A clinician must review
 // these rules before use with real patients.
 (function (root, factory) {
-  const api = factory();
+  const countryData = typeof module === 'object' && module.exports ? require('./country-data.js') : root.HFACountryData;
+  const api = factory(countryData);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.HFATriage = api;
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof self !== 'undefined' ? self : this, function (countryData) {
   const RULES_VERSION = '2026.10-1';
-  // Same number as the WhatsApp assistant. Confirm the national emergency numbers with MINSANTE before launch.
-  const EMERGENCY_NUMBER = '1515';
+  const EMERGENCY_NUMBER = countryData.get('CM')?.emergencyNumber || null;
   const LEVELS = ['self_care', 'routine', 'urgent', 'emergency'];
   const rank = level => LEVELS.indexOf(level);
 
@@ -64,7 +64,7 @@
    * Applies the rules. Returns the suggested level, every rule that fired (with its source), the advice to
    * show and the danger signs that were asked and answered "no".
    */
-  function assess(input) {
+  function assess(input, countryCode = 'CM') {
     const a = normalise(input);
     if (!a.ageGroup) throw new Error('ageGroup is required');
     const reasons = [];
@@ -102,7 +102,7 @@
     const level = reasons.reduce((top, reason) => rank(reason.level) > rank(top) ? reason.level : top, 'self_care');
     reasons.sort((x, y) => rank(y.level) - rank(x.level));
     const asked = signsFor(a);
-    return { level, reasons, answers: a, checkedNegative: asked.filter(sign => !a.dangerSigns.includes(sign)), rulesVersion: RULES_VERSION, emergencyNumber: EMERGENCY_NUMBER };
+    return { level, reasons, answers: a, checkedNegative: asked.filter(sign => !a.dangerSigns.includes(sign)), rulesVersion: RULES_VERSION, emergencyNumber: countryData.get(countryCode)?.emergencyNumber || null };
   }
 
   /** Combines the patient's answers with findings read from their words: findings can only add, never remove. */
@@ -116,7 +116,8 @@
   const L = {
     en: {
       level_emergency: 'Emergency', level_urgent: 'Urgent — today', level_routine: 'See a clinician soon', level_self_care: 'Self-care at home',
-      advice_emergency: `Go to the nearest hospital now or call ${EMERGENCY_NUMBER}. Do not wait for a reply here.`,
+      advice_emergency: 'Go to the nearest hospital now or contact local emergency services. Do not wait for a reply here.',
+      advice_emergency_numbered: 'Go to the nearest hospital now or call {number}. Do not wait for a reply here.',
       advice_urgent: 'You need to be seen today. Book an urgent consultation now or go to a health centre today.',
       advice_routine: 'Book a consultation in the next few days. Come back here if anything gets worse.',
       advice_self_care: 'You can care for this at home. If it gets worse, or is not better in 3 days, book a consultation.',
@@ -154,11 +155,12 @@
       r_mild_self_care: 'Mild, recent problem with no danger signs.',
       r_needs_consultation: 'A clinician should look at this.',
       r_sign: 'Danger sign: {sign}.',
-      crisis: 'If you are thinking of ending your life, you are not alone. Stay with someone you trust and call {number} now.'
+      crisis: 'If you are thinking of ending your life, you are not alone. Stay with someone you trust and seek immediate help at the nearest hospital or from local emergency services.'
     },
     fr: {
       level_emergency: 'Urgence vitale', level_urgent: 'Urgent — aujourd’hui', level_routine: 'Consulter bientôt', level_self_care: 'Soins à la maison',
-      advice_emergency: `Allez maintenant à l’hôpital le plus proche ou appelez le ${EMERGENCY_NUMBER}. N’attendez pas de réponse ici.`,
+      advice_emergency: 'Allez maintenant à l’hôpital le plus proche ou contactez les services d’urgence locaux. N’attendez pas de réponse ici.',
+      advice_emergency_numbered: 'Allez maintenant à l’hôpital le plus proche ou appelez le {number}. N’attendez pas de réponse ici.',
       advice_urgent: 'Vous devez être vu aujourd’hui. Réservez maintenant une consultation urgente ou allez dans un centre de santé aujourd’hui.',
       advice_routine: 'Réservez une consultation dans les prochains jours. Revenez ici si quelque chose s’aggrave.',
       advice_self_care: 'Vous pouvez vous soigner à la maison. Si cela s’aggrave ou ne va pas mieux dans 3 jours, réservez une consultation.',
@@ -196,7 +198,7 @@
       r_mild_self_care: 'Problème léger et récent, sans signe de danger.',
       r_needs_consultation: 'Un soignant doit examiner cela.',
       r_sign: 'Signe de danger : {sign}.',
-      crisis: 'Si vous pensez à mettre fin à votre vie, vous n’êtes pas seul. Restez avec une personne de confiance et appelez maintenant le {number}.'
+      crisis: 'Si vous pensez à mettre fin à vos jours, vous n’êtes pas seul. Restez avec une personne de confiance et cherchez immédiatement de l’aide à l’hôpital le plus proche ou auprès des services d’urgence locaux.'
     }
   };
   // French names of the rule sources (WHO guidance and clinical reasons) shown with each result.
@@ -239,6 +241,9 @@
   };
   const sourceLabel = (source, language = 'en') => language === 'fr' ? SOURCE_FR[source] || source : source;
   const label = (key, language = 'en') => (L[language] || L.en)[key] || L.en[key] || key;
+  const emergencyAdvice = (result, language = 'en') => result.emergencyNumber
+    ? label('advice_emergency_numbered', language).replace('{number}', result.emergencyNumber)
+    : label('advice_emergency', language);
   /** The sentence explaining one rule that fired. */
   function reasonText(reason, language = 'en') {
     if (reason.rule.startsWith('sign_')) return label('r_sign', language).replace('{sign}', label(reason.rule, language));
@@ -265,5 +270,5 @@
     return out.join('\n');
   }
 
-  return { sourceLabel, SOURCE_FR, RULES_VERSION, EMERGENCY_NUMBER, LEVELS, AGE_GROUPS, COMPLAINTS, DURATIONS, SEVERITIES, MATERNAL, SIGNS, ALL_SIGNS, URGENT_SIGNS, rank, signsFor, asksMaternal, normalise, assess, merge, label, reasonText, clinicianSummary };
+  return { sourceLabel, SOURCE_FR, RULES_VERSION, EMERGENCY_NUMBER, LEVELS, AGE_GROUPS, COMPLAINTS, DURATIONS, SEVERITIES, MATERNAL, SIGNS, ALL_SIGNS, URGENT_SIGNS, rank, signsFor, asksMaternal, normalise, assess, merge, label, emergencyAdvice, reasonText, clinicianSummary };
 });

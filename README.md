@@ -17,6 +17,24 @@ with the HFA service. **There are no demo accounts or built-in example records a
 comes from real registrations on the server, and accounts left by earlier demo versions are retired at startup
 (`backend/retire-demo-accounts.js`, matched by email and the exact demo password hash).
 
+## Country rollout status
+
+The shared country registry (`country-data.js`) currently contains Cameroon and Nigeria profiles for the patient
+registration and health-profile flow. It supplies country calling codes, administrative regions, local currency
+labels, language baselines, health-insurance labels and professional regulator references. Nigeria's income
+question is withheld until locally reviewed income bands are configured; its ID upload is optional in this
+product flow. Those choices are product settings, not legal determinations.
+
+**These profiles are not a declaration of legal, clinical, cultural or operational readiness.** The legal review
+status remains required for both countries. Country-specific clinician onboarding, pharmacy authorization,
+payment rails and consent/terms still need implementation or qualified local review before being offered as
+country-ready. SLY triage uses the configured Cameroon emergency contact, which still needs local confirmation;
+for Nigeria or an unknown country it does not guess a number and instead directs people to local emergency
+services or the nearest hospital. Triage rules also require clinician review before live use. No other African
+country is configured. Do not copy a profile to another country without verifying its administrative data,
+regulator requirements, language with local users, privacy rules, health-care policies and payment options with
+qualified local experts.
+
 ## Patient rights, privacy and health-data standards
 
 Every portal has **My data & privacy** in the sidebar (under Legal & Privacy). It turns the rights in Cameroon
@@ -59,9 +77,10 @@ how long and how bad. An emergency sign ends the questions at once.
   same-day malaria testing for fever, and TB screening for a cough of 2 weeks or more. Levels: emergency, urgent
   (today), routine, self-care (only for healthy, non-pregnant adults with a mild, recent, low-risk problem).
   Every case stores `RULES_VERSION`. **A clinician must review these rules before real patients use them.**
-- The result appears on the device immediately (works offline, and without an account on the public website), with a call button for
-  the emergency number (`EMERGENCY_NUMBER` in `hfa-triage.js`, currently the WhatsApp assistant's `1515`;
-  confirm the national numbers with MINSANTE before launch).
+- The result appears on the device immediately (works offline, and without an account on the public website).
+  Emergency contacts come from the selected account's country profile: Cameroon uses the existing `1515` contact,
+  which must be confirmed with MINSANTE before launch; Nigeria and unknown countries show no guessed number and
+  direct people to local emergency services or the nearest hospital.
 - **Clinician handover.** Cases go to the **Triage queue** of doctors and nurses assigned to the patient or
   working at the hospital the patient is registered under, most urgent first, with a plain summary (answers,
   danger signs asked and answered "no", allergies, conditions and medicines from the health profile). Emergencies
@@ -360,4 +379,3 @@ Server-accepted activities are idempotent by actor/event ID. Unconfigured, uncon
 HTTP 429 retries have a bounded backoff. Ambiguous network errors, HTTP 5xx, and interrupted in-flight sends become `delivery_unknown` and are not automatically resent; a correlated webhook can resolve them. Queued sends recheck consent and recipient eligibility. Default daily limits are 20 attempts per WhatsApp number and 1,000 total; adjust the settings and configure Meta spending alerts. Limits are safeguards, not a billing guarantee. Previously blocked verification/consent events are not replayed automatically after opt-in.
 
 Before production use, complete clinical-data migration and authorization, encrypted storage/backups, retention/deletion policy, staff identity verification, monitoring, account recovery/MFA, and privacy/regulatory review. Use HTTPS cookies, a production secret manager, least-privilege provider credentials, and audited patient consent. The local integration has been tested with synthetic accounts and mocked Meta responses; no real message is sent unless live configuration and verified consent are present.
-

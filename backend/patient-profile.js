@@ -1,4 +1,5 @@
 const { z } = require('zod');
+const COUNTRY_DATA = require('../country-data.js');
 
 // Option lists shared with patient-registration.js. Values are stable codes; labels live in the UI.
 const REGIONS = ['adamawa', 'centre', 'east', 'far_north', 'littoral', 'north', 'north_west', 'west', 'south', 'south_west'];
@@ -21,8 +22,9 @@ const healthProfile = z.object({
     cniNumber: text(40, 1).optional()
   }).strict(),
   location: z.object({
+    countryCode: z.enum(['CM', 'NG']).default('CM'),
     secondaryPhone: e164.optional(),
-    region: z.enum(REGIONS),
+    region: text(20, 1),
     division: text(80, 1),
     town: text(120, 1),
     healthDistrict: text(120, 1).optional(),
@@ -53,11 +55,11 @@ const healthProfile = z.object({
     waterSource: z.enum(['tap', 'well', 'river', 'rainwater', 'vendor']).optional(),
     toilet: z.enum(['flush', 'pit_latrine', 'open_defecation', 'other']).optional(),
     income: z.enum(['lt_50k', '50k_150k', '150k_500k', 'gt_500k']).optional(),
-    insurance: z.enum(['none', 'cnps', 'private', 'mutual', 'other']).optional(),
+    insurance: z.enum(['none', 'cnps', 'public_scheme', 'private', 'mutual', 'other']).optional(),
     insuranceNumber: text(60, 1).optional(),
     emergencyContact: z.object({ name: text(120, 1).optional(), relationship: text(60, 1).optional(), phone: e164.optional() }).strict().optional()
   }).strict(),
-  // Law No. 2024/017: explicit opt-in. Care data processing is required to hold an account; the rest are optional.
+  // Local legal review is required for every country before this consent model is treated as compliant.
   consents: z.object({
     dataSharing: z.literal(true),
     research: z.boolean(),
@@ -66,6 +68,9 @@ const healthProfile = z.object({
     ministry: z.boolean()
   }).strict()
 }).strict().superRefine((input, context) => {
+  if (!COUNTRY_DATA.regionCodes(input.location.countryCode).includes(input.location.region)) {
+    context.addIssue({ code: 'custom', path: ['location', 'region'], message: 'Choose a region in the selected country' });
+  }
   if (input.lifestyle.smoking !== 'current' && input.lifestyle.cigarettesPerDay !== undefined) context.addIssue({ code: 'custom', path: ['lifestyle', 'cigarettesPerDay'], message: 'Only for current smokers' });
   if (input.medical.conditions.includes('other') && !input.medical.otherCondition) context.addIssue({ code: 'custom', path: ['medical', 'otherCondition'], message: 'Describe the other condition' });
 });

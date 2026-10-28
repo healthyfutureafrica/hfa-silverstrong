@@ -59,11 +59,12 @@ async function submitCase(config, store, patient, input, { ip = null, source = '
   const prior = store.db.prepare('SELECT * FROM triage_cases WHERE request_key=?').get(key);
   if (prior) return { row: prior, aiUsed: !!prior.ai_used, prior: true };
   const health = healthRecord(config, store, patient.id);
+  const countryCode = patient.countryCode || health?.location?.countryCode || 'CM';
   const answers = { ...input.answers, conditions: health?.medical?.conditions || [] };
   // AI costs money per call: skip it when the answers alone already make this an emergency (it can only raise the level).
-  const useAi = input.aiConsent && aiConfigured(config) && !!input.text && Triage.assess(answers).level !== 'emergency';
+  const useAi = input.aiConsent && aiConfigured(config) && !!input.text && Triage.assess(answers, countryCode).level !== 'emergency';
   const ai = useAi ? await readSymptoms(config, { text: input.text, answers, user: patient }) : { error: input.aiConsent ? 'not_available' : 'not_used' };
-  const result = Triage.assess(Triage.merge(answers, ai.findings));
+  const result = Triage.assess(Triage.merge(answers, ai.findings), countryCode);
   const payload = {
     answers: result.answers, text: input.text || '', reasons: result.reasons, checkedNegative: result.checkedNegative, rulesVersion: result.rulesVersion,
     rulesSummary: Triage.clinicianSummary(result, { text: input.text, health }), rulesSummaryFr: Triage.clinicianSummary(result, { text: input.text, health, language: 'fr' }), aiConsent: !!input.aiConsent, source,

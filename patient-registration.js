@@ -14,17 +14,18 @@
     wz_start_over: 'Start over', wz_start_over_confirm: 'Clear everything you have entered and start again?',
     wz_next: 'Continue', wz_back: 'Back', wz_submit: 'Create my account', wz_save: 'Save my health profile', wz_submitting: 'Creating your account…', wz_saving: 'Saving…',
     wz_fix: 'Please correct the highlighted fields.', wz_required: 'This field is required', wz_optional: 'optional',
-    wz_full_name: 'Full legal name', wz_full_name_hint: 'Exactly as written on your CNI or passport', wz_name_invalid: 'Use letters, spaces, apostrophes, dots or hyphens only',
+    wz_full_name: 'Name', wz_full_name_hint: 'Use the name you want your care team to use.', wz_name_invalid: 'Use letters, spaces, apostrophes, dots or hyphens only',
     wz_dob: 'Date of birth', wz_age: 'Age: {age} years', wz_dob_future: 'The date of birth cannot be in the future', wz_dob_invalid: 'Enter a valid date of birth',
     wz_gender: 'Gender', wz_male: 'Male', wz_female: 'Female', wz_undisclosed: 'Prefer not to say',
-    wz_cni: 'CNI number (Carte Nationale d’Identité)', wz_cni_hint: 'Optional — lets us look up your insurance', wz_cni_invalid: 'Use letters and numbers only',
+    wz_cni: 'Government ID number', wz_cni_hint: 'Optional. Do not enter a national ID number unless it is needed for your care.', wz_cni_invalid: 'Use letters and numbers only',
     wz_photo: 'Profile picture', wz_photo_add: 'Add a photo', wz_photo_change: 'Change photo', wz_photo_hint: 'Optional — helps your care team recognise you',
     wz_language: 'Preferred language', wz_id_type: 'ID document type', wz_id_file: 'Photo or scan of your CNI or passport', wz_id_hint: 'JPG, PNG, WebP or PDF, up to 2 MB. Reviewed by our team.',
     wz_id_on_file: 'Your ID document is already on file.',
+    wz_id_optional_hint: 'Optional. Upload only if you choose to; JPG, PNG, WebP or PDF, up to 2 MB.',
     wz_phone: 'Primary phone number', wz_phone_hint: 'You can sign in with this number. Example: +237 6XX XX XX XX', wz_phone_invalid: 'Enter a valid number, e.g. +237 677 12 34 56',
     wz_is_whatsapp: 'Is this your WhatsApp number?', wz_phone2: 'Secondary phone number', wz_email: 'Email address', wz_email_hint: 'Optional — many patients do not have one', wz_email_invalid: 'Enter a valid email address',
     wz_password: 'Password', wz_password_hint: 'At least 12 characters', wz_password_short: 'Use at least 12 characters', wz_password2: 'Confirm password', wz_password_mismatch: 'The passwords do not match',
-    wz_region: 'Region', wz_division: 'Division (département)', wz_choose_region_first: 'Choose your region first', wz_town: 'Town / village', wz_district: 'Nearest health district', wz_district_hint: 'Name of the health district where you usually get care',
+    wz_country: 'Country where you live or receive care', wz_region: 'Region', wz_division: 'Local area', wz_choose_region_first: 'Choose your region first', wz_town: 'Town / community', wz_district: 'Nearest health district or facility', wz_district_hint: 'Optional — the nearest health district or facility you usually use',
     wz_gps: 'Your location', wz_gps_ask: 'Allow HFA to know your location for finding nearby doctors and pharmacies?', wz_gps_allow: 'Yes, use my location', wz_gps_saved: 'Location saved: {lat}, {lng} (±{acc} m)', wz_gps_remove: 'Remove location',
     wz_gps_denied: 'Location permission was refused. You can continue without it.', wz_gps_failed: 'Your location could not be found. You can continue without it.', wz_gps_unsupported: 'This device cannot share its location.', wz_gps_finding: 'Finding your location…',
     wz_settlement: 'Area type', wz_urban: 'Urban', wz_peri_urban: 'Peri-urban', wz_rural: 'Rural',
@@ -40,14 +41,15 @@
     wz_smoking: 'Smoking', wz_never: 'Never', wz_former: 'Former smoker', wz_current: 'Current smoker', wz_cigarettes: 'Cigarettes per day', wz_cigarettes_invalid: 'Enter a number from 1 to 200',
     wz_alcohol: 'Alcohol', wz_occasional: 'Occasional', wz_heavy: 'Heavy', wz_occupation: 'Occupation', wz_sector: 'Sector',
     wz_water: 'Main drinking water source', wz_toilet: 'Toilet facility', wz_social_note: 'Water and sanitation answers help doctors assess risks such as cholera and typhoid (WHO social determinants of health).',
-    wz_income: 'Monthly household income', wz_income_hint: 'Optional — used only anonymously for health statistics', wz_prefer_not: 'Prefer not to say',
+    wz_income: 'Monthly household income', wz_income_hint: 'Optional — stored with your health profile to help your care team understand access needs.', wz_prefer_not: 'Prefer not to say',
     wz_insurance: 'Health insurance', wz_insurance_number: 'Insurance number',
     wz_emergency: 'Emergency contact', wz_ec_name: 'Name', wz_ec_relationship: 'Relationship', wz_ec_phone: 'Phone',
-    wz_consent_intro: 'Choose how HFA may use your information. You can change these choices later. (Cameroon Law No. 2024/017 on the protection of personal data.)',
+    wz_consent_intro: 'Choose how HFA may use your information. Optional choices can be changed later.',
+    wz_legal_review: 'Country-specific privacy wording is a draft and must be reviewed by local counsel before rollout. This notice is not legal advice.',
     wz_c_data: 'I agree that HFA stores and shares my health information with the clinicians who treat me, so they can provide my care.', wz_c_data_required: 'This consent is needed to provide care through HFA',
     wz_c_research: 'My data may be used anonymously for public health research.', wz_c_sms: 'Send me SMS notifications (appointments, results).',
     wz_c_whatsapp: 'Send me WhatsApp notifications.', wz_c_whatsapp_none: 'Available when your primary phone is a WhatsApp number.',
-    wz_c_ministry: 'My data may be shared anonymously with the Ministry of Public Health for disease surveillance.',
+    wz_c_ministry: 'My data may be shared anonymously with the relevant public-health authority for disease surveillance.',
     wz_commitment: 'I confirm that all information I provide is truthful, accurate and complete, and I will not misuse the platform.',
     wz_terms: 'I have read and agree to the', wz_terms_link: 'Terms & Conditions', wz_terms_required: 'You must accept the Terms & Conditions',
     wz_phone_taken: 'This phone number already has an account. Sign in instead.', wz_saved_done: 'Your health profile has been saved.',
@@ -64,17 +66,18 @@
     wz_start_over: 'Recommencer', wz_start_over_confirm: 'Effacer tout ce que vous avez saisi et recommencer ?',
     wz_next: 'Continuer', wz_back: 'Retour', wz_submit: 'Créer mon compte', wz_save: 'Enregistrer mon profil de santé', wz_submitting: 'Création de votre compte…', wz_saving: 'Enregistrement…',
     wz_fix: 'Veuillez corriger les champs signalés.', wz_required: 'Ce champ est obligatoire', wz_optional: 'facultatif',
-    wz_full_name: 'Nom légal complet', wz_full_name_hint: 'Exactement comme sur votre CNI ou votre passeport', wz_name_invalid: 'Utilisez uniquement des lettres, espaces, apostrophes, points ou tirets',
+    wz_full_name: 'Nom', wz_full_name_hint: 'Indiquez le nom que vous souhaitez voir utilisé par votre équipe soignante.', wz_name_invalid: 'Utilisez uniquement des lettres, espaces, apostrophes, points ou tirets',
     wz_dob: 'Date de naissance', wz_age: 'Âge : {age} ans', wz_dob_future: 'La date de naissance ne peut pas être dans le futur', wz_dob_invalid: 'Saisissez une date de naissance valide',
     wz_gender: 'Sexe', wz_male: 'Homme', wz_female: 'Femme', wz_undisclosed: 'Je préfère ne pas répondre',
-    wz_cni: 'Numéro de CNI (Carte Nationale d’Identité)', wz_cni_hint: 'Facultatif — permet de retrouver votre assurance', wz_cni_invalid: 'Utilisez uniquement des lettres et des chiffres',
+    wz_cni: 'Numéro d’identité officiel', wz_cni_hint: 'Facultatif. Ne saisissez pas de numéro national d’identité sauf si cela est nécessaire à vos soins.', wz_cni_invalid: 'Utilisez uniquement des lettres et des chiffres',
     wz_photo: 'Photo de profil', wz_photo_add: 'Ajouter une photo', wz_photo_change: 'Changer la photo', wz_photo_hint: 'Facultatif — aide votre équipe soignante à vous reconnaître',
     wz_language: 'Langue préférée', wz_id_type: 'Type de pièce d’identité', wz_id_file: 'Photo ou scan de votre CNI ou passeport', wz_id_hint: 'JPG, PNG, WebP ou PDF, jusqu’à 2 Mo. Vérifié par notre équipe.',
     wz_id_on_file: 'Votre pièce d’identité est déjà enregistrée.',
+    wz_id_optional_hint: 'Facultatif. Téléversez-la uniquement si vous le souhaitez ; JPG, PNG, WebP ou PDF, jusqu’à 2 Mo.',
     wz_phone: 'Numéro de téléphone principal', wz_phone_hint: 'Vous pourrez vous connecter avec ce numéro. Exemple : +237 6XX XX XX XX', wz_phone_invalid: 'Saisissez un numéro valide, par ex. +237 677 12 34 56',
     wz_is_whatsapp: 'Est-ce votre numéro WhatsApp ?', wz_phone2: 'Numéro de téléphone secondaire', wz_email: 'Adresse e-mail', wz_email_hint: 'Facultatif — beaucoup de patients n’en ont pas', wz_email_invalid: 'Saisissez une adresse e-mail valide',
     wz_password: 'Mot de passe', wz_password_hint: 'Au moins 12 caractères', wz_password_short: 'Utilisez au moins 12 caractères', wz_password2: 'Confirmez le mot de passe', wz_password_mismatch: 'Les mots de passe ne correspondent pas',
-    wz_region: 'Région', wz_division: 'Département', wz_choose_region_first: 'Choisissez d’abord votre région', wz_town: 'Ville / village', wz_district: 'District de santé le plus proche', wz_district_hint: 'Nom du district de santé où vous vous soignez habituellement',
+    wz_country: 'Pays de résidence ou de soins', wz_region: 'Région', wz_division: 'Zone locale', wz_choose_region_first: 'Choisissez d’abord votre région', wz_town: 'Ville / communauté', wz_district: 'District de santé ou établissement le plus proche', wz_district_hint: 'Facultatif — le district de santé ou l’établissement que vous fréquentez habituellement',
     wz_gps: 'Votre position', wz_gps_ask: 'Autoriser HFA à connaître votre position pour trouver les médecins et pharmacies proches ?', wz_gps_allow: 'Oui, utiliser ma position', wz_gps_saved: 'Position enregistrée : {lat}, {lng} (±{acc} m)', wz_gps_remove: 'Retirer la position',
     wz_gps_denied: 'L’autorisation de localisation a été refusée. Vous pouvez continuer sans.', wz_gps_failed: 'Votre position n’a pas pu être trouvée. Vous pouvez continuer sans.', wz_gps_unsupported: 'Cet appareil ne peut pas partager sa position.', wz_gps_finding: 'Recherche de votre position…',
     wz_settlement: 'Type de zone', wz_urban: 'Urbaine', wz_peri_urban: 'Périurbaine', wz_rural: 'Rurale',
@@ -90,14 +93,15 @@
     wz_smoking: 'Tabac', wz_never: 'Jamais', wz_former: 'Ancien fumeur', wz_current: 'Fumeur actuel', wz_cigarettes: 'Cigarettes par jour', wz_cigarettes_invalid: 'Saisissez un nombre de 1 à 200',
     wz_alcohol: 'Alcool', wz_occasional: 'Occasionnel', wz_heavy: 'Important', wz_occupation: 'Profession', wz_sector: 'Secteur',
     wz_water: 'Principale source d’eau de boisson', wz_toilet: 'Type de toilettes', wz_social_note: 'Les réponses sur l’eau et l’assainissement aident les médecins à évaluer des risques comme le choléra et la typhoïde (déterminants sociaux de la santé de l’OMS).',
-    wz_income: 'Revenu mensuel du ménage', wz_income_hint: 'Facultatif — utilisé uniquement de façon anonyme pour les statistiques de santé', wz_prefer_not: 'Je préfère ne pas répondre',
+    wz_income: 'Revenu mensuel du ménage', wz_income_hint: 'Facultatif — enregistré dans votre profil de santé pour aider votre équipe soignante à comprendre vos besoins d’accès aux soins.', wz_prefer_not: 'Je préfère ne pas répondre',
     wz_insurance: 'Assurance maladie', wz_insurance_number: 'Numéro d’assurance',
     wz_emergency: 'Contact d’urgence', wz_ec_name: 'Nom', wz_ec_relationship: 'Lien de parenté', wz_ec_phone: 'Téléphone',
-    wz_consent_intro: 'Choisissez comment HFA peut utiliser vos informations. Vous pourrez modifier ces choix plus tard. (Loi camerounaise n° 2024/017 relative à la protection des données à caractère personnel.)',
+    wz_consent_intro: 'Choisissez comment HFA peut utiliser vos informations. Vous pourrez modifier les choix facultatifs plus tard.',
+    wz_legal_review: 'Le texte relatif à la confidentialité de chaque pays est un projet qui doit être vérifié par un juriste local avant le déploiement. Cet avis ne constitue pas un conseil juridique.',
     wz_c_data: 'J’accepte que HFA conserve et partage mes informations de santé avec les soignants qui me suivent, afin qu’ils puissent me soigner.', wz_c_data_required: 'Ce consentement est nécessaire pour recevoir des soins via HFA',
     wz_c_research: 'Mes données peuvent être utilisées de façon anonyme pour la recherche en santé publique.', wz_c_sms: 'M’envoyer des notifications par SMS (rendez-vous, résultats).',
     wz_c_whatsapp: 'M’envoyer des notifications WhatsApp.', wz_c_whatsapp_none: 'Disponible si votre numéro principal est un numéro WhatsApp.',
-    wz_c_ministry: 'Mes données peuvent être partagées de façon anonyme avec le Ministère de la Santé Publique pour la surveillance des maladies.',
+    wz_c_ministry: 'Mes données peuvent être partagées de façon anonyme avec les autorités de santé publique compétentes pour la surveillance des maladies.',
     wz_commitment: 'Je confirme que toutes les informations fournies sont véridiques, exactes et complètes, et je n’utiliserai pas la plateforme de manière abusive.',
     wz_terms: 'J’ai lu et j’accepte les', wz_terms_link: 'Conditions générales', wz_terms_required: 'Vous devez accepter les Conditions générales',
     wz_phone_taken: 'Ce numéro de téléphone a déjà un compte. Connectez-vous plutôt.', wz_saved_done: 'Votre profil de santé a été enregistré.',
@@ -126,8 +130,6 @@
       ['student', 'Student', 'Étudiant'], ['other', 'Other', 'Autre']],
     water: [['tap', 'Tap', 'Robinet'], ['well', 'Well', 'Puits'], ['river', 'River', 'Rivière'], ['rainwater', 'Rainwater', 'Eau de pluie'], ['vendor', 'Water vendor', 'Vendeur d’eau']],
     toilet: [['flush', 'Flush toilet', 'Toilettes à chasse d’eau'], ['pit_latrine', 'Pit latrine', 'Latrine à fosse'], ['open_defecation', 'Open defecation', 'Défécation à l’air libre'], ['other', 'Other', 'Autre']],
-    income: [['lt_50k', 'Less than 50,000 XAF', 'Moins de 50 000 XAF'], ['50k_150k', '50,000 – 150,000 XAF', '50 000 – 150 000 XAF'], ['150k_500k', '150,000 – 500,000 XAF', '150 000 – 500 000 XAF'], ['gt_500k', 'More than 500,000 XAF', 'Plus de 500 000 XAF']],
-    insurance: [['none', 'None', 'Aucune'], ['cnps', 'CNPS', 'CNPS'], ['private', 'Private', 'Privée'], ['mutual', 'Mutual (mutuelle)', 'Mutuelle'], ['other', 'Other', 'Autre']],
     settlement: [['urban', 'Urban', 'Urbaine'], ['peri_urban', 'Peri-urban', 'Périurbaine'], ['rural', 'Rural', 'Rurale']],
     gender: [['male', 'Male', 'Homme'], ['female', 'Female', 'Femme'], ['undisclosed', 'Prefer not to say', 'Je préfère ne pas répondre']],
     smoking: [['never', 'Never', 'Jamais'], ['former', 'Former smoker', 'Ancien fumeur'], ['current', 'Current smoker', 'Fumeur actuel']]
@@ -150,9 +152,14 @@
   const label = (list, code) => { const item = O[list].find(([value]) => value === code); return item ? (LANG === 'fr' ? item[2] : item[1]) : ''; };
   const options = list => O[list].map(([value, en, fr]) => [value, LANG === 'fr' ? fr : en]);
 
-  const blank = () => ({
-    name: '', dob: '', gender: '', cni: '', language: LANG === 'fr' ? 'fr' : 'en', idType: '',
-    phone: '+237 ', phoneIsWhatsApp: true, phone2: '', email: '', hospitalId: '', hospitalOther: '', region: '', division: '', town: '', district: '', gps: null, settlement: '',
+  const countryProfile = code => window.HFACountryData.get(code);
+  const languageOptions = code => countryProfile(code).languages.map(language => [language, language === 'fr' ? 'Français' : 'English']);
+  const regionOptions = code => countryProfile(code).location.regions.map(region => [region.code, region.name[LANG] || region.name.en]);
+  const regionName = (code, region) => countryProfile(code)?.location.regions.find(item => item.code === region)?.name[LANG] || region;
+  const blank = (countryCode = 'CM') => ({
+    countryCode,
+    name: '', dob: '', gender: '', cni: '', language: countryProfile(countryCode).languages.includes(LANG) ? LANG : countryProfile(countryCode).languages[0], idType: '',
+    phone: `+${countryProfile(countryCode).callingCode} `, phoneIsWhatsApp: true, phone2: '', email: '', hospitalId: '', hospitalOther: '', region: '', division: '', town: '', district: '', gps: null, settlement: '',
     bloodGroup: '', genotype: '', conditions: [], otherCondition: '', drugAllergies: [], foodAllergies: '', envAllergies: '', medications: [], surgeries: [],
     familyHistory: [], familyOther: '', disability: 'none', disabilityOther: '',
     smoking: '', cigs: '', alcohol: '', occupation: '', sector: '', water: '', toilet: '', income: '', insurance: '', insuranceNumber: '', ecName: '', ecRelation: '', ecPhone: '',
@@ -162,11 +169,16 @@
   // Wizard state. Passwords, files and the photo live only in memory.
   let RS = null;
   const NAME_PATTERN = /^[\p{L}\p{M}\p{N} .'’-]+$/u;
-  const normPhone = value => {
+  const normPhone = (value, countryCode = D().countryCode) => {
     let number = String(value || '').replace(/[\s().-]/g, '');
     if (/^00[1-9]/.test(number)) number = '+' + number.slice(2);
-    if (/^237\d{9}$/.test(number)) number = '+' + number;
-    if (/^[26]\d{8}$/.test(number)) number = '+237' + number;
+    if (number.startsWith('+')) return number;
+    const callingCode = countryProfile(countryCode).callingCode;
+    if (number.startsWith(callingCode)) return '+' + number;
+    if (countryCode === 'NG' && /^0\d{10}$/.test(number)) number = number.slice(1);
+    if (countryCode === 'CM' && /^\d{9}$/.test(number)) return `+${callingCode}${number}`;
+    if (countryCode === 'CM' && /^[26]\d{8}$/.test(number)) return `+${callingCode}${number}`;
+    if (countryCode === 'NG' && /^\d{10}$/.test(number)) return `+${callingCode}${number}`;
     return number;
   };
   const validPhone = value => /^\+[1-9]\d{7,14}$/.test(normPhone(value));
@@ -200,9 +212,10 @@
   function fromUser(user) {
     const health = user.healthProfile || {}, identity = health.identity || {}, location = health.location || {}, medical = health.medical || {}, lifestyle = health.lifestyle || {}, consents = health.consents || {};
     const legacyGender = { Male: 'male', Female: 'female' }[user.gender] || '';
+    const countryCode = location.countryCode || user.countryCode || 'CM';
     return {
-      ...blank(), name: user.name || '', dob: identity.dateOfBirth || user.dateOfBirth || '', gender: identity.gender || legacyGender, cni: identity.cniNumber || '',
-      language: user.preferredLanguage || LANG, phone: user.phone || user.whatsappNumber || '+237 ', phoneIsWhatsApp: !!user.whatsappNumber && normPhone(user.whatsappNumber) === normPhone(user.phone || user.whatsappNumber),
+      ...blank(countryCode), name: user.name || '', dob: identity.dateOfBirth || user.dateOfBirth || '', gender: identity.gender || legacyGender, cni: identity.cniNumber || '',
+      language: user.preferredLanguage || LANG, phone: user.phone || user.whatsappNumber || `+${countryProfile(countryCode).callingCode} `, phoneIsWhatsApp: !!user.whatsappNumber && normPhone(user.whatsappNumber, countryCode) === normPhone(user.phone || user.whatsappNumber, countryCode),
       phone2: location.secondaryPhone || '', email: user.email || '',
       hospitalId: user.facilityId || (user.hospitalOther ? 'other' : 'none'), hospitalOther: user.hospitalOther || '', region: location.region || '', division: location.division || '', town: location.town || '', district: location.healthDistrict || '',
       gps: location.gps || null, settlement: location.settlement || '',
@@ -282,9 +295,11 @@
   // ─────────────── Steps ───────────────
   function step1() {
     const d = D(), age = ageFrom(d.dob);
+    const identityRequired = countryProfile(d.countryCode).registrationIdentityDocumentRequired;
     const photoUser = { name: d.name || '?', avatarPreview: RS.photo?.previewUrl };
     const hasId = RS.mode === 'complete' && !!(CU?.idDocument || CU?.idDocumentName);
     return `
+      ${select('countryCode', t('wz_country'), window.HFACountryData.all().map(item => [item.code, item.name[LANG] || item.name.en]), { required: true, rerender: true })}
       ${input('name', t('wz_full_name'), { required: true, hint: t('wz_full_name_hint'), attrs: 'autocomplete="name"', ...(RS.mode === 'complete' ? { attrs: 'readonly' } : {}) })}
       <div class="fr">
         ${wrap('dob', t('wz_dob'), `<input class="fc" id="w-dob" data-f="dob" type="date" max="${today()}" min="1900-01-01" value="${esc(d.dob)}" ${aria('dob', 'x', true)}><p class="mu sm wz-hint" id="wh-dob" aria-live="polite">${age !== null && age >= 0 ? esc(tf('wz_age', { age })) : ''}</p>`, { required: true })}
@@ -297,19 +312,27 @@
           <div><button type="button" class="btn bs bsm" onclick="HFAPatientRegistration.choosePhoto()">${esc(t(RS.photo ? 'wz_photo_change' : 'wz_photo_add'))}</button>
           <p class="mu sm">${esc(RS.photo ? t('avatar_selected') : t('wz_photo_hint'))}</p></div></div>
       </div>
-      ${radios('language', t('wz_language'), [['en', 'English'], ['fr', 'Français']], { required: true, rerender: true })}
+      ${radios('language', t('wz_language'), languageOptions(d.countryCode), { required: true, rerender: true })}
       ${hasId ? `<div class="alt ai">${esc(t('wz_id_on_file'))}</div>` : `<div class="fr">
-        ${select('idType', t('wz_id_type'), [['national_id', LANG === 'fr' ? 'Carte nationale d’identité' : 'National ID card'], ['passport', LANG === 'fr' ? 'Passeport' : 'Passport']], { required: RS.mode === 'register', optional: RS.mode !== 'register' })}
-        ${fileInput('idFile', t('wz_id_file'), { required: RS.mode === 'register', hint: t('wz_id_hint') })}
+        ${select('idType', t('wz_id_type'), [['national_id', LANG === 'fr' ? 'Pièce d’identité officielle' : 'Government-issued ID'], ['passport', LANG === 'fr' ? 'Passeport' : 'Passport']], { required: RS.mode === 'register' && identityRequired, optional: RS.mode !== 'register' || !identityRequired })}
+        ${fileInput('idFile', LANG === 'fr' ? 'Photo ou scan de votre pièce d’identité ou passeport' : 'Photo or scan of your ID document or passport', { required: RS.mode === 'register' && identityRequired, hint: identityRequired ? t('wz_id_hint') : t('wz_id_optional_hint') })}
       </div>`}`;
   }
 
   function step2() {
-    const d = D(), divisions = DIVISIONS[d.region] || [];
+    const d = D(), country = countryProfile(d.countryCode), divisions = DIVISIONS[d.region] || [];
+    const phoneExample = d.countryCode === 'NG' ? '+234 803 000 0000' : '+237 677 12 34 56';
+    const phoneHint = LANG === 'fr'
+      ? `Vous pourrez vous connecter avec ce numéro. Exemple : ${phoneExample}`
+      : `You can sign in with this number. Example: ${phoneExample}`;
+    const areaField = d.countryCode === 'CM'
+      ? select('division', country.location.subregionLabel[LANG] || country.location.subregionLabel.en, divisions.map(name => [name, name]), { required: true, placeholder: d.region ? '—' : t('wz_choose_region_first'), attrs: d.region ? '' : 'disabled' })
+      : input('division', country.location.subregionLabel[LANG] || country.location.subregionLabel.en, { required: true, max: 80, attrs: 'autocomplete="address-level3"' });
     const gps = d.gps;
     return `
+      <p class="mu sm">${esc(t('wz_country'))}: <strong>${esc(country.name[LANG] || country.name.en)}</strong></p>
       ${RS.mode === 'complete' ? `<div class="alt ai">${esc(t('wz_phone'))}: <strong>${esc(d.phone)}</strong>${d.email ? ` · ${esc(d.email)}` : ''}</div>` : `
-      ${input('phone', t('wz_phone'), { type: 'tel', required: true, hint: t('wz_phone_hint'), max: 20, attrs: 'inputmode="tel" autocomplete="tel"' })}
+      ${input('phone', t('wz_phone'), { type: 'tel', required: true, hint: phoneHint, max: 20, attrs: `inputmode="tel" autocomplete="tel" placeholder="+${country.callingCode}"` })}
       ${toggle('phoneIsWhatsApp', t('wz_is_whatsapp'))}
       ${input('email', t('wz_email'), { type: 'email', optional: true, hint: t('wz_email_hint'), max: 254, attrs: 'autocomplete="email" inputmode="email"' })}
       <div class="fr">
@@ -319,11 +342,11 @@
       ${input('phone2', t('wz_phone2'), { type: 'tel', optional: true, max: 20, attrs: 'inputmode="tel"' })}
       ${hospitalField()}
       <div class="fr">
-        ${select('region', t('wz_region'), options('region'), { required: true, rerender: true })}
-        ${select('division', t('wz_division'), divisions.map(name => [name, name]), { required: true, placeholder: d.region ? '—' : t('wz_choose_region_first'), attrs: d.region ? '' : 'disabled' })}
+        ${select('region', country.location.regionLabel[LANG] || country.location.regionLabel.en, regionOptions(d.countryCode), { required: true, rerender: true })}
+        ${areaField}
       </div>
       <div class="fr">
-        ${input('town', t('wz_town'), { required: true, max: 120, attrs: 'autocomplete="address-level2"' })}
+        ${input('town', country.location.localityLabel[LANG] || country.location.localityLabel.en, { required: true, max: 120, attrs: 'autocomplete="address-level2"' })}
         ${input('district', t('wz_district'), { optional: true, hint: t('wz_district_hint'), max: 120 })}
       </div>
       <div class="fg wz-gps" id="rf-gps">
@@ -372,6 +395,18 @@
 
   function step4() {
     const d = D();
+    const country = countryProfile(d.countryCode), currency = country.currency;
+    const money = amount => new Intl.NumberFormat(LANG === 'fr' ? 'fr-FR' : 'en-US').format(amount);
+    const incomeOptions = country.incomeBands?.map((band, index, bands) => {
+      const label = index === 0
+        ? `${LANG === 'fr' ? 'Moins de' : 'Less than'} ${money(band.max)} ${currency}`
+        : index === bands.length - 1
+          ? `${LANG === 'fr' ? 'Plus de' : 'More than'} ${money(band.min)} ${currency}`
+          : `${money(band.min)} – ${money(band.max)} ${currency}`;
+      return [band.code, label];
+    });
+    const insuranceOptions = country.healthInsuranceOptions
+      .map(option => [option.code, option.label[LANG] || option.label.en]);
     return `
       ${radios('smoking', t('wz_smoking'), options('smoking'), { rerender: true })}
       ${d.smoking === 'current' ? input('cigs', t('wz_cigarettes'), { type: 'number', required: true, max: 3, attrs: 'min="1" max="200" inputmode="numeric"' }) : ''}
@@ -385,9 +420,9 @@
         ${select('water', t('wz_water'), options('water'))}
         ${select('toilet', t('wz_toilet'), options('toilet'))}
       </div>
-      ${select('income', t('wz_income'), options('income'), { optional: true, hint: t('wz_income_hint'), placeholder: t('wz_prefer_not') })}
+      ${incomeOptions ? select('income', t('wz_income'), incomeOptions, { optional: true, hint: t('wz_income_hint'), placeholder: t('wz_prefer_not') }) : ''}
       <div class="fr">
-        ${select('insurance', t('wz_insurance'), options('insurance'), { rerender: true })}
+        ${select('insurance', t('wz_insurance'), insuranceOptions, { rerender: true })}
         ${d.insurance && d.insurance !== 'none' ? input('insuranceNumber', t('wz_insurance_number'), { max: 60, optional: true }) : ''}
       </div>
       <fieldset class="fg wz-fieldset"><legend class="fl">${esc(t('wz_emergency'))}</legend>
@@ -401,8 +436,10 @@
 
   function step5() {
     const whatsapp = RS.mode === 'complete' ? !!CU?.whatsappNumber : D().phoneIsWhatsApp;
+    const law = countryProfile(D().countryCode).legalInstrument;
     return `
-      <p class="mu sm wz-note">${esc(t('wz_consent_intro'))}</p>
+      <p class="mu sm wz-note">${esc(t('wz_consent_intro'))} ${esc(law)}</p>
+      <p class="mu sm wz-note">${esc(t('wz_legal_review'))}</p>
       ${toggle('cData', t('wz_c_data'), { required: true })}
       ${toggle('cResearch', t('wz_c_research'))}
       ${toggle('cSms', t('wz_c_sms'))}
@@ -431,14 +468,19 @@
       if (trim(d.cni) && !/^[A-Za-z0-9 -]{1,40}$/.test(trim(d.cni))) e.cni = t('wz_cni_invalid');
       const hasId = RS.mode === 'complete' && !!(CU?.idDocument || CU?.idDocumentName);
       if (RS.mode === 'register') {
-        required('idType');
-        if (!RS.files.idFile) e.idFile = RS.draftRestored ? t('wz_file_reselect') : t('wz_required');
+        if (countryProfile(d.countryCode).registrationIdentityDocumentRequired) {
+          required('idType');
+          if (!RS.files.idFile) e.idFile = RS.draftRestored ? t('wz_file_reselect') : t('wz_required');
+        } else if ((d.idType || RS.files.idFile) && !(d.idType && RS.files.idFile)) {
+          if (!d.idType) e.idType = t('wz_required'); else e.idFile = t('wz_required');
+        }
       } else if (!hasId && (d.idType || RS.files.idFile) && !(d.idType && RS.files.idFile)) {
         if (!d.idType) e.idType = t('wz_required'); else e.idFile = t('wz_required');
       }
       if (RS.fileErrors.idFile) e.idFile = RS.fileErrors.idFile;
     }
     if (step === 2) {
+      if (!countryProfile(d.countryCode)) e.countryCode = t('wz_required');
       if (RS.mode === 'register') {
         if (!validPhone(d.phone)) e.phone = t('wz_phone_invalid');
         if (trim(d.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trim(d.email))) e.email = t('wz_email_invalid');
@@ -553,9 +595,16 @@
   function onChange(event) {
     const element = event.target;
     if (element.dataset.file) { readFile(element); return; }
+    const previousCountry = D().countryCode;
     clearError(element);
     if (!assign(element)) return;
     if (element.dataset.f === 'region') D().division = '';
+    if (element.dataset.f === 'countryCode') {
+      const previousPhone = `+${countryProfile(previousCountry).callingCode} `;
+      if (trim(D().phone) === trim(previousPhone)) D().phone = `+${countryProfile(D().countryCode).callingCode} `;
+      if (!countryProfile(D().countryCode).languages.includes(D().language)) D().language = countryProfile(D().countryCode).languages[0];
+      D().region = ''; D().division = '';
+    }
     if (element.dataset.f === 'phoneIsWhatsApp' && !element.checked) D().cWhatsapp = false;
     if (element.dataset.f === 'smoking' && element.value !== 'current') D().cigs = '';
     if (element.dataset.f === 'language' && element.value !== LANG) { saveDraft(); setLang(element.value); return; } // the whole wizard switches language
@@ -595,7 +644,7 @@
     const emergency = clean({ name: text(d.ecName), relationship: text(d.ecRelation), phone: trim(d.ecPhone) ? normPhone(d.ecPhone) : undefined });
     return {
       identity: clean({ dateOfBirth: d.dob, gender: d.gender, cniNumber: text(d.cni) }),
-      location: clean({ secondaryPhone: trim(d.phone2) ? normPhone(d.phone2) : undefined, region: d.region, division: d.division, town: trim(d.town), healthDistrict: text(d.district), gps: d.gps || undefined, settlement: d.settlement || undefined }),
+      location: clean({ countryCode: d.countryCode, secondaryPhone: trim(d.phone2) ? normPhone(d.phone2) : undefined, region: d.region, division: d.division, town: trim(d.town), healthDistrict: text(d.district), gps: d.gps || undefined, settlement: d.settlement || undefined }),
       medical: clean({
         bloodGroup: d.bloodGroup || undefined, genotype: d.genotype || undefined, conditions: [...d.conditions], otherCondition: d.conditions.includes('other') ? text(d.otherCondition) : undefined,
         drugAllergies: d.drugAllergies.map(item => ({ name: trim(item.name), severity: item.severity || 'mild' })),
@@ -625,7 +674,8 @@
     if (medical.bloodGroup && medical.bloodGroup !== 'unknown') user.bloodType = medical.bloodGroup;
     const allergies = [...(medical.drugAllergies || []).map(item => `${item.name} (${label('severity', item.severity)})`), medical.foodAllergies, medical.environmentalAllergies].filter(Boolean);
     user.allergies = allergies.length ? allergies.join(', ') : 'None';
-    if (location.town) user.address = [location.town, location.division, label('region', location.region)].filter(Boolean).join(', ');
+    if (location.countryCode) user.countryCode = location.countryCode;
+    if (location.town) user.address = [location.town, location.division, regionName(location.countryCode || 'CM', location.region)].filter(Boolean).join(', ');
     const contact = lifestyle.emergencyContact;
     if (contact?.name || contact?.phone) user.emergencyContact = `${contact.name || ''}${contact.relationship ? ` (${contact.relationship})` : ''}${contact.phone ? ` — ${contact.phone}` : ''}`.trim();
     if (!user.medicalHistory && medical.conditions?.length) user.medicalHistory = medical.conditions.map(code => code === 'other' ? medical.otherCondition : label('conditions', code)).filter(Boolean).join(', ');
@@ -655,10 +705,10 @@
     try {
       if (ApiState.enabled) {
         const payload = {
-          name: trim(d.name), password: RS.password, role: 'patient', phone, preferredLanguage: d.language,
+          name: trim(d.name), password: RS.password, role: 'patient', phone, countryCode: d.countryCode, preferredLanguage: d.language,
           ...(email ? { email } : {}), ...(d.phoneIsWhatsApp ? { whatsappNumber: phone, whatsappNotificationsConsent: !!d.cWhatsapp } : {}),
           ...hospitalPayload(),
-          idDocumentType: d.idType, idDocument: { fileName: safeName(RS.files.idFile.name), content: await fileToBase64(RS.files.idFile) },
+          ...(RS.files.idFile && d.idType ? { idDocumentType: d.idType, idDocument: { fileName: safeName(RS.files.idFile.name), content: await fileToBase64(RS.files.idFile) } } : {}),
           ...(RS.files.vaccinationFile ? { vaccinationDocument: { fileName: safeName(RS.files.vaccinationFile.name), content: await fileToBase64(RS.files.vaccinationFile) } } : {}),
           healthProfile: health
         };
@@ -700,7 +750,7 @@
     try {
       if (ApiState.enabled) {
         const hospital = hospitalPayload();
-        const body = { preferredLanguage: D().language, healthProfile: health, hospitalId: hospital.hospitalId || null, hospitalOther: hospital.hospitalOther || null };
+        const body = { countryCode: D().countryCode, preferredLanguage: D().language, healthProfile: health, hospitalId: hospital.hospitalId || null, hospitalOther: hospital.hospitalOther || null };
         if (RS.files.vaccinationFile) body.vaccinationDocument = { fileName: safeName(RS.files.vaccinationFile.name), content: await fileToBase64(RS.files.vaccinationFile) };
         if (RS.files.idFile && D().idType) { body.idDocumentType = D().idType; body.idDocument = { fileName: safeName(RS.files.idFile.name), content: await fileToBase64(RS.files.idFile) }; }
         const data = await apiRequest(`/api/v1/users/${encodeURIComponent(CU.id)}/health-profile`, 'PUT', body, 30000);
@@ -708,6 +758,7 @@
       } else {
         CU.healthProfile = { ...health, consents: { ...health.consents, recordedAt: new Date().toISOString(), version: '2026.1' } };
         CU.preferredLanguage = D().language;
+        CU.countryCode = D().countryCode;
         const hospital = hospitalPayload(), facility = (RS.hospitals || []).find(item => item.id === hospital.hospitalId);
         Object.assign(CU, { facilityId: facility?.id || null, facilityName: facility?.name || null, facilityCode: facility?.code || null, hospitalOther: hospital.hospitalOther || '' });
         if (RS.files.idFile && D().idType) Object.assign(CU, { idDocumentType: D().idType, idDocumentName: RS.files.idFile.name, idDocumentData: await fileToDataUrl(RS.files.idFile), idUploadedAt: tsNow(), idVerificationStatus: 'pending' });

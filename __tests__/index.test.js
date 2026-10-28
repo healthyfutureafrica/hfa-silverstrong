@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const countryData = require('../country-data.js');
 
 describe('index.html sanity checks', () => {
   const indexPath = path.join(__dirname, '..', 'index.html');
@@ -8,6 +9,28 @@ describe('index.html sanity checks', () => {
 
   beforeAll(() => {
     content = fs.readFileSync(indexPath, 'utf8');
+  });
+
+  test('country profiles cover the Cameroon and Nigeria intake pilot without claiming legal readiness', () => {
+    const cameroon = countryData.get('CM');
+    const nigeria = countryData.get('NG');
+    expect(cameroon).toMatchObject({ callingCode: '237', currency: 'XAF', legalReview: 'required', registrationIdentityDocumentRequired: true, emergencyNumber: '1515' });
+    expect(nigeria).toMatchObject({ callingCode: '234', currency: 'NGN', legalReview: 'required', registrationIdentityDocumentRequired: false, emergencyNumber: null, incomeBands: null });
+    expect(nigeria.healthInsuranceOptions.find(option => option.code === 'public_scheme').label.en).toContain('NHIA');
+    expect(nigeria.location.regions).toHaveLength(37);
+    expect(nigeria.location.regions.find(region => region.code === 'NG-LA').name.en).toBe('Lagos');
+    expect(countryData.get('GH')).toBeNull();
+    expect(countryData.regionCodes('NG')).toContain('NG-FC');
+  });
+
+  test('patient intake uses country-specific geography and displays local legal-review status', () => {
+    const registration = fs.readFileSync(path.join(__dirname, '..', 'patient-registration.js'), 'utf8');
+    expect(registration).toContain("countryCode === 'NG'");
+    expect(registration).toContain('wz_legal_review');
+    expect(registration.indexOf("select('countryCode'")).toBeLessThan(registration.indexOf("select('idType'"));
+    expect(content).toContain('<script src="country-data.js"></script>');
+    expect(fs.readFileSync(path.join(__dirname, '..', 'Dockerfile'), 'utf8')).toContain('country-data.js');
+    expect(fs.readFileSync(path.join(__dirname, '..', 'scripts', 'build-static.js'), 'utf8')).toContain("'country-data.js'");
   });
 
   test('every script in the page and every site script file is valid JavaScript', () => {
@@ -192,7 +215,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/portal-access.js','https://example.invalid/hfa/security.js','https://example.invalid/hfa/hfa-fhir.js','https://example.invalid/hfa/privacy-centre.js','https://example.invalid/hfa/session-guard.js','https://example.invalid/hfa/clinical-sync.js','https://example.invalid/hfa/mobile-money.js','https://example.invalid/hfa/calls.js','https://example.invalid/hfa/real-world.js','https://example.invalid/hfa/governance-ui.js','https://example.invalid/hfa/hfa-triage.js','https://example.invalid/hfa/triage-assistant.js','https://example.invalid/hfa/hfa-surveillance.js','https://example.invalid/hfa/hfa-ai-eval.js','https://example.invalid/hfa/ai-assist.js','https://example.invalid/hfa/ai-centre.js','https://example.invalid/hfa/nurse-workforce.js','https://example.invalid/hfa/earnings.js','https://example.invalid/hfa/validation.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/country-data.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/portal-access.js','https://example.invalid/hfa/security.js','https://example.invalid/hfa/hfa-fhir.js','https://example.invalid/hfa/privacy-centre.js','https://example.invalid/hfa/session-guard.js','https://example.invalid/hfa/clinical-sync.js','https://example.invalid/hfa/mobile-money.js','https://example.invalid/hfa/calls.js','https://example.invalid/hfa/real-world.js','https://example.invalid/hfa/governance-ui.js','https://example.invalid/hfa/hfa-triage.js','https://example.invalid/hfa/triage-assistant.js','https://example.invalid/hfa/hfa-surveillance.js','https://example.invalid/hfa/hfa-ai-eval.js','https://example.invalid/hfa/ai-assist.js','https://example.invalid/hfa/ai-centre.js','https://example.invalid/hfa/nurse-workforce.js','https://example.invalid/hfa/earnings.js','https://example.invalid/hfa/validation.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;

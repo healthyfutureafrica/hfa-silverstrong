@@ -105,6 +105,38 @@ test('health data is refused when encrypted storage is not configured', async ()
   } finally { await app.close(); store.close(); }
 });
 
+test('Nigeria profiles use the country-aware location schema and reject mismatched regions', async () => {
+  const store = new Store(), app = await startServer(store);
+  const nigeria = patientInput();
+  nigeria.countryCode = 'NG';
+  nigeria.phone = '+2348030000000';
+  nigeria.whatsappNumber = '+2348030000000';
+  nigeria.healthProfile = {
+    ...fullProfile(),
+    lifestyle: { ...fullProfile().lifestyle, insurance: 'public_scheme' },
+    location: { countryCode: 'NG', region: 'NG-LA', division: 'Ikeja', town: 'Lagos' }
+  };
+  try {
+    const registered = await app.request('/api/auth/register', nigeria);
+    assert.equal(registered.status, 201);
+    const { user } = await registered.json();
+    assert.equal(user.countryCode, 'NG');
+    assert.equal(user.healthProfile.location.countryCode, 'NG');
+    assert.equal(user.healthProfile.location.region, 'NG-LA');
+    assert.equal(user.healthProfile.location.division, 'Ikeja');
+    assert.equal(user.healthProfile.lifestyle.insurance, 'public_scheme');
+
+    const wrongRegion = { ...patientInput(), countryCode: 'NG', healthProfile: {
+      ...fullProfile(), location: { countryCode: 'NG', region: 'centre', division: 'Mfoundi', town: 'Yaoundé' }
+    } };
+    assert.equal((await app.request('/api/auth/register', wrongRegion)).status, 400);
+    const wrongCountry = { ...patientInput(), countryCode: 'CM', healthProfile: {
+      ...fullProfile(), location: { countryCode: 'NG', region: 'NG-LA', division: 'Ikeja', town: 'Lagos' }
+    } };
+    assert.equal((await app.request('/api/auth/register', wrongCountry)).status, 400);
+  } finally { await app.close(); store.close(); }
+});
+
 test('profile pictures are validated, converted to WebP, encrypted, replaced and removed', async () => {
   const store = new Store(), app = await startServer(store);
   try {

@@ -40,6 +40,9 @@ test('anyone can check symptoms on WhatsApp with numbered replies, in English or
   // Every message is a plain text reply (free inside the 24-hour window), never a paid template.
   assert.ok(sent.length >= 9);
   assert.ok(sent.every(item => item.body.type === 'text' && !item.body.template && item.body.to === '237699000111'));
+  const nigeriaGreeting = await bot.handle('+2348030000000', 'Hello');
+  assert.match(nigeriaGreeting, /local emergency services/);
+  assert.doesNotMatch(nigeriaGreeting, new RegExp(Triage.EMERGENCY_NUMBER));
 
   // French on request, and from French words.
   assert.match(await bot.handle(phone, 'FR'), /Bonjour, je suis \*SLY\*/);

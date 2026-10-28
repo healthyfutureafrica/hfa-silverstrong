@@ -31,6 +31,7 @@ const { installNurseWorkforceRoutes, recordApplication, nurseApplication } = req
 const { installEarningsRoutes } = require('./earnings');
 const { createPayoutProvider } = require('./payouts');
 const { passwordProblem } = require('./account-security');
+const COUNTRY_DATA = require('../country-data.js');
 
 const message = 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.';
 const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/);
@@ -43,6 +44,7 @@ const uploadedDocument=z.object({fileName:z.string().min(1).max(180).regex(/^[^<
 const registration = z.object({
   name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()).optional(),
   password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']),
+  countryCode: z.enum(COUNTRY_DATA.all().map(country => country.code)).default('CM'),
   phone: contactPhone.optional(), whatsappNumber: phone.optional(), whatsappNotificationsConsent: z.boolean().optional(),
   specialty: plain.optional(), hospital: plain.optional(), department: plain.optional(), consultationFee: z.number().min(5).max(20).optional(),
   // Professional licence (Ordre National des Médecins / nursing council number), verified by an administrator.
@@ -65,6 +67,7 @@ const registration = z.object({
   if (input.role === 'patient' && !input.whatsappNumber && !phone.safeParse(input.phone).success) context.addIssue({ code: 'custom', path: ['phone'], message: 'Patient phone number is required in international format, e.g. +237677123456' });
   if (input.role === 'patient' && !input.email && !phone.safeParse(input.phone).success) context.addIssue({ code: 'custom', path: ['phone'], message: 'A phone number in international format is required when no email is given' });
   if (input.role !== 'patient' && (input.healthProfile || input.vaccinationDocument)) context.addIssue({ code: 'custom', path: ['healthProfile'], message: 'Only patients have a health profile' });
+  if (input.role === 'patient' && input.healthProfile && input.healthProfile.location.countryCode !== input.countryCode) context.addIssue({ code: 'custom', path: ['countryCode'], message: 'Account country must match the health profile country' });
   if (input.role === 'pharmacist') context.addIssue({ code: 'custom', path: ['role'], message: 'Pharmacies register with their documents at /api/auth/register/pharmacist' });
 });
 // Pharmacies must submit every credential document with the application; activation is gated on all of them.
@@ -201,7 +204,7 @@ function createApp(config, store, provider) {
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     response.status(201).json({ user: store.user(request.user.id) });
   });
-  const profile = input => Object.fromEntries(['specialty', 'hospital', 'department', 'consultationFee', 'licenseNo', 'qualifications', 'laboratory', 'labRegion', 'labTown', 'hospitalOther'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
+  const profile = input => Object.fromEntries(['countryCode', 'specialty', 'hospital', 'department', 'consultationFee', 'licenseNo', 'qualifications', 'laboratory', 'labRegion', 'labTown', 'hospitalOther'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
   // A patient may only register under a hospital that is on the public list (has active clinicians).
   const listedHospital = id => id ? store.listedHospitals().find(hospital => hospital.id === id) : null;
 
@@ -249,6 +252,7 @@ function createApp(config, store, provider) {
   });
   // "Complete my profile": a signed-in patient saves or updates the 5-step health profile.
   const healthUpdate = z.object({
+    countryCode: z.enum(COUNTRY_DATA.all().map(country => country.code)).optional(),
     preferredLanguage: z.enum(['en','fr']).optional(), healthProfile, vaccinationDocument: uploadedDocument.optional(),
     idDocumentType: z.enum(['national_id','passport']).optional(), idDocument: uploadedDocument.optional(),
     hospitalId: z.string().max(100).nullable().optional(), hospitalOther: plain.nullable().optional()
@@ -257,13 +261,14 @@ function createApp(config, store, provider) {
     if (request.params.id !== request.user.id || request.user.role !== 'patient') return response.status(403).json({ error: 'Only the patient can update this health profile' });
     if (!filesConfigured(config)) return response.status(503).json({ error: 'Encrypted health record storage is not configured' });
     const input = healthUpdate.parse(request.body);
+    if (input.countryCode && input.healthProfile.location.countryCode !== input.countryCode) return response.status(400).json({ error: 'countryCode: Account country must match the health profile country' });
     if (!!input.idDocument !== !!input.idDocumentType) return response.status(400).json({ error: 'idDocumentType: Required with an identity document' });
     if (input.hospitalId && !listedHospital(input.hospitalId)) return response.status(400).json({ error: 'hospitalId: Choose a hospital from the list' });
     const vaccination = input.vaccinationDocument && decodeDocument('vaccinationDocument', input.vaccinationDocument);
     if (vaccination?.error) return response.status(400).json({ error: vaccination.error });
     const identity = input.idDocument && decodeDocument('idDocument', input.idDocument);
     if (identity?.error) return response.status(400).json({ error: identity.error });
-    const patch = { ...(input.preferredLanguage ? { preferredLanguage: input.preferredLanguage } : {}), healthProfileUpdatedAt: new Date().toISOString() };
+    const patch = { ...(input.countryCode ? { countryCode: input.countryCode } : {}), ...(input.preferredLanguage ? { preferredLanguage: input.preferredLanguage } : {}), healthProfileUpdatedAt: new Date().toISOString() };
     const userId = request.user.id;
     store.db.exec('BEGIN IMMEDIATE');
     try {
