@@ -59,6 +59,14 @@ describe('index.html sanity checks', () => {
     expect(portalAccess).toContain("const ENTERABLE = ['doctor', 'nurse', 'pharmacist', 'labtech']");
   });
 
+  test('Admin and pharmacist portals open sign-in on static web hosting without claiming accounts are unavailable', () => {
+    expect(content).toContain('onclick="goAuth(\'login\',\'pharmacist\');return false;" id="lnd-pharmacist-card"');
+    expect(content).toContain('<div class="pc2" onclick="goAuth(\'login\',\'admin\')">');
+    expect(content).toContain("noAccounts() && !(tab==='login' && ['admin','pharmacist'].includes(role))");
+    expect(content).toContain("['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body')");
+    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v42'");
+  });
+
   test('every script in the page and every site script file is valid JavaScript', () => {
     const inline = [...content.matchAll(/<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/g)].map(match => match[1]);
     expect(inline.length).toBeGreaterThan(0);
@@ -101,7 +109,7 @@ describe('index.html sanity checks', () => {
     test('includes a static pharmacist tile (the only pharmacist entry on the landing page)',()=>{
       expect(content).toContain('id="lnd-pharmacist-card"');
       expect(content).not.toContain('id="lnd-pharmacist"');
-      expect(content).toContain('onclick="showPortalChoice(\'pharmacist\');return false;" id="lnd-pharmacist-card"');
+      expect(content).toContain('onclick="goAuth(\'login\',\'pharmacist\');return false;" id="lnd-pharmacist-card"');
       expect(content).toContain('id="lnd-pharmacist-title">Pharmacist Portal</h3>');
     });
     function pharmacyContext() {

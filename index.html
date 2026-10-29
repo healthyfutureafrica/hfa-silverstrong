@@ -1092,7 +1092,7 @@ body{font-size:15px}
       </div>
     </div>
     <div class="pg">
-      <a href="#pharmacist" class="pc2" style="text-align:left;text-decoration:none" onclick="showPortalChoice('pharmacist');return false;" id="lnd-pharmacist-card">
+      <a href="#pharmacist" class="pc2" style="text-align:left;text-decoration:none" onclick="goAuth('login','pharmacist');return false;" id="lnd-pharmacist-card">
         <div class="pi" style="background:rgba(0,133,63,.2)"><svg width="22" height="22" fill="none" stroke="#6ddbb8" stroke-width="2" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></div>
         <h3 id="lnd-pharmacist-title">Pharmacist Portal</h3><p id="lnd-pharmacist-desc">Medication stock, purchase requests and delivery logistics</p>
         <div class="pa" id="lnd-pharmacist-access">Access Portal →</div>
@@ -1112,7 +1112,7 @@ body{font-size:15px}
         <h3 id="lnd-pat-t">Patient Portal</h3><p id="lnd-pat-p">Book consultations &amp; view health records</p>
         <div class="pa" data-i18n="i_access_portal">Access Portal →</div>
       </div>
-      <div class="pc2" onclick="goAuth('login')">
+      <div class="pc2" onclick="goAuth('login','admin')">
         <div class="pi" style="background:rgba(196,144,42,.15)"><svg width="22" height="22" fill="none" stroke="#e8c06a" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
         <h3 id="lnd-adm-t">Admin Panel</h3><p id="lnd-adm-p">Audit, manage &amp; oversee all users</p>
         <div class="pa" data-i18n="i_access_panel">Access Panel →</div>
@@ -3110,7 +3110,7 @@ function showAccountsUnavailable() {
 }
 function goAuth(tab, role) {
   if (ApiState.loading) { ApiState.ready.then(()=>goAuth(tab, role)); return; }
-  if (noAccounts()) return showAccountsUnavailable();
+  if (noAccounts() && !(tab==='login' && ['admin','pharmacist'].includes(role))) return showAccountsUnavailable();
   hide('land'); hide('contact-page'); hide('free-hub'); show('auth-wrap'); hide('app-wrap');
   swtTab(tab || 'login');
   if (role) setRole(role);
@@ -3228,7 +3228,7 @@ function amsg(txt, type='e') { $('amsg').innerHTML=`<div class="alt ${type==='e'
 function doLogin() {
   if (ApiState.loading) { ApiState.ready.then(()=>doLogin()); return; }
   if (ApiState.failed) return amsg(t('backend_unavailable'));
-  if (noAccounts()) return amsg(t('accounts_unavailable_body'),'i');
+  if (noAccounts()) return amsg(['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body'),'i');
   const email = $('le').value.trim().toLowerCase(), pass = ApiState.enabled?$('lp').value:$('lp').value.trim();
   if (ApiState.enabled) { backendLogin(!email.includes('@')&&typeof HFAPatientRegistration!=='undefined'?HFAPatientRegistration.normPhone(email):email,pass); return; }
   const phoneId = typeof HFAPatientRegistration!=='undefined' && !email.includes('@') ? HFAPatientRegistration.normPhone(email) : null;
