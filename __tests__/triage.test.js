@@ -44,6 +44,9 @@ describe('SLY Triage', () => {
     expect(screens).toContain('href="tel:${esc(number)}"');
     expect(screens).toContain('HFAAmbulance.findNearest()');
     expect(screens).toContain('id="st-ambulance-panel"');
+    expect(screens).toContain('function openEmergency()');
+    expect(screens).toContain('openEmergency, repaintPublic');
+    expect(read('index.html')).toContain('onclick="HFATriageUI.openEmergency()"');
   });
 
   test('every question and answer is translated into French', () => {

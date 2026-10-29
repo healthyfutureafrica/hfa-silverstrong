@@ -9,6 +9,10 @@
     !Number.isNaN(Date.parse(value)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
 
   Object.assign(T.en, {
+    ab_emergency_nav: 'Emergency & ambulance',
+    ab_emergency_title: 'Emergency help',
+    ab_emergency_intro: 'If someone may be in immediate danger, call the emergency number below now. You can also find a nearby listed hospital ambulance contact. HFA does not dispatch vehicles or process ambulance payments.',
+    ab_emergency_unavailable: 'No emergency number is listed for the selected country. Contact local emergency services or go to the nearest hospital.',
     ab_find_nearest: 'Find nearby ambulance contact',
     ab_intro: 'Allow location to find the nearest verified hospital ambulance contact. Your location stays on this device unless you choose to share it by SMS.',
     ab_locating: 'Getting your location…',
@@ -32,6 +36,10 @@
     ab_no_gps: 'This browser cannot provide GPS location. The direct emergency call above is still available.'
   });
   Object.assign(T.fr, {
+    ab_emergency_nav: 'Urgence et ambulance',
+    ab_emergency_title: 'Aide urgente',
+    ab_emergency_intro: 'Si une personne est en danger immédiat, appelez maintenant le numéro d’urgence ci-dessous. Vous pouvez aussi trouver un contact ambulance hospitalier répertorié à proximité. HFA ne dépêche pas de véhicule et ne traite pas les paiements ambulance.',
+    ab_emergency_unavailable: 'Aucun numéro d’urgence n’est répertorié pour le pays sélectionné. Contactez les secours locaux ou rendez-vous à l’hôpital le plus proche.',
     ab_find_nearest: 'Trouver un contact ambulance proche',
     ab_intro: 'Autorisez la localisation pour trouver le contact ambulance vérifié le plus proche. Votre position reste sur cet appareil sauf si vous choisissez de la partager par SMS.',
     ab_locating: 'Obtention de votre position…',

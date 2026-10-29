@@ -322,7 +322,7 @@
 
   // ───── Public symptom check (no account) ─────
   // keep: redraw (after a language change) without losing the answers so far.
-  function openPublic({ keep = false } = {}) {
+  function getPublicPage() {
     let page = document.getElementById('public-triage');
     if (!page) {
       page = document.createElement('main');
@@ -330,8 +330,20 @@
       page.innerHTML = '<div class="page" style="max-width:860px;margin:0 auto;padding:24px 16px" id="public-triage-body"></div>';
       document.body.insertBefore(page, document.getElementById('movr'));
     }
+    return page;
+  }
+
+  function showPublicPage() {
+    const page = getPublicPage();
     ['land', 'auth-wrap', 'app-wrap', 'free-hub'].forEach(id => document.getElementById(id)?.classList.add('hid'));
     page.classList.remove('hid');
+    return page;
+  }
+
+  let publicMode = 'triage';
+  function openPublic({ keep = false } = {}) {
+    const page = showPublicPage();
+    publicMode = 'triage';
     if (!keep || !S) S = fresh();
     $('public-triage-body').innerHTML = `<div class="pub-topbar"><button type="button" class="btn bs bsm" onclick="goLand()">← ${esc(t('st_public_back'))}</button>${typeof langToggle === 'function' ? langToggle('btn bs bsm') : ''}</div>
       <div class="ph"><h2>${esc(t('st_title'))}</h2><p>${esc(t('st_public_intro'))}</p></div>
@@ -343,7 +355,25 @@
     page.focus();
     window.scrollTo(0, 0);
   }
-  const repaintPublic = () => { if (document.getElementById('public-triage')?.classList.contains('hid') === false) openPublic({ keep: true }); };
+  function openEmergency() {
+    const page = showPublicPage();
+    publicMode = 'emergency';
+    S = null;
+    const number = currentEmergencyNumber();
+    $('public-triage-body').innerHTML = `<div class="pub-topbar"><button type="button" class="btn bs bsm" onclick="goLand()">← ${esc(t('st_public_back'))}</button>${typeof langToggle === 'function' ? langToggle('btn bs bsm') : ''}</div>
+      <div class="ph"><h2>${esc(t('ab_emergency_title'))}</h2><p>${esc(t('ab_emergency_intro'))}</p></div>
+      <div class="st-emergency" role="alert"><span>🚨 ${esc(number ? TR.emergencyAdvice({ emergencyNumber: number }, LANG) : t('ab_emergency_unavailable'))}</span>${callButton(number)}</div>
+      <div class="card mb18"><p class="mu sm">${esc(t('ab_intro'))}</p><div class="pc-actions"><button type="button" class="btn bp" onclick="HFAAmbulance.findNearest()">${esc(t('ab_find_nearest'))}</button></div><section id="st-ambulance-panel" class="st-ambulance-panel" aria-live="polite"></section></div>`;
+    if (typeof updateLangButtons === 'function') updateLangButtons();
+    page.focus();
+    window.scrollTo(0, 0);
+  }
+  const repaintPublic = () => {
+    if (document.getElementById('public-triage')?.classList.contains('hid') === false) {
+      if (publicMode === 'emergency') openEmergency();
+      else openPublic({ keep: true });
+    }
+  };
   // Leaving the public check by any route hides it.
   for (const name of ['goLand', 'goAuth', 'goFreeHub']) {
     const original = window[name];
@@ -353,5 +383,5 @@
   // The old urgent-help form asked patients to choose their own urgency; every entry point now opens SLY.
   window.showTriage = () => { closeMo(); S = null; navigate('triage'); };
   window.renderTriageQueue = renderQueue;
-  window.HFATriageUI = { renderPatient, renderQueue, ageGroupOf, openPublic, repaintPublic, keepWords: () => { if (S) keepWords(); } };
+  window.HFATriageUI = { renderPatient, renderQueue, ageGroupOf, openPublic, openEmergency, repaintPublic, keepWords: () => { if (S) keepWords(); } };
 })();

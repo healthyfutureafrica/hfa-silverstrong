@@ -1065,6 +1065,7 @@ body{font-size:15px}
     <div class="lnr">
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goFreeHub()" id="lnd-freehub" data-i18n="free_hub_title">Free Health Hub</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="HFATriageUI.openPublic()" id="lnd-triage" data-i18n="st_nav">Check my symptoms</button>
+      <button type="button" class="btn bg2 land-nav-btn" onclick="HFATriageUI.openEmergency()" data-i18n="ab_emergency_nav">Emergency &amp; ambulance</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goContact()" id="lnd-contact">Contact</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goAuth('login')" id="lnd-signin">Sign In</button>
       <button type="button" class="btn bgh land-nav-btn nav-ghost lang-toggle" onclick="toggleLang()" id="lnd-lang" lang="fr">🌐 Français</button>
@@ -1082,6 +1083,7 @@ body{font-size:15px}
       <div class="hcta">
         <button type="button" class="btn bg2 blg" onclick="goAuth('register')" data-i18n="i_get_started">Get Started →</button>
         <button type="button" class="btn blg" onclick="goAuth('login')" style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)" data-i18n="sign_in">Sign In</button>
+        <button type="button" class="btn blg" onclick="HFATriageUI.openEmergency()" style="background:#CE1126;color:#fff" data-i18n="ab_emergency_nav">Emergency &amp; ambulance</button>
       </div>
       <div class="hst">
         <div><div class="hsv">2</div><div class="hsl hs-lbl" id="hs-l1">Languages</div></div>
@@ -1169,6 +1171,7 @@ body{font-size:15px}
     <div class="llogo"><img class="logo-mark landing-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo"><span>HFA <span>SilverStrong</span></span></div>
     <div class="lnr">
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goLand()" id="fh-back">← Back to Home</button>
+      <button type="button" class="btn bg2 land-nav-btn" onclick="HFATriageUI.openEmergency()" data-i18n="ab_emergency_nav">Emergency &amp; ambulance</button>
       <button type="button" class="btn bgh land-nav-btn" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)" onclick="goContact()" id="fh-contact">Contact</button>
       <button type="button" class="btn bgh land-nav-btn nav-ghost lang-toggle" onclick="toggleLang()" id="fh-lang" lang="fr">🌐 Français</button>
     </div>
