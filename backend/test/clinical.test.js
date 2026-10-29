@@ -2,6 +2,8 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { Store, hashPassword } = require('../store');
 const { createApp } = require('../server');
+const { submitCase } = require('../triage');
+const { randomUUID } = require('node:crypto');
 
 const config = { origin: 'http://localhost:8080', ready: false, fileEncryptionKey: '8b'.repeat(32) };
 
@@ -30,6 +32,14 @@ test('clinical records are shared between patient and care team on any device, w
     const patient = await make('patient', 'Synthetic Patient Ako', 'ako@example.invalid');
     const other = await make('patient', 'Synthetic Patient Bih', 'bih@example.invalid');
     store.updateUser(patient.id, { assignedDoctor: doctor.id });
+    const routineCase = await submitCase(config, store, patient, {
+      requestId: randomUUID(), answers: { ageGroup: 'adult', complaints: ['other'], dangerSigns: [], duration: 'days_1_2', severity: 'mild' },
+      text: 'I have a mild concern and would like advice.', aiConsent: false
+    });
+    const urgentCase = await submitCase(config, store, patient, {
+      requestId: randomUUID(), answers: { ageGroup: 'adult', complaints: ['fever'], dangerSigns: [], duration: 'days_1_2', severity: 'moderate' },
+      text: 'I have a fever and need a same-day check.', aiConsent: false
+    });
     const login = async email => cookieOf(await app.request('/api/auth/login', { email, password: 'Synthetic-pass-123' }, undefined, 'POST'));
     const [patientCookie, doctorCookie, specialistCookie, outsiderCookie, labCookie, adminCookie, otherCookie] = await Promise.all(
       ['ako@example.invalid', 'shared-doc@example.invalid', 'spec@example.invalid', 'outsider@example.invalid', 'lab@example.invalid', 'admin-clin@example.invalid', 'bih@example.invalid'].map(login));
@@ -40,14 +50,22 @@ test('clinical records are shared between patient and care team on any device, w
     const base = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: '2026-11-02', time: '09:30', status: 'scheduled', mode: 'video' };
     assert.equal((await put(patientCookie, 'appointments', 'apt-xss', { ...base, status: '<img src=x onerror=alert(1)>' })).status, 400);
     assert.equal((await put(patientCookie, 'appointments', 'apt-xss', { ...base, type: 'consultation"><script>' })).status, 400);
+    assert.equal((await put(patientCookie, 'appointments', 'apt-no-triage', base)).status, 400, 'remote booking requires SLY screening');
+    assert.equal((await put(patientCookie, 'appointments', 'apt-urgent-triage', { ...base, triageCaseId: urgentCase.row.id })).status, 400, 'urgent results cannot be booked remotely');
+    assert.equal((await put(otherCookie, 'appointments', 'apt-other-triage', { ...base, patientId: other.id, triageCaseId: routineCase.row.id })).status, 400, 'a patient cannot use another patient’s screening');
     assert.equal((await put(patientCookie, 'medicalDocuments', 'doc-xss', { patientId: patient.id, uploadedBy: patient.id, fileName: 'x.pdf', fileData: 'javascript:alert(1)' })).status, 400);
     assert.equal((await put(patientCookie, 'medicalDocuments', 'doc-ok', { patientId: patient.id, uploadedBy: patient.id, fileName: 'x.pdf', category: 'Prescription', fileData: 'data:application/pdf;base64,JVBERi0=' })).status, 201);
-    assert.equal((await put(patientCookie, 'appointments', 'apt-notes', { ...base, notes: 'Temp > 38 since Monday, BP<120' })).status, 201, 'clinical free text keeps its symbols');
+    assert.equal((await put(patientCookie, 'appointments', 'apt-notes', { ...base, triageCaseId: routineCase.row.id, notes: 'Temp > 38 since Monday, BP<120' })).status, 201, 'clinical free text keeps its symbols');
 
     // The patient books on their phone; the doctor sees it on another device.
-    const appointment = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: '2026-11-02', time: '09:30', status: 'scheduled', notes: 'Cough for a week', mode: 'video' };
+    const appointment = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: '2026-11-02', time: '09:30', status: 'scheduled', notes: 'Cough for a week', mode: 'video', triageCaseId: routineCase.row.id };
     assert.equal((await put(patientCookie, 'appointments', 'apt-1', appointment)).status, 201);
-    assert.equal((await list(doctorCookie)).find(item => item.id === 'apt-1').data.notes, 'Cough for a week');
+    const doctorBooking = (await list(doctorCookie)).find(item => item.id === 'apt-1').data;
+    assert.equal(doctorBooking.notes, 'Cough for a week');
+    assert.equal(doctorBooking.triageCaseId, routineCase.row.id);
+    assert.match(doctorBooking.triageSummary, /mild concern and would like advice/i);
+    assert.equal(doctorBooking.triageLevel, 'routine');
+    assert.equal((await put(patientCookie, 'appointments', 'apt-1', { ...appointment, triageSummary: 'tampered handover' }, 1)).status, 403, 'the screening handover cannot be edited');
     // Another patient cannot book in someone else's name or see it.
     assert.equal((await put(otherCookie, 'appointments', 'apt-x', { ...appointment, patientId: patient.id })).status, 403);
     assert.equal((await list(otherCookie)).length, 0);
@@ -74,6 +92,9 @@ test('clinical records are shared between patient and care team on any device, w
     const afterAdmin = (await list(doctorCookie)).find(item => item.id === 'apt-1');
     assert.equal(afterAdmin.data.date, '2026-11-04');
     assert.equal(afterAdmin.data.notes, 'Cough for a week');
+
+    store.db.prepare('UPDATE triage_cases SET created_at=? WHERE id=?').run(new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), routineCase.row.id);
+    assert.equal((await put(patientCookie, 'appointments', 'apt-stale-triage', { ...base, triageCaseId: routineCase.row.id })).status, 400, 'a stale screen cannot authorize a new booking');
 
     // Doctor's report: only the doctor writes it in their own name; the patient reads it.
     assert.equal((await put(patientCookie, 'doctorReports', 'dr-1', { patientId: patient.id, doctorId: doctor.id, summary: 'x', plan: 'y' })).status, 403);

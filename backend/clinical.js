@@ -13,6 +13,7 @@ const express = require('express');
 const { filesConfigured } = require('./files');
 const { seal, unseal } = require('./records');
 const { contentProblem } = require('./clinical-rules');
+const { ensureTriageTable } = require('./triage');
 
 const MAX_RECORD = 6 * 1024 * 1024; // documents and lab results carry their file (5 MB max) as a data URL
 const id = z.string().regex(/^[A-Za-z0-9._:-]{1,100}$/);
@@ -24,7 +25,8 @@ const CLINICIANS = ['doctor', 'nurse'];
 // people: fields naming users who take part. patient: the patient the record is about.
 const COLLECTIONS = {
   appointments: { patient: 'patientId', people: ['patientId', 'doctorId', 'nurseId'], author: null, adminReads: true,
-    schema: z.object({ patientId: userId, doctorId: userId, nurseId: optionalUser, date: z.string().max(20), time: z.string().max(20), status: z.string().max(40) }).passthrough() },
+    schema: z.object({ patientId: userId, doctorId: userId, nurseId: optionalUser, date: z.string().max(20), time: z.string().max(20), status: z.string().max(40),
+      triageCaseId: z.string().max(100).optional(), triageLevel: z.enum(['routine']).optional(), triageSummary: z.string().max(8000).optional() }).passthrough() },
   messages: { patient: null, people: ['from', 'to'], author: 'from', immutable: true,
     schema: z.object({ from: userId, to: userId, text: z.string().min(1).max(4000) }).passthrough() },
   careNotes: { patient: 'patientId', people: ['nurseId'], author: 'nurseId', clinicianOnly: true,
@@ -46,7 +48,7 @@ const COLLECTIONS = {
 };
 
 // Free text the screens escape before display (see hx() in index.html): any characters are kept.
-const FREE_TEXT = new Set(['text', 'notes', 'summary', 'plan', 'reason', 'illness', 'comment', 'fileName', 'testType', 'location', 'symptoms', 'title', 'message', 'details', 'label', 'serviceName', 'specialtyNote']);
+const FREE_TEXT = new Set(['text', 'notes', 'summary', 'triageSummary', 'plan', 'reason', 'illness', 'comment', 'fileName', 'testType', 'location', 'symptoms', 'title', 'message', 'details', 'label', 'serviceName', 'specialtyNote']);
 // Embedded files: only real documents and pictures, never a script link (javascript:, data:text/html…).
 const FILE_DATA = /^data:(application\/pdf|image\/(png|jpeg|webp));base64,[A-Za-z0-9+/]+={0,2}$/;
 /** Every other text value must not carry markup, so no screen can be tricked into running it. */
@@ -94,6 +96,7 @@ function careTeam(store, actor) {
 
 function installClinicalRoutes(app, config, store, authenticated) {
   ensureClinicalTable(store);
+  ensureTriageTable(store);
   const context = (collection, recordId) => `clinical:${collection}:${recordId}`;
   const open = row => JSON.parse(unseal(config, context(row.collection, row.id), row).toString());
   const storage = (request, response, next) => filesConfigured(config) ? next() : response.status(503).json({ error: 'Encrypted record storage is not configured' });
@@ -140,6 +143,7 @@ function installClinicalRoutes(app, config, store, authenticated) {
     if (problem) return response.status(400).json({ error: problem });
     const previous = store.db.prepare('SELECT * FROM clinical_records WHERE collection=? AND id=?').get(collection, request.params.id);
     const actor = request.user, existing = store.db.prepare('SELECT * FROM clinical_records WHERE collection=? AND id=?').get(collection, request.params.id);
+    const existingData = existing ? open(existing) : null;
     const patientId = patientOf(store, collection, data);
     for (const person of peopleOf(collection, data)) if (!store.user(person) || store.user(person).status === 'deleted') return response.status(400).json({ error: 'A person named in this record does not exist' });
     if (patientId && store.user(patientId)?.role !== 'patient') return response.status(400).json({ error: 'The record must be about a patient' });
@@ -159,7 +163,7 @@ function installClinicalRoutes(app, config, store, authenticated) {
       else if (actor.role === 'patient' && patientId && patientId !== actor.id) return refuse('You can only create records about yourself');
       if (collection === 'messages' && !store.visibleUsers(actor).some(user => user.id === data.to)) return refuse('You cannot message this person');
     } else {
-      const current = open(existing);
+      const current = existingData;
       // Checked before anything about the record is returned, so a refused writer learns nothing.
       if (!canRead(actor, collection, existing, current, careTeamPatients(actor))) return response.sendStatus(404);
       if (existing.version !== input.baseVersion) return response.status(409).json({ error: 'Someone else changed this record. The latest version is shown.', current: view(actor, existing, current) });
@@ -169,8 +173,25 @@ function installClinicalRoutes(app, config, store, authenticated) {
       if (actor.role === 'admin' && collection !== 'appointments') return refuse('Administrators cannot change clinical records');
       // Who the record is about and who wrote it never change.
       for (const field of [rule.patient, rule.author].filter(Boolean)) if (data[field] !== current[field]) return refuse(`${field} cannot be changed`);
+      if (collection === 'appointments') {
+        const switchingToRemote = current.mode === 'in_person' && data.mode !== 'in_person';
+        const triageFields = ['triageCaseId', 'triageLevel', 'triageSummary'];
+        if (!switchingToRemote && triageFields.some(field => data[field] !== undefined && data[field] !== current[field])) return refuse('The SLY handover cannot be changed');
+        if (!switchingToRemote) data = { ...current, ...data };
+      }
       if (rule.releaseField && actor.id === current.patientId) return refuse('Patients cannot change lab results');
       if (rule.releaseField && data.status !== current.status && actor.id !== current.specialistDoctorId) return refuse('Only the specialist can open or release a result');
+    }
+    if ((!existing || existingData?.mode === 'in_person') && actor.role === 'patient' && collection === 'appointments' && data.mode !== 'in_person') {
+      const triageCase = data.triageCaseId && store.db.prepare('SELECT * FROM triage_cases WHERE id=?').get(data.triageCaseId);
+      if (!triageCase || triageCase.patient_id !== actor.id) return response.status(400).json({ error: 'Complete SLY’s symptom check before booking a remote consultation' });
+      const age = Date.now() - Date.parse(triageCase.created_at);
+      if (age < 0 || age > 24 * 60 * 60 * 1000) return response.status(400).json({ error: 'Complete a new SLY symptom check before booking a remote consultation' });
+      const triageLevel = triageCase.final_level || triageCase.level;
+      if (triageLevel !== 'routine') return response.status(400).json({ error: 'SLY recommends prompt in-person assessment; remote booking is not available for this symptom check' });
+      const triage = JSON.parse(unseal(config, `triage-case:${triageCase.id}`, triageCase).toString());
+      if (!triage.rulesSummary) return response.status(400).json({ error: 'The SLY handover is unavailable; complete the symptom check again' });
+      data = { ...data, triageCaseId: triageCase.id, triageLevel, triageSummary: triage.rulesSummary };
     }
     // What the record says must make sense (dates, people in the right roles, nothing empty by mistake).
     const mistake = contentProblem(store, collection, data, previous ? open(previous) : null)

@@ -78,14 +78,22 @@ These features do not replace legal review: data-protection authorisation, the D
 ## SLY Triage (symptom check and clinician handover)
 
 Patients open **Check my symptoms** (sidebar, or the Urgent Help tile). Four short steps: who is unwell and
-their age group (and pregnancy), the problems (plus optional own words), the danger signs for that person, and
-how long and how bad. An emergency sign ends the questions at once.
+their age group (and pregnancy), the problems and a required description in their own words, the danger signs
+for that person, and how long and how bad. An emergency sign ends the questions at once. Patients must complete
+this SLY screening before booking a remote consultation. Only a routine result can continue to booking; urgent
+or emergency results direct the patient to in-person or emergency care instead.
 
 - **The rules decide, not the AI.** `hfa-triage.js` (shared by the site, the server and later the WhatsApp bot)
   applies WHO IMCI general danger signs and young-infant signs, WHO danger signs in pregnancy, adult red flags,
   same-day malaria testing for fever, and TB screening for a cough of 2 weeks or more. Levels: emergency, urgent
   (today), routine, self-care (only for healthy, non-pregnant adults with a mild, recent, low-risk problem).
   Every case stores `RULES_VERSION`. **A clinician must review these rules before real patients use them.**
+- **Booking handover and limits.** A routine screen allows a patient to request a video, voice or chat consultation.
+  The appointment carries the encrypted screening summary and case reference for the doctor. The server verifies
+  that the case belongs to the patient, is less than 24 hours old, and remains routine. Urgent cases advise
+  in-person assessment today; emergencies retain direct emergency advice. SLY cannot determine that a physical
+  examination is definitely unnecessary: the doctor makes that decision during care and may ask the patient to
+  attend in person. AI reading of the patient's words remains optional and requires separate consent.
 - The result appears on the device immediately (works offline, and without an account on the public website).
   Emergency contacts come from the selected account or country selector: Cameroon uses the confirmed `1515`
   emergency contact; Nigeria and unknown countries show no guessed number and direct people to local emergency

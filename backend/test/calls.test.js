@@ -3,6 +3,8 @@ const assert = require('node:assert/strict');
 const { Store, hashPassword } = require('../store');
 const { createApp } = require('../server');
 const { iceServers } = require('../calls');
+const { submitCase } = require('../triage');
+const { randomUUID } = require('node:crypto');
 
 const config = { origin: 'http://localhost:8080', ready: false, fileEncryptionKey: '2d'.repeat(32) };
 
@@ -27,11 +29,15 @@ test('only the two people of a booked voice or video appointment can connect, an
     const make = async (role, email) => store.createUser({ name: `Synthetic ${role}`, email, role, profile: { hospital: 'Synthetic Call Hospital' } }, await hashPassword('Synthetic-pass-123'), 'active');
     const doctor = await make('doctor', 'call-doc@example.invalid'), patient = await make('patient', 'call-pat@example.invalid'), other = await make('patient', 'call-other@example.invalid');
     store.updateUser(patient.id, { assignedDoctor: doctor.id });
+    const triageCase = await submitCase(config, store, patient, {
+      requestId: randomUUID(), answers: { ageGroup: 'adult', complaints: ['other'], dangerSigns: [], duration: 'days_1_2', severity: 'mild' },
+      text: 'I have a mild concern and would like advice.', aiConsent: false
+    });
     const login = async email => cookieOf(await app.request('/api/auth/login', { email, password: 'Synthetic-pass-123' }));
     const [doctorCookie, patientCookie, otherCookie] = await Promise.all(['call-doc@example.invalid', 'call-pat@example.invalid', 'call-other@example.invalid'].map(login));
     const book = async (id, minutesFromNow, mode = 'video') => {
       const when = cameroon(minutesFromNow);
-      return app.request(`/api/v1/clinical/appointments/${id}`, { data: { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: when.slice(0, 10), time: when.slice(11, 16), durationMinutes: 30, mode, status: 'scheduled' }, baseVersion: 0 }, patientCookie, 'PUT');
+      return app.request(`/api/v1/clinical/appointments/${id}`, { data: { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: when.slice(0, 10), time: when.slice(11, 16), durationMinutes: 30, mode, status: 'scheduled', triageCaseId: triageCase.row.id }, baseVersion: 0 }, patientCookie, 'PUT');
     };
     assert.equal((await book('apt-now', -5)).status, 201);
     assert.equal((await book('apt-later', 180)).status, 201);

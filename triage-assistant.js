@@ -14,12 +14,17 @@
     st_start: 'Start', st_next: 'Next', st_back: 'Back', st_see_result: 'See my result', st_step: 'Step {n} of 4',
     st_who: 'Who is unwell?', st_who_me: 'Me', st_who_child: 'My child', st_who_other: 'Someone else', st_age: 'Age', st_sex: 'Sex', st_male: 'Male', st_female: 'Female',
     st_maternal: 'Pregnancy', st_problems: 'What is the problem?', st_problems_hint: 'Choose all that apply.',
-    st_words: 'Tell us in your own words (optional)', st_words_ph: 'For example: fever since yesterday, headache, vomited twice this morning…',
+    st_words: 'Describe what is bothering you in your own words', st_words_ph: 'For example: fever since yesterday, headache, vomited twice this morning…',
     st_ai_consent: 'Let SLY’s AI read my words to help my care team. Names, phone numbers and ID numbers are removed first. My words may be processed by Anthropic (Claude) outside your country.',
     st_signs: 'Is any of this happening now?', st_signs_hint: 'Tick every one that is true. If none, choose “None of these”.', st_none: 'None of these',
     st_how_long: 'How long has it lasted?', st_how_bad: 'How bad is it?',
     st_pick_age: 'Choose the age group.', st_pick_problem: 'Choose at least one problem.', st_pick_signs: 'Tick the signs that are true, or choose “None of these”.', st_pick_duration: 'Choose how long and how bad.',
     st_result: 'Your result', st_why: 'Why', st_what_now: 'What to do now', st_book_urgent: 'Book an urgent consultation', st_book: 'Book a consultation', st_selfcare_tips: 'Self-care tips',
+    st_booking_intro: 'Before booking, complete SLY’s symptom check and describe what is bothering you. SLY applies clinical safety rules; AI reading of your words is optional and only runs with your consent. This is not a diagnosis and cannot prove that an examination is unnecessary. Your doctor may still ask to see you in person.',
+    st_describe_required: 'Please choose at least one problem and describe what is bothering you so SLY can prepare your doctor.',
+    st_physical_needed: 'SLY recommends prompt in-person assessment. Please go to a health centre today rather than booking a remote consultation.',
+    st_remote_limit: 'SLY found no urgent warning signs in your answers. You may request a remote consultation; this does not rule out the need for a physical examination. Your doctor will decide.',
+    st_offline_booking: 'Remote consultations cannot be booked while offline. Reconnect and complete SLY’s check before booking.',
     st_sent: 'Sent to your care team. A nurse or doctor will review it.', st_sending: 'Sending to your care team…', st_not_sent: 'Could not reach your care team: {error}. Follow the advice above. If it is an emergency, contact local emergency services or go to the nearest hospital.',
     st_updated: 'Updated after SLY read your words.', st_ai_used: 'AI helped read your words.', st_history: 'My symptom checks', st_no_history: 'No symptom checks yet.',
     st_public_intro: 'No account needed. Answer a few questions and SLY tells you how soon to get care. Your answers stay on this screen and are not sent or kept.',
@@ -38,12 +43,17 @@
     st_start: 'Commencer', st_next: 'Suivant', st_back: 'Retour', st_see_result: 'Voir mon résultat', st_step: 'Étape {n} sur 4',
     st_who: 'Qui est malade ?', st_who_me: 'Moi', st_who_child: 'Mon enfant', st_who_other: 'Une autre personne', st_age: 'Âge', st_sex: 'Sexe', st_male: 'Homme', st_female: 'Femme',
     st_maternal: 'Grossesse', st_problems: 'Quel est le problème ?', st_problems_hint: 'Choisissez tout ce qui s’applique.',
-    st_words: 'Expliquez avec vos mots (facultatif)', st_words_ph: 'Par exemple : fièvre depuis hier, mal de tête, a vomi deux fois ce matin…',
+    st_words: 'Décrivez ce qui vous gêne avec vos mots', st_words_ph: 'Par exemple : fièvre depuis hier, mal de tête, a vomi deux fois ce matin…',
     st_ai_consent: 'Laisser l’IA de SLY lire mes mots pour aider mon équipe de soins. Les noms, numéros de téléphone et d’identité sont retirés avant. Mes mots peuvent être traités par Anthropic (Claude) hors de votre pays.',
     st_signs: 'L’un de ces signes est-il présent maintenant ?', st_signs_hint: 'Cochez tous ceux qui sont vrais. Sinon, choisissez « Aucun de ces signes ».', st_none: 'Aucun de ces signes',
     st_how_long: 'Depuis combien de temps ?', st_how_bad: 'Quelle intensité ?',
-    st_pick_age: 'Choisissez la tranche d’âge.', st_pick_problem: 'Choisissez au moins un problème.', st_pick_signs: 'Cochez les signes présents ou choisissez « Aucun de ces signes ».', st_pick_duration: 'Choisissez la durée et l’intensité.',
+    st_pick_age: 'Choisissez la tranche d’âge.', st_pick_problem: 'Choisissez au moins un problème et décrivez-le avec vos mots.', st_pick_signs: 'Cochez les signes présents ou choisissez « Aucun de ces signes ».', st_pick_duration: 'Choisissez la durée et l’intensité.',
     st_result: 'Votre résultat', st_why: 'Pourquoi', st_what_now: 'Que faire maintenant', st_book_urgent: 'Réserver une consultation urgente', st_book: 'Réserver une consultation', st_selfcare_tips: 'Conseils de soins',
+    st_booking_intro: 'Avant de réserver, répondez au questionnaire de symptômes de SLY et décrivez votre problème. SLY applique des règles de sécurité clinique ; l’analyse de vos mots par l’IA est facultative et nécessite votre consentement. Ce n’est pas un diagnostic et cela ne peut pas prouver qu’un examen n’est pas nécessaire. Votre médecin peut tout de même vous demander de venir en personne.',
+    st_describe_required: 'Choisissez au moins un problème et décrivez ce qui vous gêne afin que SLY prépare les informations pour votre médecin.',
+    st_physical_needed: 'SLY recommande une évaluation en personne rapidement. Rendez-vous aujourd’hui dans un centre de santé au lieu de réserver une consultation à distance.',
+    st_remote_limit: 'Les réponses ne révèlent pas de signe d’alerte urgent. Vous pouvez demander une consultation à distance ; cela n’exclut pas un examen physique. Votre médecin en décidera.',
+    st_offline_booking: 'Les consultations à distance ne peuvent pas être réservées hors ligne. Reconnectez-vous et terminez le contrôle de SLY avant de réserver.',
     st_sent: 'Envoyé à votre équipe de soins. Un infirmier ou un médecin va le vérifier.', st_sending: 'Envoi à votre équipe de soins…', st_not_sent: 'Impossible de joindre votre équipe de soins : {error}. Suivez le conseil ci-dessus. En cas d’urgence, contactez les services locaux ou rendez-vous à l’hôpital le plus proche.',
     st_updated: 'Mis à jour après la lecture de vos mots par SLY.', st_ai_used: 'L’IA a aidé à lire vos mots.', st_history: 'Mes vérifications de symptômes', st_no_history: 'Aucune vérification pour l’instant.',
     st_public_intro: 'Pas besoin de compte. Répondez à quelques questions et SLY vous dit dans quel délai consulter. Vos réponses restent sur cet écran et ne sont ni envoyées ni conservées.',
@@ -117,6 +127,7 @@
     $('tbt').textContent = t('st_nav');
     if (!S) S = fresh();
     pc.innerHTML = `<div class="page"><div class="ph"><h2>${esc(t('st_title'))}</h2><p>${esc(t('st_intro'))}</p></div>
+      <div class="alt ai mb18">${esc(t('st_booking_intro'))}</div>
       <div class="st-emergency" role="note"><span>🚨 ${esc(t('st_emergency_now'))} ${esc(TR.emergencyAdvice({ emergencyNumber: currentEmergencyNumber() }, LANG))}</span>${callButton(currentEmergencyNumber())}</div>
       <div class="card mb18" id="st-card" aria-live="polite"></div>
       <div class="card"><div class="ch"><div class="ct">${esc(t('st_history'))}</div></div><div id="st-history"><p class="mu sm">…</p></div></div></div>`;
@@ -136,7 +147,7 @@
       ${TR.asksMaternal(S) ? `<div class="st-q">${esc(t('st_maternal'))}</div>${single('maternal', TR.MATERNAL, S.maternal, value => L('maternal_' + value))}` : ''}${nav(false, true)}`;
     if (S.step === 2) body = `${progress(2)}<div class="st-q">${esc(t('st_problems'))}</div><p class="st-hint">${esc(t('st_problems_hint'))}</p>
       <div class="st-chips">${TR.COMPLAINTS.map(item => chip(`data-complaint="${item}"`, L('c_' + item), S.complaints.includes(item))).join('')}</div>
-      <div class="fg"><label class="fl" for="st-words">${esc(t('st_words'))}</label><textarea class="fc" id="st-words" rows="3" maxlength="2000" placeholder="${esc(t('st_words_ph'))}">${esc(S.text)}</textarea></div>
+      <div class="fg"><label class="fl" for="st-words">${esc(t('st_words'))} *</label><textarea class="fc" id="st-words" rows="3" maxlength="2000" required placeholder="${esc(t('st_words_ph'))}">${esc(S.text)}</textarea></div>
       ${backend() && ApiState.aiTriage ? `<label class="st-consent"><input type="checkbox" id="st-ai" ${S.aiConsent ? 'checked' : ''}><span>${esc(t('st_ai_consent'))}</span></label>` : ''}${nav(true, true)}`;
     if (S.step === 3) {
       const signs = TR.signsFor(S);
@@ -164,7 +175,7 @@
     keepWords();
     if (direction === 'back') { S.step = Math.max(0, S.step - 1); return paintStep(); }
     if (S.step === 1 && !S.ageGroup) return paintStep(t('st_pick_age'));
-    if (S.step === 2 && !S.complaints.length && !S.text.trim()) return paintStep(t('st_pick_problem'));
+    if (S.step === 2 && (!S.complaints.length || !S.text.trim())) return paintStep(t('st_describe_required'));
     if (S.step === 2 && /[<>]/.test(S.text)) return paintStep(t('st_pick_problem'));
     if (S.step === 3) {
       // Signs must be signs for this person: drop any left over from changed answers.
@@ -180,17 +191,18 @@
   const answersOf = () => ({ ageGroup: S.ageGroup, ...(S.sex ? { sex: S.sex } : {}), maternal: S.maternal, complaints: S.complaints, dangerSigns: S.dangerSigns,
     ...(S.duration ? { duration: S.duration } : {}), ...(S.severity ? { severity: S.severity } : {}), forSomeoneElse: S.who !== 'me' });
 
-  function resultCard(result, note = '') {
+  function resultCard(result, note = '', bookingCaseId = null) {
     const level = result.level, crisis = result.answers?.dangerSigns?.includes('suicidal') || (result.reasons || []).some(reason => reason.rule === 'sign_suicidal');
     const signedIn = typeof CU !== 'undefined' && !!CU;
     const actions = level === 'emergency' ? callButton(result.emergencyNumber)
       : !signedIn ? (level === 'self_care' ? `<button type="button" class="btn bp" onclick="goFreeHub()">${esc(t('st_selfcare_tips'))}</button>` : '')
-      : level === 'urgent' ? `<button type="button" class="btn bp" onclick="showBookApt('URGENT-TRIAGE')">${esc(t('st_book_urgent'))}</button>`
-      : level === 'routine' ? `<button type="button" class="btn bp" onclick="showBookApt()">${esc(t('st_book'))}</button>`
+      : level === 'urgent' ? ''
+      : level === 'routine' ? (bookingCaseId ? `<button type="button" class="btn bp" onclick="showBookApt('${esc(bookingServiceCode || 'PC-VIRTUAL')}','${esc(bookingCaseId)}')">${esc(t('st_book'))}</button>` : '')
       : `<button type="button" class="btn bp" onclick="navigate('freehub')">${esc(t('st_selfcare_tips'))}</button>`;
+    const remoteNote = level === 'routine' && bookingCaseId ? `<p class="mu sm">${esc(t('st_remote_limit'))}</p>` : level === 'urgent' ? `<p class="triage-alert mt8">${esc(t('st_physical_needed'))}</p>` : '';
     return `<div class="st-result st-l-${esc(level)}" role="status"><p class="sm">${esc(t('st_result'))}</p><h3>${esc(L('level_' + level))}</h3><p>${esc(level === 'emergency' ? TR.emergencyAdvice(result, LANG) : L('advice_' + level))}</p></div>
       ${crisis ? `<div class="st-emergency">${esc(L('crisis'))}</div>` : ''}
-      <div class="pc-actions">${actions}${level === 'emergency' && !crisis ? `<button type="button" class="btn bs" onclick="HFAAmbulance.findNearest()">${esc(t('ab_find_nearest'))}</button>` : ''}<button type="button" class="btn bs" id="st-again">${esc(t('st_again'))}</button></div>
+      ${remoteNote}<div class="pc-actions">${actions}${level === 'emergency' && !crisis ? `<button type="button" class="btn bs" onclick="HFAAmbulance.findNearest()">${esc(t('ab_find_nearest'))}</button>` : ''}<button type="button" class="btn bs" id="st-again">${esc(t('st_again'))}</button></div>
       ${level === 'emergency' && !crisis ? '<section id="st-ambulance-panel" class="st-ambulance-panel" aria-live="polite"></section>' : ''}
       <div class="st-q mt18">${esc(t('st_why'))}</div><ul class="st-reasons">${(result.reasons || []).map(reason => `<li>${esc(TR.reasonText(reason, LANG))}</li>`).join('')}</ul>
       <p class="mu sm">${esc(t('st_not_diagnosis'))}</p><div id="st-status" class="mt8">${note}</div>`;
@@ -217,17 +229,27 @@
         const server = response.data.case;
         // The server may know more (the patient's words); it can only raise the level shown.
         const raised = TR.rank(server.level) > TR.rank(local.level);
-        if (raised && $('st-card')) { $('st-card').innerHTML = resultCard({ ...server, emergencyNumber: local.emergencyNumber }); $('st-again').onclick = again; }
-        status(`<div class="alt ao" role="status">${raised ? esc(t('st_updated')) + ' ' : ''}${esc(t('st_sent'))}${response.data.aiUsed ? ' ' + esc(t('st_ai_used')) : ''}</div>`);
+        const summary = TR.clinicianSummary(server, { text: submitted.text.trim(), health: CU.healthProfile });
+        if (server.level === 'routine') BOOKABLE_CASES.set(server.id, { id: server.id, level: server.level, summary, createdAt: server.createdAt });
+        if ($('st-card')) {
+          $('st-card').innerHTML = resultCard({ ...server, emergencyNumber: local.emergencyNumber },
+            `<div class="alt ao" role="status">${raised ? esc(t('st_updated')) + ' ' : ''}${esc(t('st_sent'))}${response.data.aiUsed ? ' ' + esc(t('st_ai_used')) : ''}</div>`,
+            server.level === 'routine' ? server.id : null);
+          $('st-again').onclick = again;
+        }
       } else {
         const item = { id: 'tr' + Date.now(), patientId: CU.id, level: local.level, priority: local.level, status: 'awaiting_review', answers: local.answers, reasons: local.reasons,
           checkedNegative: local.checkedNegative, rulesVersion: local.rulesVersion, text: submitted.text.trim(), rulesSummary: TR.clinicianSummary(local, { text: submitted.text.trim(), health: CU.healthProfile }), rulesSummaryFr: TR.clinicianSummary(local, { text: submitted.text.trim(), health: CU.healthProfile, language: 'fr' }),
           symptoms: [...local.answers.complaints.map(item => L('c_' + item)), submitted.text.trim()].filter(Boolean).join(', '), location: '', createdAt: new Date().toISOString() };
         DB.triageCases.unshift(item);
+        if (local.level === 'routine') BOOKABLE_CASES.set(item.id, { id: item.id, level: item.level, summary: item.rulesSummary, createdAt: item.createdAt });
         for (const clinicianId of [CU.assignedDoctor, CU.assignedNurse].filter(Boolean)) if (typeof notifyUser === 'function') notifyUser(clinicianId, local.level === 'emergency' ? 'Emergency triage needs your review now.' : 'A new symptom check needs your review.', 'Urgent Care');
         if (typeof notifyPatientActivity === 'function') notifyPatientActivity(CU.id, 'Urgent Care');
         log('SUBMIT_TRIAGE', `Urgent Care · ${local.level}`);
-        status(`<div class="alt ao" role="status">${esc(t('st_sent'))}</div>`);
+        if ($('st-card')) {
+          $('st-card').innerHTML = resultCard(local, `<div class="alt ao" role="status">${esc(t('st_sent'))}</div>`, local.level === 'routine' ? item.id : null);
+          $('st-again').onclick = again;
+        }
       }
       paintHistory();
     } catch (error) {
@@ -265,6 +287,20 @@
   }
 
   let QUEUE = new Map();
+  let bookingServiceCode = null;
+  const BOOKABLE_CASES = new Map();
+  function startBooking(serviceCode = 'PC-VIRTUAL') {
+    bookingServiceCode = serviceCode;
+    S = fresh();
+    closeMo();
+    navigate('triage');
+  }
+  function assessmentForBooking(caseId) {
+    const item = BOOKABLE_CASES.get(caseId);
+    if (!item || item.level !== 'routine') return null;
+    const age = Date.now() - Date.parse(item.createdAt);
+    return age >= 0 && age <= 24 * 60 * 60 * 1000 ? item : null;
+  }
   async function renderQueue(pc) {
     $('tbt').textContent = t('tq_title');
     pc.innerHTML = `<div class="page"><div class="ph"><h2>${esc(t('tq_title'))}</h2><p>${esc(t('tq_intro'))}</p></div><div id="tq-body"><div class="card"><p class="mu sm">…</p></div></div></div>`;
@@ -383,5 +419,5 @@
   // The old urgent-help form asked patients to choose their own urgency; every entry point now opens SLY.
   window.showTriage = () => { closeMo(); S = null; navigate('triage'); };
   window.renderTriageQueue = renderQueue;
-  window.HFATriageUI = { renderPatient, renderQueue, ageGroupOf, openPublic, openEmergency, repaintPublic, keepWords: () => { if (S) keepWords(); } };
+  window.HFATriageUI = { renderPatient, renderQueue, ageGroupOf, openPublic, openEmergency, repaintPublic, startBooking, assessmentForBooking, keepWords: () => { if (S) keepWords(); } };
 })();

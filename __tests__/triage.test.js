@@ -25,6 +25,21 @@ describe('SLY Triage', () => {
     expect(screens).not.toMatch(/id="triage-level"/);
   });
 
+  test('remote booking requires a recent routine SLY screening and hands its summary to the doctor', () => {
+    const screens = read('triage-assistant.js');
+    const page = read('index.html');
+    const clinical = read('backend/clinical.js');
+    expect(screens).toContain('assessmentForBooking');
+    expect(screens).toContain('st_describe_required');
+    expect(screens).toContain('st_remote_limit');
+    expect(screens).toContain("level === 'urgent' ? ''");
+    expect(page).toContain('window.HFATriageUI?.startBooking(serviceCode)');
+    expect(page).toContain('triageCaseId:BOOKING_TRIAGE?.id');
+    expect(page).toContain('a.triageSummary');
+    expect(clinical).toContain('Complete SLY’s symptom check before booking a remote consultation');
+    expect(clinical).toContain('triageLevel, triageSummary: triage.rulesSummary');
+  });
+
   test('emergency contact advice uses the selected country profile and never guesses a number', () => {
     const answers = { ageGroup: 'adult', complaints: ['pain_chest'], dangerSigns: ['chest_pain'] };
     const cameroon = Triage.assess(answers, 'CM');

@@ -1027,7 +1027,8 @@ describe('index.html sanity checks', () => {
       const context = {
         $:id=>fields[id], t:key=>key, G:()=>({assignedNurse:'nur1'}),
         notifyPatientActivity:jest.fn(),
-        CU:{id:'pat1',role:'patient',assignedDoctor:null}, BOOKDOC:'doc1', APTMODE:'video', APTSERVICE:'PC-VIRTUAL', CP:'appointments',
+        CU:{id:'pat1',role:'patient',assignedDoctor:null}, BOOKDOC:'doc1', APTMODE:'video', APTSERVICE:'PC-VIRTUAL',
+        BOOKING_TRIAGE:{id:'triage-case-1',level:'routine',summary:'SLY screening summary'}, CP:'appointments',
         DB:{appointments:[]}, VIRTUAL_SERVICES:[{code:'PC-VIRTUAL',name:'Virtual primary care'}],
         Date:class extends Date { static now() { return new Date('2030-01-01T00:00').getTime(); } },
         log:jest.fn(), closeMo:jest.fn(), navigate:jest.fn(),

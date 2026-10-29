@@ -2749,6 +2749,7 @@ let RROLE = 'patient';
 let APTMODE = 'video';
 let APTSERVICE = 'PC-VIRTUAL';
 let BOOKDOC = null;
+let BOOKING_TRIAGE = null;
 let VOICE_MUT = false;
 let VOICE_SPK = true;
 let VCI2 = null;
@@ -3548,6 +3549,7 @@ function aptCard(a) {
       <div class="ain">${who}</div>
       <div class="ame">${a.time} · ${a.durationMinutes||30} ${t('minutes_short')} · ${tv(a.serviceName||a.type)} · ${a.mode==='video'?t('video_call'):a.mode==='voice'?t('voice_call'):t('text_chat')}</div>
       ${a.notes ? `<div class="ame">${hx(a.notes)}</div>` : ''}
+      ${a.triageSummary ? `<div class="alt ai mt8"><strong>SLY pre-consult assessment (not a diagnosis):</strong><div class="st-pre">${hx(a.triageSummary)}</div></div>` : ''}
       ${report ? `<div class="ame"><strong>${t('doctor_report')}:</strong> ${hx(report.summary)}</div>` : ''}
     </div>
     <div class="aac">
@@ -5246,8 +5248,13 @@ function saveApt() {
   log('CREATE_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
 
-function showBookApt(serviceCode='PC-VIRTUAL') {
+function showBookApt(serviceCode='PC-VIRTUAL', triageCaseId=null) {
   if (CU?.role==='patient' && typeof HFACompletion!=='undefined' && !HFACompletion.require('book')) return;
+  if (CU?.role==='patient') {
+    const assessment = triageCaseId && window.HFATriageUI?.assessmentForBooking(triageCaseId);
+    if (!assessment) return window.HFATriageUI?.startBooking(serviceCode);
+    BOOKING_TRIAGE = assessment;
+  } else BOOKING_TRIAGE = null;
   const myDoc=G(CU.assignedDoctor);
   const referral=activeSpecialistReferral(CU.id), mySpec=referral?.status==='accepted'?G(referral.specialistDoctorId):null;
   const docs=DB.users.filter(u=>u.role==='doctor'&&u.status==='active');
@@ -5286,12 +5293,21 @@ function setAptMode(m) {
 }
 function saveBooking() {
   const date=$('bk-d').value, time=$('bk-t2').value, durationMinutes=Number($('bk-duration').value);
+  if (CU?.role==='patient' && typeof ApiState!=='undefined' && ApiState.offline) {
+    $('bk-error').textContent=t('st_offline_booking');
+    return;
+  }
+  if (CU?.role==='patient' && (!BOOKING_TRIAGE || BOOKING_TRIAGE.level!=='routine')) {
+    $('bk-error').textContent='Complete SLY’s symptom check before booking a remote consultation.';
+    return;
+  }
   const docId=BOOKDOC||CU.assignedDoctor;
   const error=appointmentScheduleError(CU.id,docId,date,time,durationMinutes);
   if (error) { $('bk-error').textContent=error; return; }
   if(!CU.assignedDoctor){ CU.assignedDoctor=docId; }
   const service=VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
-  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:docId,nurseId:CU.assignedNurse||'',date,time,durationMinutes,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,status:'scheduled'});
+  DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:docId,nurseId:CU.assignedNurse||'',date,time,durationMinutes,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,triageCaseId:BOOKING_TRIAGE?.id,triageSummary:BOOKING_TRIAGE?.summary,status:'scheduled'});
+  BOOKING_TRIAGE = null;
   notifyPatientActivity(CU.id,'Appointments');
   log('BOOK_APPOINTMENT','Appointments'); closeMo(); navigate(CP);
 }
