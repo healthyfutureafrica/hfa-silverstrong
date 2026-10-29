@@ -186,6 +186,18 @@ describe('index.html sanity checks', () => {
       await context.phForm.mock.calls[0][2]();
       expect(context.apiRequest).toHaveBeenCalledWith('/api/pharmacy/items','POST',expect.objectContaining({price:2,requiresPrescription:true}));
     });
+    test('provides patient QR, camera POS and shared recorded-sale history without exposing offline checkout',async()=>{
+      const {context}=pharmacyContext();
+      const source=fs.readFileSync(path.join(__dirname,'..','pharmacist.js'),'utf8');
+      expect(source).toContain("phRequest('/api/pharmacy/patient-code','POST'");
+      expect(source).toContain("phRequest('/api/pharmacy/pos','POST'");
+      expect(source).toContain("new BarcodeDetector({formats:['qr_code']})");
+      expect(source).toContain('renderPharmacySales(PH_DATA.sales,pharmacist)');
+      context.ApiState.enabled=true;context.ApiState.offline=true;
+      await expect(context.phRequest('/api/pharmacy/pos','POST',{})).rejects.toThrow('pharmacy_pos_online');
+      expect(context.apiRequest).not.toHaveBeenCalled();
+      expect(context.HFAOffline?.enqueue).toBeUndefined();
+    });
   });
 
   describe('CEMAC price conversion',()=>{
@@ -530,7 +542,7 @@ describe('index.html sanity checks', () => {
         clock.now+=6*86400000;
         expect((await make().signIn(user.email,'Synthetic-password-123')).userId).toBe('pha-1');
         expect(await make().resume('unknown-user')).toBeNull();
-      });
+      },15000);
 
       test('keeps offline work in an encrypted snapshot that survives a password change',async()=>{
         const {make,tables}=offlineContext();

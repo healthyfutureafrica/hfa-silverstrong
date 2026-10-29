@@ -5,19 +5,22 @@ const PH_COPY={
 Object.assign(T.en,PH_COPY.en);Object.assign(T.fr,PH_COPY.fr);
 Object.assign(T.en,{pharmacy_medication:'Medication name',pharmacy_total:'Purchase total'});
 Object.assign(T.fr,{pharmacy_medication:'Nom du médicament',pharmacy_total:'Total de la demande'});
+Object.assign(T.en,{pharmacy_patient_qr:'My pharmacy QR',pharmacy_patient_qr_intro:'Show this one-use QR code to a validated pharmacy at checkout. It expires in five minutes and records the sale in your pharmacy history.',pharmacy_show_qr:'Show a checkout QR code',pharmacy_qr_expiry:'Expires at',pharmacy_qr_loading:'Creating secure QR code…',pharmacy_qr_error:'Could not create a checkout QR code. Reconnect and try again.',pharmacy_pos:'Record point-of-sale sale',pharmacy_pos_scan:'Start camera QR scan',pharmacy_pos_scan_start:'Point the camera at the patient’s HFA pharmacy QR code.',pharmacy_pos_scan_unsupported:'Camera scanning is unavailable here. Connect a QR scanner or paste the scanned code.',pharmacy_pos_scan_error:'Could not start camera scanning. Check camera permission or enter a scanned code.',pharmacy_pos_patient_code:'Patient QR code',pharmacy_pos_pick_items:'Select products and quantities',pharmacy_pos_review_rx:'I checked the original prescription for each prescription-required item.',pharmacy_pos_not_payment:'This records the sale only. It does not process or confirm payment; use your approved pharmacy payment method.',pharmacy_pos_save:'Record sale',pharmacy_pos_saved:'Sale recorded in the patient and pharmacy profiles. Payment was not processed or confirmed.',pharmacy_pos_online:'Point-of-sale recording requires a live connection to the HFA server. No sale has been recorded.',pharmacy_pos_complete:'Scan the patient QR code and select at least one valid product quantity.',pharmacy_pos_history:'Point-of-sale history',pharmacy_no_sales:'No point-of-sale sales yet.',pharmacy_sale_recorded:'Recorded',pharmacy_sale_patient:'Patient',pharmacy_sale_pharmacy:'Pharmacy',pharmacy_sale_items:'Products'});
+Object.assign(T.fr,{pharmacy_patient_qr:'Mon QR pharmacie',pharmacy_patient_qr_intro:'Présentez ce QR code à usage unique à une pharmacie validée lors du paiement. Il expire dans cinq minutes et enregistre la vente dans votre historique pharmacie.',pharmacy_show_qr:'Afficher un QR code de paiement',pharmacy_qr_expiry:'Expire à',pharmacy_qr_loading:'Création du QR code sécurisé…',pharmacy_qr_error:'Impossible de créer le QR code. Reconnectez-vous et réessayez.',pharmacy_pos:'Enregistrer une vente au comptoir',pharmacy_pos_scan:'Démarrer le scan caméra',pharmacy_pos_scan_start:'Pointez la caméra vers le QR pharmacie HFA du patient.',pharmacy_pos_scan_unsupported:'Le scan caméra n’est pas disponible. Connectez un lecteur QR ou collez le code scanné.',pharmacy_pos_scan_error:'Impossible de démarrer le scan. Vérifiez l’autorisation caméra ou saisissez le code scanné.',pharmacy_pos_patient_code:'QR code du patient',pharmacy_pos_pick_items:'Choisir les produits et les quantités',pharmacy_pos_review_rx:'J’ai vérifié l’ordonnance originale pour chaque produit soumis à ordonnance.',pharmacy_pos_not_payment:'Cela enregistre uniquement la vente. Le paiement n’est ni traité ni confirmé ; utilisez le mode de paiement approuvé de la pharmacie.',pharmacy_pos_save:'Enregistrer la vente',pharmacy_pos_saved:'Vente enregistrée dans les profils du patient et de la pharmacie. Le paiement n’a pas été traité ni confirmé.',pharmacy_pos_online:'Une connexion au serveur HFA est requise pour enregistrer une vente. Aucune vente n’a été enregistrée.',pharmacy_pos_complete:'Scannez le QR du patient et sélectionnez au moins une quantité valide.',pharmacy_pos_history:'Historique des ventes au comptoir',pharmacy_no_sales:'Aucune vente au comptoir pour le moment.',pharmacy_sale_recorded:'Enregistrée',pharmacy_sale_patient:'Patient',pharmacy_sale_pharmacy:'Pharmacie',pharmacy_sale_items:'Produits'});
 Object.assign(T.en,{pharmacy_owner_name:'Owner full name',pharmacy_owner_id_type:'Owner identity document type',pharmacy_owner_id_number:'Owner national ID or passport number',pharmacy_docs_title:'Registration documents (PDF, PNG, JPEG or WebP, max 2 MB each)',pharmacy_docs_short:'Documents uploaded',pharmacy_doc_license:'Pharmacist license certificate',pharmacy_doc_business:'Business license / registration certificate',pharmacy_doc_minsante:'MINSANTE authorization (Ministry of Public Health)',pharmacy_doc_owner_id:'Owner national ID card or passport',pharmacy_docs_required:'Upload every required document as a PDF, PNG, JPEG or WebP file of 2 MB or less.',pharmacy_docs_missing:'Credentials or registration documents are missing; this pharmacy cannot be approved.',pharmacy_doc_missing:'Missing',pharmacy_view_doc:'View'});
 Object.assign(T.fr,{pharmacy_owner_name:'Nom complet du propriétaire',pharmacy_owner_id_type:'Type de pièce d’identité du propriétaire',pharmacy_owner_id_number:'Numéro de CNI ou de passeport du propriétaire',pharmacy_docs_title:'Documents d’enregistrement (PDF, PNG, JPEG ou WebP, 2 Mo max. chacun)',pharmacy_docs_short:'Documents téléversés',pharmacy_doc_license:'Certificat de licence du pharmacien',pharmacy_doc_business:'Licence commerciale / certificat d’immatriculation',pharmacy_doc_minsante:'Autorisation MINSANTE (Ministère de la Santé Publique)',pharmacy_doc_owner_id:'CNI ou passeport du propriétaire',pharmacy_docs_required:'Téléversez chaque document requis en PDF, PNG, JPEG ou WebP de 2 Mo maximum.',pharmacy_docs_missing:'Des références ou documents manquent ; cette pharmacie ne peut pas être validée.',pharmacy_doc_missing:'Manquant',pharmacy_view_doc:'Voir'});
 const PH_FIELDS=[['pharmacyName','pharmacy_name'],['pharmacyAddress','pharmacy_address'],['pharmacyLocation','pharmacy_location'],['pharmacyLicense','pharmacy_license'],['businessRegistration','pharmacy_business'],['minsanteAuthorization','pharmacy_minsante'],['ownerName','pharmacy_owner_name'],['ownerIdType','pharmacy_owner_id_type'],['ownerIdNumber','pharmacy_owner_id_number']];
 // Every document must be uploaded at registration; the admin cannot approve a pharmacy with any missing.
 const PH_DOCS=[['pharmacistLicense','pharmacy_doc_license'],['businessLicense','pharmacy_doc_business'],['minsanteAuthorization','pharmacy_doc_minsante'],['ownerIdentity','pharmacy_doc_owner_id']];
 const PH_DOC_TYPES=['application/pdf','image/png','image/jpeg','image/webp'],PH_DOC_MAX=2*1024*1024;
-let PH_DATA={items:[],orders:[]},PH_BUSY=false,PH_VIEW=0;
+let PH_DATA={items:[],orders:[],sales:[]},PH_BUSY=false,PH_VIEW=0,PH_SCAN_STREAM=null,PH_SCAN_FRAME=0,PH_SCAN_OBSERVER=null;
 
 // Browser-only store used when no HFA server is reachable; it starts empty (no built-in stock or orders).
-const PH_LOCAL={items:[],orders:[]};
+const PH_LOCAL={items:[],orders:[],sales:[]};
 
 function phLocalRequest(path,method='GET',body={}) {
   const user=CU,today=new Date().toISOString().slice(0,10),fail=message=>{throw new Error(message);};
+  if(path==='/api/pharmacy/pos'||path==='/api/pharmacy/patient-code') fail(t('pharmacy_pos_online'));
   const owner=item=>DB.users.find(account=>account.id===item.pharmacistId);
   const validated=account=>account?.role==='pharmacist'&&account.status==='active'&&!!account.pharmacyValidatedAt;
   const text=value=>typeof value==='string'&&value.trim().length>0&&value.trim().length<=200&&!/[<>&"\u0000-\u001f]/.test(value);
@@ -27,7 +30,8 @@ function phLocalRequest(path,method='GET',body={}) {
       .map(item=>({...item,currency:'USD',pharmacyName:owner(item)?.pharmacyName,pharmacyAddress:owner(item)?.pharmacyAddress,pharmacyLocation:owner(item)?.pharmacyLocation}));
     const orders=PH_LOCAL.orders.filter(order=>user.role==='admin'||order.patientId===user.id||order.pharmacistId===user.id)
       .map(order=>({...order,currency:'USD',name:PH_LOCAL.items.find(item=>item.id===order.itemId)?.name})).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
-    return {items,orders};
+    const sales=PH_LOCAL.sales.filter(sale=>user.role==='admin'||sale.patientId===user.id||sale.pharmacistId===user.id);
+    return {items,orders,sales};
   }
   if (path==='/api/pharmacy/orders'&&method==='POST') {
     if (user?.role!=='patient') fail(t('pharmacy_unavailable'));
@@ -76,6 +80,7 @@ function phLocalRequest(path,method='GET',body={}) {
 
 // Offline with a backend: read the saved copy, apply the change to it, and queue the request for the server.
 function phOfflineRequest(path,method,body={}) {
+  if(path==='/api/pharmacy/pos'||path==='/api/pharmacy/patient-code') throw new Error(t('pharmacy_pos_online'));
   if (method==='GET') return structuredClone(PH_DATA);
   const fail=message=>{throw new Error(message);};
   const [,kind,id]=path.match(/^\/api\/pharmacy\/(items|orders)(?:\/([^/]+))?$/)||[];
@@ -101,6 +106,7 @@ function phOfflineRequest(path,method,body={}) {
 }
 
 function phRequest(path,method='GET',body) {
+  if((path==='/api/pharmacy/pos'||path==='/api/pharmacy/patient-code')&&(!ApiState.enabled||ApiState.offline)) return Promise.reject(new Error(t('pharmacy_pos_online')));
   if (!ApiState.enabled) return Promise.resolve().then(()=>phLocalRequest(path,method,body));
   return ApiState.offline?Promise.resolve().then(()=>phOfflineRequest(path,method,body)):apiRequest(path,method,body);
 }
@@ -217,6 +223,15 @@ function approvePharmacist(id) {
   user.status='active';user.pharmacyValidatedBy=CU.id;user.pharmacyValidatedAt=tsNow();log('APPROVE_PHARMACIST','User Management');closeMo();navigate(CP);
 }
 
+function renderPharmacySales(sales,pharmacist) {
+  if(!sales.length)return `<p class="mu sm">${t('pharmacy_no_sales')}</p>`;
+  return sales.map(sale=>`<article class="card mb12">
+    <div class="ch"><div class="ct">${phEscape(pharmacist?sale.patientName:sale.pharmacyName)}</div><span class="badge bin">${t('pharmacy_sale_recorded')}</span></div>
+    <ul>${sale.items.map(item=>`<li>${phEscape(item.name)} · ${item.quantity} × ${money(item.unitPrice,sale.currency)} · ${money(item.lineTotal,sale.currency)}</li>`).join('')}</ul>
+    <p class="bo">${money(sale.total,sale.currency)}</p><p class="mu sm">${sale.createdAt.slice(0,19).replace('T',' ')} · ${phEscape(sale.id)}</p>
+  </article>`).join('');
+}
+
 async function renderPharmacy(container) {
   const view=++PH_VIEW,actor=CU?.id;
   if (!CU||!['patient','pharmacist','admin'].includes(CU.role)) return;
@@ -227,14 +242,16 @@ async function renderPharmacy(container) {
   try {
     const data=await phRequest('/api/pharmacy');
     if (view!==PH_VIEW||CU?.id!==actor||!['pharmacy','dashboard'].includes(CP)) return;
-    PH_DATA=data;
+    PH_DATA={...data,sales:data.sales||[]};
     const pharmacist=CU.role==='pharmacist',admin=CU.role==='admin';
     container.innerHTML=`<div class="page pharmacy-page"><div class="ph"><h2>${t(pharmacist?'pharmacy_portal':'pharmacy_shop')}</h2>${pharmacist?`<p>${phEscape(CU.pharmacyName)} · ${phEscape(CU.pharmacyLocation)}</p>`:''}</div>
       <div class="safety-banner"><div>${IC.warn}</div><p>${t('pharmacy_safety')}</p></div>
+      ${CU.role==='patient'?`<section class="card mb18"><h3 class="ct">${t('pharmacy_patient_qr')}</h3><p class="mu sm">${t('pharmacy_patient_qr_intro')}</p><button class="btn bp bsm mt8" type="button" onclick="showPatientPharmacyCode()">${t('pharmacy_show_qr')}</button><div id="pharmacy-patient-code" class="mt12" aria-live="polite"></div></section>`:''}
       ${admin?`<section class="mb18"><h3 class="ct mb8">${t('pharmacy_admin')}</h3>${DB.users.filter(user=>user.role==='pharmacist').map(user=>`<div class="pharmacy-row"><div><strong>${phEscape(user.name)}</strong> ${userStatusBadge(user)}${pharmacyCredentialSummary(user)}</div><div>${user.status==='active'?`<button class="btn bs bsm" onclick="backendAdminUpdate('${user.id}',{status:'suspended'})">${t('suspend')}</button>`:`<button class="btn bp bsm" onclick="showPharmacyApproval(G('${user.id}'))">${t('approve')}</button>`}</div></div>`).join('')}</section>`:''}
-      <section class="mb18"><div class="ch"><h3 class="ct">${t('pharmacy_items')}</h3>${pharmacist?`<button class="btn bp bsm" onclick="showPharmacyItem()">${IC.plus} ${t('pharmacy_add')}</button>`:''}</div>
+      <section class="mb18"><div class="ch"><h3 class="ct">${t('pharmacy_items')}</h3>${pharmacist?`<div class="pc-actions"><button class="btn bp bsm" onclick="showPharmacyItem()">${IC.plus} ${t('pharmacy_add')}</button><button class="btn bs bsm" onclick="showPharmacyPOS()">${t('pharmacy_pos')}</button></div>`:''}</div>
       ${data.items.length?`<div class="tw"><table><thead><tr><th>${t('pharmacy_shop')}</th><th>${t('pharmacy_strength')}</th><th>${t('pharmacy_batch')}</th><th>${t('pharmacy_stock')}</th><th>${t('pharmacy_price')}</th><th>${t('actions')}</th></tr></thead><tbody>${data.items.map(item=>`<tr><td><strong>${phEscape(item.name)}</strong><div class="mu sm">${phEscape(item.pharmacyName)} · ${phEscape(item.pharmacyLocation)}</div><div class="mu sm">${phEscape(item.pharmacyAddress)}</div></td><td>${phEscape(item.strength)} · ${phEscape(item.unit)}${item.requiresPrescription?`<div class="badge bwa">${t('pharmacy_rx')}</div>`:''}</td><td>${phEscape(item.batch)}<div class="mu sm">${t('pharmacy_expiry')}: ${item.expiresOn}</div></td><td>${item.stock}</td><td>${money(item.price,item.currency)}</td><td>${pharmacist?`<button class="btn bs bsm" onclick="showPharmacyStock('${item.id}')">${t('pharmacy_adjust')}</button>`:CU.role==='patient'?`<button class="btn bp bsm" onclick="showPharmacyPurchase('${item.id}')">${t('pharmacy_request')}</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:`<p class="mu sm">${t('pharmacy_empty')}</p>`}</section>
-      <section><h3 class="ct mb8">${t('pharmacy_orders')}</h3>${data.orders.length?data.orders.map(order=>`<div class="pharmacy-row"><div><strong>${phEscape(order.name)}</strong><div>${order.quantity} · ${money(order.total,order.currency)} · ${t('pharmacy_'+order.method)}</div><div class="mu sm">${phEscape(order.address)}</div><span class="badge bin">${phEscape(order.status==='requested'?tv('requested'):t('pharmacy_'+order.status))}</span><div class="mu sm">${order.createdAt.slice(0,10)} · ${phEscape(order.id)}</div></div>${pharmacist&&!['completed','cancelled'].includes(order.status)?`<button class="btn bs bsm" onclick="showPharmacyFulfillment('${order.id}')">${t('pharmacy_update')}</button>`:''}</div>`).join(''):`<p class="mu sm">${t('pharmacy_no_orders')}</p>`}</section></div>`;
+      <section class="mb18"><h3 class="ct mb8">${t('pharmacy_orders')}</h3>${data.orders.length?data.orders.map(order=>`<div class="pharmacy-row"><div><strong>${phEscape(order.name)}</strong><div>${order.quantity} · ${money(order.total,order.currency)} · ${t('pharmacy_'+order.method)}</div><div class="mu sm">${phEscape(order.address)}</div><span class="badge bin">${phEscape(order.status==='requested'?tv('requested'):t('pharmacy_'+order.status))}</span><div class="mu sm">${order.createdAt.slice(0,10)} · ${phEscape(order.id)}</div></div>${pharmacist&&!['completed','cancelled'].includes(order.status)?`<button class="btn bs bsm" onclick="showPharmacyFulfillment('${order.id}')">${t('pharmacy_update')}</button>`:''}</div>`).join(''):`<p class="mu sm">${t('pharmacy_no_orders')}</p>`}</section>
+      <section><h3 class="ct mb8">${t('pharmacy_pos_history')}</h3>${renderPharmacySales(PH_DATA.sales,pharmacist)}</section></div>`;
   } catch(error) {if(CU?.id===actor&&view===PH_VIEW)container.innerHTML=`<div class="page"><p role="status">${phEscape(error.message||t('pharmacy_unavailable'))}</p></div>`;}
 }
 
@@ -251,6 +268,140 @@ function phForm(title,body,handler) {
 
 function phInput(id,label,type='text',attrs='') {
   return `<div class="fg"><label class="fl" for="${id}">${label}</label><input class="fc" id="${id}" type="${type}" required ${attrs}></div>`;
+}
+
+async function showPatientPharmacyCode() {
+  const panel=$('pharmacy-patient-code');
+  if(CU?.role!=='patient'||!panel)return;
+  panel.innerHTML=`<p class="mu sm" role="status">${t('pharmacy_qr_loading')}</p>`;
+  try {
+    const result=await phRequest('/api/pharmacy/patient-code','POST',{});
+    panel.innerHTML=`<img width="240" height="240" src="${phEscape(result.qr)}" alt="${t('pharmacy_patient_qr')}"><p class="mu sm">${t('pharmacy_qr_expiry')}: ${new Date(result.expiresAt).toLocaleTimeString(LANG==='fr'?'fr-FR':'en-GB',{hour:'2-digit',minute:'2-digit'})}</p>`;
+  } catch(error) {
+    panel.innerHTML=`<p class="alt ae" role="alert">${phEscape(error.message||t('pharmacy_qr_error'))}</p>`;
+  }
+}
+
+function stopPharmacyQRScanner() {
+  if(PH_SCAN_FRAME)cancelAnimationFrame(PH_SCAN_FRAME);
+  PH_SCAN_FRAME=0;
+  PH_SCAN_STREAM?.getTracks().forEach(track=>track.stop());
+  PH_SCAN_STREAM=null;
+  const video=$('pos-camera');
+  if(video)video.srcObject=null;
+  PH_SCAN_OBSERVER?.disconnect();
+  PH_SCAN_OBSERVER=null;
+}
+
+async function startPharmacyQRScanner() {
+  const status=$('pos-scan-status'),video=$('pos-camera');
+  if(!status||!video)return;
+  if(typeof BarcodeDetector!=='function') {
+    status.textContent=t('pharmacy_pos_scan_unsupported');
+    return;
+  }
+  try {
+    stopPharmacyQRScanner();
+    const detector=new BarcodeDetector({formats:['qr_code']});
+    PH_SCAN_STREAM=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    video.srcObject=PH_SCAN_STREAM;
+    video.hidden=false;
+    await video.play();
+    status.textContent=t('pharmacy_pos_scan_start');
+    const modal=document.getElementById('movr');
+    if(typeof MutationObserver==='function'&&modal) {
+      PH_SCAN_OBSERVER=new MutationObserver(()=>{if(modal.classList.contains('hid'))stopPharmacyQRScanner();});
+      PH_SCAN_OBSERVER.observe(modal,{attributes:true,attributeFilter:['class']});
+    }
+    const scan=async()=>{
+      if(!PH_SCAN_STREAM)return;
+      try {
+        const [result]=await detector.detect(video);
+        if(result) {
+          if(/^HFA-PATIENT:[0-9a-f-]{36}$/i.test(result.rawValue||'')) {
+            $('pos-patient-code').value=result.rawValue;
+            status.textContent=t('pharmacy_patient_qr');
+          } else status.textContent=t('pharmacy_pos_scan_error');
+          stopPharmacyQRScanner();
+          return;
+        }
+      } catch(error) {
+        status.textContent=t('pharmacy_pos_scan_error');
+        stopPharmacyQRScanner();
+        return;
+      }
+      PH_SCAN_FRAME=requestAnimationFrame(scan);
+    };
+    PH_SCAN_FRAME=requestAnimationFrame(scan);
+  } catch(error) {
+    stopPharmacyQRScanner();
+    status.textContent=t('pharmacy_pos_scan_error');
+  }
+}
+
+function showPharmacyPOS() {
+  if(CU?.role!=='pharmacist')return;
+  const today=new Date().toISOString().slice(0,10);
+  const items=PH_DATA.items.filter(item=>item.pharmacistId===CU.id&&item.stock>0&&item.expiresOn>today);
+  if(!items.length) {
+    openMo(`<div class="mh"><h3 class="mt2">${t('pharmacy_pos')}</h3></div><p class="mu sm">${t('pharmacy_empty')}</p><div class="mf"><button type="button" class="btn bs" onclick="closeMo()">${t('cancel')}</button></div>`);
+    return;
+  }
+  const productRows=items.map(item=>`<div class="pharmacy-row"><label><input type="checkbox" data-pos-select="${phEscape(item.id)}"> <strong>${phEscape(item.name)}</strong> · ${phEscape(item.strength)} · ${money(item.price,item.currency)} · ${t('pharmacy_stock')}: ${item.stock}${item.requiresPrescription?` <span class="badge bwa">${t('pharmacy_rx')}</span>`:''}</label><input class="fc" aria-label="${t('pharmacy_quantity')}" id="pos-quantity-${phEscape(item.id)}" type="number" min="1" max="${Math.min(item.stock,1000)}" step="1" value="1" disabled></div>`).join('');
+  const body=`<form id="ph-pos-form">
+    <p class="mu sm">${t('pharmacy_pos_scan_start')}</p><p class="mu sm">${t('pharmacy_pos_not_payment')}</p>
+    ${phInput('pos-patient-code',t('pharmacy_pos_patient_code'),'text','pattern="HFA-PATIENT:[0-9a-fA-F-]{36}" autocomplete="off" maxlength="49"')}
+    <button class="btn bs bsm" id="pos-start-scan" type="button">${t('pharmacy_pos_scan')}</button><video id="pos-camera" class="mt8" width="320" height="240" playsinline muted hidden></video><p class="mu sm" id="pos-scan-status" role="status"></p>
+    <h4 class="ct mt12">${t('pharmacy_pos_pick_items')}</h4>${productRows}
+    <label><input type="checkbox" id="pos-review-rx"> ${t('pharmacy_pos_review_rx')}</label>
+    <p class="bo mt8" id="pos-total" aria-live="polite"></p><p id="ph-pos-status" role="status"></p>
+    <div class="mf"><button type="button" class="btn bs" onclick="closeMo()">${t('cancel')}</button><button type="submit" class="btn bp">${t('pharmacy_pos_save')}</button></div>
+  </form>`;
+  openMo(`<div class="mh"><h3 class="mt2">${t('pharmacy_pos')}</h3></div>${body}`);
+  const form=$('ph-pos-form');
+  form.querySelectorAll('[data-pos-select]').forEach(checkbox=>checkbox.addEventListener('change',()=>{
+    const quantity=$(`pos-quantity-${checkbox.dataset.posSelect}`);
+    quantity.disabled=!checkbox.checked;
+    updatePosTotal();
+  }));
+  form.querySelectorAll('[id^="pos-quantity-"]').forEach(input=>input.addEventListener('input',updatePosTotal));
+  function updatePosTotal() {
+    const total=items.reduce((sum,item)=>{
+      const selected=form.querySelector(`[data-pos-select="${item.id}"]`)?.checked;
+      return selected?sum+item.price*Number($(`pos-quantity-${item.id}`).value):sum;
+    },0);
+    $('pos-total').textContent=money(total,items[0]?.currency||'USD');
+  }
+  $('pos-start-scan').addEventListener('click',startPharmacyQRScanner);
+  $('pos-patient-code').addEventListener('keydown',event=>{if(event.key==='Enter')event.preventDefault();});
+  const requestId=crypto.randomUUID();
+  form.addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(PH_BUSY)return;
+    const patientCode=$('pos-patient-code').value.trim();
+    const selected=items.filter(item=>form.querySelector(`[data-pos-select="${item.id}"]`)?.checked)
+      .map(item=>({itemId:item.id,quantity:Number($(`pos-quantity-${item.id}`).value)}));
+    const status=$('ph-pos-status');
+    if(!/^HFA-PATIENT:[0-9a-f-]{36}$/i.test(patientCode)||!selected.length||selected.some(line=>!Number.isInteger(line.quantity)||line.quantity<1)) {
+      status.textContent=t('pharmacy_pos_complete');
+      return;
+    }
+    PH_BUSY=true;
+    const submit=form.querySelector('button[type="submit"]');
+    submit.disabled=true;
+    try {
+      await phRequest('/api/pharmacy/pos','POST',{requestId,patientCode,items:selected,prescriptionReviewed:$('pos-review-rx').checked});
+      stopPharmacyQRScanner();
+      closeMo();
+      amsg(t('pharmacy_pos_saved'),'s');
+      navigate('pharmacy');
+    } catch(error) {
+      status.textContent=error.message||t('pharmacy_unavailable');
+    } finally {
+      PH_BUSY=false;
+      if(submit.isConnected)submit.disabled=false;
+    }
+  });
 }
 
 function showPharmacyItem() {
@@ -287,5 +438,5 @@ const labelPharmacyEntry=()=>{
 };
 labelPharmacyEntry();
 pharmacyRegistrationFields();
-if (typeof HFAOffline!=='undefined') HFAOffline.register('pharmacy',{save:()=>PH_DATA,load:value=>{PH_DATA=value;},clear:()=>{PH_DATA={items:[],orders:[]};}});
+if (typeof HFAOffline!=='undefined') HFAOffline.register('pharmacy',{save:()=>PH_DATA,load:value=>{PH_DATA=value;},clear:()=>{PH_DATA={items:[],orders:[],sales:[]};}});
 new MutationObserver(()=>{pharmacyRegistrationFields();labelPharmacyEntry();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-lang']});
