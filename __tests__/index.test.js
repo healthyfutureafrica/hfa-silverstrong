@@ -64,7 +64,16 @@ describe('index.html sanity checks', () => {
     expect(content).toContain('<div class="pc2" onclick="goAuth(\'login\',\'admin\')">');
     expect(content).toContain("noAccounts() && !(tab==='login' && ['admin','pharmacist'].includes(role))");
     expect(content).toContain("['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body')");
-    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v42'");
+    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v43'");
+  });
+
+  test('first visit opens the platform in a saved or browser-supported language', () => {
+    expect(content).toContain("const defaultLang = savedLang === 'en' || savedLang === 'fr'");
+    expect(content).toContain("(navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en'");
+    expect(content).toContain('<div id="lang-pick" class="hid">');
+    expect(content).toContain('<div id="land">');
+    expect(content).toContain("window.addEventListener('load',()=>{\n  chooseLang(defaultLang);");
+    expect(content).not.toContain("show('lang-pick');\nApiState.ready=initializeBackend();");
   });
 
   test('every script in the page and every site script file is valid JavaScript', () => {

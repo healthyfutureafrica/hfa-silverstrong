@@ -27,8 +27,20 @@ test('redirects are permanent and pages carry the security headers', async () =>
   assert.equal(page.headers.get('Content-Type'), 'text/html', 'original headers are kept');
 });
 
-test('missing files stay 404 so the app knows there is no server', async () => {
-  const missing = await worker.fetch(new Request('https://www.healthyfutureafrica.org/api/config'), { ASSETS: { fetch: async () => new Response('Not found', { status: 404 }) } });
+test('the static website reports that no backend is configured without returning an API 404', async () => {
+  const config = await worker.fetch(new Request('https://www.healthyfutureafrica.org/api/config'), { ASSETS: assets });
+  assert.equal(config.status, 200);
+  assert.deepEqual(await config.json(), { backend: false });
+  assert.equal(config.headers.get('Cache-Control'), 'no-store');
+
+  const login = await worker.fetch(new Request('https://www.healthyfutureafrica.org/api/auth/login', { method: 'POST' }), { ASSETS: assets });
+  assert.equal(login.status, 503);
+  assert.deepEqual(await login.json(), { error: 'The HFA account service is not connected to this public website.' });
+  assert.ok(login.headers.get('Strict-Transport-Security'));
+});
+
+test('missing static files still return 404', async () => {
+  const missing = await worker.fetch(new Request('https://www.healthyfutureafrica.org/missing.js'), { ASSETS: { fetch: async () => new Response('Not found', { status: 404 }) } });
   assert.equal(missing.status, 404);
   assert.ok(missing.headers.get('Strict-Transport-Security'));
 });

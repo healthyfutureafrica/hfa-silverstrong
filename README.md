@@ -10,10 +10,11 @@ administrators. If the Super Admin's phone is unavailable, the sign-in screen ca
 10 minutes, at most 3 per sign-in, a minute apart, audited) once `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` and
 `MAIL_FROM` are set (`backend/mailer.js`; a Gmail app password is free). Recovery codes keep working too.
 
-The public website `www.healthyfutureafrica.org` runs on Cloudflare (`wrangler.jsonc`) without the server, with an
-edge script (`worker/index.js`) that forces HTTPS and adds security headers. It offers what works without an
-account (the Free Health Hub and the anonymous symptom check); Sign in and Register explain that accounts open
-with the HFA service. **There are no demo accounts or built-in example records anywhere**: every person and record
+The public website `www.healthyfutureafrica.org` runs on Cloudflare (`wrangler.jsonc`) without the account server, with an
+edge script (`worker/index.js`) that forces HTTPS, adds security headers, and returns JSON (not 404 pages) for unsupported
+account API requests. The platform opens directly in the visitor's saved language or browser language; it offers what works
+without an account (the Free Health Hub and the anonymous symptom check). Sign in and Register require the HFA account
+server at the production app domain; the public website does not simulate authentication. **There are no demo accounts or built-in example records anywhere**: every person and record
 comes from real registrations on the server, and accounts left by earlier demo versions are retired at startup
 (`backend/retire-demo-accounts.js`, matched by email and the exact demo password hash).
 

@@ -1,5 +1,5 @@
-// Cloudflare Workers static demo. Only dist/ (built from the public files) is uploaded.
-// Unknown paths must return 404 (not index.html) so the app detects there is no backend.
+// Cloudflare Workers public platform. Only dist/ (built from the public files) is uploaded.
+// The Worker handles account API paths with an explicit unconfigured-backend response.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hfa-silverstrong",

@@ -18,6 +18,17 @@ const SECURITY_HEADERS = {
   'Cross-Origin-Opener-Policy': 'same-origin'
 };
 
+function staticApiResponse(request) {
+  const url = new URL(request.url);
+  if (url.pathname === '/api/config' && request.method === 'GET') {
+    return Response.json({ backend: false }, { headers: { 'Cache-Control': 'no-store' } });
+  }
+  return Response.json(
+    { error: 'The HFA account service is not connected to this public website.' },
+    { status: 503, headers: { 'Cache-Control': 'no-store' } }
+  );
+}
+
 export function redirectTarget(requestUrl) {
   const url = new URL(requestUrl);
   const ownHost = OWN_HOSTS.has(url.hostname);
@@ -38,6 +49,7 @@ export default {
   async fetch(request, env) {
     const target = redirectTarget(request.url);
     if (target) return Response.redirect(target, 301);
+    if (new URL(request.url).pathname.startsWith('/api/')) return withSecurityHeaders(staticApiResponse(request));
     return withSecurityHeaders(await env.ASSETS.fetch(request));
   }
 };
