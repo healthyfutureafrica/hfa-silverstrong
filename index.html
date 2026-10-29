@@ -1452,6 +1452,8 @@ const T = {
 
     // Topbar page titles
     admin_dashboard:'Admin Dashboard', platform_overview:'Platform Overview',
+    admin_demo_title:'Demonstrate the portals', admin_demo_desc:'Preview all six portal screens while staying signed in as Super Admin. Patient previews do not open anyone’s account or health records.',
+    admin_demo_button:'Open portal demos',
     audit_title:'Audit & Security Logs', manage_doctors:'Manage Doctors',
     manage_nurses:'Manage Nurses', manage_patients:'Manage Patients',
     all_apts_title:'All Appointments', doctor_dashboard:'Doctor Dashboard',
@@ -1785,6 +1787,8 @@ const T = {
 
     // Topbar page titles
     admin_dashboard:'Tableau de Bord Admin', platform_overview:'Vue d\'Ensemble',
+    admin_demo_title:'Démontrer les portails', admin_demo_desc:'Prévisualisez les six portails tout en restant connecté en tant que super administrateur. L’aperçu patient n’ouvre aucun compte ni dossier médical.',
+    admin_demo_button:'Ouvrir les démonstrations',
     audit_title:'Journaux de Sécurité & d\'Audit', manage_doctors:'Gérer les Médecins',
     manage_nurses:'Gérer les Infirmiers', manage_patients:'Gérer les Patients',
     all_apts_title:'Tous les Rendez-vous', doctor_dashboard:'Tableau de Bord Médecin',
@@ -3600,6 +3604,7 @@ function renderAdminDash(pc) {
   pc.innerHTML=`<div class="page">
     <div class="ph"><h2>${t('platform_overview')}</h2><p>${LANG==='fr'?'Surveiller l\'activité et gérer la plateforme':'Monitor system activity and manage platform health'}</p></div>
     ${pendingCount>0?`<div class="alt ai" style="margin-bottom:16px;cursor:pointer" onclick="navigate('mgr-approvals')">${IC.shield} ${pendingCount} ${pendingCount===1?t('pending_approval'):t('pending_approvals_nav')} — ${LANG==='fr'?'cliquez pour examiner':'click to review'}</div>`:''}
+    ${isSuperAdmin(CU)?`<div class="card mb18"><div class="ch"><div><div class="ct">${t('admin_demo_title')}</div><div class="rating-note">${t('admin_demo_desc')}</div></div><button class="btn bp bsm" onclick="navigate('portal-access')">${t('admin_demo_button')}</button></div></div>`:''}
     <div class="stats">
       <div class="sc ce"><div class="sv">${docs.length}</div><div class="sl">${t('total_doctors')}</div></div>
       <div class="sc cb"><div class="sv">${nurs.length}</div><div class="sl">${t('total_nurses')}</div></div>

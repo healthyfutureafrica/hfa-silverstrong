@@ -47,6 +47,18 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("'donate-support': LANG==='fr'?'Soutenez HFA':'Support HFA'");
   });
 
+  test('Super Admin dashboard links to the audited portal previews in both languages', () => {
+    expect(content).toContain("admin_demo_title:'Demonstrate the portals'");
+    expect(content).toContain("admin_demo_title:'Démontrer les portails'");
+    expect(content).toContain("onclick=\"navigate('portal-access')\">${t('admin_demo_button')}");
+    expect(content).toContain('${isSuperAdmin(CU)?`<div class="card mb18">');
+    const portalAccess = fs.readFileSync(path.join(__dirname, '..', 'portal-access.js'), 'utf8');
+    expect(portalAccess).toContain("const PORTALS = [['doctor', '🩺'], ['nurse', '💉'], ['patient', '🧑'], ['pharmacist', '💊'], ['labtech', '🧪'], ['admin', '🛡️']]");
+    expect(portalAccess).toContain("if (ApiState.enabled) await apiRequest('/api/v1/admin/portal-view', 'POST', { role });");
+    expect(portalAccess).toContain('catch (error) { alert(error.message); return; }');
+    expect(portalAccess).toContain("const ENTERABLE = ['doctor', 'nurse', 'pharmacist', 'labtech']");
+  });
+
   test('every script in the page and every site script file is valid JavaScript', () => {
     const inline = [...content.matchAll(/<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/g)].map(match => match[1]);
     expect(inline.length).toBeGreaterThan(0);

@@ -56,14 +56,15 @@
   }
 
   async function recordPreview(role) {
-    if (ApiState.enabled) { try { await apiRequest('/api/v1/admin/portal-view', 'POST', { role }); } catch (error) { /* preview still opens; the server refuses non-admins */ } }
+    if (ApiState.enabled) await apiRequest('/api/v1/admin/portal-view', 'POST', { role });
     else log('PORTAL_PREVIEW', 'User Management');
   }
 
   async function preview(role) {
     const admin = state.preview?.admin || CU;
     if (!isSuperAdmin(admin)) return;
-    await recordPreview(role);
+    try { await recordPreview(role); }
+    catch (error) { alert(error.message); return; }
     if (role === 'admin') { returnToAdmin(); return; }
     state.preview = { admin, role };
     CU = { ...admin, role, previewRole: role, assignedDoctor: null, assignedNurse: null };
