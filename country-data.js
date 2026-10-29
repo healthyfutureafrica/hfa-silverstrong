@@ -11,7 +11,7 @@
       currency: 'XAF',
       languages: ['en', 'fr'],
       emergencyNumber: '1515',
-      emergencyNumberReview: 'required',
+      emergencyNumberReview: 'confirmed',
       legalInstrument: 'Cameroon Law No. 2024/017 of 23 December 2024 on personal data protection',
       legalReview: 'required',
       registrationIdentityDocumentRequired: true,

@@ -90,7 +90,7 @@
   const backend = () => ApiState.enabled && ApiState.authenticated;
   const patientCountry = () => typeof CU !== 'undefined' && CU ? (CU.countryCode || CU.healthProfile?.location?.countryCode) : null;
   const currentEmergencyNumber = () => {
-    const code = patientCountry();
+    const code = patientCountry() || (typeof priceCountry === 'function' ? priceCountry() : null);
     return code ? window.HFACountryData.get(code)?.emergencyNumber || null : null;
   };
   const callButton = number => number ? `<a class="st-call" href="tel:${esc(number)}">📞 ${esc(tf('st_call', { number }))}</a>` : '';
@@ -190,7 +190,8 @@
       : `<button type="button" class="btn bp" onclick="navigate('freehub')">${esc(t('st_selfcare_tips'))}</button>`;
     return `<div class="st-result st-l-${esc(level)}" role="status"><p class="sm">${esc(t('st_result'))}</p><h3>${esc(L('level_' + level))}</h3><p>${esc(level === 'emergency' ? TR.emergencyAdvice(result, LANG) : L('advice_' + level))}</p></div>
       ${crisis ? `<div class="st-emergency">${esc(L('crisis'))}</div>` : ''}
-      <div class="pc-actions">${actions}<button type="button" class="btn bs" id="st-again">${esc(t('st_again'))}</button></div>
+      <div class="pc-actions">${actions}${level === 'emergency' && !crisis ? `<button type="button" class="btn bs" onclick="HFAAmbulance.findNearest()">${esc(t('ab_find_nearest'))}</button>` : ''}<button type="button" class="btn bs" id="st-again">${esc(t('st_again'))}</button></div>
+      ${level === 'emergency' && !crisis ? '<section id="st-ambulance-panel" class="st-ambulance-panel" aria-live="polite"></section>' : ''}
       <div class="st-q mt18">${esc(t('st_why'))}</div><ul class="st-reasons">${(result.reasons || []).map(reason => `<li>${esc(TR.reasonText(reason, LANG))}</li>`).join('')}</ul>
       <p class="mu sm">${esc(t('st_not_diagnosis'))}</p><div id="st-status" class="mt8">${note}</div>`;
   }

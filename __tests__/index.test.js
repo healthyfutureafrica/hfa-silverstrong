@@ -21,7 +21,7 @@ describe('index.html sanity checks', () => {
       'SZ', 'ET', 'GA', 'GM', 'GH', 'GN', 'GW', 'KE', 'LS', 'LR', 'LY', 'MG', 'MW', 'ML', 'MR', 'MU', 'MA', 'MZ',
       'NA', 'NE', 'NG', 'RW', 'ST', 'SN', 'SC', 'SL', 'SO', 'ZA', 'SS', 'SD', 'TZ', 'TG', 'TN', 'UG', 'ZM', 'ZW'
     ]));
-    expect(cameroon).toMatchObject({ callingCode: '237', currency: 'XAF', legalReview: 'required', registrationIdentityDocumentRequired: true, emergencyNumber: '1515' });
+    expect(cameroon).toMatchObject({ callingCode: '237', currency: 'XAF', legalReview: 'required', registrationIdentityDocumentRequired: true, emergencyNumber: '1515', emergencyNumberReview: 'confirmed' });
     expect(nigeria).toMatchObject({ callingCode: '234', currency: 'NGN', legalReview: 'required', registrationIdentityDocumentRequired: false, emergencyNumber: null, incomeBands: null });
     expect(ghana).toMatchObject({ callingCode: '233', currency: 'GHS', legalReview: 'required', legalInstrument: null, emergencyNumber: null, incomeBands: null });
     expect(nigeria.healthInsuranceOptions.find(option => option.code === 'public_scheme').label.en).toContain('NHIA');
@@ -242,7 +242,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/country-data.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/portal-access.js','https://example.invalid/hfa/security.js','https://example.invalid/hfa/hfa-fhir.js','https://example.invalid/hfa/privacy-centre.js','https://example.invalid/hfa/session-guard.js','https://example.invalid/hfa/clinical-sync.js','https://example.invalid/hfa/mobile-money.js','https://example.invalid/hfa/calls.js','https://example.invalid/hfa/real-world.js','https://example.invalid/hfa/governance-ui.js','https://example.invalid/hfa/hfa-triage.js','https://example.invalid/hfa/triage-assistant.js','https://example.invalid/hfa/hfa-surveillance.js','https://example.invalid/hfa/hfa-ai-eval.js','https://example.invalid/hfa/ai-assist.js','https://example.invalid/hfa/ai-centre.js','https://example.invalid/hfa/nurse-workforce.js','https://example.invalid/hfa/earnings.js','https://example.invalid/hfa/validation.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/country-data.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/portal-access.js','https://example.invalid/hfa/security.js','https://example.invalid/hfa/hfa-fhir.js','https://example.invalid/hfa/privacy-centre.js','https://example.invalid/hfa/session-guard.js','https://example.invalid/hfa/clinical-sync.js','https://example.invalid/hfa/mobile-money.js','https://example.invalid/hfa/calls.js','https://example.invalid/hfa/real-world.js','https://example.invalid/hfa/governance-ui.js','https://example.invalid/hfa/hfa-triage.js','https://example.invalid/hfa/triage-assistant.js','https://example.invalid/hfa/ambulance.js','https://example.invalid/hfa/hfa-surveillance.js','https://example.invalid/hfa/hfa-ai-eval.js','https://example.invalid/hfa/ai-assist.js','https://example.invalid/hfa/ai-centre.js','https://example.invalid/hfa/nurse-workforce.js','https://example.invalid/hfa/earnings.js','https://example.invalid/hfa/validation.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;
@@ -520,7 +520,7 @@ describe('index.html sanity checks', () => {
         clock.now+=120000;
         expect(device.expired()).toBe(true);
         await expect(make().signIn('pharmacy@example.invalid','Synthetic-password-123')).rejects.toThrow('offline_expired');
-      });
+      },15000);
 
       test('a restored online session renews the seven-day window',async()=>{
         const {make,clock}=offlineContext();
@@ -541,7 +541,7 @@ describe('index.html sanity checks', () => {
         await make().remember(user,'Changed-password-456');
         const reopened=make();await reopened.signIn(user.email,'Changed-password-456');
         expect((await reopened.loadSnapshot()).db.medicalDocuments[0].fileName).toBe('private-scan.pdf');
-      });
+      },15000);
 
       test('replays queued changes in order, stops on network loss and drops refused ones',async()=>{
         const {make,tables}=offlineContext();

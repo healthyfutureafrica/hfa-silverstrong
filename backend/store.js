@@ -88,6 +88,24 @@ class Store {
       );
       CREATE TABLE IF NOT EXISTS hfa_sequences (scope TEXT PRIMARY KEY, last INTEGER NOT NULL);
     `);
+    const facilityColumns = new Set(this.db.prepare('PRAGMA table_info(facilities)').all().map(column => column.name));
+    const ambulanceColumns = {
+      ambulance_country_code: "TEXT NOT NULL DEFAULT 'CM'",
+      ambulance_phone: 'TEXT',
+      ambulance_sms: 'TEXT',
+      ambulance_lat: 'REAL',
+      ambulance_lng: 'REAL',
+      ambulance_coverage: 'TEXT',
+      ambulance_status: "TEXT NOT NULL DEFAULT 'pending'",
+      ambulance_source: 'TEXT',
+      ambulance_source_reference: 'TEXT',
+      ambulance_expires_on: 'TEXT',
+      ambulance_reviewed_by: 'TEXT',
+      ambulance_reviewed_at: 'TEXT'
+    };
+    for (const [column, type] of Object.entries(ambulanceColumns)) {
+      if (!facilityColumns.has(column)) this.db.exec(`ALTER TABLE facilities ADD COLUMN ${column} ${type}`);
+    }
     const columns = this.db.prepare('PRAGMA table_info(users)').all().map(column => column.name);
     if (!columns.includes('hfa_number')) this.db.exec('ALTER TABLE users ADD COLUMN hfa_number TEXT');
     if (!columns.includes('facility_id')) this.db.exec('ALTER TABLE users ADD COLUMN facility_id TEXT REFERENCES facilities(id)');
@@ -183,6 +201,11 @@ class Store {
   /** Register of every hospital and every pharmacy/laboratory location, with counts (administrators). */
   facilityRegister() {
     const hospitals = this.db.prepare(`SELECT f.id, f.name, f.code, f.created_at AS createdAt,
+        f.ambulance_country_code AS ambulanceCountryCode, f.ambulance_phone AS ambulancePhone,
+        f.ambulance_sms AS ambulanceSms, f.ambulance_lat AS ambulanceLatitude, f.ambulance_lng AS ambulanceLongitude,
+        f.ambulance_coverage AS ambulanceCoverage, f.ambulance_status AS ambulanceStatus,
+        f.ambulance_source AS ambulanceSource, f.ambulance_source_reference AS ambulanceSourceReference,
+        f.ambulance_expires_on AS ambulanceExpiresOn, f.ambulance_reviewed_at AS ambulanceReviewedAt,
         SUM(u.role='doctor') AS doctors, SUM(u.role='nurse') AS nurses, SUM(u.role='patient') AS patients
       FROM facilities f LEFT JOIN users u ON u.facility_id=f.id AND u.status!='deleted' WHERE f.kind='hospital' GROUP BY f.id ORDER BY f.code`).all()
       .map(row => ({ ...row, doctors: row.doctors || 0, nurses: row.nurses || 0, patients: row.patients || 0 }));

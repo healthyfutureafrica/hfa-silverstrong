@@ -87,9 +87,18 @@ how long and how bad. An emergency sign ends the questions at once.
   (today), routine, self-care (only for healthy, non-pregnant adults with a mild, recent, low-risk problem).
   Every case stores `RULES_VERSION`. **A clinician must review these rules before real patients use them.**
 - The result appears on the device immediately (works offline, and without an account on the public website).
-  Emergency contacts come from the selected account's country profile: Cameroon uses the existing `1515` contact,
-  which must be confirmed with MINSANTE before launch; Nigeria and unknown countries show no guessed number and
-  direct people to local emergency services or the nearest hospital.
+  Emergency contacts come from the selected account or country selector: Cameroon uses the confirmed `1515`
+  emergency contact; Nigeria and unknown countries show no guessed number and direct people to local emergency
+  services or the nearest hospital. The direct `1515` call is not gated by sign-in, GPS permission or HFA payment.
+- Emergency results can optionally locate the nearest currently verified hospital ambulance contact. HFA
+  administrators maintain the hospital call/SMS number, base coordinates, coverage and verification expiry in
+  **Facilities & numbers**. GPS is required for this routing action, but not for calling `1515`. The app keeps the
+  patient's coordinates on-device and shares them only when the patient chooses the provider's SMS link or reads
+  them during a call. A nearby contact does not confirm vehicle availability, dispatch or fare; the patient must
+  confirm those with the provider. The provider sets and collects any fare directly. HFA does not yet initiate
+  ambulance payments, including Orange Money, or confirm a booking. The dynamic directory requires an HFA
+  backend-connected installation; the static public demo can still show the direct emergency call but cannot
+  load or administer live hospital contacts.
 - **Clinician handover.** Cases go to the **Triage queue** of doctors and nurses assigned to the patient or
   working at the hospital the patient is registered under, most urgent first, with a plain summary (answers,
   danger signs asked and answered "no", allergies, conditions and medicines from the health profile). Emergencies

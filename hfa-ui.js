@@ -494,6 +494,11 @@
     fr_title: 'Facilities & stakeholder numbers', fr_intro: 'Numbers are issued automatically and never change.',
     fr_formats: 'Doctors HFA-DR-<hospital>-0001 · Nurses HFA-NS-<hospital>-0001 · Patients HFA-PT-<hospital>-000001 · Pharmacies HFA-PH-<region>-<town>-0001 · Laboratories HFA-LB-<region>-<town>-0001. The last digit is a check digit.',
     fr_hospitals: 'Hospitals', fr_code: 'Code', fr_hospital: 'Hospital', fr_doctors: 'Doctors', fr_nurses: 'Nurses', fr_patients: 'Patients',
+    fr_ambulance_title: 'Ambulance provider directory', fr_ambulance_intro: 'Hospital contacts are private until an administrator records and verifies the ambulance number, base location, service coverage and source. Approval lists a contact; it does not confirm vehicle availability, dispatch or fare.',
+    fr_ambulance_phone: 'Ambulance call number (+country code)', fr_ambulance_sms: 'Monitored SMS number (optional)', fr_ambulance_country: 'Country', fr_ambulance_lat: 'Base latitude', fr_ambulance_lng: 'Base longitude',
+    fr_ambulance_coverage: 'Service coverage', fr_ambulance_source: 'Verification source', fr_ambulance_reference: 'Non-sensitive verification reference', fr_ambulance_expires: 'Verify again by',
+    fr_ambulance_status: 'Directory status', fr_ambulance_pending: 'Not listed / pending verification', fr_ambulance_approved: 'Verified contact (not a dispatch confirmation)', fr_ambulance_rejected: 'Rejected',
+    fr_ambulance_save: 'Save ambulance profile', fr_ambulance_saved: 'Profile saved.', fr_ambulance_none: 'No hospital facilities have been registered.',
     fr_locations: 'Pharmacy & laboratory locations', fr_location: 'Region / town', fr_pharmacies: 'Pharmacies', fr_labs: 'Laboratories',
     fr_no_hospital: '{count} patients are not registered under a hospital yet (numbers HFA-PT-HFA-…).', fr_empty: 'Nothing registered yet.',
     wz_hospital: 'Hospital you are registered with', wz_hospital_hint: 'Your patient number shows this hospital so it can find your records quickly.',
@@ -509,6 +514,11 @@
     fr_title: 'Structures et numéros des intervenants', fr_intro: 'Les numéros sont attribués automatiquement et ne changent jamais.',
     fr_formats: 'Médecins HFA-DR-<hôpital>-0001 · Infirmiers HFA-NS-<hôpital>-0001 · Patients HFA-PT-<hôpital>-000001 · Pharmacies HFA-PH-<région>-<ville>-0001 · Laboratoires HFA-LB-<région>-<ville>-0001. Le dernier chiffre est un chiffre de contrôle.',
     fr_hospitals: 'Hôpitaux', fr_code: 'Code', fr_hospital: 'Hôpital', fr_doctors: 'Médecins', fr_nurses: 'Infirmiers', fr_patients: 'Patients',
+    fr_ambulance_title: 'Répertoire des services ambulanciers', fr_ambulance_intro: 'Les contacts hospitaliers restent privés jusqu’à ce qu’un administrateur enregistre et vérifie le numéro d’ambulance, la base, la zone desservie et la source. Une approbation inscrit un contact ; elle ne confirme ni la disponibilité d’un véhicule, ni son départ, ni le tarif.',
+    fr_ambulance_phone: 'Numéro d’appel ambulance (+ indicatif)', fr_ambulance_sms: 'Numéro SMS surveillé (facultatif)', fr_ambulance_country: 'Pays', fr_ambulance_lat: 'Latitude de la base', fr_ambulance_lng: 'Longitude de la base',
+    fr_ambulance_coverage: 'Zone desservie', fr_ambulance_source: 'Source de vérification', fr_ambulance_reference: 'Référence de vérification non sensible', fr_ambulance_expires: 'À vérifier de nouveau avant le',
+    fr_ambulance_status: 'Statut du répertoire', fr_ambulance_pending: 'Non répertorié / vérification en attente', fr_ambulance_approved: 'Contact vérifié (sans confirmation de départ)', fr_ambulance_rejected: 'Rejeté',
+    fr_ambulance_save: 'Enregistrer le profil ambulance', fr_ambulance_saved: 'Profil enregistré.', fr_ambulance_none: 'Aucun établissement hospitalier enregistré.',
     fr_locations: 'Localisation des pharmacies et laboratoires', fr_location: 'Région / ville', fr_pharmacies: 'Pharmacies', fr_labs: 'Laboratoires',
     fr_no_hospital: '{count} patients ne sont encore inscrits dans aucun hôpital (numéros HFA-PT-HFA-…).', fr_empty: 'Rien d’enregistré pour l’instant.',
     wz_hospital: 'Hôpital où vous êtes inscrit', wz_hospital_hint: 'Votre numéro de patient indique cet hôpital pour qu’il retrouve vite votre dossier.',
@@ -606,10 +616,53 @@
         <div class="card mb18"><div class="ch"><div class="ct">${esc(t('fr_hospitals'))}</div></div><div class="fac-table-wrap"><table class="fac-table">
           <thead><tr><th scope="col">${esc(t('fr_code'))}</th><th scope="col">${esc(t('fr_hospital'))}</th><th scope="col">${esc(t('fr_doctors'))}</th><th scope="col">${esc(t('fr_nurses'))}</th><th scope="col">${esc(t('fr_patients'))}</th></tr></thead>
           <tbody>${register.hospitals.length ? register.hospitals.map(hospital => `<tr><td><code class="code-chip">${esc(hospital.code)}</code></td><td>${esc(hospital.name)}</td><td>${hospital.doctors}</td><td>${hospital.nurses}</td><td>${hospital.patients}</td></tr>`).join('') : empty(5)}</tbody></table></div></div>
+        ${ApiState.enabled ? `<div class="card mb18"><div class="ch"><div class="ct">${esc(t('fr_ambulance_title'))}</div></div><p class="mu sm">${esc(t('fr_ambulance_intro'))}</p>
+          ${register.hospitals.length ? register.hospitals.map(hospital => `<details class="mt12">
+            <summary><strong>${esc(hospital.name)}</strong> · ${esc(t(hospital.ambulanceStatus === 'approved' ? 'fr_ambulance_approved' : hospital.ambulanceStatus === 'rejected' ? 'fr_ambulance_rejected' : 'fr_ambulance_pending'))}</summary>
+            <div class="g2 mt12">
+              <div class="fg"><label class="fl" for="fa-country-${esc(hospital.id)}">${esc(t('fr_ambulance_country'))}</label><select class="fc" id="fa-country-${esc(hospital.id)}">${HFACountryData.all().map(country => `<option value="${esc(country.code)}" ${country.code === hospital.ambulanceCountryCode ? 'selected' : ''}>${esc(country.name[LANG] || country.name.en)}</option>`).join('')}</select></div>
+              <div class="fg"><label class="fl" for="fa-phone-${esc(hospital.id)}">${esc(t('fr_ambulance_phone'))}</label><input class="fc" type="tel" id="fa-phone-${esc(hospital.id)}" maxlength="24" value="${esc(hospital.ambulancePhone || '')}"></div>
+              <div class="fg"><label class="fl" for="fa-sms-${esc(hospital.id)}">${esc(t('fr_ambulance_sms'))}</label><input class="fc" type="tel" id="fa-sms-${esc(hospital.id)}" maxlength="24" value="${esc(hospital.ambulanceSms || '')}"></div>
+              <div class="fg"><label class="fl" for="fa-coverage-${esc(hospital.id)}">${esc(t('fr_ambulance_coverage'))}</label><input class="fc" id="fa-coverage-${esc(hospital.id)}" maxlength="500" value="${esc(hospital.ambulanceCoverage || '')}"></div>
+              <div class="fg"><label class="fl" for="fa-lat-${esc(hospital.id)}">${esc(t('fr_ambulance_lat'))}</label><input class="fc" type="number" step="any" min="-90" max="90" id="fa-lat-${esc(hospital.id)}" value="${hospital.ambulanceLatitude ?? ''}"></div>
+              <div class="fg"><label class="fl" for="fa-lng-${esc(hospital.id)}">${esc(t('fr_ambulance_lng'))}</label><input class="fc" type="number" step="any" min="-180" max="180" id="fa-lng-${esc(hospital.id)}" value="${hospital.ambulanceLongitude ?? ''}"></div>
+              <div class="fg"><label class="fl" for="fa-source-${esc(hospital.id)}">${esc(t('fr_ambulance_source'))}</label><input class="fc" id="fa-source-${esc(hospital.id)}" maxlength="240" value="${esc(hospital.ambulanceSource || '')}"></div>
+              <div class="fg"><label class="fl" for="fa-reference-${esc(hospital.id)}">${esc(t('fr_ambulance_reference'))}</label><input class="fc" id="fa-reference-${esc(hospital.id)}" maxlength="500" value="${esc(hospital.ambulanceSourceReference || '')}"></div>
+              <div class="fg"><label class="fl" for="fa-expires-${esc(hospital.id)}">${esc(t('fr_ambulance_expires'))}</label><input class="fc" type="date" min="${new Date(Date.now() + 86400000).toISOString().slice(0, 10)}" id="fa-expires-${esc(hospital.id)}" value="${esc(hospital.ambulanceExpiresOn || '')}"></div>
+              <div class="fg"><label class="fl" for="fa-status-${esc(hospital.id)}">${esc(t('fr_ambulance_status'))}</label><select class="fc" id="fa-status-${esc(hospital.id)}">
+                <option value="pending" ${hospital.ambulanceStatus === 'pending' ? 'selected' : ''}>${esc(t('fr_ambulance_pending'))}</option>
+                <option value="approved" ${hospital.ambulanceStatus === 'approved' ? 'selected' : ''}>${esc(t('fr_ambulance_approved'))}</option>
+                <option value="rejected" ${hospital.ambulanceStatus === 'rejected' ? 'selected' : ''}>${esc(t('fr_ambulance_rejected'))}</option>
+              </select></div>
+            </div>
+            <button type="button" class="btn bp bsm mt8" data-ambulance-profile="${esc(hospital.id)}">${esc(t('fr_ambulance_save'))}</button>
+            <p class="mu sm" id="fa-message-${esc(hospital.id)}" role="status"></p>
+          </details>`).join('') : `<p class="mu sm">${esc(t('fr_ambulance_none'))}</p>`}
+        </div>` : ''}
         <div class="card"><div class="ch"><div class="ct">${esc(t('fr_locations'))}</div></div><div class="fac-table-wrap"><table class="fac-table">
           <thead><tr><th scope="col">${esc(t('fr_code'))}</th><th scope="col">${esc(t('fr_location'))}</th><th scope="col">${esc(t('fr_pharmacies'))}</th><th scope="col">${esc(t('fr_labs'))}</th></tr></thead>
           <tbody>${register.locations.length ? register.locations.map(place => `<tr><td><code class="code-chip">${esc(place.code)}</code></td><td>${esc([regionLabel(place.region), place.town].filter(Boolean).join(' · ') || '—')}</td><td>${place.pharmacies}</td><td>${place.laboratories}</td></tr>`).join('') : empty(4)}</tbody></table></div></div>
       </div>`;
+      pc.querySelectorAll('[data-ambulance-profile]').forEach(button => button.onclick = async () => {
+        const id = button.dataset.ambulanceProfile, value = suffix => document.getElementById(`fa-${suffix}-${id}`);
+        const number = suffix => value(suffix).value.trim();
+        const coordinate = suffix => number(suffix) === '' ? null : Number(number(suffix));
+        const body = {
+          countryCode: value('country').value, phone: number('phone'), sms: number('sms'),
+          latitude: coordinate('lat'), longitude: coordinate('lng'), coverage: number('coverage'),
+          source: number('source'), sourceReference: number('reference'), expiresOn: number('expires'),
+          status: value('status').value
+        };
+        const message = document.getElementById(`fa-message-${id}`);
+        button.disabled = true;
+        try {
+          await apiRequest(`/api/v1/admin/facilities/${encodeURIComponent(id)}/ambulance`, 'PUT', body);
+          if (message) message.textContent = t('fr_ambulance_saved');
+          await this.renderRegister(pc);
+        } catch (error) {
+          if (message) { message.textContent = error.message; message.setAttribute('role', 'alert'); }
+        } finally { if (button.isConnected) button.disabled = false; }
+      });
     }
   };
   window.HFAFacilities = HFAFacilities;

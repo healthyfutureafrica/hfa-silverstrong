@@ -8,7 +8,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 describe('SLY Triage', () => {
   test('the app loads the rules and screens, caches them offline and publishes them', () => {
     const page = read('index.html');
-    for (const file of ['hfa-triage.js', 'triage-assistant.js']) {
+    for (const file of ['hfa-triage.js', 'triage-assistant.js', 'ambulance.js']) {
       expect(page).toContain(`<script src="${file}"></script>`);
       expect(read('service-worker.js')).toContain(`'${file}'`);
       expect(read('scripts/build-static.js')).toContain(`'${file}'`);
@@ -36,6 +36,14 @@ describe('SLY Triage', () => {
     expect(Triage.emergencyAdvice(nigeria, 'en')).toMatch(/local emergency services/);
     expect(Triage.emergencyAdvice(nigeria, 'en')).not.toContain('1515');
     expect(Triage.emergencyAdvice(cameroon, 'en')).toContain('1515');
+  });
+
+  test('anonymous emergency triage uses the country selected for prices and keeps the emergency call direct', () => {
+    const screens = read('triage-assistant.js');
+    expect(screens).toContain("patientCountry() || (typeof priceCountry === 'function' ? priceCountry() : null)");
+    expect(screens).toContain('href="tel:${esc(number)}"');
+    expect(screens).toContain('HFAAmbulance.findNearest()');
+    expect(screens).toContain('id="st-ambulance-panel"');
   });
 
   test('every question and answer is translated into French', () => {
