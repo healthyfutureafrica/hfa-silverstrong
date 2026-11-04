@@ -12,13 +12,27 @@ administrators. If the Super Admin's phone is unavailable, the sign-in screen ca
 
 The public website `www.healthyfutureafrica.org` runs on Cloudflare (`wrangler.jsonc`) without the account server, with an
 edge script (`worker/index.js`) that forces HTTPS, adds security headers, and returns JSON (not 404 pages) for unsupported
-account API requests. The platform opens directly in the visitor's saved language or browser language. Its patient,
-doctor and nurse web-testing sign-ins use synthetic accounts (`*.demo@example.invalid`) and the shared password
-`HFA-Demo-2026!`; these only exercise the in-browser interface, have no server access, and do not save changes. Do not
-enter real health information in a demo session. The Free Health Hub and anonymous symptom check are also available
-without an account. Sign in and Register for real accounts require the HFA account server at the production app domain.
-The backend has no demo sign-in endpoint, and any legacy server-side demo accounts are retired at startup
-(`backend/retire-demo-accounts.js`).
+account API requests. The platform opens directly in the visitor's saved language or browser language. Its web-testing
+accounts below are local-only synthetic identities for exercising the in-browser interface; they have no server access
+and do not save changes. Click an account on the Sign In page to fill its credentials. **Try Demo** signs in as Emmanuel
+Tabe. Do not enter real health information in a demo session.
+
+| Role | Demo account | Password |
+|---|---|---|
+| Doctor (general medicine) | Dr. Amara Nwosu — `anwosu@hfa.org` | `Doctor@123` |
+| Doctor (cardiology) | Dr. Kwame Asante — `kasante@hfa.org` | `Doctor@123` |
+| Nurse (emergency care) | Fatima Diallo — `fdiallo@hfa.org` | `Nurse@123` |
+| Nurse (pediatrics) | Bola Osei — `bosei@hfa.org` | `Nurse@123` |
+| Lab technician | Grace — `lab@hfa.org` | `Lab@123` |
+| Pharmacist | Brenda Ngum — `pharmacy@hfa.org` | `Pharmacist@123` |
+| Patient | Emmanuel Tabe — `etabe@gmail.com` | `Patient@123` |
+| Patient (Yaoundé) | Carine Mbeki — `cmbeki@yahoo.com` | `Patient@123` |
+| Patient (Bamenda) | Joseph Fon — `jfon@gmail.com` | `Patient@123` |
+
+The Free Health Hub and anonymous symptom check are also available without an account. Sign in and Register for real
+accounts require the HFA account server at the production app domain. These web demos do not reactivate or create
+server-side accounts: the backend has no demo sign-in endpoint, and legacy server-side demo accounts remain retired at
+startup (`backend/retire-demo-accounts.js`).
 
 ## Country rollout status
 

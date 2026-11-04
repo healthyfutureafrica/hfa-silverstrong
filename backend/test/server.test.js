@@ -213,11 +213,9 @@ test('registration stores the identity document encrypted and sessions last seve
 test('legacy server demo accounts are retired while the public web uses separate synthetic test identities',async()=>{
   const { retireDemoAccounts, DEMO_FINGERPRINTS } = require('../retire-demo-accounts');
   const html=require('node:fs').readFileSync(join(__dirname,'..','..','index.html'),'utf8');
-  for (const email of DEMO_FINGERPRINTS.keys()) assert.equal(html.includes(email),false,email+' must not be built into the app');
+  for (const email of DEMO_FINGERPRINTS.keys()) assert.equal(html.includes(email),true,email+' should be available as a local web test identity');
   for (const hash of DEMO_FINGERPRINTS.values()) assert.equal(html.includes(hash),false,'legacy server password hashes must not be built into the page');
-  assert.match(html,/patient\.demo@example\.invalid/);
-  assert.match(html,/doctor\.demo@example\.invalid/);
-  assert.match(html,/nurse\.demo@example\.invalid/);
+  assert.match(html,/const WEB_DEMO_USERS = \[/);
   assert.match(html,/demoOnly:true/);
   const store=new Store();
   const [demoEmail,demoHash]=[...DEMO_FINGERPRINTS][0];

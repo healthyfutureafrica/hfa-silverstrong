@@ -1219,11 +1219,18 @@ body{font-size:15px}
         <div class="ct" data-i18n="demo_signin_title">Web testing accounts</div>
         <p class="mu sm" data-i18n="demo_signin_notice">Shared synthetic accounts for testing the web interface only. Do not enter real health information; demo changes are not saved.</p>
         <div class="code-list mt8">
-          <button type="button" class="btn bs w100" onclick="fillDemoLogin('patient')" data-i18n="demo_patient">Patient demo</button>
-          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('doctor')" data-i18n="demo_doctor">Doctor demo</button>
-          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('nurse')" data-i18n="demo_nurse">Nurse demo</button>
+          <button type="button" class="btn bs w100" onclick="fillDemoLogin('anwosu@hfa.org')">Dr. Amara Nwosu · anwosu@hfa.org</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('kasante@hfa.org')">Dr. Kwame Asante · kasante@hfa.org</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('fdiallo@hfa.org')">Fatima Diallo · fdiallo@hfa.org</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('bosei@hfa.org')">Bola Osei · bosei@hfa.org</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('lab@hfa.org')">Grace · lab@hfa.org</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('pharmacy@hfa.org')">Brenda Ngum · pharmacy@hfa.org</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('etabe@gmail.com')">Emmanuel Tabe · etabe@gmail.com</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('cmbeki@yahoo.com')">Carine Mbeki · cmbeki@yahoo.com</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('jfon@gmail.com')">Joseph Fon · jfon@gmail.com</button>
         </div>
-        <p class="mu sm mt8"><span data-i18n="demo_password_label">Password for all demo accounts</span>: <code>HFA-Demo-2026!</code></p>
+        <p class="mu sm mt8" data-i18n="demo_passwords">Passwords: doctors Doctor@123 · nurses Nurse@123 · lab Lab@123 · pharmacist Pharmacist@123 · patients Patient@123.</p>
+        <button type="button" class="btn bp w100 mt8" onclick="tryDemoLogin('etabe@gmail.com')" data-i18n="demo_try_patient">Try Demo as Emmanuel Tabe</button>
       </div>
       <div class="afo" id="afo-login">No account? <span class="alk" onclick="swtTab('register')">Register here</span></div>
     </div>
@@ -1457,8 +1464,9 @@ const T = {
     my_appointments:'My Appointments', health_records:'Health Records',
     consult_now:'Consult Now', sign_out:'Sign Out',
     accounts_unavailable_title:'Accounts are not open on this website yet', accounts_unavailable_body:'HFA SilverStrong accounts, consultations and records open when the HFA service starts in your area. You can already use the Free Health Hub and check your symptoms here, without an account.',
-    demo_signin_title:'Web testing accounts', demo_signin_notice:'Shared synthetic accounts for testing the web interface only. Do not enter real health information; demo changes are not saved.',
-    demo_patient:'Patient demo', demo_doctor:'Doctor demo', demo_nurse:'Nurse demo', demo_password_label:'Password for all demo accounts',
+    demo_signin_title:'Web testing accounts', demo_signin_notice:'Synthetic accounts for testing the web interface only. Do not enter real health information; demo changes are not saved.',
+    demo_passwords:'Passwords: doctors Doctor@123 · nurses Nurse@123 · lab Lab@123 · pharmacist Pharmacist@123 · patients Patient@123.',
+    demo_try_patient:'Try Demo as Emmanuel Tabe',
     skip_main:'Skip to main content', legal_privacy:'Legal & Privacy', compliance_nav:'Compliance Centre',
     privacy_nav:'Privacy & Data Protection', confidentiality_nav:'Confidentiality & Medical Secrecy',
 
@@ -1794,8 +1802,9 @@ const T = {
     my_appointments:'Mes Rendez-vous', health_records:'Dossiers de Santé',
     consult_now:'Consulter Maintenant', sign_out:'Se Déconnecter',
     accounts_unavailable_title:'Les comptes ne sont pas encore ouverts sur ce site', accounts_unavailable_body:'Les comptes, consultations et dossiers HFA SilverStrong ouvrent lorsque le service HFA démarre dans votre région. Vous pouvez déjà utiliser l’Espace Santé gratuit et vérifier vos symptômes ici, sans compte.',
-    demo_signin_title:'Comptes de test Web', demo_signin_notice:'Comptes synthétiques partagés pour tester uniquement l’interface Web. Ne saisissez pas de vraies informations de santé ; les modifications de démonstration ne sont pas enregistrées.',
-    demo_patient:'Démo patient', demo_doctor:'Démo médecin', demo_nurse:'Démo infirmier', demo_password_label:'Mot de passe commun aux comptes démo',
+    demo_signin_title:'Comptes de test Web', demo_signin_notice:'Comptes synthétiques pour tester uniquement l’interface Web. Ne saisissez pas de vraies informations de santé ; les modifications de démonstration ne sont pas enregistrées.',
+    demo_passwords:'Mots de passe : médecins Doctor@123 · infirmiers Nurse@123 · laboratoire Lab@123 · pharmacien Pharmacist@123 · patients Patient@123.',
+    demo_try_patient:'Essayer la démo comme Emmanuel Tabe',
     skip_main:'Aller au contenu principal', legal_privacy:'Juridique & Confidentialité', compliance_nav:'Centre de Conformité',
     privacy_nav:'Confidentialité & Protection des Données', confidentiality_nav:'Secret Médical & Confidentialité',
 
@@ -2367,12 +2376,30 @@ const INTEGRATIONS = [
   {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'production'},
 ];
 
-// Public-web test identities are synthetic and never sent to or stored by the HFA server.
+// Public-web test identities are synthetic, local-only, and never sent to or stored by the HFA server.
 const WEB_DEMO_USERS = [
-  {id:'web-demo-patient',role:'patient',name:'Demo Patient',email:'patient.demo@example.invalid',passwordHash:'pbkdf2-sha256$25000$697W4Phs7EKEFKI5rGXlNA==$1VeaR0lAQ9p3Put10X3fCq4RTFh2lF7ZiQql9nc7JXU=',status:'active',createdAt:'2026-01-01',demoOnly:true,countryCode:'CM'},
-  {id:'web-demo-doctor',role:'doctor',name:'Demo Doctor',email:'doctor.demo@example.invalid',passwordHash:'pbkdf2-sha256$25000$DcuZ3z2s5WoFHCzT0KJXew==$taPUZrpKyGPcIr9isqJmPV/bBn35RZacQBONpf1XS4E=',status:'active',createdAt:'2026-01-01',demoOnly:true,specialty:'General Medicine',hospital:'Demo Clinic',consultationFee:0},
-  {id:'web-demo-nurse',role:'nurse',name:'Demo Nurse',email:'nurse.demo@example.invalid',passwordHash:'pbkdf2-sha256$25000$d7x5TWXJ+jIfSkYxWbVEjA==$hApmcrUWUSeoHadCNbfzBSMr4GD1V6KHWyHkRtWPh5k=',status:'active',createdAt:'2026-01-01',demoOnly:true,specialty:'General Nursing',hospital:'Demo Clinic'},
+  {id:'web-demo-doctor-amara',role:'doctor',name:'Dr. Amara Nwosu',email:'anwosu@hfa.org',passwordHash:'pbkdf2-sha256$25000$xLWeS2aQU7SjAPBqB1w+lw==$+TJvfzJkH7GBM4gkisc4z/63vo7EqFihK/YWSCh4qbA=',status:'active',createdAt:'2026-01-01',demoOnly:true,specialty:'General Medicine'},
+  {id:'web-demo-doctor-kwame',role:'doctor',name:'Dr. Kwame Asante',email:'kasante@hfa.org',passwordHash:'pbkdf2-sha256$25000$QRCh+VnjdCEhk6BwWHGHIA==$O3YC4SGS/y1OJIZB02c9eEnhJ3xgEpzdIIvm6lfI0KY=',status:'active',createdAt:'2026-01-01',demoOnly:true,specialty:'Cardiology'},
+  {id:'web-demo-nurse-fatima',role:'nurse',name:'Fatima Diallo',email:'fdiallo@hfa.org',passwordHash:'pbkdf2-sha256$25000$NDbbwX/rMrjN9mkuzOw1fw==$OHBAhLm4oZ9h2s4leo/ZT451SVyrvsV1oajRuhMMfm4=',status:'active',createdAt:'2026-01-01',demoOnly:true,specialty:'Emergency Care'},
+  {id:'web-demo-nurse-bola',role:'nurse',name:'Bola Osei',email:'bosei@hfa.org',passwordHash:'pbkdf2-sha256$25000$nwbJc4OzE9nERKnq0IsyVg==$MI013SeTp/TLKA5M7Z3sSOSJKTYUXa9gu36qXqX2sS0=',status:'active',createdAt:'2026-01-01',demoOnly:true,specialty:'Pediatrics'},
+  {id:'web-demo-labtech-grace',role:'labtech',name:'Grace',email:'lab@hfa.org',passwordHash:'pbkdf2-sha256$25000$tdYHepXzfgAQi21q1gLcCg==$ZiTBwG6pQlgVlaic+7EIXLAj//rS1c/FAKTGVNozx28=',status:'active',createdAt:'2026-01-01',demoOnly:true,laboratory:'HFA Diagnostic Laboratory'},
+  {id:'web-demo-pharmacist-brenda',role:'pharmacist',name:'Brenda Ngum',email:'pharmacy@hfa.org',passwordHash:'pbkdf2-sha256$25000$nipUr/p3pW0MfnK1UnekJg==$k543DdQbE7kjmN16WYA6a5s2WTf0mR2/+N0b4tHCGtc=',status:'active',createdAt:'2026-01-01',demoOnly:true,pharmacyName:'HFA Community Pharmacy',town:'Douala'},
+  {id:'web-demo-patient-emmanuel',role:'patient',name:'Emmanuel Tabe',email:'etabe@gmail.com',passwordHash:'pbkdf2-sha256$25000$X+wMe2c508VMuH3W9iMgDg==$jgZebRKAWPnEiWwupHHKuzH//fJkJnD65RDXEGFcWlA=',status:'active',createdAt:'2026-01-01',demoOnly:true,countryCode:'CM'},
+  {id:'web-demo-patient-carine',role:'patient',name:'Carine Mbeki',email:'cmbeki@yahoo.com',passwordHash:'pbkdf2-sha256$25000$mcuMsGL+Qw3/dBHJDfr1XQ==$I8Vr3hZoWvGtsOHTAAEuVMYTuj0lDgOY0ZZLKnzR2/s=',status:'active',createdAt:'2026-01-01',demoOnly:true,countryCode:'CM',city:'Yaoundé'},
+  {id:'web-demo-patient-joseph',role:'patient',name:'Joseph Fon',email:'jfon@gmail.com',passwordHash:'pbkdf2-sha256$25000$4nLXDu+DpxMSFYw5n3qw1Q==$GeTkY98ru7ehXPfBrqRQ0Xx8F3755zI2Z31Uh06ec1c=',status:'active',createdAt:'2026-01-01',demoOnly:true,countryCode:'CM',city:'Bamenda'},
 ];
+
+const WEB_DEMO_PASSWORDS = {
+  'anwosu@hfa.org':'Doctor@123',
+  'kasante@hfa.org':'Doctor@123',
+  'fdiallo@hfa.org':'Nurse@123',
+  'bosei@hfa.org':'Nurse@123',
+  'lab@hfa.org':'Lab@123',
+  'pharmacy@hfa.org':'Pharmacist@123',
+  'etabe@gmail.com':'Patient@123',
+  'cmbeki@yahoo.com':'Patient@123',
+  'jfon@gmail.com':'Patient@123',
+};
 
 // Clinical records are never built in; only the public website's synthetic test identities are local.
 const DB = {
@@ -3131,13 +3158,18 @@ function updateDemoLoginCard() {
   const card=$('demo-login-card');
   if (card) card.hidden=!staticDemoAvailable() || !$('fl') || $('fl').classList.contains('hid');
 }
-function fillDemoLogin(role) {
-  if (!demoAccountForRole(role)) return;
-  const user=DB.users.find(item=>item.demoOnly&&item.role===role);
-  setRole(role);
+function fillDemoLogin(email) {
+  if (!staticDemoAvailable()) return;
+  const user=DB.users.find(item=>item.demoOnly&&item.email===email);
+  if (!user || !WEB_DEMO_PASSWORDS[user.email]) return;
+  setRole(user.role);
   $('le').value=user.email;
-  $('lp').value='HFA-Demo-2026!';
+  $('lp').value=WEB_DEMO_PASSWORDS[user.email];
   $('amsg').innerHTML='';
+  return true;
+}
+function tryDemoLogin(email) {
+  if (fillDemoLogin(email)) doLogin();
 }
 function showAccountsUnavailable() {
   openMo(`<div class="mh"><div class="mt2">${t('accounts_unavailable_title')}</div><button class="mc" onclick="closeMo()" aria-label="${t('close')}">${IC.x}</button></div>

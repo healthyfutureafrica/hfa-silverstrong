@@ -65,7 +65,7 @@ describe('index.html sanity checks', () => {
     expect(content).toContain('<div class="pc2" onclick="goAuth(\'login\',\'admin\')">');
     expect(content).toContain("noAccounts() && !(tab==='login' && (['admin','pharmacist'].includes(role)||staticDemoAvailable()))");
     expect(content).toContain("['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body')");
-    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v46'");
+    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v47'");
   });
 
   test('first visit opens the platform in a saved or browser-supported language', () => {
@@ -1210,28 +1210,57 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("role==='admin'?{adminRole:");
   });
 
-  test('offers synthetic public-web test sign-ins without built-in clinical records or backend demo auth', () => {
+  test('offers the published public-web test sign-ins without built-in clinical records or backend demo auth', () => {
     const db = content.match(/^const DB = \{[^]*?^\};/m)[0];
     expect(db).toContain('users: WEB_DEMO_USERS.map');
     for (const key of ['appointments', 'messages', 'careNotes', 'carePlans', 'consents', 'subscriptions', 'homeVisits', 'auditLogs']) expect(db).toContain(`${key}: []`);
-    expect(content).toContain("email:'patient.demo@example.invalid'");
-    expect(content).toContain("email:'doctor.demo@example.invalid'");
-    expect(content).toContain("email:'nurse.demo@example.invalid'");
+    for (const email of ['anwosu@hfa.org', 'kasante@hfa.org', 'fdiallo@hfa.org', 'bosei@hfa.org', 'lab@hfa.org', 'pharmacy@hfa.org', 'etabe@gmail.com', 'cmbeki@yahoo.com', 'jfon@gmail.com']) {
+      expect(content).toContain(`email:'${email}'`);
+      expect(content).toContain(`'${email}':`);
+    }
     expect(content).toContain("passwordHash:'pbkdf2-sha256$");
     expect(content).toContain('const staticDemoAvailable = () => !ApiState.loading && (noAccounts() || ApiState.offline || ApiState.failed)');
-    expect(content).toContain('function fillDemoLogin(role)');
-    expect(content).toContain('HFA-Demo-2026!');
+    expect(content).toContain('function fillDemoLogin(email)');
+    expect(content).toContain("function tryDemoLogin(email)");
+    expect(content).toContain("onclick=\"tryDemoLogin('etabe@gmail.com')\"");
+    for (const password of ['Doctor@123', 'Nurse@123', 'Lab@123', 'Pharmacist@123', 'Patient@123']) expect(content).toContain(password);
     expect(content).toContain('Do not enter real health information');
     expect(content).not.toContain('/api/auth/demo');
     expect(content).toContain("if (ApiState.enabled && !ApiState.offline && !ApiState.failed) { backendLogin");
   });
 
-  test('accepts the published password only for each salted synthetic web account', async () => {
+  test('accepts each published password only for its salted synthetic web account', async () => {
     const fixtures = content.match(/const WEB_DEMO_USERS = \[[\s\S]*?\n\];/)[0];
+    const passwords = content.match(/const WEB_DEMO_PASSWORDS = \{[\s\S]*?\n\};/)[0];
     const matcher = content.match(/^async function demoPasswordMatches\(user, password\) \{[\s\S]*?^\}/m)[0];
     const context = { crypto: webcrypto, atob, TextEncoder, Uint8Array };
-    const results = await vm.runInNewContext(`${fixtures}\n${matcher}\nPromise.all([...WEB_DEMO_USERS.map(user=>demoPasswordMatches(user,'HFA-Demo-2026!')),demoPasswordMatches(WEB_DEMO_USERS[0],'wrong-password')])`, context);
-    expect([...results]).toEqual([true, true, true, false]);
+    const results = await vm.runInNewContext(`${fixtures}\n${passwords}\n${matcher}\nPromise.all([...WEB_DEMO_USERS.map(user=>demoPasswordMatches(user,WEB_DEMO_PASSWORDS[user.email])),demoPasswordMatches(WEB_DEMO_USERS[0],'wrong-password')])`, context);
+    expect([...results]).toEqual([true, true, true, true, true, true, true, true, true, false]);
+  });
+
+  test('prefills role-specific demo credentials and Try Demo starts Emmanuel Tabe’s session', () => {
+    const fixtures = content.match(/const WEB_DEMO_USERS = \[[\s\S]*?\n\];/)[0];
+    const passwords = content.match(/const WEB_DEMO_PASSWORDS = \{[\s\S]*?\n\};/)[0];
+    const fill = content.match(/^function fillDemoLogin\(email\) \{[\s\S]*?^\}/m)[0];
+    const quick = content.match(/^function tryDemoLogin\(email\) \{[\s\S]*?^\}/m)[0];
+    const fields = { le:{value:''}, lp:{value:''}, amsg:{innerHTML:''} };
+    const context = {
+      staticDemoAvailable:()=>true,
+      setRole:jest.fn(),
+      $:id=>fields[id],
+      doLogin:jest.fn(),
+    };
+    vm.createContext(context);
+    vm.runInContext(`${fixtures}\n${passwords}\nconst DB={users:WEB_DEMO_USERS};\n${fill}\n${quick}`,context);
+
+    context.fillDemoLogin('lab@hfa.org');
+    expect(context.setRole).toHaveBeenCalledWith('labtech');
+    expect(fields.le.value).toBe('lab@hfa.org');
+    expect(fields.lp.value).toBe('Lab@123');
+    context.tryDemoLogin('etabe@gmail.com');
+    expect(fields.le.value).toBe('etabe@gmail.com');
+    expect(fields.lp.value).toBe('Patient@123');
+    expect(context.doLogin).toHaveBeenCalledTimes(1);
   });
 
   test.each([
@@ -1243,7 +1272,7 @@ describe('index.html sanity checks', () => {
     const initialize = content.match(/^async function initializeBackend\(\) \{[\s\S]*?^\}/m)[0];
     const helpers = content.match(/^const noAccounts = \(\) =>[\s\S]*?^const demoAccountForRole = .*?;$/m)[0];
     const login = content.match(/^function doLogin\(\) \{[\s\S]*?^\}/m)[0];
-    const fields = { le:{value:'doctor.demo@example.invalid'}, lp:{value:'HFA-Demo-2026!'}, amsg:{innerHTML:''} };
+    const fields = { le:{value:'anwosu@hfa.org'}, lp:{value:'Doctor@123'}, amsg:{innerHTML:''} };
     const context = {
       location:{protocol:'https:',hostname:'example.org'}, AbortSignal,
       fetch:jest.fn().mockRejectedValue(new Error('offline')),
@@ -1259,21 +1288,21 @@ describe('index.html sanity checks', () => {
 
     await context.initializeBackend();
     expect(context.ApiState[unavailableState]).toBe(true);
-    expect(vm.runInContext('DB.users.map(user=>user.email)',context)).toContain('doctor.demo@example.invalid');
+    expect(vm.runInContext('DB.users.map(user=>user.email)',context)).toContain('anwosu@hfa.org');
     expect(vm.runInContext('staticDemoAvailable()',context)).toBe(true);
     vm.runInContext('doLogin()',context);
     await new Promise(resolve=>setTimeout(resolve,0));
 
     expect(context.demoPasswordMatches).toHaveBeenCalledWith(
-      expect.objectContaining({email:'doctor.demo@example.invalid',demoOnly:true}),
-      'HFA-Demo-2026!'
+      expect.objectContaining({email:'anwosu@hfa.org',demoOnly:true}),
+      'Doctor@123'
     );
     expect(context.backendLogin).not.toHaveBeenCalled();
     expect(context.goApp).toHaveBeenCalled();
   });
 
   test('shows only true facts: no invented figures, placeholder contacts or made-up IP addresses', () => {
-    for (const text of ['500+', 'Patients Served', '99.9%', '@hfa.org', '+237 677 000 1', "'192.168.'+", 'HIPAA-Grade']) expect(content).not.toContain(text);
+    for (const text of ['500+', 'Patients Served', '99.9%', '@example.invalid', '+237 677 000 1', "'192.168.'+", 'HIPAA-Grade']) expect(content).not.toContain(text);
     expect(content).toContain("const HFA_CONTACT_EMAIL = 'healthyfutureafrica@gmail.com';");
   });
 
