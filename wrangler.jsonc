@@ -9,13 +9,12 @@
   "observability": {
     "enabled": true
   },
-  // Keep the workers.dev address on (listing custom domains would otherwise switch it off);
-  // the edge script redirects it to the main domain so old links still work.
-  "workers_dev": true,
+  // The public site is served on the custom domains below; no workers.dev subdomain is configured.
+  "workers_dev": false,
   // Served on the organisation's domain (DNS managed in the same Cloudflare account).
   "routes": [
-    { "pattern": "www.healthyfutureafrica.org", "custom_domain": true },
-    { "pattern": "healthyfutureafrica.org", "custom_domain": true }
+    { "pattern": "www.healthyfutureafrica.org", "custom_domain": true, "zone_name": "healthyfutureafrica.org" },
+    { "pattern": "healthyfutureafrica.org", "custom_domain": true, "zone_name": "healthyfutureafrica.org" }
   ],
   "build": {
     "command": "npm run build:static"
