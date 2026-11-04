@@ -51,13 +51,17 @@ test('changing a password needs the current one, enforces strength and signs out
   } finally { await app.close(); }
 });
 
-test('two-step sign-in: setup, sign-in with a code, no code reuse, recovery codes, and admin tools require it', async () => {
-  const app = await start({ requireAdminMfa: true });
+test('two-step sign-in: every account must enroll; TOTP, recovery codes, replay protection, and admin tools are enforced', async () => {
+  const app = await start({ requireMfa: true, requireAdminMfa: true });
   try {
     app.store.createUser({ name: 'Chief Admin', email: 'chief-mfa@example.invalid', role: 'admin' }, await hashPassword('Synthetic-admin-pass-9'), 'active');
     const doctor = app.store.createUser({ name: 'Dr Synthetic', email: 'doc-mfa@example.invalid', role: 'doctor' }, 'x', 'active');
     const browser = client(app.base);
-    assert.equal((await browser.call('/api/auth/login', { email: 'chief-mfa@example.invalid', password: 'Synthetic-admin-pass-9' })).status, 200);
+    assert.equal((await (await browser.call('/api/config')).json()).requireMfa, true);
+    const firstPassword = await browser.call('/api/auth/login', { email: 'chief-mfa@example.invalid', password: 'Synthetic-admin-pass-9' });
+    assert.equal(firstPassword.status, 200);
+    assert.equal((await firstPassword.json()).mfaSetupRequired, true, 'unenrolled accounts receive only a setup session');
+    assert.equal((await browser.call('/api/v1/account/password', { currentPassword: 'Synthetic-admin-pass-9', newPassword: 'mango river lantern 47' })).status, 403);
     // Admin tools are locked until two-step sign-in is on.
     const locked = await browser.call('/api/v1/admin/audit');
     assert.equal(locked.status, 403);
@@ -105,6 +109,35 @@ test('two-step sign-in: setup, sign-in with a code, no code reuse, recovery code
     for (let attempt = 0; attempt < 5; attempt++) await guesser.call('/api/auth/mfa', { challenge: fifth.challenge, code: String(100000 + attempt) });
     assert.equal((await guesser.call('/api/auth/mfa', { challenge: fifth.challenge, code: codeFor(setup.secret, 1) })).status, 429);
     assert.deepEqual(app.store.auditLog().map(entry => entry.action).filter(action => action.startsWith('MFA')).sort(), ['MFA_ENABLED', 'MFA_RECOVERY_CODE_USED']);
+  } finally { await app.close(); }
+});
+
+test('non-admin accounts enroll MFA before portal access and must verify it at every later sign-in', async () => {
+  const app = await start({ requireMfa: true });
+  try {
+    app.store.createUser({ name: 'Synthetic Pending Nurse', email: 'pending-mfa@example.invalid', role: 'nurse' }, await hashPassword('Synthetic-nurse-pass-9'), 'pending_approval');
+    const browser = client(app.base);
+    const initial = await (await browser.call('/api/auth/login', { email: 'pending-mfa@example.invalid', password: 'Synthetic-nurse-pass-9' })).json();
+    assert.equal(initial.mfaSetupRequired, true);
+    assert.equal(initial.user.role, 'nurse');
+    assert.equal(initial.user.licenseNo, undefined, 'MFA enrollment response exposes only minimal account information');
+    const pendingAccess = await browser.call('/api/v1/nurse/availability');
+    assert.equal(pendingAccess.status, 403);
+    assert.match((await pendingAccess.json()).error, /Complete your profile and required reviews/);
+    app.store.createUser({ name: 'Synthetic Active Doctor', email: 'active-mfa@example.invalid', role: 'doctor' }, await hashPassword('Synthetic-active-pass-9'), 'active');
+    const activeBrowser = client(app.base);
+    await activeBrowser.call('/api/auth/login', { email: 'active-mfa@example.invalid', password: 'Synthetic-active-pass-9' });
+    const activeAccess = await activeBrowser.call('/api/notifications');
+    assert.equal(activeAccess.status, 403);
+    assert.equal((await activeAccess.json()).code, 'mfa_required');
+    const setup = await (await browser.call('/api/v1/account/mfa/setup', {})).json();
+    const enabled = await browser.call('/api/v1/account/mfa/enable', { code: codeFor(setup.secret) });
+    assert.equal(enabled.status, 200);
+    assert.equal((await enabled.json()).user.mfaEnabled, true);
+    assert.equal((await browser.call('/api/v1/nurse/availability')).status, 403, 'MFA does not bypass professional review');
+    const later = await (await client(app.base).call('/api/auth/login', { email: 'pending-mfa@example.invalid', password: 'Synthetic-nurse-pass-9' })).json();
+    assert.equal(later.mfaRequired, true);
+    assert.equal((await client(app.base).call('/api/auth/mfa', { challenge: later.challenge, code: codeFor(setup.secret, 1) })).status, 200);
   } finally { await app.close(); }
 });
 

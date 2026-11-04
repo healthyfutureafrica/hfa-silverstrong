@@ -70,13 +70,14 @@ sudo docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml ps
 
 All three services (`caddy`, `web`, `backend`) should show *running / healthy* after a minute.
 Open `https://app.healthyfutureafrica.org`: the padlock should show, and `/api/config` should report
-`"requireAdminMfa":true`.
+`"requireMfa":true`.
 
 ## 6. First sign-in
 
 1. Sign in with `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD`.
-2. The app opens **Account security**: turn on two-step sign-in with your phone, save the recovery codes
-   offline, then change the password to a long passphrase.
+2. The app opens **Account security**: enroll an authenticator, save the one-time recovery codes offline,
+   then change the password to a long passphrase. All server accounts must enroll two-step sign-in before
+   using the portal and verify a code at each subsequent sign-in. Browser-only demo accounts are exempt.
 3. Remove `BOOTSTRAP_ADMIN_PASSWORD` from `.env` afterwards (it is only used to create the first account).
 
 ## 7. Daily backups
@@ -125,7 +126,7 @@ The `FILE_ENCRYPTION_KEY` must be identical on both machines.
 ## Checklist before real patients
 
 - [ ] Legal opinion on hosting location and Law No. 2024/017 authorisation
-- [ ] `REQUIRE_ADMIN_MFA=true` (`/api/config` shows it)
+- [ ] Mandatory MFA is active (`/api/config` reports `"requireMfa":true`)
 - [ ] Encryption key stored offline in two safe places
 - [ ] Backups running and one restore tested
 - [ ] Clinical records moved to the server (see the platform audit: *Server-backed clinical records*)

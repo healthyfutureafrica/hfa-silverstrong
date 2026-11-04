@@ -1,5 +1,4 @@
-// Account security: change password and two-step sign-in (TOTP, RFC 6238) with recovery codes.
-// Administrators must have two-step sign-in before admin tools work (see requireAdminMfa in server.js).
+// Account security: mandatory two-step sign-in (TOTP, RFC 6238) with one-time recovery codes.
 const { createHmac, randomBytes, randomInt, createCipheriv, createDecipheriv, timingSafeEqual } = require('node:crypto');
 const { z } = require('zod');
 const QRCode = require('qrcode');
@@ -155,21 +154,12 @@ function installAccountSecurity(app, config, store, authenticated, { authLimit, 
     store.db.prepare('UPDATE users SET mfa_secret=?, mfa_pending_secret=NULL, mfa_enabled_at=?, mfa_last_step=?, mfa_recovery=? WHERE id=?')
       .run(row.mfa_pending_secret, new Date().toISOString(), step, JSON.stringify(codes.map(value => digest(value))), request.user.id);
     store.audit(request.user.id, 'MFA_ENABLED', { targetId: request.user.id, ip: request.ip });
-    response.json({ recoveryCodes: codes, user: store.user(request.user.id) });
+    const user = store.user(request.user.id);
+    response.json({ recoveryCodes: codes, ...sessionPayload(user) });
   });
 
-  // Turning it off needs the password and a current code; administrators cannot turn it off.
-  app.post('/api/v1/account/mfa/disable', authLimit, authenticated, notForSomeoneElse, storageReady, async (request, response) => {
-    if (request.user.role === 'admin' && config.requireAdminMfa) return response.status(403).json({ error: 'Administrators must keep two-step sign-in on' });
-    const input = z.object({ password: z.string().min(1).max(128), code: z.string().trim().max(20) }).strict().parse(request.body);
-    const row = mfaRow(request.user.id), credentials = store.db.prepare('SELECT password_hash FROM users WHERE id=?').get(request.user.id);
-    if (!row.mfa_secret) return response.status(409).json({ error: 'Two-step sign-in is already off' });
-    if (!(await verifyPassword(input.password, credentials.password_hash))) return response.status(401).json({ error: 'Your current password is not correct' });
-    if (matchTotp(openSecret(config, request.user.id, row.mfa_secret), input.code.replace(/\s/g, '')) === null) return response.status(400).json({ error: 'That code is not correct' });
-    store.db.prepare("UPDATE users SET mfa_secret=NULL, mfa_pending_secret=NULL, mfa_enabled_at=NULL, mfa_last_step=NULL, mfa_recovery='[]' WHERE id=?").run(request.user.id);
-    store.audit(request.user.id, 'MFA_DISABLED', { targetId: request.user.id, ip: request.ip });
-    response.json({ user: store.user(request.user.id) });
-  });
+  app.post('/api/v1/account/mfa/disable', authLimit, authenticated, notForSomeoneElse, (request, response) =>
+    response.status(403).json({ error: 'Two-step sign-in is required for every HFA account' }));
 
   // Whether backup codes by email are ready for this account (shown on the Account security page).
   app.get('/api/v1/account/mfa/email-backup', authenticated, (request, response) => {
@@ -213,7 +203,7 @@ function installAccountSecurity(app, config, store, authenticated, { authLimit, 
     if (!pending) return response.status(401).json({ error: 'This sign-in has expired. Enter your password again.' });
     if (pending.attempts >= MAX_CHALLENGE_ATTEMPTS) { store.db.prepare('DELETE FROM mfa_challenges WHERE token_hash=?').run(tokenHash); return response.status(429).json({ error: 'Too many wrong codes. Enter your password again.' }); }
     const user = store.user(pending.user_id), row = mfaRow(pending.user_id);
-    if (!user || user.status !== 'active' || !row.mfa_secret) return response.status(401).json({ error: 'Sign in again' });
+    if (!user || !['active', 'pending_approval'].includes(user.status) || !row.mfa_secret) return response.status(401).json({ error: 'Sign in again' });
     const cleaned = code.replace(/\s/g, '').toUpperCase();
     let ok = false;
     if (/^\d{6}$/.test(cleaned)) {

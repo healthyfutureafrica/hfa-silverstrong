@@ -724,7 +724,7 @@
         }
         installBackendSession(data, {});
         DB.users.forEach(applyLegacy);
-        await HFAOffline.afterOnlineLogin(data.user, RS.password);
+        if (data.user.mfaEnabled || data.user.demoOnly || !ApiState.requireMfa) await HFAOffline.afterOnlineLogin(data.user, RS.password);
         if (RS.photo?.file) { try { await HFAAvatar.upload(RS.photo.file); } catch (error) { /* account exists; the photo can be added from the dashboard */ } }
         finishSuccess(false);
       } else {

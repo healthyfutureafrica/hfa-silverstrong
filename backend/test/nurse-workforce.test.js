@@ -38,7 +38,8 @@ test('a nurse works only after an administrator has contacted the supervisor and
     const shortRegistration = await app.call('/api/auth/register', { ...withoutApplication, email: 'short-nurse@example.com',phone:'+237677445567' });
     assert.equal(shortRegistration.status, 201);
     assert.equal((await json(shortRegistration)).user.onboardingRequired, true);
-    assert.equal((await app.call('/api/auth/register', { ...nurseRegistration, licenseNo: '' })).status, 400);
+    const noLicence=await app.call('/api/auth/register',{...nurseRegistration,email:'no-license@example.com',phone:'+237677445568',licenseNo:''});
+    assert.equal(noLicence.status,201,'licence details are collected during post-signup profile completion');
     assert.match((await json(await app.call('/api/auth/register', { ...nurseRegistration, nurseApplication: { ...application, supervisor: { ...application.supervisor, phone: '677' } } }))).error, /country code/);
     assert.equal((await app.call('/api/auth/register', { ...nurseRegistration, role: 'doctor', specialty: 'General Medicine' })).status, 400, 'only nurses send a nurse application');
     const registered = await app.call('/api/auth/register', nurseRegistration);

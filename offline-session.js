@@ -212,7 +212,9 @@ globalThis.OfflineSession=OfflineSession;
       if (ApiState.offline) {
         const config=await fetch('/api/config',{cache:'no-store',signal:AbortSignal.timeout(8000)}).catch(()=>null);
         if (!config?.ok) return;
-        ApiState.providerConfigured=!!(await config.json().catch(()=>({}))).providerConfigured;
+        const backendConfig=await config.json().catch(()=>({}));
+        ApiState.providerConfigured=!!backendConfig.providerConfigured;
+        ApiState.requireMfa=!!backendConfig.requireMfa;
         ApiState.offline=false;
         if (CU) {
           await save();
@@ -221,7 +223,7 @@ globalThis.OfflineSession=OfflineSession;
           const data=response.ok?await response.json():null;
           if (!data||data.user.id!==CU.id) {endOfflineSession(t('offline_signin_to_sync'));return;}
           installBackendSession(data);
-          await afterSessionRestore(data.user);
+          if (data.user.mfaEnabled || data.user.demoOnly) await afterSessionRestore(data.user);
           notice(t('offline_synced'));navigate(CP);
         }
       } else if (CU) await flush();

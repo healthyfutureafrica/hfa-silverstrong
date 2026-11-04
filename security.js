@@ -1,17 +1,16 @@
-// Account security for every user: change password and two-step sign-in (authenticator app codes).
-// Administrators are taken to this page until two-step sign-in is on; the server enforces the same rule.
+// Account security for every user: password and mandatory two-step sign-in (authenticator app codes).
 (function () {
   const esc = window.hfaEscape, tf = window.hfaFormat;
 
   Object.assign(T.en, {
-    sec_nav: 'Account security', sec_title: 'Account security', sec_intro: 'Protect your account: use a strong password and turn on two-step sign-in.',
+    sec_nav: 'Account security', sec_title: 'Secure your account', sec_intro: 'Set up an authenticator app to finish signing in. Two-step sign-in is required for every HFA account.',
     sec_pw_title: 'Change password', sec_pw_current: 'Current password', sec_pw_new: 'New password', sec_pw_confirm: 'Repeat the new password',
     sec_pw_rules: 'At least 12 characters. Three or four unrelated words work well, e.g. “mango river lantern 47”. Avoid your name, email and common passwords.',
     sec_pw_save: 'Change password', sec_pw_saving: 'Saving…', sec_pw_done: 'Password changed. Your other devices have been signed out.',
     sec_pw_short: 'Use at least 12 characters', sec_pw_mismatch: 'The two new passwords do not match', sec_pw_same: 'Choose a password different from your current one',
     sec_mfa_title: 'Two-step sign-in', sec_mfa_on: 'On since {date}. Signing in needs your password and a code from your authenticator app.',
     sec_mfa_off: 'Off. Turn it on so that a stolen password alone cannot open your account.',
-    sec_mfa_admin_required: 'Administrators must turn on two-step sign-in before using admin tools.',
+    sec_mfa_admin_required: 'Two-step sign-in is required for every HFA account. Set it up before continuing.',
     sec_mfa_start: 'Turn on two-step sign-in',
     sec_mfa_step1: '1. Install an authenticator app on your phone (Google Authenticator, Microsoft Authenticator or similar).',
     sec_mfa_step2: '2. In the app, add an account and scan this code:', sec_mfa_manual: 'Can’t scan? Enter this key in the app instead:',
@@ -25,17 +24,18 @@
     sec_login_email: 'Phone unavailable? Send a code to {email}', sec_login_email_sent: 'We sent a 6-digit code to {email}. Type it below; it works once, for 10 minutes. Check your spam folder if it has not arrived.',
     sec_login_email_wait: 'Send another code in {seconds} s', sec_login_email_again: 'Send another code by email',
     sec_mfa_email_ready: 'Backup if your phone is unavailable: a sign-in code by email to {email}.',
-    sec_mfa_email_off: 'Backup by email: not set up yet. The server needs an email service (SMTP_HOST, SMTP_USER, SMTP_PASS, MAIL_FROM in .env).'
+    sec_mfa_email_off: 'Backup by email: not set up yet. The server needs an email service (SMTP_HOST, SMTP_USER, SMTP_PASS, MAIL_FROM in .env).',
+    sec_offline_mfa: 'Connect to the internet to sign in with your password and authenticator code. Offline sign-in is available only for demo accounts.'
   });
   Object.assign(T.fr, {
-    sec_nav: 'Sécurité du compte', sec_title: 'Sécurité du compte', sec_intro: 'Protégez votre compte : utilisez un mot de passe solide et activez la connexion en deux étapes.',
+    sec_nav: 'Sécurité du compte', sec_title: 'Sécurisez votre compte', sec_intro: 'Configurez une application d’authentification pour terminer la connexion. La connexion en deux étapes est obligatoire pour tous les comptes HFA.',
     sec_pw_title: 'Changer le mot de passe', sec_pw_current: 'Mot de passe actuel', sec_pw_new: 'Nouveau mot de passe', sec_pw_confirm: 'Répétez le nouveau mot de passe',
     sec_pw_rules: 'Au moins 12 caractères. Trois ou quatre mots sans lien fonctionnent bien, par ex. « mangue rivière lanterne 47 ». Évitez votre nom, votre e-mail et les mots de passe courants.',
     sec_pw_save: 'Changer le mot de passe', sec_pw_saving: 'Enregistrement…', sec_pw_done: 'Mot de passe changé. Vos autres appareils ont été déconnectés.',
     sec_pw_short: 'Utilisez au moins 12 caractères', sec_pw_mismatch: 'Les deux nouveaux mots de passe ne correspondent pas', sec_pw_same: 'Choisissez un mot de passe différent de l’actuel',
     sec_mfa_title: 'Connexion en deux étapes', sec_mfa_on: 'Activée depuis le {date}. La connexion demande votre mot de passe et un code de votre application d’authentification.',
     sec_mfa_off: 'Désactivée. Activez-la pour qu’un mot de passe volé ne suffise pas à ouvrir votre compte.',
-    sec_mfa_admin_required: 'Les administrateurs doivent activer la connexion en deux étapes avant d’utiliser les outils d’administration.',
+    sec_mfa_admin_required: 'La connexion en deux étapes est obligatoire pour tous les comptes HFA. Configurez-la pour continuer.',
     sec_mfa_start: 'Activer la connexion en deux étapes',
     sec_mfa_step1: '1. Installez une application d’authentification sur votre téléphone (Google Authenticator, Microsoft Authenticator ou similaire).',
     sec_mfa_step2: '2. Dans l’application, ajoutez un compte et scannez ce code :', sec_mfa_manual: 'Impossible de scanner ? Saisissez plutôt cette clé dans l’application :',
@@ -49,10 +49,11 @@
     sec_login_email: 'Téléphone indisponible ? Envoyer un code à {email}', sec_login_email_sent: 'Nous avons envoyé un code à 6 chiffres à {email}. Saisissez-le ci-dessous ; il est valable une fois, pendant 10 minutes. Vérifiez vos courriers indésirables s’il n’est pas arrivé.',
     sec_login_email_wait: 'Nouveau code possible dans {seconds} s', sec_login_email_again: 'Envoyer un autre code par e-mail',
     sec_mfa_email_ready: 'Secours si votre téléphone est indisponible : un code de connexion par e-mail à {email}.',
-    sec_mfa_email_off: 'Secours par e-mail : pas encore configuré. Le serveur a besoin d’un service e-mail (SMTP_HOST, SMTP_USER, SMTP_PASS, MAIL_FROM dans .env).'
+    sec_mfa_email_off: 'Secours par e-mail : pas encore configuré. Le serveur a besoin d’un service e-mail (SMTP_HOST, SMTP_USER, SMTP_PASS, MAIL_FROM dans .env).',
+    sec_offline_mfa: 'Connectez-vous à Internet pour utiliser votre mot de passe et votre code d’authentification. La connexion hors ligne est réservée aux comptes de démonstration.'
   });
 
-  const needsMfa = () => ApiState.enabled && ApiState.requireAdminMfa && CU?.role === 'admin' && !CU.mfaEnabled && !window.HFA_IMPERSONATED_BY;
+  const needsMfa = () => ApiState.enabled && ApiState.requireMfa && !CU?.demoOnly && !CU?.mfaEnabled && !window.HFA_IMPERSONATED_BY;
   const field = (id, label, type = 'password', attrs = '') => `<div class="fg"><label class="fl" for="${id}">${esc(label)}</label><input class="fc" id="${id}" type="${type}" ${attrs}></div>`;
   const message = (id, text, kind = 'ae') => { const box = document.getElementById(id); if (box) box.innerHTML = text ? `<div class="alt ${kind}" role="${kind === 'ae' ? 'alert' : 'status'}">${esc(text)}</div>` : ''; };
 
@@ -66,12 +67,12 @@
   }
 
   function mfaCard() {
+    if (CU.demoOnly) return `<p class="mu">${esc(t('sec_mfa_demo'))}</p>`;
     if (!ApiState.enabled) return `<p class="mu">${esc(t('sec_mfa_demo'))}</p>`;
     if (CU.mfaEnabled) {
-      const canDisable = !(CU.role === 'admin' && ApiState.requireAdminMfa);
-      return `<p>✅ ${esc(tf('sec_mfa_on', { date: String(CU.mfaEnabledAt || '').slice(0, 10) || '—' }))}</p>${canDisable ? `<button type="button" class="btn bs bsm mt8" onclick="HFASecurity.showDisable()">${esc(t('sec_mfa_disable'))}</button>` : ''}`;
+      return `<p>✅ ${esc(tf('sec_mfa_on', { date: String(CU.mfaEnabledAt || '').slice(0, 10) || '—' }))}</p>`;
     }
-    return `${needsMfa() ? `<div class="alt ae">${esc(t('sec_mfa_admin_required'))}</div>` : ''}<p class="mu">${esc(t('sec_mfa_off'))}</p>
+    return `<div class="alt ae">${esc(t('sec_mfa_admin_required'))}</div><p class="mu">${esc(t('sec_mfa_off'))}</p>
       <div id="sec-mfa-flow"><button type="button" class="btn bp mt8" onclick="HFASecurity.startSetup()">${esc(t('sec_mfa_start'))}</button></div>`;
   }
 
@@ -138,7 +139,7 @@
   async function confirmSetup() {
     try {
       const result = await apiRequest('/api/v1/account/mfa/enable', 'POST', { code: $('sec-mfa-code').value });
-      Object.assign(CU, result.user);
+      installBackendSession(result);
       const codes = result.recoveryCodes;
       document.getElementById('sec-mfa-flow').innerHTML = `<div class="sec-recovery"><h3>${esc(t('sec_mfa_recovery_title'))}</h3><p>${esc(t('sec_mfa_recovery_body'))}</p>
         <ul class="sec-codes">${codes.map(code => `<li><code>${esc(code)}</code></li>`).join('')}</ul>

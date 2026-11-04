@@ -42,7 +42,7 @@ test('scribe drafts a SOAP note for the clinician, explain helps the patient, an
     const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Mbe', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677111000', hospitalId: store.listedHospitals()[0].id, healthProfile: profile('Wouri') });
     const patientCookie = cookieOf(registered);
     const patient = (await registered.json()).user;
-    store.updateUser(patient.id, { profile: { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } });
+    store.updateUser(patient.id, { profile: { onboardingRequired: false, subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } });
     const doctorCookie = cookieOf(await app.request('/api/auth/login', { email: 'scribe@example.invalid', password: 'Synthetic-doctor-pass' }));
     const triage = await (await app.request('/api/v1/triage', { requestId: crypto.randomUUID(), answers: { ageGroup: 'adult', complaints: ['fever'], duration: 'days_1_2', severity: 'moderate' }, text: '' }, patientCookie)).json();
 
@@ -104,7 +104,7 @@ test('outbreak early warning finds a cholera-like cluster in one division withou
     for (const [index, division] of ['Wouri', 'Wouri', 'Wouri', 'Moungo'].entries()) {
       const registered = await app.request('/api/auth/register', { name: `Synthetic Person ${'ABCD'[index]}`, password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: `+23767722200${index}`, hospitalId, healthProfile: profile(division) });
       const person = (await registered.json()).user;
-      store.updateUser(person.id, { profile: { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } });
+      store.updateUser(person.id, { profile: { onboardingRequired: false, subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } });
       await app.request('/api/v1/triage', { requestId: crypto.randomUUID(), answers: { ageGroup: 'adult', complaints: ['diarrhoea_vomiting'], dangerSigns: ['watery_diarrhoea'] } }, cookieOf(registered));
     }
     const doctorCookie = cookieOf(await app.request('/api/auth/login', { email: 'surv@example.invalid', password: 'Synthetic-doctor-pass' }));

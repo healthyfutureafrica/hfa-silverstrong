@@ -17,7 +17,15 @@ test('pharmacists create a short account, complete credentials later, and remain
   const documents=Object.fromEntries(['pharmacistLicense','businessLicense','minsanteAuthorization','ownerIdentity'].map(kind=>[kind,{fileName:kind+'.pdf',content:pdf.toString('base64')}]));
   const input={name:'Synthetic Pharmacist',email:'pharmacist@example.invalid',password:'Synthetic-password-123',pharmacyLicense:'TEST-LICENSE'};
   try {
-    assert.equal((await request('/api/auth/register',{name:input.name,email:input.email,password:input.password,role:'pharmacist'})).status,400);
+    const starter=await request('/api/auth/register',{name:input.name,email:'starter-pharmacist@example.invalid',password:input.password,role:'pharmacist'});
+    assert.equal(starter.status,201,'pharmacists create accounts before submitting pharmacy KYC');
+    const starterData=await starter.json(),starterUser=starterData.user,starterCookie=starter.headers.get('set-cookie').split(';')[0];
+    assert.equal(starterUser.onboardingRequired,true);
+    assert.equal(starterUser.status,'pending_approval');
+    const starterCompletion={pharmacyName:'Synthetic Starter Pharmacy',pharmacyAddress:'2 Test Street',pharmacyLocation:'Buea, Cameroon',pharmacyLicense:'STARTER-LICENSE',businessRegistration:'STARTER-RCCM',minsanteAuthorization:'STARTER-MINSANTE',ownerName:'Synthetic Starter Owner',ownerIdType:'passport',ownerIdNumber:'STARTER-PASSPORT',pharmacyRegion:'south_west',pharmacyTown:'Buea',documents};
+    assert.equal((await request('/api/v1/account/profile',starterCompletion,starterCookie,'PUT')).status,200,'pharmacists submit all KYC after creating their account');
+    assert.equal(store.user(starterUser.id).onboardingRequired,false);
+    assert.equal((await request('/api/pharmacy',undefined,starterCookie,'GET')).status,403,'complete pharmacy KYC still waits for administrator approval');
     const registered=await request('/api/auth/register/pharmacist',input);
     assert.equal(registered.status,201);
     const {user}=await registered.json(),pharmacyCookie=registered.headers.get('set-cookie').split(';')[0];
@@ -82,14 +90,18 @@ test('minimal doctor and email-only patient signups are limited to profile compl
     assert.equal((await request('/api/session',undefined,patientCookie,'GET')).status,200);
     assert.equal((await request('/api/v1/payments/options',undefined,patientCookie,'GET')).status,403);
 
-    assert.equal((await request('/api/auth/register',{name:'Synthetic Doctor',email:'short-doctor@example.invalid',password:'Synthetic-password-123',role:'doctor'})).status,400);
+    const starterDoctor=await request('/api/auth/register',{name:'Synthetic Starter Doctor',email:'starter-doctor@example.invalid',password:'Synthetic-password-123',role:'doctor'});
+    assert.equal(starterDoctor.status,201,'professional account creation does not require KYC documents');
+    assert.equal((await starterDoctor.json()).user.onboardingRequired,true);
     const doctorResponse=await request('/api/auth/register',{name:'Synthetic Doctor',email:'short-doctor@example.invalid',password:'Synthetic-password-123',role:'doctor',licenseNo:'TEST-MED-1'});
     assert.equal(doctorResponse.status,201);
     const doctor=(await doctorResponse.json()).user,doctorCookie=doctorResponse.headers.get('set-cookie').split(';')[0];
     assert.equal(doctor.status,'pending_approval');assert.equal(doctor.onboardingRequired,true);
     assert.equal((await request('/api/notifications',undefined,doctorCookie,'GET')).status,403);
     const pdf={fileName:'identity.pdf',content:Buffer.from('%PDF-1.4 synthetic identity').toString('base64')};
-    const completion=await request('/api/v1/account/profile',{specialty:'General Medicine',hospital:'Synthetic Clinic',consultationFee:10,qualifications:'Medical degree',idDocumentType:'passport',idDocument:pdf},doctorCookie,'PUT');
+    const missingLicence=await request('/api/v1/account/profile',{specialty:'General Medicine',hospital:'Synthetic Clinic',consultationFee:10,qualifications:'Medical degree',idDocumentType:'passport',idDocument:pdf},doctorCookie,'PUT');
+    assert.equal(missingLicence.status,400,'licence is required during profile verification');
+    const completion=await request('/api/v1/account/profile',{specialty:'General Medicine',hospital:'Synthetic Clinic',licenseNo:'TEST-MED-1',consultationFee:10,qualifications:'Medical degree',idDocumentType:'passport',idDocument:pdf},doctorCookie,'PUT');
     assert.equal(completion.status,200);
     assert.equal(store.user(doctor.id).onboardingRequired,false);
     assert.equal((await request('/api/notifications',undefined,doctorCookie,'GET')).status,403,'complete professionals remain restricted pending approval');
@@ -97,9 +109,15 @@ test('minimal doctor and email-only patient signups are limited to profile compl
     const adminCookie=`hfa_session=${store.createSession(admin.id)}`;
     assert.equal((await request(`/api/admin/users/${doctor.id}`,{status:'active'},adminCookie,'PATCH')).status,200);
     assert.equal((await request('/api/notifications',undefined,doctorCookie,'GET')).status,200);
-    const phoneOnly=await request('/api/auth/register',{name:'Synthetic Phone Doctor',phone:'+237 600 000 111',password:'Synthetic-password-123',role:'doctor',licenseNo:'TEST-MED-2'});
+    const phoneOnly=await request('/api/auth/register',{name:'Synthetic Phone Doctor',phone:'+237 600 000 111',password:'Synthetic-password-123',role:'doctor'});
     assert.equal(phoneOnly.status,201);
     assert.equal((await request('/api/auth/login',{email:'+237600000111',password:'Synthetic-password-123'})).status,200);
+    const pharmacistResponse=await request('/api/auth/register',{name:'Synthetic Pharmacist',email:'starter-pharmacist@example.invalid',password:'Synthetic-password-123',role:'pharmacist'});
+    assert.equal(pharmacistResponse.status,201,'pharmacy details are collected after account creation');
+    const pharmacist=(await pharmacistResponse.json()).user,pharmacistCookie=pharmacistResponse.headers.get('set-cookie').split(';')[0];
+    assert.equal(pharmacist.onboardingRequired,true);
+    assert.equal(pharmacist.status,'pending_approval');
+    assert.equal((await request('/api/notifications',undefined,pharmacistCookie,'GET')).status,403);
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
 

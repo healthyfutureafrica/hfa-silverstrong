@@ -16,7 +16,9 @@ function configuration(env = process.env) {
     urlParameter: env.WHATSAPP_TEMPLATE_LOGIN_URL_PARAMETER === 'true',
     adminEmail: env.BOOTSTRAP_ADMIN_EMAIL || '', adminPassword: env.BOOTSTRAP_ADMIN_PASSWORD || '',
     fileEncryptionKey: env.FILE_ENCRYPTION_KEY || '',
-    // Administrators must use two-step sign-in unless explicitly turned off.
+    // MFA is mandatory for every server account; the browser-only demo accounts are exempt.
+    requireMfa: true,
+    // Retained for compatibility with the older admin-only access guard.
     requireAdminMfa: env.REQUIRE_ADMIN_MFA !== 'false',
     // SLY AI help (Claude): triage reading, scribe, explanations. Off by default: needs data-protection approval
     // for transfers abroad. AI_TRIAGE_ENABLED is the earlier name of AI_ENABLED.

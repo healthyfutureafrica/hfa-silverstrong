@@ -38,7 +38,7 @@ test('patients manage consents, see who opened their record, export FHIR and mak
     assert.equal(registered.status, 201);
     const patientCookie = cookieOf(registered);
     const patient = (await registered.json()).user;
-    store.updateUser(patient.id, { profile: { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } });
+    store.updateUser(patient.id, { profile: { onboardingRequired: false, subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } });
 
     // Consents: optional purposes can be changed and every change is kept; care-team sharing cannot be withdrawn here.
     const consents = await (await app.request('/api/v1/me/consents', undefined, patientCookie)).json();

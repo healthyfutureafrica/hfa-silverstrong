@@ -677,7 +677,7 @@ describe('index.html sanity checks', () => {
       return {context,fields};
     }
 
-    test.each(['doctor','nurse','patient'])('defers identity documents for %s signup', role => {
+    test.each(['doctor','nurse','patient','pharmacist'])('defers identity documents for %s signup', role => {
       const {context} = uploadContext(role, '');
       context.doReg();
       expect(context.backendRegister).toHaveBeenCalledTimes(1);
@@ -686,7 +686,7 @@ describe('index.html sanity checks', () => {
       expect(context.DB.users[0]).not.toHaveProperty('idDocumentType');
     });
 
-    test.each(['doctor','nurse','patient'])('does not upload identity documents during %s signup', role => {
+    test.each(['doctor','nurse','patient','pharmacist'])('does not upload identity documents during %s signup', role => {
       const {context} = uploadContext(role, 'passport');
       context.doReg();
       expect(context.DB.users[0]).not.toHaveProperty('idDocumentType');
@@ -720,7 +720,7 @@ describe('index.html sanity checks', () => {
       expect(context.FileReader).not.toHaveBeenCalled();
     });
 
-    test.each(['doctor','nurse','patient'])('does not collect ID type during %s signup', role => {
+    test.each(['doctor','nurse','patient','pharmacist'])('does not collect ID type during %s signup', role => {
       const {context}=uploadContext(role,'drivers_license');
       context.doReg();
       expect(context.backendRegister).toHaveBeenCalledTimes(1);
@@ -1311,7 +1311,7 @@ describe('index.html sanity checks', () => {
   test('uses the HFA logo asset across the app', () => {
     expect(fs.existsSync(path.join(__dirname, '..', 'assets', 'hfa-logo.svg'))).toBe(true);
     // The HFA logo is for HFA's own branding only; portals use their own icons.
-    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(6); // includes the favicon and contact page
+    expect((content.match(/assets\/hfa-logo\.svg/g) || []).length).toBe(7); // includes the favicon, contact page, and registration header
     expect(content).not.toMatch(/id="lnd-pharmacist-card"[^]*?hfa-logo\.svg[^]*?id="lnd-pharmacist-title"/);
     expect(content).toContain('alt="HFA SilverStrong logo"');
   });

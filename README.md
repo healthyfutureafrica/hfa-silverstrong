@@ -5,10 +5,12 @@ A three-in-one application that covers 1. healthcare, 2. fitness & health tips a
 
 **To put the real system online (app + server + encrypted database with automatic HTTPS), follow [DEPLOY.md](DEPLOY.md).**
 It uses `deploy/docker-compose.prod.yml` (Caddy + Let's Encrypt), `deploy/production.env.example`,
-`deploy/setup-ubuntu.sh` and daily backups with `deploy/backup.sh`. Production forces two-step sign-in for
-administrators. If the Super Admin's phone is unavailable, the sign-in screen can email a one-time code (valid
-10 minutes, at most 3 per sign-in, a minute apart, audited) once `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` and
-`MAIL_FROM` are set (`backend/mailer.js`; a Gmail app password is free). Recovery codes keep working too.
+`deploy/setup-ubuntu.sh` and daily backups with `deploy/backup.sh`. Production requires two-step sign-in for
+all server accounts; browser-only demo accounts are exempt. Each real account must enroll an authenticator
+before using the portal and verify a code at every sign-in. Save the one-time recovery codes offline. If the
+Super Admin's phone is unavailable, the sign-in screen can email a one-time code (valid 10 minutes, at most
+3 per sign-in, a minute apart, audited) once `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` and `MAIL_FROM` are set
+(`backend/mailer.js`).
 
 The public website `www.healthyfutureafrica.org` runs on Cloudflare (`wrangler.jsonc`) without the account server, with an
 edge script (`worker/index.js`) that forces HTTPS, adds security headers, and returns JSON (not 404 pages) for unsupported
@@ -195,8 +197,7 @@ All three are held on the server (`backend/governance.js`, `governance-ui.js`):
 
 - **Consent register** (administrators / DPO): each patient's current choices (care team, research, Ministry
   statistics, SMS, WhatsApp), consent version, date and number of changes. Viewing it is audited.
-- **Clinician licence register** (administrators): the licence number entered at registration (now sent to the
-  server for doctors and nurses), checked after profile completion against the official licensing authority for the selected country.
+- **Clinician licence register** (administrators): the licence number submitted during post-signup profile completion for doctors and nurses, checked against the official licensing authority for the selected country.
   Verification records require a country, method, source, non-sensitive evidence reference, reviewer, timestamp,
   and expiry date. Missing-source legacy verifications must be reviewed again; expired, rejected, unverified and
   soon-expiring (60 days) licences are flagged. Patients see only a limited HFA review status and date—not licence
@@ -373,7 +374,7 @@ This owner-only file vault does not automatically release lab results, verify ID
 
 ## Account registration and profile completion
 
-- Initial signup collects a name, email or phone identifier, password, and (for doctors, nurses and pharmacists) the professional licence or registration number. Patients must also choose one monthly plan: Essential (XAF 1,000), Care (XAF 3,000), or Premium (XAF 10,000). Only the synthetic web demo patient is exempt.
+- Initial signup focuses on account creation: name, email or phone identifier, password, and (for patients) a monthly plan choice: Essential (XAF 1,000), Care (XAF 3,000), or Premium (XAF 10,000). Only the synthetic web demo patient is exempt. Identity, health, professional licence and pharmacy KYC are completed after the account exists.
 - Essential includes the health profile and records, in-person appointment booking, and public Health Hub resources; consultation fees are separate. Care adds secure care-team messaging and scheduled voice/video consultations, with consultation fees separate. Premium adds one nurse home-visit credit per month where available; extra visits are charged separately. Plans are paid manually each month (no automatic recurring charge).
 - New patients cannot use the portal until MTN confirms payment and they complete the health profile and required consent. Plan selection alone does not activate access. The server sets the exact XAF amount and rejects the retired free-plan endpoint. Doctors and nurses add their workplace, role details, qualifications and identity document after signup. Nurses also provide education and supervisor details. Pharmacists provide pharmacy/owner details and encrypted supporting documents after signup.
 - New and pending professional accounts can sign in to complete their profile, but the server limits those sessions to profile completion and session/logout operations. Completing the form does not activate the account: the existing HFA administrator and professional-verification reviews still apply. The UI-only route guard is backed by the same server-side restriction.

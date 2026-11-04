@@ -155,35 +155,35 @@ tbody tr:hover{background:#fcfdfe}
 .mc:hover{background:var(--si-p)}
 .mf{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--bd)}
 
-#auth-wrap{min-height:100vh;display:flex}
-.al{flex:1;background:linear-gradient(150deg,var(--em-d) 0%,var(--na) 65%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;position:relative;overflow:hidden}
-.al::before{content:'';position:absolute;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(196,144,42,.12) 0%,transparent 70%);top:-80px;right:-80px;pointer-events:none}
-.al::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(18,160,122,.1) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none}
+#auth-wrap{min-height:100vh;display:flex;background:var(--ow)}
+.al{flex:0 0 34%;background:linear-gradient(145deg,#1418dc 0%,#1010ed 62%,#263de9 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;position:relative;overflow:hidden}
+.al::before{content:'';position:absolute;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,0,.24) 0%,transparent 70%);top:-80px;right:-80px;pointer-events:none}
+.al::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(206,17,38,.22) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none}
 .abr{position:relative;z-index:1;text-align:center;max-width:360px}
 .abr h1{font-family:var(--fd);font-size:2.6rem;color:#fff;line-height:1.1}
-.abr .go{color:var(--go)}
-.abr p{color:rgba(255,255,255,.6);margin-top:10px;font-size:.95rem}
+.abr .go{color:#ffe14a}
+.abr p{color:rgba(255,255,255,.88);margin-top:10px;font-size:.95rem}
 .afl{margin-top:36px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
-.af{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.72);font-size:.85rem}
-.afd{width:18px;height:18px;border-radius:50%;background:rgba(196,144,42,.25);border:1px solid rgba(196,144,42,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dmb{margin-top:36px;background:rgba(196,144,42,.12);border:1px solid rgba(196,144,42,.2);border-radius:var(--r);padding:14px 16px;font-size:.72rem;color:rgba(255,255,255,.65);max-width:340px;position:relative;z-index:1}
-.dmb strong{color:var(--go-l)}
+.af{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.92);font-size:.85rem}
+.afd{width:18px;height:18px;border-radius:50%;background:rgba(255,214,0,.22);border:1px solid rgba(255,225,74,.68);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dmb{margin-top:36px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:var(--r);padding:14px 16px;font-size:.72rem;color:rgba(255,255,255,.9);max-width:340px;position:relative;z-index:1}
+.dmb strong{color:#ffe14a}
 .dmb .dr{margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
 .dmb code{font-family:var(--fm);font-size:.7rem;background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,.8)}
-.ar{width:460px;background:var(--sf);display:flex;flex-direction:column;justify-content:center;padding:56px 44px}
+.ar{flex:1;min-width:0;width:auto;max-width:760px;margin:0 auto;background:var(--sf);display:flex;flex-direction:column;justify-content:center;padding:42px clamp(28px,5vw,64px)}
 /* Top bars stay visible while scrolling (sign-in / register, public symptom check). */
 .auth-top-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 -44px 20px;padding:10px 44px;position:sticky;top:0;z-index:20;background:var(--sf);border-bottom:1px solid var(--bd)}
 .pub-topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;position:sticky;top:0;z-index:20;background:var(--ow);margin:-24px -16px 12px;padding:10px 16px;border-bottom:1px solid var(--bd)}
 .ar h2{font-family:var(--fd);font-size:1.7rem;color:var(--t1);margin-bottom:6px}
 .asb{color:var(--t3);font-size:.85rem;margin-bottom:24px}
-.atbs{display:flex;gap:3px;background:var(--si-p);border-radius:var(--rs);padding:3px;margin-bottom:22px}
+.atbs{display:flex;gap:3px;background:#eef1ff;border-radius:var(--rs);padding:4px;margin-bottom:22px}
 .atb{flex:1;padding:7px 10px;border:none;background:transparent;border-radius:5px;font-size:.78rem;font-weight:500;cursor:pointer;transition:var(--tr);color:var(--t3)}
-.atb.active{background:var(--sf);color:var(--t1);box-shadow:var(--sh)}
+.atb.active{background:var(--sf);color:#171bc6;box-shadow:0 2px 8px rgba(16,16,237,.14)}
 .afo{margin-top:16px;text-align:center;font-size:.78rem;color:var(--t3)}
-.alk{color:var(--em);font-weight:600;cursor:pointer}.alk:hover{text-decoration:underline}
+.alk{color:#161bd2;font-weight:600;cursor:pointer}.alk:hover{text-decoration:underline}
 .rbs{display:flex;gap:6px;margin-bottom:14px}
 .rb{flex:1;padding:7px 10px;border:2px solid var(--bd);border-radius:var(--rs);background:transparent;font-size:.75rem;font-weight:500;cursor:pointer;transition:var(--tr);color:var(--t2);text-transform:capitalize}
-.rb.active{border-color:var(--t1);background:var(--na);color:#fff}
+.rb.active{border-color:#1010ed;background:#1010ed;color:#fff;box-shadow:0 3px 10px rgba(16,16,237,.2)}
 .eb{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--t3);display:flex}
 .iw{position:relative}
 
@@ -816,6 +816,48 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 .wz-saved{text-align:center}
 .wz-link{background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline}
 .wz-file{margin-top:4px;color:var(--em);display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow-wrap:anywhere}
+/* Sign-in and registration use the logo's clear blue, yellow and red on a bright surface. */
+#auth-wrap .btn.bp{background:#1010ed;border-color:#1010ed;color:#fff}
+#auth-wrap .btn.bp:hover{background:#090dbd;border-color:#090dbd}
+#auth-wrap :focus-visible{outline-color:#1010ed}
+#auth-wrap .fc:focus{border-color:#1010ed;box-shadow:0 0 0 3px rgba(16,16,237,.12)}
+.auth-role-chip{display:inline-flex;align-self:flex-start;margin:0 0 12px;padding:5px 11px;border-radius:20px;background:#fff3b0;color:#242000;font-size:.75rem;font-weight:700}
+.auth-register-brand{display:none}
+#auth-wrap.auth-register{background:linear-gradient(125deg,#f3f5ff 0%,#fff 58%,#fff7f7 100%)}
+#auth-wrap.auth-register .al{display:none}
+#auth-wrap.auth-register .ar{width:100%;max-width:1120px;min-height:100vh;justify-content:flex-start;padding:clamp(22px,4vh,44px) clamp(20px,5vw,68px);background:#fff;box-shadow:0 0 48px rgba(16,16,237,.07)}
+#auth-wrap.auth-register .auth-register-brand{display:flex;max-width:none;text-align:left}
+#auth-wrap.auth-register .auth-mark{width:76px;height:58px;margin:0 0 4px}
+#auth-wrap.auth-register .abr{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+#auth-wrap.auth-register .abr h1{font-size:1.55rem;color:#111827;line-height:1.15;text-align:left}
+#auth-wrap.auth-register .abr h1 br{display:none}
+#auth-wrap.auth-register .abr .go{color:#1010ed}
+#auth-wrap.auth-register .abr p{margin:0;color:#4b5563;font-size:.82rem}
+#auth-wrap.auth-register .auth-top-actions{margin-left:0;margin-right:0;padding-left:0;padding-right:0}
+#auth-wrap.auth-register .atbs{max-width:560px}
+#auth-wrap.auth-register #fr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}
+#auth-wrap.auth-register #fr>.fg:first-child,
+#auth-wrap.auth-register #fr>#reg-common,
+#auth-wrap.auth-register #fr>#reg-onboarding-note,
+#auth-wrap.auth-register #fr>#df,
+#auth-wrap.auth-register #fr>#nf,
+#auth-wrap.auth-register #fr>#pf,
+#auth-wrap.auth-register #fr>#phf,
+#auth-wrap.auth-register #fr>#reg-submit,
+#auth-wrap.auth-register #fr>#afo-reg{grid-column:1/-1}
+#auth-wrap.auth-register #reg-common:not(.hid){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}
+#auth-wrap.auth-register #reg-common>#reg-subscription{grid-column:1/-1}
+#auth-wrap.auth-register .rbs{gap:10px}
+#auth-wrap.auth-register .rb{min-height:48px;font-size:.86rem;background:#fff}
+#auth-wrap.auth-register .rb.active{background:#1010ed;color:#fff}
+#auth-wrap.auth-register #reg-onboarding-note{background:#fff8d8;border-color:#f1d45a;color:#383000}
+#auth-wrap.auth-login .ar{max-width:780px}
+#auth-wrap.auth-login #fl{width:100%;max-width:560px}
+#auth-wrap.auth-login .auth-role-chip{background:#e8ebff;color:#171bc6}
+@media (max-width:760px){
+  #auth-wrap.auth-register .ar{padding:18px 16px}
+  #auth-wrap.auth-register #reg-common:not(.hid){grid-template-columns:1fr}
+}
 /* Phones: the sign-up form uses the full width (the brand panel would squeeze it). */
 @media (max-width:700px){#auth-wrap .al{display:none}#auth-wrap .ar{width:100%;padding:24px 16px}#auth-wrap .auth-top-actions{margin:0 -16px 20px;padding:10px 16px}}
 @media (max-width:520px){.wz-lbl{display:none}.wz-steps{gap:4px}.wz-nav .btn{flex:1;justify-content:center}}
@@ -1201,8 +1243,13 @@ body{font-size:15px}
       <button type="button" class="btn bgh bsm lang-toggle" onclick="toggleLang()" id="auth-lang-btn" lang="fr">🌐 Français</button>
       <button type="button" class="btn bgh bsm theme-toggle" data-theme-toggle onclick="HFATheme.toggle()" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false">🌙</button>
     </div>
+    <div class="abr auth-register-brand">
+      <img class="logo-mark auth-mark" src="assets/hfa-logo.svg" alt="HFA SilverStrong logo">
+      <div><h1>HFA <span class="go">SilverStrong</span></h1><p data-i18n="i_auth_tagline">Healthcare Telehealth Platform</p></div>
+    </div>
     <h2 id="atitle">Welcome Back</h2>
     <p class="asb" id="asub">Sign in to your HFA SilverStrong account</p>
+    <div class="auth-role-chip hid" id="auth-role-chip" role="status"></div>
     <div class="atbs">
       <button type="button" class="atb active" id="tl" onclick="swtTab('login')">Sign In</button>
       <button type="button" class="atb" id="tr" onclick="swtTab('register')">Register</button>
@@ -1457,8 +1504,8 @@ const T = {
     suspended_msg:'Your account has been suspended. Contact the administrator.',
     fill_required:'Please fill in all required fields.',
     license_required:'Enter your professional registration ID or licence number.',
-    registration_onboarding_note:'Create your account with the essentials. Before you can use the portal, complete the required health or professional profile and any reviews. Patient accounts start free; paid subscriptions can be selected later.',
-    profile_completion_title:'Complete your profile', profile_completion_intro:'Add the required details to finish setting up your account. Professional accounts remain restricted until HFA reviews and approves the application.',
+    registration_onboarding_note:'Create your account first. After sign-up, complete your health or professional profile and submit the required identity and licence documents. HFA reviews professional accounts before portal access; patients select a paid plan here, then pay after profile completion.',
+    profile_completion_title:'Complete your profile', profile_completion_intro:'Add the required details and submit your identity and professional documents. Your account remains restricted until the required profile is complete and HFA finishes its review.',
     profile_completion_waiting:'Your profile details are submitted. HFA must review and approve your account before you can use the portal.',
     profile_completion_save:'Submit profile for review', profile_completion_saved:'Profile submitted. Your account is waiting for HFA review.', profile_completion_error:'Could not submit your profile.',
     pc_specialty:'Specialty', pc_department:'Department', pc_hospital:'Hospital or clinic', pc_fee:'Consultation fee (USD)', pc_qualifications:'Qualifications', pc_identity_type:'Identity document type', pc_identity_file:'National ID card or passport',
@@ -1814,8 +1861,8 @@ const T = {
     suspended_msg:'Votre compte a été suspendu. Contactez l\'administrateur.',
     fill_required:'Veuillez remplir tous les champs obligatoires.',
     license_required:'Saisissez votre identifiant professionnel ou votre numéro de licence.',
-    registration_onboarding_note:'Créez votre compte avec les informations essentielles. Complétez ensuite le profil de santé ou professionnel requis et les validations avant d’utiliser le portail. Les comptes patients commencent gratuitement ; un abonnement payant peut être choisi plus tard.',
-    profile_completion_title:'Complétez votre profil', profile_completion_intro:'Ajoutez les informations requises pour terminer la configuration de votre compte. Les comptes professionnels restent limités jusqu’à leur examen et leur validation par HFA.',
+    registration_onboarding_note:'Créez d’abord votre compte. Après l’inscription, complétez votre profil de santé ou professionnel et transmettez les pièces d’identité et justificatifs de licence requis. HFA vérifie les comptes professionnels avant l’accès au portail ; les patients choisissent leur abonnement ici et le règlent après avoir complété leur profil.',
+    profile_completion_title:'Complétez votre profil', profile_completion_intro:'Ajoutez les informations requises et transmettez vos pièces d’identité et justificatifs professionnels. Votre compte reste limité jusqu’à ce que le profil soit complet et que HFA ait terminé son examen.',
     profile_completion_waiting:'Votre profil a été envoyé. HFA doit examiner et valider votre compte avant que vous puissiez utiliser le portail.',
     profile_completion_save:'Envoyer le profil pour examen', profile_completion_saved:'Profil envoyé. Votre compte est en attente d’examen par HFA.', profile_completion_error:'Impossible d’envoyer votre profil.',
     pc_specialty:'Spécialité', pc_department:'Service', pc_hospital:'Hôpital ou clinique', pc_fee:'Tarif de consultation (USD)', pc_qualifications:'Qualifications', pc_identity_type:'Type de pièce d’identité', pc_identity_file:'Carte nationale d’identité ou passeport',
@@ -2256,7 +2303,7 @@ function toggleLang() {
   setLang(LANG==='fr'?'en':'fr');
   if (!$('free-hub').classList.contains('hid')) renderFreeHub($('free-hub-content'), true);
   window.HFATriageUI?.repaintPublic?.();
-  if (!$('auth-wrap').classList.contains('hid') && RROLE==='patient' && !$('fr').classList.contains('hid') && typeof HFAPatientRegistration!=='undefined') HFAPatientRegistration.mount();
+  updateAuthLayout(tabIsRegister()?'register':'login');
   window.scrollTo(0, scroll);
 }
 
@@ -2718,7 +2765,7 @@ const EXERCISE_ESSENTIALS = [
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
-const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,subscriptionPaymentsAvailable:false,failed:false,busy:false,offline:false};
+const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,requireMfa:false,subscriptionPaymentsAvailable:false,failed:false,busy:false,offline:false};
 async function apiRequest(path, method='GET', body, timeout=15000) {
   const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});
   if (response.status===204) return {};
@@ -2757,7 +2804,7 @@ async function initializeBackend() {
       ApiState.offline=true;
     }
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
-    ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage; ApiState.paymentsAvailable=!!config?.paymentsAvailable; ApiState.subscriptionPaymentsAvailable=!!config?.subscriptionPaymentsAvailable;
+    ApiState.requireMfa=ApiState.offline||!!config?.requireMfa; ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage; ApiState.paymentsAvailable=!!config?.paymentsAvailable; ApiState.subscriptionPaymentsAvailable=!!config?.subscriptionPaymentsAvailable;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
     if (ApiState.offline) DB.users=WEB_DEMO_USERS.map(user=>({...user}));
@@ -2766,7 +2813,11 @@ async function initializeBackend() {
     // Ask quietly first, so visitors who are not signed in see no error in their browser.
     const status=await fetch('/api/session/status',{credentials:'same-origin',cache:'no-store'}).then(response=>response.ok?response.json():{signedIn:true}).catch(()=>({signedIn:true}));
     const session=status.signedIn?await fetch('/api/session',{credentials:'same-origin'}):{ok:false};
-    if (session.ok) { const data=await session.json(); installBackendSession(data); await HFAOffline.afterSessionRestore(data.user); LANG_RETURN_SCREEN='app'; }
+    if (session.ok) {
+      const data=await session.json(); installBackendSession(data);
+      if (data.user.mfaEnabled || data.user.demoOnly) await HFAOffline.afterSessionRestore(data.user);
+      LANG_RETURN_SCREEN='app';
+    }
   } catch (error) { ApiState.failed=true; }
   finally { ApiState.loading=false; updateDemoLoginCard(); }
 }
@@ -2778,9 +2829,13 @@ async function backendLogin(email, password) {
     const button=document.querySelector('#fl > .btn.bp'); if (button) { button.dataset.label=button.textContent; button.disabled=true; button.textContent=t('i_signing_in'); }
     const data=await apiRequest('/api/auth/login','POST',{email,password});
     if (data.mfaRequired) { HFASecurity.askCode(data.challenge,email,password,data.emailCode); return; } // two-step sign-in
-    installBackendSession(data); $('lp').value=''; await HFAOffline.afterOnlineLogin(data.user,password); goApp();
+    installBackendSession(data); $('lp').value='';
+    if (data.user.mfaEnabled || data.user.demoOnly || !ApiState.requireMfa) await HFAOffline.afterOnlineLogin(data.user,password);
+    goApp();
   } catch(error) {
     if (error.status) { $('amsg').textContent=error.message; return; }
+    const isDemo=WEB_DEMO_USERS.some(user=>user.demoOnly&&[user.email,user.phone].filter(Boolean).some(value=>value.toLowerCase()===email.toLowerCase()));
+    if (ApiState.requireMfa&&!isDemo) { $('amsg').textContent=t('sec_offline_mfa'); return; }
     try { await HFAOffline.offlineLogin(email,password); $('lp').value=''; goApp(); }
     catch(offlineError) { $('amsg').textContent=offlineError.message; }
   }
@@ -2801,7 +2856,7 @@ async function backendRegister(localUser) {
     const {data,queued}=await HFAOffline.submitRegistration('/api/auth/register',payload);
     $('rpa').value='';
     if (queued) { swtTab('login'); $('le').value=localUser.email; amsg(t('offline_registration_queued'),'i'); }
-    else { installBackendSession(data,localUser); await HFAOffline.afterOnlineLogin(data.user,localUser.password); goApp(); }
+    else { installBackendSession(data,localUser); if (data.user.mfaEnabled||data.user.demoOnly||!ApiState.requireMfa) await HFAOffline.afterOnlineLogin(data.user,localUser.password); goApp(); }
   } catch(error) { $('amsg').textContent=error.message; }
   finally { ApiState.busy=false; }
 }
@@ -2851,6 +2906,7 @@ let VCI = null; // video call interval
 let VCS = 0; // video call seconds
 let MUT = false, VIDOFF = false;
 let RROLE = 'patient';
+let AUTH_SELECTED_ROLE = null;
 let APTMODE = 'video';
 let APTSERVICE = 'PC-VIRTUAL';
 let BOOKDOC = null;
@@ -3241,9 +3297,11 @@ function showAccountsUnavailable() {
 function goAuth(tab, role) {
   if (ApiState.loading) { ApiState.ready.then(()=>goAuth(tab, role)); return; }
   if (noAccounts() && !(tab==='login' && (['admin','pharmacist'].includes(role)||staticDemoAvailable()))) return showAccountsUnavailable();
+  AUTH_SELECTED_ROLE=role||null;
   hide('land'); hide('contact-page'); hide('free-hub'); show('auth-wrap'); hide('app-wrap');
   swtTab(tab || 'login');
   if (role) setRole(role);
+  updateAuthLayout(tab||'login');
   // Update back button text
   const bh = $('back-home-btn');
   if(bh) bh.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
@@ -3335,6 +3393,7 @@ function swtTab(tab) {
   $('tl').textContent = t('sign_in');
   $('tr').textContent = t('register');
   $('amsg').innerHTML = '';
+  updateAuthLayout(tab);
   if (tab==='register') setRole(RROLE);
   if (tab==='register' && typeof HFAFacilities!=='undefined') HFAFacilities.fillDatalist();
   updateDemoLoginCard();
@@ -3343,29 +3402,34 @@ function swtTab(tab) {
 function setRole(r) {
   RROLE = r;
   ['d','n','p'].forEach(x => $('rb-'+x).classList.toggle('active', (r==='doctor'&&x==='d')||(r==='nurse'&&x==='n')||(r==='patient'&&x==='p')));
-  $('df').classList.toggle('hid', r!=='doctor');
-  $('nf').classList.toggle('hid', r!=='nurse');
+  $('df').classList.add('hid');
+  $('nf').classList.add('hid');
   $('pf').classList.toggle('hid', r!=='patient');
   $('rb-ph').classList.toggle('active',r==='pharmacist');
-  $('phf').classList.toggle('hid',r!=='pharmacist');
+  $('phf').classList.add('hid');
   $('reg-common').classList.remove('hid');
   $('reg-submit').classList.remove('hid');
   $('reg-onboarding-note').classList.remove('hid');
   $('reg-subscription').classList.toggle('hid',r!=='patient');
   $('rplan').required=r==='patient';
   $('pf').classList.add('hid');
-  for (const [sectionId, fieldId] of [['df','rli'],['nf','rni']]) {
-    const section=$(sectionId), field=$(fieldId);
-    section.querySelectorAll(':scope > *').forEach(element=>element.classList.add('hid'));
-    section.querySelectorAll('.fg').forEach(element=>element.classList.add('hid'));
-    field.closest('.fg').classList.remove('hid');
-    field.closest('.fr')?.classList.remove('hid');
-    field.closest('.fr')?.querySelectorAll('.fg').forEach(element=>{ if(element!==field.closest('.fg')) element.classList.add('hid'); });
-    section.classList.toggle('hid', r!==(sectionId==='df'?'doctor':'nurse'));
-  }
-  $('rli').required=r==='doctor';
-  $('rni').required=r==='nurse';
+  $('rli').required=false;
+  $('rni').required=false;
+  if (tabIsRegister()||AUTH_SELECTED_ROLE) AUTH_SELECTED_ROLE=r;
+  updateAuthLayout(tabIsRegister()?'register':'login');
   if (typeof HFAPatientRegistration!=='undefined') HFAPatientRegistration.unmount();
+}
+
+function tabIsRegister() { return !$('fr').classList.contains('hid'); }
+function updateAuthLayout(tab) {
+  const wrap=$('auth-wrap'),chip=$('auth-role-chip');
+  if (!wrap || !chip) return;
+  wrap.classList.toggle('auth-register',tab==='register');
+  wrap.classList.toggle('auth-login',tab!=='register');
+  if (!AUTH_SELECTED_ROLE) { chip.classList.add('hid'); chip.textContent=''; return; }
+  const labels={patient:t('patient'),doctor:t('doctor'),nurse:t('nurse'),pharmacist:t('pharmacist'),labtech:t('labtech'),admin:t('admin')};
+  chip.textContent=`${tab==='register'?(LANG==='fr'?'Créer un compte':'Create account'):(LANG==='fr'?'Portail':'Portal')}: ${labels[AUTH_SELECTED_ROLE]||AUTH_SELECTED_ROLE}`;
+  chip.classList.remove('hid');
 }
 
 function tpw(id) { const e=$(id); e.type = e.type==='password' ? 'text' : 'password'; }
@@ -3477,10 +3541,7 @@ function doReg() {
   if (email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return amsg(t('invalid_creds'));
   if (!email&&!/^\+[1-9]\d{7,14}$/.test(phone.replace(/[\s()-]/g,''))) return amsg(t('fill_required'));
   if (pass.length<12) return amsg(t('backend_password_short'));
-  if (RROLE==='pharmacist') { registerPharmacist(); return; }
   if (RROLE==='patient'&&!$('rplan').value) return amsg(t('subscription_plan_required'));
-  if (RROLE==='doctor'&&!$('rli').value.trim()) return amsg(t('license_required'));
-  if (RROLE==='nurse'&&!$('rni').value.trim()) return amsg(t('license_required'));
   if (!$('rtc').checked) return amsg(t('terms_required'));
   if (email&&DB.users.find(u=>u.email.toLowerCase()===email.toLowerCase())) return amsg(t('email_exists'));
   finishReg();
@@ -3489,11 +3550,9 @@ function finishReg() {
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value, phone=$('rph').value.trim();
   const id = RROLE.slice(0,3)+Date.now();
   // Doctors and nurses require admin verification before they may access the platform.
-  const initialStatus = (RROLE==='doctor'||RROLE==='nurse') ? 'pending_approval' : 'active';
+  const initialStatus = (RROLE==='doctor'||RROLE==='nurse'||RROLE==='pharmacist') ? 'pending_approval' : 'active';
   const base = {id,role:RROLE,name,email,phone,password:pass,status:initialStatus,createdAt:todayD()};
-  const extra = RROLE==='doctor' ? {licenseNo:$('rli').value.trim()}
-    : RROLE==='nurse' ? {licenseNo:$('rni').value.trim(),nurseId:$('rni').value.trim()}
-    : RROLE==='patient' ? {subscriptionTier:$('rplan').value} : {};
+  const extra = RROLE==='patient' ? {subscriptionTier:$('rplan').value} : {};
   const finalize = () => {
     // Accounts exist only on the HFA server; this browser never creates one.
     if (!ApiState.enabled) { amsg(t('accounts_unavailable_body'),'i'); return; }
@@ -3582,17 +3641,18 @@ function renderProfessionalCompletion(pc) {
   const select=(id,label,options)=>`<div class="fg"><label class="fl" for="pc-${id}">${t(label)}</label><select class="fc" id="pc-${id}" required>${options}</select></div>`;
   let fields='';
   if (CU.role==='doctor') fields=`<div class="fr">${field('specialty','pc_specialty')}${field('hospital','pc_hospital')}</div>
+    ${field('licenseNo','license_no') }
     ${select('fee','pc_fee',`<option value="">${t('pc_select')}</option>${Array.from({length:16},(_,i)=>`<option value="${i+5}">USD ${i+5}</option>`).join('')}`)}
     ${field('qualifications','pc_qualifications')}${select('identityType','pc_identity_type',`<option value="">${t('pc_select')}</option><option value="national_id">${t('id_type_national_id')}</option><option value="passport">${t('id_type_passport')}</option>`)}${file('identityFile','pc_identity_file')}`;
   else if (CU.role==='nurse') fields=`<div class="fr">${field('department','pc_department')}${field('hospital','pc_hospital')}</div>
-    ${field('specialty','pc_specialty')}${field('qualifications','pc_qualifications')}
+    ${field('specialty','pc_specialty')}${field('licenseNo','license_no')}${field('qualifications','pc_qualifications')}
     <div class="card"><h3 class="ct">${t('nw_reg_title')}</h3>${field('school','pc_school')}${field('graduationYear','pc_graduation','number',true,`min="1960" max="${new Date().getFullYear()}"`)}
     ${field('supervisorName','pc_supervisor_name')}${field('supervisorPosition','pc_supervisor_position')}${field('supervisorInstitution','pc_supervisor_institution')}
     ${field('supervisorPhone','pc_supervisor_phone','tel',true,'placeholder="+237 6XX XXX XXX"')}${field('supervisorEmail','pc_supervisor_email','email',false)}</div>
     ${select('identityType','pc_identity_type',`<option value="">${t('pc_select')}</option><option value="national_id">${t('id_type_national_id')}</option><option value="passport">${t('id_type_passport')}</option>`)}${file('identityFile','pc_identity_file')}`;
   else if (CU.role==='pharmacist') {
     const regionOptions=[['adamawa','Adamawa','Adamaoua'],['centre','Centre','Centre'],['east','East','Est'],['far_north','Far North','Extrême-Nord'],['littoral','Littoral','Littoral'],['north','North','Nord'],['north_west','North West','Nord-Ouest'],['west','West','Ouest'],['south','South','Sud'],['south_west','South West','Sud-Ouest']].map(([value,en,fr])=>`<option value="${value}">${LANG==='fr'?fr:en}</option>`).join('');
-    fields=`${field('pharmacyName','pharmacy_name')}${field('pharmacyAddress','pharmacy_address')}${field('pharmacyLocation','pharmacy_location')}
+    fields=`${field('pharmacyName','pharmacy_name')}${field('pharmacyAddress','pharmacy_address')}${field('pharmacyLocation','pharmacy_location')}${field('pharmacyLicense','pharmacy_license')}
       ${field('businessRegistration','pharmacy_business')}${field('minsanteAuthorization','pharmacy_minsante')}${field('ownerName','pharmacy_owner_name')}
       ${select('ownerIdType','pc_identity_type',`<option value="">${t('pc_select')}</option><option value="national_id">${t('id_type_national_id')}</option><option value="passport">${t('id_type_passport')}</option>`)}
       ${field('ownerIdNumber','pharmacy_owner_id_number')}${select('pharmacyRegion','pharmacy_region',`<option value="">${t('pc_select')}</option>${regionOptions}`)}${field('pharmacyTown','pharmacy_town')}
@@ -3616,9 +3676,9 @@ async function submitProfessionalProfile() {
   const body={};
   try {
     button.disabled=true;status.textContent='';
-    if (CU.role==='doctor') Object.assign(body,{specialty:text('specialty'),hospital:text('hospital'),consultationFee:Number(text('fee')),qualifications:text('qualifications'),idDocumentType:text('identityType'),idDocument:await document('identityFile')});
-    else if (CU.role==='nurse') Object.assign(body,{department:text('department'),hospital:text('hospital'),specialty:text('specialty'),qualifications:text('qualifications'),nurseApplication:{school:text('school'),graduationYear:Number(text('graduationYear')),supervisor:{name:text('supervisorName'),position:text('supervisorPosition'),institution:text('supervisorInstitution'),phone:text('supervisorPhone'),...(text('supervisorEmail')?{email:text('supervisorEmail')}: {})}},idDocumentType:text('identityType'),idDocument:await document('identityFile')});
-    else if (CU.role==='pharmacist') Object.assign(body,{pharmacyName:text('pharmacyName'),pharmacyAddress:text('pharmacyAddress'),pharmacyLocation:text('pharmacyLocation'),pharmacyLicense:CU.pharmacyLicense||CU.licenseNo,businessRegistration:text('businessRegistration'),minsanteAuthorization:text('minsanteAuthorization'),ownerName:text('ownerName'),ownerIdType:text('ownerIdType'),ownerIdNumber:text('ownerIdNumber'),pharmacyRegion:text('pharmacyRegion'),pharmacyTown:text('pharmacyTown'),documents:{
+    if (CU.role==='doctor') Object.assign(body,{specialty:text('specialty'),hospital:text('hospital'),licenseNo:text('licenseNo'),consultationFee:Number(text('fee')),qualifications:text('qualifications'),idDocumentType:text('identityType'),idDocument:await document('identityFile')});
+    else if (CU.role==='nurse') Object.assign(body,{department:text('department'),hospital:text('hospital'),specialty:text('specialty'),licenseNo:text('licenseNo'),qualifications:text('qualifications'),nurseApplication:{school:text('school'),graduationYear:Number(text('graduationYear')),supervisor:{name:text('supervisorName'),position:text('supervisorPosition'),institution:text('supervisorInstitution'),phone:text('supervisorPhone'),...(text('supervisorEmail')?{email:text('supervisorEmail')}: {})}},idDocumentType:text('identityType'),idDocument:await document('identityFile')});
+    else if (CU.role==='pharmacist') Object.assign(body,{pharmacyName:text('pharmacyName'),pharmacyAddress:text('pharmacyAddress'),pharmacyLocation:text('pharmacyLocation'),pharmacyLicense:text('pharmacyLicense'),businessRegistration:text('businessRegistration'),minsanteAuthorization:text('minsanteAuthorization'),ownerName:text('ownerName'),ownerIdType:text('ownerIdType'),ownerIdNumber:text('ownerIdNumber'),pharmacyRegion:text('pharmacyRegion'),pharmacyTown:text('pharmacyTown'),documents:{
       pharmacistLicense:await document('doc-pharmacistLicense'),businessLicense:await document('doc-businessLicense'),minsanteAuthorization:await document('doc-minsanteAuthorization'),ownerIdentity:await document('doc-ownerIdentity')
     }});
     const data=await apiRequest('/api/v1/account/profile','PUT',body,30000);

@@ -143,7 +143,7 @@ async function registerPharmacist() {
       const {data,queued}=await HFAOffline.submitRegistration('/api/auth/register/pharmacist',payload);
       if (queued) {$('rpa').value='';swtTab('login');$('le').value=payload.email;amsg(t('offline_registration_queued'),'i');return;}
       installBackendSession(data,{...payload,licenseNo:payload.pharmacyLicense});
-      await HFAOffline.afterOnlineLogin(data.user,payload.password);
+      if (data.user.mfaEnabled || data.user.demoOnly || !ApiState.requireMfa) await HFAOffline.afterOnlineLogin(data.user,payload.password);
       $('rpa').value='';goApp();return;
     } else return amsg(t('accounts_unavailable_body'),'i'); // pharmacies register only with the HFA server
   } catch(error) {amsg(error.message);}
