@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { webcrypto } = require('node:crypto');
 const countryData = require('../country-data.js');
 
 describe('index.html sanity checks', () => {
@@ -62,9 +63,9 @@ describe('index.html sanity checks', () => {
   test('Admin and pharmacist portals open sign-in on static web hosting without claiming accounts are unavailable', () => {
     expect(content).toContain('onclick="goAuth(\'login\',\'pharmacist\');return false;" id="lnd-pharmacist-card"');
     expect(content).toContain('<div class="pc2" onclick="goAuth(\'login\',\'admin\')">');
-    expect(content).toContain("noAccounts() && !(tab==='login' && ['admin','pharmacist'].includes(role))");
+    expect(content).toContain("noAccounts() && !(tab==='login' && (['admin','pharmacist'].includes(role)||staticDemoAvailable()))");
     expect(content).toContain("['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body')");
-    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v43'");
+    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v46'");
   });
 
   test('first visit opens the platform in a saved or browser-supported language', () => {
@@ -1209,14 +1210,66 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("role==='admin'?{adminRole:");
   });
 
-  test('has no built-in people, records, demo sign-in or demo credentials', () => {
+  test('offers synthetic public-web test sign-ins without built-in clinical records or backend demo auth', () => {
     const db = content.match(/^const DB = \{[^]*?^\};/m)[0];
-    for (const key of ['users', 'appointments', 'messages', 'careNotes', 'carePlans', 'consents', 'subscriptions', 'homeVisits', 'auditLogs']) expect(db).toContain(`${key}: []`);
-    expect(content).not.toContain('passwordHash:');
-    expect(content).not.toContain('startDemo');
-    expect(content).not.toContain('renderDemoCredentials');
+    expect(db).toContain('users: WEB_DEMO_USERS.map');
+    for (const key of ['appointments', 'messages', 'careNotes', 'carePlans', 'consents', 'subscriptions', 'homeVisits', 'auditLogs']) expect(db).toContain(`${key}: []`);
+    expect(content).toContain("email:'patient.demo@example.invalid'");
+    expect(content).toContain("email:'doctor.demo@example.invalid'");
+    expect(content).toContain("email:'nurse.demo@example.invalid'");
+    expect(content).toContain("passwordHash:'pbkdf2-sha256$");
+    expect(content).toContain('const staticDemoAvailable = () => !ApiState.loading && (noAccounts() || ApiState.offline || ApiState.failed)');
+    expect(content).toContain('function fillDemoLogin(role)');
+    expect(content).toContain('HFA-Demo-2026!');
+    expect(content).toContain('Do not enter real health information');
     expect(content).not.toContain('/api/auth/demo');
-    expect(content).toContain("if (noAccounts()) return showAccountsUnavailable();");
+    expect(content).toContain("if (ApiState.enabled && !ApiState.offline && !ApiState.failed) { backendLogin");
+  });
+
+  test('accepts the published password only for each salted synthetic web account', async () => {
+    const fixtures = content.match(/const WEB_DEMO_USERS = \[[\s\S]*?\n\];/)[0];
+    const matcher = content.match(/^async function demoPasswordMatches\(user, password\) \{[\s\S]*?^\}/m)[0];
+    const context = { crypto: webcrypto, atob, TextEncoder, Uint8Array };
+    const results = await vm.runInNewContext(`${fixtures}\n${matcher}\nPromise.all([...WEB_DEMO_USERS.map(user=>demoPasswordMatches(user,'HFA-Demo-2026!')),demoPasswordMatches(WEB_DEMO_USERS[0],'wrong-password')])`, context);
+    expect([...results]).toEqual([true, true, true, false]);
+  });
+
+  test.each([
+    ['remembered backend is offline',{getItem:()=> '1'},'offline'],
+    ['backend initialization fails before first contact',{getItem:()=>null},'failed'],
+  ])('keeps demo sign-in working when %s', async (_scenario,storage,unavailableState) => {
+    const fixtures = content.match(/const WEB_DEMO_USERS = \[[\s\S]*?\n\];/)[0];
+    const database = content.match(/^const DB = \{[^]*?^\};/m)[0];
+    const initialize = content.match(/^async function initializeBackend\(\) \{[\s\S]*?^\}/m)[0];
+    const helpers = content.match(/^const noAccounts = \(\) =>[\s\S]*?^const demoAccountForRole = .*?;$/m)[0];
+    const login = content.match(/^function doLogin\(\) \{[\s\S]*?^\}/m)[0];
+    const fields = { le:{value:'doctor.demo@example.invalid'}, lp:{value:'HFA-Demo-2026!'}, amsg:{innerHTML:''} };
+    const context = {
+      location:{protocol:'https:',hostname:'example.org'}, AbortSignal,
+      fetch:jest.fn().mockRejectedValue(new Error('offline')),
+      localStorage:storage,
+      ApiState:{loading:false,enabled:false,offline:false,failed:false},
+      updateStaticHTML:jest.fn(), updateDemoLoginCard:jest.fn(),
+      $:id=>fields[id], document:{querySelector:()=>null},
+      demoPasswordMatches:jest.fn().mockResolvedValue(true),
+      backendLogin:jest.fn(), goApp:jest.fn(), log:jest.fn(), t:key=>key,
+    };
+    vm.createContext(context);
+    vm.runInContext(`${fixtures}\n${database}\n${initialize}\n${helpers}\nlet RROLE='doctor';\n${login}`,context);
+
+    await context.initializeBackend();
+    expect(context.ApiState[unavailableState]).toBe(true);
+    expect(vm.runInContext('DB.users.map(user=>user.email)',context)).toContain('doctor.demo@example.invalid');
+    expect(vm.runInContext('staticDemoAvailable()',context)).toBe(true);
+    vm.runInContext('doLogin()',context);
+    await new Promise(resolve=>setTimeout(resolve,0));
+
+    expect(context.demoPasswordMatches).toHaveBeenCalledWith(
+      expect.objectContaining({email:'doctor.demo@example.invalid',demoOnly:true}),
+      'HFA-Demo-2026!'
+    );
+    expect(context.backendLogin).not.toHaveBeenCalled();
+    expect(context.goApp).toHaveBeenCalled();
   });
 
   test('shows only true facts: no invented figures, placeholder contacts or made-up IP addresses', () => {

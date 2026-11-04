@@ -12,11 +12,13 @@ administrators. If the Super Admin's phone is unavailable, the sign-in screen ca
 
 The public website `www.healthyfutureafrica.org` runs on Cloudflare (`wrangler.jsonc`) without the account server, with an
 edge script (`worker/index.js`) that forces HTTPS, adds security headers, and returns JSON (not 404 pages) for unsupported
-account API requests. The platform opens directly in the visitor's saved language or browser language; it offers what works
-without an account (the Free Health Hub and the anonymous symptom check). Sign in and Register require the HFA account
-server at the production app domain; the public website does not simulate authentication. **There are no demo accounts or built-in example records anywhere**: every person and record
-comes from real registrations on the server, and accounts left by earlier demo versions are retired at startup
-(`backend/retire-demo-accounts.js`, matched by email and the exact demo password hash).
+account API requests. The platform opens directly in the visitor's saved language or browser language. Its patient,
+doctor and nurse web-testing sign-ins use synthetic accounts (`*.demo@example.invalid`) and the shared password
+`HFA-Demo-2026!`; these only exercise the in-browser interface, have no server access, and do not save changes. Do not
+enter real health information in a demo session. The Free Health Hub and anonymous symptom check are also available
+without an account. Sign in and Register for real accounts require the HFA account server at the production app domain.
+The backend has no demo sign-in endpoint, and any legacy server-side demo accounts are retired at startup
+(`backend/retire-demo-accounts.js`).
 
 ## Country rollout status
 

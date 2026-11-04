@@ -210,11 +210,15 @@ test('registration stores the identity document encrypted and sessions last seve
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
 
-test('old demo accounts are retired at startup, real accounts with the same address are kept, and no demo sign-in exists',async()=>{
+test('legacy server demo accounts are retired while the public web uses separate synthetic test identities',async()=>{
   const { retireDemoAccounts, DEMO_FINGERPRINTS } = require('../retire-demo-accounts');
   const html=require('node:fs').readFileSync(join(__dirname,'..','..','index.html'),'utf8');
   for (const email of DEMO_FINGERPRINTS.keys()) assert.equal(html.includes(email),false,email+' must not be built into the app');
-  assert.doesNotMatch(html,/passwordHash:'pbkdf2-sha256\$/,'no built-in accounts in the page');
+  for (const hash of DEMO_FINGERPRINTS.values()) assert.equal(html.includes(hash),false,'legacy server password hashes must not be built into the page');
+  assert.match(html,/patient\.demo@example\.invalid/);
+  assert.match(html,/doctor\.demo@example\.invalid/);
+  assert.match(html,/nurse\.demo@example\.invalid/);
+  assert.match(html,/demoOnly:true/);
   const store=new Store();
   const [demoEmail,demoHash]=[...DEMO_FINGERPRINTS][0];
   const demo=store.createUser({name:'Old demo doctor',email:demoEmail,role:'doctor'},demoHash,'active');

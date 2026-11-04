@@ -1215,6 +1215,16 @@ body{font-size:15px}
         <div class="iw"><input class="fc" type="password" id="lp" maxlength="128" required placeholder="Enter password" data-i18n-ph="enter_password"><button type="button" class="eb" onclick="tpw('lp')" aria-label="Toggle password visibility" data-i18n-aria="i_toggle_pw"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
       <button type="button" class="btn bp w100 mt8" onclick="doLogin()" data-i18n="sign_in">Sign In</button>
+      <div id="demo-login-card" class="card mt18" hidden>
+        <div class="ct" data-i18n="demo_signin_title">Web testing accounts</div>
+        <p class="mu sm" data-i18n="demo_signin_notice">Shared synthetic accounts for testing the web interface only. Do not enter real health information; demo changes are not saved.</p>
+        <div class="code-list mt8">
+          <button type="button" class="btn bs w100" onclick="fillDemoLogin('patient')" data-i18n="demo_patient">Patient demo</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('doctor')" data-i18n="demo_doctor">Doctor demo</button>
+          <button type="button" class="btn bs w100 mt8" onclick="fillDemoLogin('nurse')" data-i18n="demo_nurse">Nurse demo</button>
+        </div>
+        <p class="mu sm mt8"><span data-i18n="demo_password_label">Password for all demo accounts</span>: <code>HFA-Demo-2026!</code></p>
+      </div>
       <div class="afo" id="afo-login">No account? <span class="alk" onclick="swtTab('register')">Register here</span></div>
     </div>
     <!-- REGISTER -->
@@ -1447,6 +1457,8 @@ const T = {
     my_appointments:'My Appointments', health_records:'Health Records',
     consult_now:'Consult Now', sign_out:'Sign Out',
     accounts_unavailable_title:'Accounts are not open on this website yet', accounts_unavailable_body:'HFA SilverStrong accounts, consultations and records open when the HFA service starts in your area. You can already use the Free Health Hub and check your symptoms here, without an account.',
+    demo_signin_title:'Web testing accounts', demo_signin_notice:'Shared synthetic accounts for testing the web interface only. Do not enter real health information; demo changes are not saved.',
+    demo_patient:'Patient demo', demo_doctor:'Doctor demo', demo_nurse:'Nurse demo', demo_password_label:'Password for all demo accounts',
     skip_main:'Skip to main content', legal_privacy:'Legal & Privacy', compliance_nav:'Compliance Centre',
     privacy_nav:'Privacy & Data Protection', confidentiality_nav:'Confidentiality & Medical Secrecy',
 
@@ -1782,6 +1794,8 @@ const T = {
     my_appointments:'Mes Rendez-vous', health_records:'Dossiers de Santé',
     consult_now:'Consulter Maintenant', sign_out:'Se Déconnecter',
     accounts_unavailable_title:'Les comptes ne sont pas encore ouverts sur ce site', accounts_unavailable_body:'Les comptes, consultations et dossiers HFA SilverStrong ouvrent lorsque le service HFA démarre dans votre région. Vous pouvez déjà utiliser l’Espace Santé gratuit et vérifier vos symptômes ici, sans compte.',
+    demo_signin_title:'Comptes de test Web', demo_signin_notice:'Comptes synthétiques partagés pour tester uniquement l’interface Web. Ne saisissez pas de vraies informations de santé ; les modifications de démonstration ne sont pas enregistrées.',
+    demo_patient:'Démo patient', demo_doctor:'Démo médecin', demo_nurse:'Démo infirmier', demo_password_label:'Mot de passe commun aux comptes démo',
     skip_main:'Aller au contenu principal', legal_privacy:'Juridique & Confidentialité', compliance_nav:'Centre de Conformité',
     privacy_nav:'Confidentialité & Protection des Données', confidentiality_nav:'Secret Médical & Confidentialité',
 
@@ -2353,9 +2367,16 @@ const INTEGRATIONS = [
   {id:'int3',name:'Emergency dispatch',purpose:'Local emergency escalation',status:'manual handoff',environment:'production'},
 ];
 
-// Clinical data comes only from real accounts on the HFA server (see clinical-sync.js); nothing is built in.
+// Public-web test identities are synthetic and never sent to or stored by the HFA server.
+const WEB_DEMO_USERS = [
+  {id:'web-demo-patient',role:'patient',name:'Demo Patient',email:'patient.demo@example.invalid',passwordHash:'pbkdf2-sha256$25000$697W4Phs7EKEFKI5rGXlNA==$1VeaR0lAQ9p3Put10X3fCq4RTFh2lF7ZiQql9nc7JXU=',status:'active',createdAt:'2026-01-01',demoOnly:true,countryCode:'CM'},
+  {id:'web-demo-doctor',role:'doctor',name:'Demo Doctor',email:'doctor.demo@example.invalid',passwordHash:'pbkdf2-sha256$25000$DcuZ3z2s5WoFHCzT0KJXew==$taPUZrpKyGPcIr9isqJmPV/bBn35RZacQBONpf1XS4E=',status:'active',createdAt:'2026-01-01',demoOnly:true,specialty:'General Medicine',hospital:'Demo Clinic',consultationFee:0},
+  {id:'web-demo-nurse',role:'nurse',name:'Demo Nurse',email:'nurse.demo@example.invalid',passwordHash:'pbkdf2-sha256$25000$d7x5TWXJ+jIfSkYxWbVEjA==$hApmcrUWUSeoHadCNbfzBSMr4GD1V6KHWyHkRtWPh5k=',status:'active',createdAt:'2026-01-01',demoOnly:true,specialty:'General Nursing',hospital:'Demo Clinic'},
+];
+
+// Clinical records are never built in; only the public website's synthetic test identities are local.
 const DB = {
-  users: [], appointments: [], messages: [], auditLogs: [], careNotes: [], doctorReports: [], carePlans: [], triageCases: [],
+  users: WEB_DEMO_USERS.map(user=>({...user})), appointments: [], messages: [], auditLogs: [], careNotes: [], doctorReports: [], carePlans: [], triageCases: [],
   labResults: [], notifications: [], specialistReferrals: [], reviews: [], fhAnalytics: [], clinicianVerifications: [], consents: [],
   medicationSafetyAlerts: [],
   subscriptions: [], homeVisits: [], payments: [], whatsappAlerts: [], medicalDocuments: [],
@@ -2659,6 +2680,7 @@ async function initializeBackend() {
     ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage; ApiState.paymentsAvailable=!!config?.paymentsAvailable;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
+    if (ApiState.offline) DB.users=WEB_DEMO_USERS.map(user=>({...user}));
     updateStaticHTML();
     if (ApiState.offline) return;
     // Ask quietly first, so visitors who are not signed in see no error in their browser.
@@ -2666,7 +2688,7 @@ async function initializeBackend() {
     const session=status.signedIn?await fetch('/api/session',{credentials:'same-origin'}):{ok:false};
     if (session.ok) { const data=await session.json(); installBackendSession(data); await HFAOffline.afterSessionRestore(data.user); LANG_RETURN_SCREEN='app'; }
   } catch (error) { ApiState.failed=true; }
-  finally { ApiState.loading=false; }
+  finally { ApiState.loading=false; updateDemoLoginCard(); }
 }
 async function backendLogin(email, password) {
   if (ApiState.busy) return;
@@ -3103,6 +3125,20 @@ function goContact() {
 }
 // True on a copy of the site that has no HFA server behind it (the public information website).
 const noAccounts = () => !ApiState.enabled && !ApiState.loading && !ApiState.failed;
+const staticDemoAvailable = () => !ApiState.loading && (noAccounts() || ApiState.offline || ApiState.failed) && DB.users.some(user=>user.demoOnly);
+const demoAccountForRole = role => staticDemoAvailable() && DB.users.some(user=>user.demoOnly&&user.role===role);
+function updateDemoLoginCard() {
+  const card=$('demo-login-card');
+  if (card) card.hidden=!staticDemoAvailable() || !$('fl') || $('fl').classList.contains('hid');
+}
+function fillDemoLogin(role) {
+  if (!demoAccountForRole(role)) return;
+  const user=DB.users.find(item=>item.demoOnly&&item.role===role);
+  setRole(role);
+  $('le').value=user.email;
+  $('lp').value='HFA-Demo-2026!';
+  $('amsg').innerHTML='';
+}
 function showAccountsUnavailable() {
   openMo(`<div class="mh"><div class="mt2">${t('accounts_unavailable_title')}</div><button class="mc" onclick="closeMo()" aria-label="${t('close')}">${IC.x}</button></div>
     <p class="mb12">${t('accounts_unavailable_body')}</p>
@@ -3110,7 +3146,7 @@ function showAccountsUnavailable() {
 }
 function goAuth(tab, role) {
   if (ApiState.loading) { ApiState.ready.then(()=>goAuth(tab, role)); return; }
-  if (noAccounts() && !(tab==='login' && ['admin','pharmacist'].includes(role))) return showAccountsUnavailable();
+  if (noAccounts() && !(tab==='login' && (['admin','pharmacist'].includes(role)||staticDemoAvailable()))) return showAccountsUnavailable();
   hide('land'); hide('contact-page'); hide('free-hub'); show('auth-wrap'); hide('app-wrap');
   swtTab(tab || 'login');
   if (role) setRole(role);
@@ -3119,7 +3155,7 @@ function goAuth(tab, role) {
   if(bh) bh.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
 }
 function showPortalChoice(role) {
-  if (noAccounts()) return showAccountsUnavailable();
+  if (noAccounts() && !demoAccountForRole(role)) return showAccountsUnavailable();
   const label = role==='pharmacist' ? (LANG==='fr'?'Portail Pharmacien':'Pharmacist Portal') : role==='patient' ? (LANG==='fr'?'Portail Patient':'Patient Portal') : role;
   openMo(`<div class="mh"><div class="mt2">${label}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div>
     <p class="mu sm" style="margin-bottom:16px">${LANG==='fr'?'Avez-vous déjà un compte ?':'Do you already have an account?'}</p>
@@ -3206,6 +3242,7 @@ function swtTab(tab) {
   $('amsg').innerHTML = '';
   if (tab==='register' && RROLE==='patient' && typeof HFAPatientRegistration!=='undefined') HFAPatientRegistration.mount();
   if (tab==='register' && typeof HFAFacilities!=='undefined') HFAFacilities.fillDatalist();
+  updateDemoLoginCard();
 }
 
 function setRole(r) {
@@ -3227,10 +3264,11 @@ function amsg(txt, type='e') { $('amsg').innerHTML=`<div class="alt ${type==='e'
 
 function doLogin() {
   if (ApiState.loading) { ApiState.ready.then(()=>doLogin()); return; }
-  if (ApiState.failed) return amsg(t('backend_unavailable'));
-  if (noAccounts()) return amsg(['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body'),'i');
   const email = $('le').value.trim().toLowerCase(), pass = ApiState.enabled?$('lp').value:$('lp').value.trim();
-  if (ApiState.enabled) { backendLogin(!email.includes('@')&&typeof HFAPatientRegistration!=='undefined'?HFAPatientRegistration.normPhone(email):email,pass); return; }
+  const localDemo = staticDemoAvailable() && DB.users.some(user=>user.demoOnly&&user.role===RROLE&&user.email.toLowerCase()===email);
+  if (ApiState.failed && !localDemo) return amsg(t('backend_unavailable'));
+  if (noAccounts() && !demoAccountForRole(RROLE)) return amsg(['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body'),'i');
+  if (ApiState.enabled && !ApiState.offline && !ApiState.failed) { backendLogin(!email.includes('@')&&typeof HFAPatientRegistration!=='undefined'?HFAPatientRegistration.normPhone(email):email,pass); return; }
   const phoneId = typeof HFAPatientRegistration!=='undefined' && !email.includes('@') ? HFAPatientRegistration.normPhone(email) : null;
   const candidate = DB.users.find(u => phoneId ? (u.phone && HFAPatientRegistration.normPhone(u.phone)===phoneId) : u.email.toLowerCase()===email);
   const button = document.querySelector('#fl > .btn.bp'), label = button?.textContent;

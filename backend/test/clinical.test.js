@@ -6,6 +6,12 @@ const { submitCase } = require('../triage');
 const { randomUUID } = require('node:crypto');
 
 const config = { origin: 'http://localhost:8080', ready: false, fileEncryptionKey: '8b'.repeat(32) };
+const futureDate = days => {
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+};
+const appointmentDate = futureDate(7), rescheduledDate = futureDate(8);
 
 async function startServer(store) {
   const server = createApp(config, store, {}).listen(0, '127.0.0.1');
@@ -47,7 +53,7 @@ test('clinical records are shared between patient and care team on any device, w
     const list = async cookie => (await (await app.request('/api/v1/clinical', undefined, cookie)).json()).data.records;
 
     // Nothing that a screen could run is accepted: markup in short fields, or a script link instead of a file.
-    const base = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: '2026-11-02', time: '09:30', status: 'scheduled', mode: 'video' };
+    const base = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: appointmentDate, time: '09:30', status: 'scheduled', mode: 'video' };
     assert.equal((await put(patientCookie, 'appointments', 'apt-xss', { ...base, status: '<img src=x onerror=alert(1)>' })).status, 400);
     assert.equal((await put(patientCookie, 'appointments', 'apt-xss', { ...base, type: 'consultation"><script>' })).status, 400);
     assert.equal((await put(patientCookie, 'appointments', 'apt-no-triage', base)).status, 400, 'remote booking requires SLY screening');
@@ -58,7 +64,7 @@ test('clinical records are shared between patient and care team on any device, w
     assert.equal((await put(patientCookie, 'appointments', 'apt-notes', { ...base, triageCaseId: routineCase.row.id, notes: 'Temp > 38 since Monday, BP<120' })).status, 201, 'clinical free text keeps its symbols');
 
     // The patient books on their phone; the doctor sees it on another device.
-    const appointment = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: '2026-11-02', time: '09:30', status: 'scheduled', notes: 'Cough for a week', mode: 'video', triageCaseId: routineCase.row.id };
+    const appointment = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: appointmentDate, time: '09:30', status: 'scheduled', notes: 'Cough for a week', mode: 'video', triageCaseId: routineCase.row.id };
     assert.equal((await put(patientCookie, 'appointments', 'apt-1', appointment)).status, 201);
     const doctorBooking = (await list(doctorCookie)).find(item => item.id === 'apt-1').data;
     assert.equal(doctorBooking.notes, 'Cough for a week');
@@ -75,7 +81,7 @@ test('clinical records are shared between patient and care team on any device, w
     assert.equal((await put(outsiderCookie, 'careNotes', 'cn-x', { patientId: patient.id, nurseId: outsider.id, text: 'x' })).status, 403);
     // Administrators see the schedule but not the clinical notes; they cannot read messages.
     const adminView = (await list(adminCookie)).find(item => item.id === 'apt-1');
-    assert.equal(adminView.data.date, '2026-11-02');
+    assert.equal(adminView.data.date, appointmentDate);
     assert.equal('notes' in adminView.data, false);
 
     // Optimistic concurrency: a stale write is refused with the current copy.
@@ -88,9 +94,9 @@ test('clinical records are shared between patient and care team on any device, w
     const probe = await put(outsiderCookie, 'appointments', 'apt-1', appointment, 1);
     assert.equal(probe.status, 404);
     // An administrator rescheduling (schedule fields only) never wipes the clinical notes they cannot see.
-    assert.equal((await put(adminCookie, 'appointments', 'apt-1', { patientId: patient.id, doctorId: doctor.id, date: '2026-11-04', time: '10:00', status: 'completed' }, 2)).status, 200);
+    assert.equal((await put(adminCookie, 'appointments', 'apt-1', { patientId: patient.id, doctorId: doctor.id, date: rescheduledDate, time: '10:00', status: 'completed' }, 2)).status, 200);
     const afterAdmin = (await list(doctorCookie)).find(item => item.id === 'apt-1');
-    assert.equal(afterAdmin.data.date, '2026-11-04');
+    assert.equal(afterAdmin.data.date, rescheduledDate);
     assert.equal(afterAdmin.data.notes, 'Cough for a week');
 
     store.db.prepare('UPDATE triage_cases SET created_at=? WHERE id=?').run(new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), routineCase.row.id);
