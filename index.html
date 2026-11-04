@@ -156,17 +156,17 @@ tbody tr:hover{background:#fcfdfe}
 .mf{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--bd)}
 
 #auth-wrap{min-height:100vh;display:flex;background:var(--ow)}
-.al{flex:0 0 34%;background:linear-gradient(145deg,#1418dc 0%,#1010ed 62%,#263de9 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;position:relative;overflow:hidden}
+.al{flex:0 0 clamp(240px,27vw,400px);background:linear-gradient(145deg,#344bff 0%,#1010ed 58%,#3f5bff 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;position:relative;overflow:hidden}
 .al::before{content:'';position:absolute;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,0,.24) 0%,transparent 70%);top:-80px;right:-80px;pointer-events:none}
 .al::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(206,17,38,.22) 0%,transparent 70%);bottom:-60px;left:-40px;pointer-events:none}
 .abr{position:relative;z-index:1;text-align:center;max-width:360px}
-.abr h1{font-family:var(--fd);font-size:2.6rem;color:#fff;line-height:1.1}
+.abr h1{font-family:var(--fd);font-size:2.25rem;color:#fff;line-height:1.1}
 .abr .go{color:#ffe14a}
 .abr p{color:rgba(255,255,255,.88);margin-top:10px;font-size:.95rem}
-.afl{margin-top:36px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+.afl{margin-top:24px;display:flex;flex-direction:column;gap:9px;position:relative;z-index:1}
 .af{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.92);font-size:.85rem}
 .afd{width:18px;height:18px;border-radius:50%;background:rgba(255,214,0,.22);border:1px solid rgba(255,225,74,.68);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dmb{margin-top:36px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:var(--r);padding:14px 16px;font-size:.72rem;color:rgba(255,255,255,.9);max-width:340px;position:relative;z-index:1}
+.dmb{margin-top:24px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:var(--r);padding:12px 14px;font-size:.72rem;color:rgba(255,255,255,.9);max-width:320px;position:relative;z-index:1}
 .dmb strong{color:#ffe14a}
 .dmb .dr{margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
 .dmb code{font-family:var(--fm);font-size:.7rem;background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,.8)}
@@ -198,7 +198,7 @@ tbody tr:hover{background:#fcfdfe}
 .llogo span{color:var(--go)}
 .logo-mark{display:block;object-fit:contain}
 .landing-mark{width:58px;height:38px}
-.auth-mark{width:96px;height:72px;margin:0 auto 8px}
+.auth-mark{width:80px;height:50px;margin:0 auto 6px}
 .sidebar-mark{width:38px;height:32px}
 .lnr{display:flex;align-items:center;gap:8px}
 .nav-ghost{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.15)}
@@ -851,15 +851,15 @@ body:has(#app-wrap:not(.hid)) > .creator-credit{margin-left:252px}
 #auth-wrap.auth-register .rb{min-height:48px;font-size:.86rem;background:#fff}
 #auth-wrap.auth-register .rb.active{background:#1010ed;color:#fff}
 #auth-wrap.auth-register #reg-onboarding-note{background:#fff8d8;border-color:#f1d45a;color:#383000}
-#auth-wrap.auth-login .ar{max-width:780px}
-#auth-wrap.auth-login #fl{width:100%;max-width:560px}
+#auth-wrap.auth-login .ar{max-width:920px}
+#auth-wrap.auth-login #fl{width:100%;max-width:640px}
 #auth-wrap.auth-login .auth-role-chip{background:#e8ebff;color:#171bc6}
 @media (max-width:760px){
   #auth-wrap.auth-register .ar{padding:18px 16px}
   #auth-wrap.auth-register #reg-common:not(.hid){grid-template-columns:1fr}
 }
-/* Phones: the sign-up form uses the full width (the brand panel would squeeze it). */
-@media (max-width:700px){#auth-wrap .al{display:none}#auth-wrap .ar{width:100%;padding:24px 16px}#auth-wrap .auth-top-actions{margin:0 -16px 20px;padding:10px 16px}}
+/* Give the form the full width on small screens rather than squeezing it beside the brand panel. */
+@media (max-width:760px){#auth-wrap .al{display:none}#auth-wrap .ar{width:100%;padding:24px 16px}#auth-wrap .auth-top-actions{margin:0 -16px 20px;padding:10px 16px}}
 @media (max-width:520px){.wz-lbl{display:none}.wz-steps{gap:4px}.wz-nav .btn{flex:1;justify-content:center}}
 
 /* ── Vital Health Card ── */
