@@ -61,7 +61,7 @@ test('registration refuses names without letters and impossible birth dates', as
   await new Promise(resolve => server.once('listening', resolve));
   const register = body => fetch(`http://127.0.0.1:${server.address().port}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-HFA-Request': '1', Origin: 'http://localhost:8080' }, body: JSON.stringify(body) });
   try {
-    const base = { password: 'Synthetic-pass-123', role: 'patient', phone: '+237677300400' };
+    const base = { password: 'Synthetic-pass-123', role: 'patient', subscriptionTier:'essential', phone: '+237677300400' };
     assert.equal((await register({ ...base, name: '1' })).status, 400);
     assert.match((await (await register({ ...base, name: '..' })).json()).error, /at least 2 letters/);
     const profile = { identity: { dateOfBirth: '1826-05-05', gender: 'male' }, location: { region: 'centre', division: 'Mfoundi', town: 'Yaoundé' }, medical: {}, lifestyle: {}, consents: { dataSharing: true, research: false, sms: false, whatsapp: false, ministry: false } };

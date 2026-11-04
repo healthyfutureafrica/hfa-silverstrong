@@ -32,6 +32,12 @@ function ensureSignalTable(store) {
 function installCallRoutes(app, config, store, authenticated) {
   ensureClinicalTable(store); ensureSignalTable(store);
   const limit = rateLimit({ windowMs: 60000, limit: 400, keyGenerator: request => request.user.id, standardHeaders: 'draft-8', legacyHeaders: false });
+  const carePlan = (request, response, next) => {
+    if (request.user.role === 'patient' && !['standard', 'premium', 'basic'].includes(request.user.subscription?.tier)) {
+      return response.status(403).json({ error: 'Remote consultations require the Care or Premium plan', code: 'subscription_feature_required' });
+    }
+    next();
+  };
 
   /** The appointment if this user may call in it now, with the people they may signal. */
   function callable(user, appointmentId) {
@@ -46,9 +52,9 @@ function installCallRoutes(app, config, store, authenticated) {
     return { appointment, others: people.filter(id => id !== user.id) };
   }
 
-  app.get('/api/v1/calls/ice', authenticated, (request, response) => response.json({ success: true, data: { iceServers: iceServers() }, message: 'OK', timestamp: new Date().toISOString() }));
+  app.get('/api/v1/calls/ice', authenticated, carePlan, (request, response) => response.json({ success: true, data: { iceServers: iceServers() }, message: 'OK', timestamp: new Date().toISOString() }));
 
-  app.post('/api/v1/calls/:id/signals', authenticated, limit, (request, response) => {
+  app.post('/api/v1/calls/:id/signals', authenticated, carePlan, limit, (request, response) => {
     if (request.impersonator) return response.status(403).json({ error: 'Consultations happen from your own account' });
     const call = callable(request.user, request.params.id);
     if (!call) return response.status(403).json({ error: 'You can join this call only during the booked appointment time', code: 'call_not_allowed' });
@@ -66,7 +72,7 @@ function installCallRoutes(app, config, store, authenticated) {
     response.status(201).json({ success: true, data: { ok: true }, message: 'Sent', timestamp: new Date().toISOString() });
   });
 
-  app.get('/api/v1/calls/:id/signals', authenticated, limit, (request, response) => {
+  app.get('/api/v1/calls/:id/signals', authenticated, carePlan, limit, (request, response) => {
     const call = callable(request.user, request.params.id);
     if (!call) return response.status(403).json({ error: 'You can join this call only during the booked appointment time', code: 'call_not_allowed' });
     const after = Math.max(0, Number(request.query.after) || 0);

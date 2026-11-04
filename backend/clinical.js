@@ -127,6 +127,8 @@ function installClinicalRoutes(app, config, store, authenticated) {
       .all(since, `%"${request.user.id}"%`, ...patients);
     const records = [];
     for (const row of rows) {
+      if (request.user.role === 'patient' && row.collection === 'messages'
+        && !['standard', 'premium', 'basic'].includes(request.user.subscription?.tier)) continue;
       const data = open(row);
       if (canRead(request.user, row.collection, row, data, team)) records.push(view(request.user, row, data));
     }
@@ -149,6 +151,30 @@ function installClinicalRoutes(app, config, store, authenticated) {
     if (patientId && store.user(patientId)?.role !== 'patient') return response.status(400).json({ error: 'The record must be about a patient' });
     const refuse = message => response.status(403).json({ error: message });
     const now = new Date().toISOString();
+    if (actor.role === 'patient' && collection === 'messages' && !['standard', 'premium', 'basic'].includes(actor.subscription?.tier)) {
+      return refuse('Secure messaging requires the Care or Premium plan');
+    }
+    if (actor.role === 'patient' && existing && collection === 'homeVisits' && existingData?.premiumIncluded === true
+      && (data.premiumIncluded !== true || String(data.visitDate || '').slice(0, 7) !== String(existingData.visitDate || '').slice(0, 7))) {
+      return refuse('A Premium home-visit credit cannot be removed or moved to another month');
+    }
+    if (actor.role === 'patient' && !existing && collection === 'appointments' && data.mode !== 'in_person'
+      && !['standard', 'premium', 'basic'].includes(actor.subscription?.tier)) {
+      return refuse('Remote consultations require the Care or Premium plan');
+    }
+    if (actor.role === 'patient' && collection === 'homeVisits') {
+      const subscription = actor.subscription;
+      if (subscription?.tier !== 'premium') return refuse('Nurse home visits require the Premium plan');
+      if (data.premiumIncluded === true && existingData?.premiumIncluded !== true) {
+        const month = String(data.visitDate || '').slice(0, 7);
+        const used = store.db.prepare("SELECT * FROM clinical_records WHERE collection='homeVisits' AND patient_id=?")
+          .all(actor.id).filter(row => {
+            const visit = open(row);
+            return visit.premiumIncluded === true && String(visit.visitDate || '').slice(0, 7) === month;
+          }).length;
+        if (used >= (Number(subscription.monthlyVisitsAllowed) || 1)) return response.status(409).json({ error: 'The monthly Premium home-visit credit has already been used' });
+      }
+    }
 
     if (!existing) {
       if (input.baseVersion !== 0) return response.status(409).json({ error: 'This record no longer exists', current: null });

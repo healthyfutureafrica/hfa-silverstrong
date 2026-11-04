@@ -81,7 +81,7 @@ test('patients register under a listed hospital, and only that hospital\'s clini
     assert.deepEqual(data.hospitals.map(hospital => hospital.name).sort(), ['Another Hospital', 'Bamenda Regional Hospital'], 'hospitals without an active clinician are not listed');
     assert.equal(data.hospitals.some(hospital => hospital.id === pendingDoctor.facilityId), false);
 
-    const patient = { name: 'Synthetic Patient', password: 'Synthetic-password-123', role: 'patient', phone: '+237677555111', whatsappNumber: '+237677555111' };
+    const patient = { name: 'Synthetic Patient', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677555111', whatsappNumber: '+237677555111' };
     assert.equal((await request('/api/auth/register', { ...patient, hospitalId: pendingDoctor.facilityId })).status, 400);
     const registered = await request('/api/auth/register', { ...patient, hospitalId: doctor.facilityId });
     assert.equal(registered.status, 201);

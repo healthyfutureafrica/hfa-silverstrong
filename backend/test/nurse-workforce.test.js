@@ -18,7 +18,7 @@ async function start(extra = {}) {
     body: body === undefined ? undefined : JSON.stringify(body)
   });
   const login = async email => { const response = await call('/api/auth/login', { email, password: PASS }); return response.status === 200 ? response.headers.get('set-cookie').split(';')[0] : response.status; };
-  const make = async (role, email, extra = {}) => store.createUser({ name: `Synthetic ${role} ${email.slice(0, 3)}`, email, role, ...extra }, await hashPassword(PASS), 'active');
+  const make = async (role, email, extra = {}) => store.createUser({ name: `Synthetic ${role} ${email.slice(0, 3)}`, email, role, ...(role === 'patient' ? { profile: { subscription: { tier: 'premium', status: 'active', amount: 10000, currency: 'XAF', renewalDate: '2099-12-31' } } } : {}), ...extra }, await hashPassword(PASS), 'active');
   return { store, call, login, make, earnings: app.locals.earnings, close: async () => { await new Promise(resolve => server.close(resolve)); store.close(); } };
 }
 const json = async response => (await response.json());
@@ -33,9 +33,11 @@ test('a nurse works only after an administrator has contacted the supervisor and
   try {
     await app.make('admin', 'admin-nw@example.com');
     const adminCookie = await app.login('admin-nw@example.com');
-    // Registration needs the supervisor, school, licence and qualifications.
+    // Education and supervisor details are completed after the short signup.
     const { nurseApplication, ...withoutApplication } = nurseRegistration;
-    assert.match((await json(await app.call('/api/auth/register', withoutApplication))).error, /supervisor/);
+    const shortRegistration = await app.call('/api/auth/register', { ...withoutApplication, email: 'short-nurse@example.com',phone:'+237677445567' });
+    assert.equal(shortRegistration.status, 201);
+    assert.equal((await json(shortRegistration)).user.onboardingRequired, true);
     assert.equal((await app.call('/api/auth/register', { ...nurseRegistration, licenseNo: '' })).status, 400);
     assert.match((await json(await app.call('/api/auth/register', { ...nurseRegistration, nurseApplication: { ...application, supervisor: { ...application.supervisor, phone: '677' } } }))).error, /country code/);
     assert.equal((await app.call('/api/auth/register', { ...nurseRegistration, role: 'doctor', specialty: 'General Medicine' })).status, 400, 'only nurses send a nurse application');
@@ -44,7 +46,10 @@ test('a nurse works only after an administrator has contacted the supervisor and
     const nurse = (await json(registered)).user;
     assert.equal(nurse.status, 'pending_approval');
     assert.equal(JSON.stringify(nurse).includes('Matron'), false, 'the supervisor is not part of the nurse’s profile');
-    assert.equal(await app.login('ayuk@example.com'), 403, 'cannot work before validation');
+    assert.equal(typeof await app.login('ayuk@example.com'), 'string', 'pending nurses can sign in to complete their profile');
+    app.store.updateUser(nurse.id, { profile: { onboardingRequired: false } });
+    const nurseCookie = await app.login('ayuk@example.com');
+    assert.equal((await app.call('/api/v1/nurse/availability', undefined, nurseCookie)).status, 403, 'a pending nurse cannot access the work portal');
     assert.ok(app.store.notifications(app.store.credentials('admin-nw@example.com').id).length >= 1, 'administrators are told');
 
     // Approving directly is refused: the checklist decides.

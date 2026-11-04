@@ -19,7 +19,8 @@ async function startServer(store) {
 const cookieOf = response => response.headers.get('set-cookie')?.split(';')[0];
 
 async function people(store, app) {
-  const make = async (role, email, profile = {}) => store.createUser({ name: `Synthetic ${role} ${email.split('@')[0]}`, email, role, phone: role === 'patient' ? '+237677999001' : '', profile }, await hashPassword('Synthetic-pass-123'), 'active');
+  const make = async (role, email, profile = {}) => store.createUser({ name: `Synthetic ${role} ${email.split('@')[0]}`, email, role, phone: role === 'patient' ? '+237677999001' : '',
+    profile: { ...profile, ...(role === 'patient' ? { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } : {}) } }, await hashPassword('Synthetic-pass-123'), 'active');
   const admin = await make('admin', 'rw-admin@example.invalid');
   const doctor = await make('doctor', 'rw-doc@example.invalid', { hospital: 'Synthetic RW Hospital' });
   const otherDoctor = await make('doctor', 'rw-other@example.invalid', { hospital: 'Synthetic Other RW Hospital' });

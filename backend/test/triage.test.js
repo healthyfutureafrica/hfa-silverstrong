@@ -72,10 +72,11 @@ test('patient symptom check reaches their clinicians, emergencies alert them, an
   try {
     const doctor = store.createUser({ name: 'Dr Synthetic Triage', email: 'triage-doc@example.invalid', role: 'doctor', profile: { hospital: 'Synthetic Triage Hospital' } }, await hashPassword('Synthetic-doctor-pass'), 'active');
     const otherDoctor = store.createUser({ name: 'Dr Elsewhere', email: 'elsewhere@example.invalid', role: 'doctor', profile: { hospital: 'Another Hospital' } }, await hashPassword('Synthetic-doctor-pass'), 'active');
-    const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Ndi', password: 'Synthetic-password-123', role: 'patient', phone: '+237677555222', hospitalId: store.listedHospitals().find(item => item.name === 'Synthetic Triage Hospital').id });
+    const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Ndi', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677555222', hospitalId: store.listedHospitals().find(item => item.name === 'Synthetic Triage Hospital').id });
     assert.equal(registered.status, 201);
     const patientCookie = cookieOf(registered);
     const patient = (await registered.json()).user;
+    store.updateUser(patient.id,{profile:{onboardingRequired:false,subscription:{tier:'essential',status:'active',amount:1000,currency:'XAF',renewalDate:'2099-12-31'}}});
     const doctorCookie = cookieOf(await app.request('/api/auth/login', { email: 'triage-doc@example.invalid', password: 'Synthetic-doctor-pass' }));
     const otherCookie = cookieOf(await app.request('/api/auth/login', { email: 'elsewhere@example.invalid', password: 'Synthetic-doctor-pass' }));
 
@@ -148,7 +149,9 @@ test('triage still works with the rules alone when the AI fails or refuses', asy
   const anthropicClient = { messages: { parse: async () => { throw Object.assign(new Error('overloaded'), { status: 529 }); } } };
   const app = await startServer(store, { ...baseConfig, aiTriageEnabled: true, anthropicClient });
   try {
-    const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Abe', password: 'Synthetic-password-123', role: 'patient', phone: '+237677555333' });
+    const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Abe', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677555333' });
+    const patient=(await registered.json()).user;
+    store.updateUser(patient.id,{profile:{onboardingRequired:false,subscription:{tier:'essential',status:'active',amount:1000,currency:'XAF',renewalDate:'2099-12-31'}}});
     const response = await app.request('/api/v1/triage', { requestId: uuid(), answers: { ageGroup: 'child', complaints: ['diarrhoea_vomiting'] }, text: 'Diarrhoea since morning', aiConsent: true }, cookieOf(registered));
     assert.equal(response.status, 201);
     const data = (await response.json()).data;

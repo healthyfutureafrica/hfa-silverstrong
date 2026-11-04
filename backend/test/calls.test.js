@@ -26,8 +26,9 @@ test('only the two people of a booked voice or video appointment can connect, an
   const store = new Store();
   const app = await startServer(store);
   try {
-    const make = async (role, email) => store.createUser({ name: `Synthetic ${role}`, email, role, profile: { hospital: 'Synthetic Call Hospital' } }, await hashPassword('Synthetic-pass-123'), 'active');
+    const make = async (role, email) => store.createUser({ name: `Synthetic ${role}`, email, role, profile: { hospital: 'Synthetic Call Hospital', ...(role === 'patient' ? { subscription: { tier: 'standard', status: 'active', amount: 3000, currency: 'XAF', renewalDate: '2099-12-31' } } : {}) } }, await hashPassword('Synthetic-pass-123'), 'active');
     const doctor = await make('doctor', 'call-doc@example.invalid'), patient = await make('patient', 'call-pat@example.invalid'), other = await make('patient', 'call-other@example.invalid');
+    const essential = store.createUser({ name: 'Synthetic Essential Patient', email: 'call-essential@example.invalid', role: 'patient', profile: { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } }, await hashPassword('Synthetic-pass-123'), 'active');
     store.updateUser(patient.id, { assignedDoctor: doctor.id });
     const triageCase = await submitCase(config, store, patient, {
       requestId: randomUUID(), answers: { ageGroup: 'adult', complaints: ['other'], dangerSigns: [], duration: 'days_1_2', severity: 'mild' },
@@ -35,6 +36,8 @@ test('only the two people of a booked voice or video appointment can connect, an
     });
     const login = async email => cookieOf(await app.request('/api/auth/login', { email, password: 'Synthetic-pass-123' }));
     const [doctorCookie, patientCookie, otherCookie] = await Promise.all(['call-doc@example.invalid', 'call-pat@example.invalid', 'call-other@example.invalid'].map(login));
+    const essentialCookie = await login('call-essential@example.invalid');
+    assert.equal((await app.request('/api/v1/calls/ice', undefined, essentialCookie)).status, 403, 'Essential does not include remote consultations');
     const book = async (id, minutesFromNow, mode = 'video') => {
       const when = cameroon(minutesFromNow);
       return app.request(`/api/v1/clinical/appointments/${id}`, { data: { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: when.slice(0, 10), time: when.slice(11, 16), durationMinutes: 30, mode, status: 'scheduled', triageCaseId: triageCase.row.id }, baseVersion: 0 }, patientCookie, 'PUT');

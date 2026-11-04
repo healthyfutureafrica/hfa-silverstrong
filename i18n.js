@@ -91,8 +91,6 @@
     admin_pending_note: 'Les comptes administrateurs créés par un super administrateur sont actifs immédiatement. Ceux créés par d’autres administrateurs doivent être validés par un super administrateur avant de pouvoir se connecter.',
     admin_pending_review_msg: 'Compte administrateur soumis. Il restera inactif jusqu’à sa validation par un super administrateur.',
     super_admin_protect_msg: 'Le compte du super administrateur ne peut être ni modifié, ni suspendu, ni supprimé par un autre administrateur.',
-    feature_unlimited_chat: 'Discussion illimitée avec médecins et infirmiers',
-    basic_tier_desc: 'Accès complet : messages, appels et discussions avec médecins et infirmiers'
   });
 
   // French labels for values stored in English.

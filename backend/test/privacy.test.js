@@ -34,10 +34,11 @@ test('patients manage consents, see who opened their record, export FHIR and mak
   const store = new Store();
   const app = await startServer(store);
   try {
-    const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Eko', password: 'Synthetic-password-123', role: 'patient', phone: '+237677555111', healthProfile: profile() });
+    const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Eko', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677555111', healthProfile: profile() });
     assert.equal(registered.status, 201);
     const patientCookie = cookieOf(registered);
     const patient = (await registered.json()).user;
+    store.updateUser(patient.id, { profile: { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } });
 
     // Consents: optional purposes can be changed and every change is kept; care-team sharing cannot be withdrawn here.
     const consents = await (await app.request('/api/v1/me/consents', undefined, patientCookie)).json();

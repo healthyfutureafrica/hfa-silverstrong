@@ -22,8 +22,13 @@ describe('payments', () => {
 
   test('a paid plan is never activated in the browser: the server activates it after MTN confirms', () => {
     const upgrade = content.match(/^async function upgradeSubscription\([^]*?^}/m)[0];
-    expect(upgrade).toContain("if (receipt.status==='due') { alert(t('payments_unavailable_short')); return; }");
+    expect(upgrade).toContain("if (receipt.status==='due') { alert(t('subscription_payment_unavailable')); return; }");
     expect(upgrade).toContain('await refreshOwnAccount()');
+    expect(content).toContain("subscription_tier_essential:'Essential (XAF 1,000/month)'");
+    expect(content).toContain("subscription_tier_standard:'Care (XAF 3,000/month)'");
+    expect(content).toContain("subscription_tier_premium:'Premium (XAF 10,000/month)'");
+    expect(content).toContain("CU?.role==='patient'&&!hasPaidPatientSubscription(CU) ? 'subscriptions'");
+    expect(content).not.toContain("'/api/v1/subscription/free'");
   });
 
   test('mobile money is offered only when the server says MTN is configured, and the browser never sends an amount', () => {

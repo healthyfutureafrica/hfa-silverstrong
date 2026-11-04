@@ -20,7 +20,7 @@ const { aiConfigured } = require('./triage-ai');
 const { WhatsAppTriage } = require('./whatsapp-triage');
 const { installAiAssistRoutes } = require('./ai-assist');
 const { installClinicalRoutes } = require('./clinical');
-const { Payments, installPaymentRoutes, installPaymentWebhook, mtnConfig } = require('./payments');
+const { Payments, installPaymentRoutes, installPaymentWebhook, mtnConfig, SUBSCRIPTION_XAF } = require('./payments');
 const { installCallRoutes } = require('./calls');
 const { installAccountRecovery } = require('./account-recovery');
 const { installNotifyRoutes } = require('./notify');
@@ -39,11 +39,13 @@ const plain = z.string().trim().min(1).max(200).regex(/^[^<>&"\u0000-\u001f]+$/)
 const personName=plain.regex(/^[\p{L}\p{M}\p{N} .'-]+$/u).refine(value=>value.length>=2&&/\p{L}/u.test(value),'Enter the full name (at least 2 letters)');
 const contactPhone=z.string().max(40).regex(/^[+0-9\s()-]*$/);
 const phone = z.string().regex(/^\+[1-9]\d{7,14}$/);
+const validLoginPhone = value => /^\+[1-9]\d{7,14}$/.test(String(value || '').replace(/[\s()-]/g, ''));
 const MAX_REGISTRATION_DOCUMENT=2*1024*1024;
 const uploadedDocument=z.object({fileName:z.string().min(1).max(180).regex(/^[^<>\u0000-\u001f/\\]+$/),content:z.string().min(4).max(Math.ceil(MAX_REGISTRATION_DOCUMENT/3)*4).regex(/^[A-Za-z0-9+/]+={0,2}$/)}).strict();
 const registration = z.object({
   name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()).optional(),
   password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']),
+  subscriptionTier: z.enum(['essential', 'standard', 'premium']).optional(),
   countryCode: z.enum(COUNTRY_DATA.all().map(country => country.code)).default('CM'),
   phone: contactPhone.optional(), whatsappNumber: phone.optional(), whatsappNotificationsConsent: z.boolean().optional(),
   specialty: plain.optional(), hospital: plain.optional(), department: plain.optional(), consultationFee: z.number().min(5).max(20).optional(),
@@ -56,31 +58,28 @@ const registration = z.object({
   // Nurses: nursing school, graduation year and a supervisor whom an administrator contacts (nurse-workforce.js).
   nurseApplication: nurseApplication.optional()
 }).strict().superRefine((input, context) => {
-  if (input.role === 'nurse') {
-    if (!input.nurseApplication) context.addIssue({ code: 'custom', path: ['nurseApplication'], message: 'Nurses give their nursing school, graduation year and a supervisor' });
-    if (!input.licenseNo?.trim()) context.addIssue({ code: 'custom', path: ['licenseNo'], message: 'Enter your nursing licence (council registration) number' });
-    if (!input.qualifications) context.addIssue({ code: 'custom', path: ['qualifications'], message: 'Enter your nursing qualifications' });
-  } else if (input.nurseApplication) context.addIssue({ code: 'custom', path: ['nurseApplication'], message: 'Only nurses give this information' });
+  if (['doctor','nurse'].includes(input.role) && !input.licenseNo?.trim()) {
+    context.addIssue({ code: 'custom', path: ['licenseNo'], message: 'Enter your professional licence number' });
+  }
+  if (input.role === 'patient' && !input.subscriptionTier) context.addIssue({ code: 'custom', path: ['subscriptionTier'], message: 'Choose a paid monthly subscription plan' });
+  if (input.role !== 'patient' && input.subscriptionTier) context.addIssue({ code: 'custom', path: ['subscriptionTier'], message: 'Only patients choose a subscription plan' });
+  if (input.role !== 'nurse' && input.nurseApplication) context.addIssue({ code: 'custom', path: ['nurseApplication'], message: 'Only nurses give this information' });
   if (input.role !== 'patient' && (input.hospitalId || input.hospitalOther)) context.addIssue({ code: 'custom', path: ['hospitalId'], message: 'Only patients register under a hospital' });
-  // Only patients may register without an email; they then sign in with their primary phone number.
-  if (input.role !== 'patient' && !input.email) context.addIssue({ code: 'custom', path: ['email'], message: 'Required' });
-  if (input.role === 'patient' && !input.whatsappNumber && !phone.safeParse(input.phone).success) context.addIssue({ code: 'custom', path: ['phone'], message: 'Patient phone number is required in international format, e.g. +237677123456' });
-  if (input.role === 'patient' && !input.email && !phone.safeParse(input.phone).success) context.addIssue({ code: 'custom', path: ['phone'], message: 'A phone number in international format is required when no email is given' });
+  if (!input.email && !validLoginPhone(input.phone)) context.addIssue({ code: 'custom', path: ['phone'], message: 'Provide an email address or a phone number in international format' });
   if (input.role !== 'patient' && (input.healthProfile || input.vaccinationDocument)) context.addIssue({ code: 'custom', path: ['healthProfile'], message: 'Only patients have a health profile' });
   if (input.role === 'patient' && input.healthProfile && input.healthProfile.location.countryCode !== input.countryCode) context.addIssue({ code: 'custom', path: ['countryCode'], message: 'Account country must match the health profile country' });
   if (input.role === 'pharmacist') context.addIssue({ code: 'custom', path: ['role'], message: 'Pharmacies register with their documents at /api/auth/register/pharmacist' });
 });
-// Pharmacies must submit every credential document with the application; activation is gated on all of them.
+// Pharmacy activation is gated on complete registration details and verified supporting documents.
 const PHARMACY_FIELDS=['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization','ownerName','ownerIdType','ownerIdNumber'];
 const PHARMACY_DOCUMENTS=['pharmacistLicense','businessLicense','minsanteAuthorization','ownerIdentity'];
 const pharmacyRegistration=z.object({
-  name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()),
+  name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()).optional(),
   password: z.string().min(12).max(128).regex(/\S/), phone: contactPhone.optional(),
-  pharmacyName:plain,pharmacyAddress:plain,pharmacyLocation:plain,pharmacyLicense:plain,businessRegistration:plain,minsanteAuthorization:plain,
-  ownerName:personName,ownerIdType:z.enum(['national_id','passport']),ownerIdNumber:plain,
-  pharmacyRegion:z.enum(REGIONS).optional(),pharmacyTown:plain.optional(),
-  documents:z.object(Object.fromEntries(PHARMACY_DOCUMENTS.map(kind=>[kind,uploadedDocument]))).strict()
-}).strict();
+  pharmacyLicense:plain
+}).strict().superRefine((input,context)=>{
+  if (!input.email&&!validLoginPhone(input.phone)) context.addIssue({code:'custom',path:['phone'],message:'Provide an email or an international phone number'});
+});
 const resources = ['Account', 'Communications', 'Appointments', 'Medical Records', 'Lab Results', 'Care Notes', 'Care Coordination', 'Billing', 'Home Visits', 'Urgent Care'];
 const activity = z.object({ eventId: z.string().min(8).max(100), patientId: z.string().min(1).max(100), resource: z.enum(resources) }).strict();
 const patchSchema = z.object({
@@ -121,7 +120,7 @@ function createApp(config, store, provider) {
   app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
   app.use(helmet());
   app.get('/api/healthz', (request, response) => response.json({ status: 'ok' }));
-  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), requireAdminMfa: !!config.requireAdminMfa, aiTriage: aiConfigured(config), paymentsAvailable: app.locals.payments?.available || false }));
+  app.get('/api/config', (request, response) => response.json({ backend: true, providerConfigured: config.ready, fileUploadsConfigured: filesConfigured(config), requireAdminMfa: !!config.requireAdminMfa, aiTriage: aiConfigured(config), paymentsAvailable: app.locals.payments?.available || false, subscriptionPaymentsAvailable: !!app.locals.payments?.available && app.locals.payments.mtn.currency === 'XAF' }));
   app.get('/api/whatsapp/webhook', (request, response) => {
     if (!config.verifyToken || request.query['hub.mode'] !== 'subscribe' || request.query['hub.verify_token'] !== config.verifyToken || typeof request.query['hub.challenge'] !== 'string') return response.sendStatus(403);
     response.type('text/plain').send(request.query['hub.challenge']);
@@ -138,7 +137,7 @@ function createApp(config, store, provider) {
   // Live calls poll for connection messages and have their own per-person limit (backend/calls.js).
   app.use('/api', rateLimit({ windowMs: 60000, limit: 120, standardHeaders: 'draft-8', legacyHeaders: false, skip: request => /^\/v1\/calls\/[^/]+\/signals$/.test(request.path) }));
   const smallJson=express.json({ limit: '32kb' });
-  const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist', '/api/v1/account/id-document', '/api/v1/doctor-photo'];
+  const documentRoutes = ['/api/auth/register', '/api/auth/register/pharmacist', '/api/v1/account/id-document', '/api/v1/account/profile', '/api/v1/doctor-photo'];
   app.use((request, response, next) => documentRoutes.includes(request.path) || /^\/api\/v1\/clinical\/[^/]+\/[^/]+$/.test(request.path) || /^\/api\/v1\/users\/[^/]+\/health-profile$/.test(request.path) ? next() : smallJson(request, response, next));
   app.use('/api', (request, response, next) => {
     response.set('Cache-Control', 'no-store');
@@ -150,7 +149,26 @@ function createApp(config, store, provider) {
   const authenticated = (request, response, next) => {
     const details = store.sessionDetails(cookieToken(request));
     if (!details) return response.status(401).json({ error: 'Sign in required' });
-    request.user = details.user;
+    const user = details.user;
+    const subscription = user.subscription;
+    const paidSubscription = subscription?.status === 'active'
+      && ['essential', 'standard', 'premium', 'basic'].includes(subscription.tier)
+      && typeof subscription.renewalDate === 'string'
+      && subscription.renewalDate >= new Date().toISOString().slice(0, 10);
+    const completionRoute = request.method === 'GET' && request.path === '/api/session'
+      || request.method === 'PUT' && request.path === '/api/v1/account/profile'
+      || request.method === 'PUT' && request.path === `/api/v1/users/${user.id}/health-profile` && user.role === 'patient';
+    const paymentRoute = request.method === 'GET' && (
+      request.path === '/api/v1/payments/options'
+      || request.path === '/api/v1/payments'
+      || /^\/api\/v1\/payments\/[^/]+$/.test(request.path)
+    ) || request.method === 'POST' && request.path === '/api/v1/payments';
+    if (user.status !== 'active' && !completionRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
+    if (user.onboardingRequired && !completionRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
+    if (user.role === 'patient' && !paidSubscription && !completionRoute && !paymentRoute) {
+      return response.status(403).json({ error: 'Choose and pay for a patient subscription before using the portal', code: 'subscription_required' });
+    }
+    request.user = user;
     request.impersonator = details.impersonator; // set while a Super Admin is signed in as this account
     next();
   };
@@ -226,18 +244,20 @@ function createApp(config, store, provider) {
       if (identity.error) return response.status(400).json({ error: identity.error });
     }
     const taken = () => (input.email && store.credentials(input.email)) ? 'Email already registered'
-      : (input.role === 'patient' && phone.safeParse(input.phone).success && store.credentialsByPhone(input.phone)) ? 'Phone number already registered' : null;
+      : (validLoginPhone(input.phone) && store.credentialsByPhone(input.phone)) ? 'Phone number already registered' : null;
     if (taken()) return response.status(409).json({ error: taken() });
     const passwordHash = await hashPassword(input.password);
     const idDocument = identity && { id: randomUUID(), fileName: identity.fileName, mime: identity.mime, size: identity.bytes.length };
     const vaccinationDocument = vaccination && { id: randomUUID(), fileName: vaccination.fileName, mime: vaccination.mime, size: vaccination.bytes.length };
-    const { healthProfile: health, vaccinationDocument: unusedDocument, hospitalId, nurseApplication: application, ...account } = input;
+    const { healthProfile: health, vaccinationDocument: unusedDocument, hospitalId, nurseApplication: application, subscriptionTier, ...account } = input;
     account.facilityId = hospitalId || undefined;
     store.db.exec('BEGIN IMMEDIATE');
     let user;
     try {
       if (taken()) { const error = taken(); store.db.exec('ROLLBACK'); return response.status(409).json({ error }); }
-      user = store.createUser({ ...account, profile: { ...profile(input), ...(input.preferredLanguage ? { preferredLanguage: input.preferredLanguage } : {}),
+      user = store.createUser({ ...account, profile: { ...profile(input), onboardingRequired: !health,
+        ...(input.role === 'patient' ? { subscription: { tier: subscriptionTier, status: 'pending_payment', amount: SUBSCRIPTION_XAF[subscriptionTier], currency: 'XAF', monthlyVisitsAllowed: subscriptionTier === 'premium' ? 1 : 0, paymentStatus: 'due' } } : {}),
+        ...(input.preferredLanguage ? { preferredLanguage: input.preferredLanguage } : {}),
         ...(idDocument ? { idDocumentType: input.idDocumentType, idDocument, idVerificationStatus: 'pending' } : {}),
         ...(vaccinationDocument ? { vaccinationDocument } : {}), ...(health ? { registrationCompletedAt: new Date().toISOString() } : {}) } }, passwordHash, input.role === 'patient' ? 'active' : 'pending_approval');
       if (idDocument) saveEncryptedFile(config, store, user.id, idDocument.id, { fileName: idDocument.fileName, category: 'registration:identity', notes: '', relatedApptId: '' }, identity.bytes, identity.mime);
@@ -246,9 +266,9 @@ function createApp(config, store, provider) {
       if (application) recordApplication(store, user.id, application);
       store.db.exec('COMMIT');
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
-    if (user.status === 'active') startSession(response, user);
+    startSession(response, user);
     const [own] = withHealth(config, store, user, [user]);
-    response.status(201).json({ user: own, users: user.status === 'active' ? withHealth(config, store, user, store.visibleUsers(user)) : [] });
+    response.status(201).json({ user: own, users: withHealth(config, store, user, store.visibleUsers(user)) });
   });
   // "Complete my profile": a signed-in patient saves or updates the 5-step health profile.
   const healthUpdate = z.object({
@@ -284,30 +304,67 @@ function createApp(config, store, provider) {
       saveHealthRecord(config, store, userId, recordWithConsentTimes(input.healthProfile));
       if (input.hospitalId !== undefined) store.setPatientFacility(userId, input.hospitalId || null);
       if (input.hospitalOther !== undefined) patch.hospitalOther = input.hospitalOther || null;
-      store.updateUser(userId, { profile: patch });
+      store.updateUser(userId, { profile: { ...patch, onboardingRequired: false } });
       store.db.exec('COMMIT');
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     const user = store.user(userId);
     response.json({ user: withHealth(config, store, user, [user])[0] });
   });
-  app.post('/api/auth/register/pharmacist', authLimit, express.json({ limit: '12mb' }), async (request, response) => {
-    if (!filesConfigured(config)) return response.status(503).json({ error: 'Encrypted document storage is not configured; pharmacy registration is unavailable' });
-    const input = pharmacyRegistration.parse(request.body);
-    const documents = {};
-    for (const kind of PHARMACY_DOCUMENTS) {
-      documents[kind] = decodeDocument(`documents.${kind}`, input.documents[kind]);
-      if (documents[kind].error) return response.status(400).json({ error: documents[kind].error });
+  const accountProfile = z.object({
+    specialty:plain.optional(),hospital:plain.optional(),department:plain.optional(),consultationFee:z.number().min(5).max(20).optional(),qualifications:plain.optional(),
+    nurseApplication:nurseApplication.optional(),idDocumentType:z.enum(['national_id','passport']).optional(),idDocument:uploadedDocument.optional(),
+    pharmacyName:plain.optional(),pharmacyAddress:plain.optional(),pharmacyLocation:plain.optional(),pharmacyLicense:plain.optional(),businessRegistration:plain.optional(),
+    minsanteAuthorization:plain.optional(),ownerName:personName.optional(),ownerIdType:z.enum(['national_id','passport']).optional(),ownerIdNumber:plain.optional(),
+    pharmacyRegion:z.enum(REGIONS).optional(),pharmacyTown:plain.optional(),
+    documents:z.object(Object.fromEntries(PHARMACY_DOCUMENTS.map(kind=>[kind,uploadedDocument]))).strict().optional()
+  }).strict();
+  app.put('/api/v1/account/profile', authenticated, express.json({ limit: '12mb' }), (request, response) => {
+    const user=request.user,input=accountProfile.parse(request.body);
+    if (!user.onboardingRequired) return response.status(409).json({error:'Profile completion is already finished'});
+    if (user.role==='doctor'&&(!input.specialty||!input.hospital||!input.consultationFee||!input.qualifications||!input.idDocument||!input.idDocumentType)) return response.status(400).json({error:'Complete your specialty, workplace, fee, qualifications and identity document'});
+    if (user.role==='nurse'&&(!input.department||!input.hospital||!input.qualifications||!input.nurseApplication||!input.idDocument||!input.idDocumentType)) return response.status(400).json({error:'Complete your workplace, qualifications, education, supervisor and identity document'});
+    if (user.role==='pharmacist'&&(!input.pharmacyName||!input.pharmacyAddress||!input.pharmacyLocation||!input.pharmacyLicense||!input.businessRegistration||!input.minsanteAuthorization||!input.ownerName||!input.ownerIdType||!input.ownerIdNumber||!input.pharmacyRegion||!input.pharmacyTown||!input.documents||PHARMACY_DOCUMENTS.some(kind=>!input.documents[kind]))) return response.status(400).json({error:'Complete all pharmacy registration details and supporting documents'});
+    if (user.role==='pharmacist'&&input.pharmacyLicense!==user.pharmacyLicense) return response.status(400).json({error:'The pharmacy licence must match the number entered at signup'});
+    if (!['doctor','nurse','pharmacist'].includes(user.role)) return response.status(403).json({error:'This role has no professional profile form'});
+    if (!filesConfigured(config)) return response.status(503).json({error:'Encrypted document storage is not configured'});
+    const identity=input.idDocument&&decodeDocument('idDocument',input.idDocument);
+    if (identity?.error) return response.status(400).json({error:identity.error});
+    const pharmacyDocs={};
+    if (user.role==='pharmacist') for (const kind of PHARMACY_DOCUMENTS) {
+      pharmacyDocs[kind]=decodeDocument(`documents.${kind}`,input.documents[kind]);
+      if (pharmacyDocs[kind].error) return response.status(400).json({error:pharmacyDocs[kind].error});
     }
-    if (store.credentials(input.email)) return response.status(409).json({ error: 'Email already registered' });
-    const passwordHash = await hashPassword(input.password);
-    const pharmacyDocuments = Object.fromEntries(PHARMACY_DOCUMENTS.map(kind => [kind, { id: randomUUID(), fileName: documents[kind].fileName, mime: documents[kind].mime, size: documents[kind].bytes.length }]));
+    if (user.role==='nurse'&&!input.nurseApplication) return response.status(400).json({error:'Nurse education and supervisor details are required'});
+    const patch=Object.fromEntries(['specialty','hospital','department','consultationFee','qualifications','pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization','ownerName','ownerIdType','ownerIdNumber','pharmacyRegion','pharmacyTown'].filter(key=>input[key]!==undefined).map(key=>[key,input[key]]));
+    const storedDocs={};
+    if (identity) patch.idDocument={id:randomUUID(),fileName:identity.fileName,mime:identity.mime,size:identity.bytes.length};
+    if (user.role==='pharmacist') patch.pharmacyDocuments=Object.fromEntries(PHARMACY_DOCUMENTS.map(kind=>{
+      const doc=pharmacyDocs[kind],stored={id:randomUUID(),fileName:doc.fileName,mime:doc.mime,size:doc.bytes.length};storedDocs[kind]={...stored,bytes:doc.bytes};return [kind,stored];
+    }));
     store.db.exec('BEGIN IMMEDIATE');
     try {
-      if (store.credentials(input.email)) { store.db.exec('ROLLBACK'); return response.status(409).json({ error: 'Email already registered' }); }
-      const user = store.createUser({ ...input, role: 'pharmacist', profile: { ...Object.fromEntries(PHARMACY_FIELDS.map(field => [field, input[field]])), ...(input.pharmacyRegion ? { pharmacyRegion: input.pharmacyRegion } : {}), ...(input.pharmacyTown ? { pharmacyTown: input.pharmacyTown } : {}), pharmacyDocuments } }, passwordHash, 'pending_approval');
-      for (const kind of PHARMACY_DOCUMENTS) saveEncryptedFile(config, store, user.id, pharmacyDocuments[kind].id, { fileName: documents[kind].fileName, category: 'pharmacy_registration:' + kind, notes: '', relatedApptId: '' }, documents[kind].bytes, documents[kind].mime);
+      if (identity) saveEncryptedFile(config,store,user.id,patch.idDocument.id,{fileName:identity.fileName,category:'registration:identity',notes:'',relatedApptId:''},identity.bytes,identity.mime);
+      for (const [kind,doc] of Object.entries(storedDocs)) saveEncryptedFile(config,store,user.id,doc.id,{fileName:doc.fileName,category:'pharmacy_registration:'+kind,notes:'',relatedApptId:''},doc.bytes,doc.mime);
+      if (user.role==='nurse') recordApplication(store,user.id,input.nurseApplication);
+      store.updateUser(user.id,{profile:{...patch,onboardingRequired:false,...(identity?{idDocumentType:input.idDocumentType,idVerificationStatus:'pending'}:{}),...(user.role==='nurse'?{nurseApplication:input.nurseApplication}: {})}});
+      if (user.role==='pharmacist') store.assignNumber(user.id);
+      store.audit(user.id,'PROFILE_COMPLETED',{targetId:user.id,details:{role:user.role,documents:user.role==='pharmacist'?PHARMACY_DOCUMENTS.length:1},ip:request.ip});
       store.db.exec('COMMIT');
-      response.status(201).json({ user, users: [] });
+    } catch(error) {store.db.exec('ROLLBACK');throw error;}
+    const updated=store.user(user.id);
+    response.json({user:withHealth(config,store,updated,[updated])[0],users:withHealth(config,store,updated,store.visibleUsers(updated)),notifications:store.notifications(updated.id)});
+  });
+  app.post('/api/auth/register/pharmacist', authLimit, express.json({ limit: '12mb' }), async (request, response) => {
+    const input = pharmacyRegistration.parse(request.body);
+    if ((input.email && store.credentials(input.email)) || (validLoginPhone(input.phone) && store.credentialsByPhone(input.phone))) return response.status(409).json({ error: 'Email or phone number already registered' });
+    const passwordHash = await hashPassword(input.password);
+    store.db.exec('BEGIN IMMEDIATE');
+    try {
+      if ((input.email && store.credentials(input.email)) || (validLoginPhone(input.phone) && store.credentialsByPhone(input.phone))) { store.db.exec('ROLLBACK'); return response.status(409).json({ error: 'Email or phone number already registered' }); }
+      const user = store.createUser({ ...input, role: 'pharmacist', deferNumbering:true, profile: { pharmacyLicense: input.pharmacyLicense, onboardingRequired: true } }, passwordHash, 'pending_approval');
+      store.db.exec('COMMIT');
+      startSession(response, user);
+      response.status(201).json(sessionPayload(user));
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
   });
   app.post('/api/auth/login', authLimit, async (request, response) => {
@@ -317,7 +374,7 @@ function createApp(config, store, provider) {
     const valid=await verifyPassword(input.password,credentials?.password_hash||`00000000000000000000000000000000:${'0'.repeat(128)}`);
     if (!credentials || !valid) return response.status(401).json({ error: 'Invalid email or password' });
     const user = store.user(credentials.id);
-    if (user.status !== 'active') return response.status(403).json({ error: 'Account is not active; administrator review may be required' });
+    if (!['active', 'pending_approval'].includes(user.status)) return response.status(403).json({ error: 'Account is not active; administrator review may be required' });
     // Two-step sign-in: no session until the code from the authenticator app is checked (POST /api/auth/mfa).
     const challenge = security.challengeFor(user);
     if (challenge) return response.json({ mfaRequired: true, challenge, emailCode: security.emailBackupFor(user) });
@@ -380,6 +437,7 @@ function createApp(config, store, provider) {
     const patch = patchSchema.parse(request.body);
     if (user.role==='pharmacist' && patch.status==='active' && patch.pharmacyCredentialReview!==true) return response.status(409).json({error:'Confirm original pharmacy credentials were reviewed before activation'});
     if (user.role==='pharmacist' && patch.status==='active' && !pharmacyComplete(user)) return response.status(409).json({error:'Pharmacy credentials or registration documents are incomplete'});
+    if (['doctor','nurse','pharmacist'].includes(user.role) && patch.status==='active' && user.onboardingRequired) return response.status(409).json({error:'The professional must complete their profile before activation'});
     if (workforce.activationBlocked(user, patch)) return response.status(409).json({error:'Validate this nurse through the nurse verification checklist'});
     for (const [key, role] of [['assignedDoctor', 'doctor'], ['assignedNurse', 'nurse']]) {
       if (patch[key] && (store.user(patch[key])?.role !== role || store.user(patch[key]).status !== 'active')) return response.status(400).json({ error: 'Invalid provider assignment' });

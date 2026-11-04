@@ -30,7 +30,9 @@ test('without MTN credentials nothing is ever charged or marked paid', async () 
   const store = new Store();
   const app = await startServer(store, base);
   try {
-    const patient = cookieOf(await app.request('/api/auth/register', { name: 'Synthetic Patient Una', password: 'Synthetic-password-123', role: 'patient', phone: '+237677000555' }));
+    const registered = await app.request('/api/auth/register', { name: 'Synthetic Patient Una', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677000555' });
+    const patient = cookieOf(registered), patientUser=(await registered.json()).user;
+    store.updateUser(patientUser.id,{profile:{onboardingRequired:false}});
     assert.equal((await (await app.request('/api/config')).json()).paymentsAvailable, false);
     assert.equal((await (await app.request('/api/v1/payments/options', undefined, patient)).json()).data.available, false);
     const refused = await app.request('/api/v1/payments', { purpose: 'appointment_reschedule', msisdn: '677000555', idempotencyKey: 'key-00000001' }, patient);
@@ -51,59 +53,73 @@ test('patients pay with MTN MoMo for server-priced items; results come only from
   try {
     store.createUser({ name: 'Dr Synthetic Fee', email: 'fee-doc@example.invalid', role: 'doctor', profile: { consultationFee: 15 } }, await hashPassword('Synthetic-doctor-pass'), 'active');
     const doctor = store.user(store.credentials('fee-doc@example.invalid').id);
-    const patientResponse = await app.request('/api/auth/register', { name: 'Synthetic Patient Payer', password: 'Synthetic-password-123', role: 'patient', phone: '+237677000666' });
-    const patient = cookieOf(patientResponse), patientId = (await patientResponse.json()).user.id;
+    const patientResponse = await app.request('/api/auth/register', { name: 'Synthetic Patient Payer', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677000666' });
+    const patientData=await patientResponse.json(),patient = cookieOf(patientResponse), patientId = patientData.user.id;
+    store.updateUser(patientId,{profile:{onboardingRequired:false}});
+    const lockedPortal=await app.request('/api/notifications',undefined,patient);
+    assert.equal(lockedPortal.status,403,'pending payment cannot access the patient portal');
+    assert.equal((await lockedPortal.json()).code,'subscription_required');
+    const lockedPayment=await app.request('/api/v1/payments',{purpose:'appointment_reschedule',msisdn:'677000666',idempotencyKey:'locked-fee-0001'},patient);
+    assert.equal(lockedPayment.status,403,'an unpaid patient may only pay a subscription');
     const doctorCookie = cookieOf(await app.request('/api/auth/login', { email: 'fee-doc@example.invalid', password: 'Synthetic-doctor-pass' }));
     assert.equal((await (await app.request('/api/config')).json()).paymentsAvailable, true);
 
     // The server sets the amount from the doctor's profile (USD 15 = XAF 9,000); the browser cannot change it.
     const pay = body => app.request('/api/v1/payments', body, patient);
-    assert.equal((await pay({ purpose: 'consultation_fee', targetId: doctor.id, msisdn: '699000666', idempotencyKey: 'key-orange-1' })).status, 400, 'not an MTN number');
+    assert.equal((await pay({ purpose: 'subscription', tier: 'essential', msisdn: '699000666', idempotencyKey: 'key-orange-1' })).status, 400, 'not an MTN number');
     assert.equal((await app.request('/api/v1/payments', { purpose: 'consultation_fee', targetId: doctor.id, msisdn: '677000666', idempotencyKey: 'key-doctor-1' }, doctorCookie)).status, 403, 'only patients pay');
+
+    // All monthly plans have exact server-set XAF prices; only provider-confirmed payments activate one.
+    const essential = (await (await pay({ purpose: 'subscription', tier: 'essential', msisdn: '677000666', idempotencyKey: 'key-essential-1' })).json()).data.payment;
+    const standard = (await (await pay({ purpose: 'subscription', tier: 'standard', msisdn: '677000666', idempotencyKey: 'key-standard-1' })).json()).data.payment;
+    const plan = (await (await pay({ purpose: 'subscription', tier: 'premium', msisdn: '677000666', idempotencyKey: 'key-premium-1' })).json()).data.payment;
+    assert.deepEqual([essential.amount, standard.amount, plan.amount], [1000, 3000, 10000]);
+    assert.equal(store.user(patientId).subscription.status, 'pending_payment', 'plan selection alone does not activate the subscription');
+    assert.equal((await app.request(`/api/v1/payments/webhooks/mtn/wrong`, { externalId: plan.id }, undefined, 'POST', {})).status, 404);
+    await app.request(`/api/v1/payments/webhooks/mtn/${secret}`, { externalId: plan.id, status: 'SUCCESSFUL' }, undefined, 'POST', {});
+    assert.equal(store.user(patientId).subscription.status, 'pending_payment', 'a callback alone is not trusted');
+    statuses.set(requests[2].referenceId, { status: 'SUCCESSFUL', amount: '10000', currency: 'XAF' });
+    await app.request(`/api/v1/payments/webhooks/mtn/${secret}`, { externalId: plan.id, status: 'SUCCESSFUL' }, undefined, 'POST', {});
+    assert.deepEqual([store.user(patientId).subscription.tier, store.user(patientId).subscription.status, store.user(patientId).subscription.amount, store.user(patientId).subscription.currency], ['premium', 'active', 10000, 'XAF']);
+    assert.equal((await app.request('/api/notifications',undefined,patient)).status,200,'confirmed payment unlocks the portal');
+    assert.equal((await pay({ purpose: 'consultation_fee', targetId: doctor.id, msisdn: '699000666', idempotencyKey: 'key-orange-2' })).status, 400, 'not an MTN number');
     const started = await pay({ purpose: 'consultation_fee', targetId: doctor.id, msisdn: '6 77 00 06 66', idempotencyKey: 'key-consult-1', amount: 1 });
     assert.equal(started.status, 400, 'an amount sent by the browser is refused');
     const accepted = await pay({ purpose: 'consultation_fee', targetId: doctor.id, msisdn: '6 77 00 06 66', idempotencyKey: 'key-consult-1' });
     assert.equal(accepted.status, 202);
     const payment = (await accepted.json()).data.payment;
     assert.deepEqual([payment.amount, payment.currency, payment.status], [9000, 'XAF', 'pending']);
-    assert.equal(requests[0].msisdn, '237677000666');
-    assert.equal(requests[0].amount, 9000);
+    assert.equal(requests[3].msisdn, '237677000666');
+    assert.equal(requests[3].amount, 9000);
     // Retrying with the same key never charges twice.
     assert.equal((await pay({ purpose: 'consultation_fee', targetId: doctor.id, msisdn: '677000666', idempotencyKey: 'key-consult-1' })).status, 200);
-    assert.equal(requests.length, 1);
+    assert.equal(requests.length, 4);
     // Still pending until MTN says otherwise; then successful.
     assert.equal((await (await app.request(`/api/v1/payments/${payment.id}`, undefined, patient)).json()).data.payment.status, 'pending');
-    statuses.set(requests[0].referenceId, { status: 'SUCCESSFUL', amount: '9000', currency: 'XAF', financialTransactionId: 'mtn-tx-1' });
+    statuses.set(requests[3].referenceId, { status: 'SUCCESSFUL', amount: '9000', currency: 'XAF', financialTransactionId: 'mtn-tx-1' });
     const done = (await (await app.request(`/api/v1/payments/${payment.id}`, undefined, patient)).json()).data.payment;
     assert.equal(done.status, 'successful');
     assert.equal(done.financialTransactionId, 'mtn-tx-1');
     assert.equal((await app.request(`/api/v1/payments/${payment.id}`, undefined, doctorCookie)).status, 404, 'payments are private');
-
     // A reported amount that differs from what was asked fails the payment.
     const odd = (await (await pay({ purpose: 'appointment_reschedule', msisdn: '677000666', idempotencyKey: 'key-resched-1' })).json()).data.payment;
     assert.equal(odd.amount, 3000);
-    statuses.set(requests[1].referenceId, { status: 'SUCCESSFUL', amount: '300', currency: 'XAF' });
+    statuses.set(requests[4].referenceId, { status: 'SUCCESSFUL', amount: '300', currency: 'XAF' });
     assert.equal((await (await app.request(`/api/v1/payments/${odd.id}`, undefined, patient)).json()).data.payment.failureReason, 'amount_mismatch');
-
-    // Premium plan: active only after MTN confirms, here through the callback (which is re-checked with MTN).
-    const plan = (await (await pay({ purpose: 'subscription', tier: 'premium', msisdn: '677000666', idempotencyKey: 'key-premium-1' })).json()).data.payment;
-    assert.equal(plan.amount, 6000);
-    assert.equal(store.user(patientId).subscription, undefined, 'not active before payment');
-    assert.equal((await app.request(`/api/v1/payments/webhooks/mtn/wrong`, { externalId: plan.id }, undefined, 'POST', {})).status, 404);
-    await app.request(`/api/v1/payments/webhooks/mtn/${secret}`, { externalId: plan.id, status: 'SUCCESSFUL' }, undefined, 'POST', {});
-    assert.equal(store.user(patientId).subscription, undefined, 'a callback alone is not trusted');
-    statuses.set(requests[2].referenceId, { status: 'SUCCESSFUL', amount: '6000', currency: 'XAF' });
-    await app.request(`/api/v1/payments/webhooks/mtn/${secret}`, { externalId: plan.id, status: 'SUCCESSFUL' }, undefined, 'POST', {});
-    assert.deepEqual([store.user(patientId).subscription.tier, store.user(patientId).subscription.status], ['premium', 'active']);
+    const activeSubscription=store.user(patientId).subscription;
+    store.updateUser(patientId,{profile:{subscription:{...activeSubscription,renewalDate:'2000-01-01'}}});
+    const expiredPortal=await app.request('/api/notifications',undefined,patient);
+    assert.equal(expiredPortal.status,403,'access ends when the paid month expires');
+    assert.equal((await expiredPortal.json()).code,'subscription_required');
+    store.updateUser(patientId,{profile:{subscription:activeSubscription}});
     // The worker settles pending payments in the background.
     const visit = (await (await pay({ purpose: 'nurse_home_visit', targetId: doctor.id, msisdn: '677000666', idempotencyKey: 'key-visit-1' })).json());
     assert.match(visit.error, /active nurse/);
     const list = (await (await app.request('/api/v1/payments', undefined, patient)).json()).data.payments;
-    assert.equal(list.length, 3);
+    assert.equal(list.length, 5);
     const log = store.db.prepare("SELECT action FROM audit_log WHERE action LIKE 'PAYMENT_%'").all().map(row => row.action);
     assert.ok(log.includes('PAYMENT_REQUESTED') && log.includes('PAYMENT_SUCCEEDED') && log.includes('PAYMENT_FAILED'));
-    // Free plan without payment.
-    const free = await app.request('/api/v1/subscription/free', {}, patient);
-    assert.equal((await free.json()).data.user.subscription.tier, 'free');
+    assert.equal((await app.request('/api/v1/subscription/free', {}, patient)).status, 404, 'there is no free subscription endpoint');
+    assert.equal((await pay({ purpose: 'subscription', tier: 'free', msisdn: '677000666', idempotencyKey: 'key-free-plan-1' })).status, 400, 'free is not a valid paid plan');
   } finally { await app.close(); store.close(); }
 });

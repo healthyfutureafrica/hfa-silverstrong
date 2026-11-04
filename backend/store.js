@@ -266,7 +266,7 @@ class Store {
       JSON.stringify(input.profile || {}), new Date().toISOString());
     if (input.whatsappNotificationsConsent) this.db.prepare('UPDATE users SET whatsapp_consent_at=? WHERE id=?').run(new Date().toISOString(),id);
     if (input.role === 'patient' && input.facilityId) this.db.prepare('UPDATE users SET facility_id=? WHERE id=?').run(input.facilityId, id);
-    this.assignNumber(id);
+    if (!input.deferNumbering) this.assignNumber(id);
     return this.user(id);
   }
 
@@ -293,7 +293,7 @@ class Store {
     if (!token) return null;
     const row = this.db.prepare('SELECT user_id,impersonator_id FROM sessions WHERE token_hash=? AND expires_at>?').get(digest(token), Date.now());
     const user = row && this.user(row.user_id);
-    if (user?.status !== 'active') return null;
+    if (!user || !['active', 'pending_approval'].includes(user.status)) return null;
     const impersonator = row.impersonator_id ? this.user(row.impersonator_id) : null;
     if (row.impersonator_id && (impersonator?.role !== 'admin' || impersonator.status !== 'active')) return null;
     return { user, impersonator };

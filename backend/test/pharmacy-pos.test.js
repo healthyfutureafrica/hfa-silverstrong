@@ -11,7 +11,8 @@ test('patient QR codes authorize one-time POS sales and both profiles retain the
     profile: { pharmacyValidatedAt: 'test', pharmacyName: 'Test Pharmacy', pharmacyAddress: '1 Test Street' }
   }, 'unused', 'active');
   const patient = store.createUser({
-    name: 'Synthetic Patient', email: 'pos-patient@example.invalid', role: 'patient'
+    name: 'Synthetic Patient', email: 'pos-patient@example.invalid', role: 'patient',
+    profile: { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } }
   }, 'unused', 'active');
   const server = createApp(config, store, {}).listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
@@ -93,7 +94,7 @@ test('POS rejects expired, reused and cross-pharmacy patient/product codes witho
     name: 'Other Pharmacy', email: 'pos-other@example.invalid', role: 'pharmacist',
     profile: { pharmacyValidatedAt: 'test', pharmacyName: 'Other Pharmacy' }
   }, 'unused', 'active');
-  const patient = store.createUser({ name: 'Synthetic Patient', email: 'pos-other-patient@example.invalid', role: 'patient' }, 'unused', 'active');
+  const patient = store.createUser({ name: 'Synthetic Patient', email: 'pos-other-patient@example.invalid', role: 'patient', profile: { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } }, 'unused', 'active');
   const server = createApp(config, store, {}).listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -138,7 +139,7 @@ test('POS requires pharmacist review for prescription products and consumes QR o
     name: 'Synthetic Pharmacy', email: 'pos-rx@example.invalid', role: 'pharmacist',
     profile: { pharmacyValidatedAt: 'test', pharmacyName: 'Rx Pharmacy' }
   }, 'unused', 'active');
-  const patient = store.createUser({ name: 'Synthetic Patient', email: 'pos-rx-patient@example.invalid', role: 'patient' }, 'unused', 'active');
+  const patient = store.createUser({ name: 'Synthetic Patient', email: 'pos-rx-patient@example.invalid', role: 'patient', profile: { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } } }, 'unused', 'active');
   const server = createApp(config, store, {}).listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;

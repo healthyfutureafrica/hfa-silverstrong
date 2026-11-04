@@ -29,7 +29,7 @@ test('clinical records are shared between patient and care team on any device, w
   const store = new Store();
   const app = await startServer(store);
   try {
-    const make = async (role, name, email, profile = {}) => store.createUser({ name, email, role, profile }, await hashPassword('Synthetic-pass-123'), 'active');
+    const make = async (role, name, email, profile = {}) => store.createUser({ name, email, role, profile: { ...(role === 'patient' ? { subscription: { tier: 'standard', status: 'active', amount: 3000, currency: 'XAF', renewalDate: '2099-12-31' } } : {}), ...profile } }, await hashPassword('Synthetic-pass-123'), 'active');
     const doctor = await make('doctor', 'Dr Synthetic Shared', 'shared-doc@example.invalid', { hospital: 'Synthetic Shared Hospital' });
     const specialist = await make('doctor', 'Dr Synthetic Specialist', 'spec@example.invalid', { hospital: 'Synthetic Specialist Clinic' });
     const outsider = await make('doctor', 'Dr Synthetic Outsider', 'outsider@example.invalid', { hospital: 'Synthetic Other Hospital' });
@@ -37,6 +37,7 @@ test('clinical records are shared between patient and care team on any device, w
     await make('admin', 'Synthetic Admin', 'admin-clin@example.invalid');
     const patient = await make('patient', 'Synthetic Patient Ako', 'ako@example.invalid');
     const other = await make('patient', 'Synthetic Patient Bih', 'bih@example.invalid');
+    const essential = await make('patient', 'Synthetic Patient Essential', 'essential@example.invalid', { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } });
     store.updateUser(patient.id, { assignedDoctor: doctor.id });
     const routineCase = await submitCase(config, store, patient, {
       requestId: randomUUID(), answers: { ageGroup: 'adult', complaints: ['other'], dangerSigns: [], duration: 'days_1_2', severity: 'mild' },
@@ -47,10 +48,11 @@ test('clinical records are shared between patient and care team on any device, w
       text: 'I have a fever and need a same-day check.', aiConsent: false
     });
     const login = async email => cookieOf(await app.request('/api/auth/login', { email, password: 'Synthetic-pass-123' }, undefined, 'POST'));
-    const [patientCookie, doctorCookie, specialistCookie, outsiderCookie, labCookie, adminCookie, otherCookie] = await Promise.all(
-      ['ako@example.invalid', 'shared-doc@example.invalid', 'spec@example.invalid', 'outsider@example.invalid', 'lab@example.invalid', 'admin-clin@example.invalid', 'bih@example.invalid'].map(login));
+    const [patientCookie, doctorCookie, specialistCookie, outsiderCookie, labCookie, adminCookie, otherCookie, essentialCookie] = await Promise.all(
+      ['ako@example.invalid', 'shared-doc@example.invalid', 'spec@example.invalid', 'outsider@example.invalid', 'lab@example.invalid', 'admin-clin@example.invalid', 'bih@example.invalid', 'essential@example.invalid'].map(login));
     const put = (cookie, collection, id, data, baseVersion = 0) => app.request(`/api/v1/clinical/${collection}/${id}`, { data, baseVersion }, cookie);
     const list = async cookie => (await (await app.request('/api/v1/clinical', undefined, cookie)).json()).data.records;
+    assert.equal((await put(essentialCookie, 'messages', 'essential-message', { from: essential.id, to: doctor.id, text: 'Please contact me.' })).status, 403, 'Essential does not include secure messaging');
 
     // Nothing that a screen could run is accepted: markup in short fields, or a script link instead of a file.
     const base = { patientId: patient.id, doctorId: doctor.id, nurseId: '', date: appointmentDate, time: '09:30', status: 'scheduled', mode: 'video' };

@@ -1247,13 +1247,28 @@ body{font-size:15px}
       </div>
       <div id="reg-common" class="hid">
       <div class="fg"><label class="fl" id="lbl-name">Full Name</label><input class="fc" type="text" id="rn" data-v="name" maxlength="120" required autocomplete="name" placeholder="Full legal name" data-i18n-ph="i_full_legal_name_ph"></div>
-      <div class="fg"><label class="fl" data-i18n="email_lbl">Email</label><input class="fc" type="email" id="re" data-v="email" maxlength="254" required autocomplete="email" placeholder="your@email.com" data-i18n-ph="i_email_ph"></div>
+      <div class="fg"><label class="fl" data-i18n="email_lbl">Email</label><input class="fc" type="email" id="re" data-v="email" maxlength="254" autocomplete="email" placeholder="your@email.com" data-i18n-ph="i_email_ph"></div>
       <div class="fg"><label class="fl" data-i18n="phone_lbl">Phone</label><input class="fc" type="tel" id="rph" data-v="phone" maxlength="20" autocomplete="tel" placeholder="+237 6XX XXX XXX"></div>
       <div class="fg"><label class="fl" data-i18n="password">Password</label>
         <div class="iw"><input class="fc" type="password" id="rpa" data-v="password" minlength="12" maxlength="128" required autocomplete="new-password" placeholder="Min. 12 characters" data-i18n-ph="backend_password_hint"><button type="button" class="eb" onclick="tpw('rpa')" aria-label="Toggle password visibility" data-i18n-aria="i_toggle_pw"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       </div>
+      <div id="reg-subscription" class="fg hid">
+        <label class="fl" for="rplan" data-i18n="subscription_select_plan">Choose a monthly patient plan</label>
+        <select class="fc" id="rplan" required>
+          <option value="" data-i18n="subscription_choose_plan">Select a plan...</option>
+          <option value="essential" data-i18n="subscription_tier_essential">Essential (XAF 1,000/month)</option>
+          <option value="standard" data-i18n="subscription_tier_standard">Care (XAF 3,000/month)</option>
+          <option value="premium" data-i18n="subscription_tier_premium">Premium (XAF 10,000/month)</option>
+        </select>
+        <ul class="mu sm" style="padding-left:20px">
+          <li><strong data-i18n="subscription_tier_essential">Essential</strong>: <span data-i18n="essential_tier_desc"></span></li>
+          <li><strong data-i18n="subscription_tier_standard">Care</strong>: <span data-i18n="standard_tier_desc"></span></li>
+          <li><strong data-i18n="subscription_tier_premium">Premium</strong>: <span data-i18n="premium_tier_desc"></span></li>
+        </ul>
+      </div>
       </div>
       <div id="phf" class="hid"></div>
+      <div id="reg-onboarding-note" class="alt ai sm hid" data-i18n="registration_onboarding_note"></div>
       <div id="df">
         <div class="fr"><div class="fg"><label class="fl" data-i18n="specialty">Specialty</label><select class="fc" id="rsp" required data-i18n-values><option value="" id="rsp-def">Select...</option><option value="General Medicine">General Medicine</option><option value="Family Medicine">Family Medicine</option><option value="Internal Medicine">Internal Medicine</option><option value="Emergency Medicine">Emergency Medicine</option><option value="Cardiology">Cardiology</option><option value="Endocrinology">Endocrinology</option><option value="Gastroenterology">Gastroenterology</option><option value="Nephrology">Nephrology</option><option value="Neurology">Neurology</option><option value="Oncology">Oncology</option><option value="Pediatrics">Pediatrics</option><option value="Geriatrics">Geriatrics</option><option value="Obstetrics and Gynecology">Obstetrics and Gynecology</option><option value="Dermatology">Dermatology</option><option value="Ophthalmology">Ophthalmology</option><option value="Otolaryngology (ENT)">Otolaryngology (ENT)</option><option value="Orthopedics">Orthopedics</option><option value="Urology">Urology</option><option value="General Surgery">General Surgery</option><option value="Anesthesiology">Anesthesiology</option><option value="Radiology">Radiology</option><option value="Pathology">Pathology</option><option value="Infectious Disease">Infectious Disease</option><option value="Pulmonology">Pulmonology</option><option value="Rheumatology">Rheumatology</option><option value="Physiotherapy">Physiotherapy</option><option value="Physical Medicine and Rehabilitation">Physical Medicine and Rehabilitation</option><option value="Psychiatry">Psychiatry</option><option value="Mental Health">Mental Health</option><option value="Clinical Psychology">Clinical Psychology</option><option value="Counseling Psychology">Counseling Psychology</option><option value="Behavioral Health">Behavioral Health</option><option value="Psychotherapy">Psychotherapy</option><option value="Public Health">Public Health</option></select></div><div class="fg"><label class="fl" data-i18n="license_no">License No.</label><input class="fc" type="text" id="rli" data-v="licence" maxlength="60" placeholder="CM-MED-YYYY-XXXX"></div></div>
         <div class="fr"><div class="fg"><label class="fl" data-i18n="hospital">Hospital / Clinic</label><input class="fc" type="text" id="rhd" maxlength="160" placeholder="Institution name" data-i18n-ph="i_institution_ph" list="hfa-hospitals" autocomplete="organization"></div><div class="fg"><label class="fl">Consultation Fee (USD)</label><select class="fc" id="rcf"><option value="">Select fee...</option><option value="5">USD 5</option><option value="6">USD 6</option><option value="7">USD 7</option><option value="8">USD 8</option><option value="9">USD 9</option><option value="10">USD 10</option><option value="11">USD 11</option><option value="12">USD 12</option><option value="13">USD 13</option><option value="14">USD 14</option><option value="15">USD 15</option><option value="16">USD 16</option><option value="17">USD 17</option><option value="18">USD 18</option><option value="19">USD 19</option><option value="20">USD 20</option></select><p class="mu sm" id="lbl-consult-fee-hint" style="margin-top:4px">Choose a fee from USD 5 to USD 20 based on the clinical complexity of your department.</p></div></div>
@@ -1441,6 +1456,14 @@ const T = {
     back_home:'← Back to Home', invalid_creds:'Invalid email or password.',
     suspended_msg:'Your account has been suspended. Contact the administrator.',
     fill_required:'Please fill in all required fields.',
+    license_required:'Enter your professional registration ID or licence number.',
+    registration_onboarding_note:'Create your account with the essentials. Before you can use the portal, complete the required health or professional profile and any reviews. Patient accounts start free; paid subscriptions can be selected later.',
+    profile_completion_title:'Complete your profile', profile_completion_intro:'Add the required details to finish setting up your account. Professional accounts remain restricted until HFA reviews and approves the application.',
+    profile_completion_waiting:'Your profile details are submitted. HFA must review and approve your account before you can use the portal.',
+    profile_completion_save:'Submit profile for review', profile_completion_saved:'Profile submitted. Your account is waiting for HFA review.', profile_completion_error:'Could not submit your profile.',
+    pc_specialty:'Specialty', pc_department:'Department', pc_hospital:'Hospital or clinic', pc_fee:'Consultation fee (USD)', pc_qualifications:'Qualifications', pc_identity_type:'Identity document type', pc_identity_file:'National ID card or passport',
+    pc_school:'Nursing school', pc_graduation:'Year of graduation', pc_supervisor_name:'Supervisor full name', pc_supervisor_position:'Supervisor position', pc_supervisor_institution:'Supervisor institution', pc_supervisor_phone:'Supervisor phone', pc_supervisor_email:'Supervisor email (optional)',
+    pc_select:'Select…', pc_license:'Professional licence number',
     password_short:'Password must be at least 6 characters.',
     email_exists:'An account with this email already exists.',
     reg_success:'Registration successful! You can now sign in.',
@@ -1728,19 +1751,30 @@ const T = {
     manage_subscriptions:'Manage Subscriptions', subscription_settings:'Subscription Settings',
     current_plan:'Current Plan', billing_history:'Billing History', payment_methods:'Payment Methods',
     add_payment:'Add Payment Method', update_payment:'Update Payment Method',
-    subscription_tier_free:'Free Tier', subscription_tier_basic:'Basic ($2/month)',
-    subscription_tier_premium:'Premium ($10/month or XAF equivalent)',
-    free_tier_desc:'Limited access to wellness content and free health hub',
-    basic_tier_desc:'Full app access - texting, calls, messaging with doctors and nurses',
-    premium_tier_desc:'All Basic features plus one monthly home visit by medical team',
-    feature_unlimited_chat:'Unlimited doctor & nurse chat', feature_video_calls:'Video consultations',
-    feature_voice_calls:'Voice calls', feature_messaging:'Secure messaging',
-    feature_medical_records:'Access to medical records', feature_home_visits:'One monthly home visit',
-    feature_appointment_booking:'Appointment booking', feature_health_hub:'Free health hub access',
+    subscription_tier_essential:'Essential (XAF 1,000/month)', subscription_tier_standard:'Care (XAF 3,000/month)',
+    subscription_tier_premium:'Premium (XAF 10,000/month)',
+    essential_tier_desc:'Health profile and records, in-person appointment booking, and the public Health Hub. Consultation fees are separate.',
+    standard_tier_desc:'Everything in Essential, plus secure care-team messages and scheduled voice or video consultations. Consultation fees are separate.',
+    premium_tier_desc:'Everything in Care, plus one nurse home-visit credit each month where service is available. Additional visits are charged separately.',
+    subscription_select_plan:'Choose a monthly patient plan', subscription_choose_plan:'Select a plan...',
+    subscription_plan_required:'Select one of the paid monthly plans to continue.',
+    subscription_pending_payment:'Your account is limited until your selected plan payment is confirmed.',
+    subscription_expired:'Your monthly plan has expired. Renew to restore patient portal access.',
+    subscription_plan_heading:'Choose your plan', selected_plan:'Selected plan',
+    messaging_plan_required:'Secure care-team messaging is included with Care and Premium. Choose a plan to use this feature.',
+    subscription_payment_unavailable:'Online subscription payment is unavailable right now. Your plan will not activate until payment is confirmed.',
+    subscription_manual_renewal:'Plans are paid monthly. Access lasts through the displayed renewal date; renew manually because charges are not automatic.',
+    subscription_legacy_basic:'Legacy Basic (paid)',
+    demo_subscription_exempt:'This demo account is exempt from subscription payment.',
+    feature_video_calls:'Scheduled video consultations (consultation fees separate)',
+    feature_voice_calls:'Scheduled voice consultations (consultation fees separate)', feature_messaging:'Secure care-team messaging',
+    feature_medical_records:'Health profile and medical records', feature_home_visits:'One monthly nurse home-visit credit (availability applies)',
+    feature_appointment_booking:'Book in-person appointments (consultation fees separate)', feature_health_hub:'Public Health Hub and self-care resources',
     upgrade_now:'Upgrade Now', downgrade_plan:'Downgrade Plan', cancel_subscription:'Cancel Subscription',
     billing_currency_usd:'USD ($)', billing_currency_xaf:'XAF (FCFA)',
     subscription_expires:'Expires', subscription_expires_soon:'Expires Soon',
-    subscribe_basic:'Subscribe to Basic', subscribe_premium:'Subscribe to Premium',
+    subscribe_essential:'Choose Essential', subscribe_standard:'Choose Care', subscribe_premium:'Choose Premium',
+    i_in_person:'In-person appointment',
     checkout:'Checkout', billing_address:'Billing Address', pay_now:'Pay Now',
     trial_ends:'Trial ends', days_remaining:'days remaining',
     renews_monthly:'Renews monthly', renews_on:'Renews on',
@@ -1779,6 +1813,14 @@ const T = {
     back_home:'← Retour à l\'Accueil', invalid_creds:'Email ou mot de passe invalide.',
     suspended_msg:'Votre compte a été suspendu. Contactez l\'administrateur.',
     fill_required:'Veuillez remplir tous les champs obligatoires.',
+    license_required:'Saisissez votre identifiant professionnel ou votre numéro de licence.',
+    registration_onboarding_note:'Créez votre compte avec les informations essentielles. Complétez ensuite le profil de santé ou professionnel requis et les validations avant d’utiliser le portail. Les comptes patients commencent gratuitement ; un abonnement payant peut être choisi plus tard.',
+    profile_completion_title:'Complétez votre profil', profile_completion_intro:'Ajoutez les informations requises pour terminer la configuration de votre compte. Les comptes professionnels restent limités jusqu’à leur examen et leur validation par HFA.',
+    profile_completion_waiting:'Votre profil a été envoyé. HFA doit examiner et valider votre compte avant que vous puissiez utiliser le portail.',
+    profile_completion_save:'Envoyer le profil pour examen', profile_completion_saved:'Profil envoyé. Votre compte est en attente d’examen par HFA.', profile_completion_error:'Impossible d’envoyer votre profil.',
+    pc_specialty:'Spécialité', pc_department:'Service', pc_hospital:'Hôpital ou clinique', pc_fee:'Tarif de consultation (USD)', pc_qualifications:'Qualifications', pc_identity_type:'Type de pièce d’identité', pc_identity_file:'Carte nationale d’identité ou passeport',
+    pc_school:'École de soins infirmiers', pc_graduation:'Année de diplôme', pc_supervisor_name:'Nom complet du superviseur', pc_supervisor_position:'Poste du superviseur', pc_supervisor_institution:'Établissement du superviseur', pc_supervisor_phone:'Téléphone du superviseur', pc_supervisor_email:'E-mail du superviseur (facultatif)',
+    pc_select:'Choisir…', pc_license:'Numéro de licence professionnelle',
     password_short:'Le mot de passe doit contenir au moins 6 caractères.',
     email_exists:'Un compte avec cet email existe déjà.',
     reg_success:'Inscription réussie ! Vous pouvez maintenant vous connecter.',
@@ -2068,19 +2110,30 @@ const T = {
     manage_subscriptions:'Gérer les Abonnements', subscription_settings:'Paramètres d\'Abonnement',
     current_plan:'Plan Actuel', billing_history:'Historique de Facturation', payment_methods:'Moyens de Paiement',
     add_payment:'Ajouter un Moyen de Paiement', update_payment:'Mettre à Jour le Moyen de Paiement',
-    subscription_tier_free:'Accès Gratuit', subscription_tier_basic:'Basique (2 $/mois)',
-    subscription_tier_premium:'Premium (10 $/mois ou équivalent XAF)',
-    free_tier_desc:'Accès limité au contenu de bien-être et espace santé gratuit',
-    basic_tier_desc:'Accès complet - messages, appels, chat avec médecins et infirmiers',
-    premium_tier_desc:'Toutes les fonctionnalités Basique plus une visite à domicile mensuelle',
-    feature_unlimited_chat:'Chat illimité avec médecins et infirmiers', feature_video_calls:'Consultations vidéo',
-    feature_voice_calls:'Appels vocaux', feature_messaging:'Messagerie sécurisée',
-    feature_medical_records:'Accès aux dossiers médicaux', feature_home_visits:'Une visite mensuelle à domicile',
-    feature_appointment_booking:'Prise de rendez-vous', feature_health_hub:'Accès espace santé gratuit',
+    subscription_tier_essential:'Essentiel (1 000 XAF/mois)', subscription_tier_standard:'Accompagnement (3 000 XAF/mois)',
+    subscription_tier_premium:'Premium (10 000 XAF/mois)',
+    essential_tier_desc:'Profil et dossiers de santé, prise de rendez-vous en personne et espace Santé public. Les frais de consultation sont séparés.',
+    standard_tier_desc:'Tout Essentiel, plus la messagerie sécurisée avec l’équipe de soins et les consultations vocales ou vidéo planifiées. Les frais de consultation sont séparés.',
+    premium_tier_desc:'Tout Accompagnement, plus un crédit mensuel de visite infirmière à domicile selon la disponibilité du service. Les visites supplémentaires sont facturées séparément.',
+    subscription_select_plan:'Choisissez un abonnement patient mensuel', subscription_choose_plan:'Choisissez un abonnement...',
+    subscription_plan_required:'Choisissez un abonnement mensuel payant pour continuer.',
+    subscription_pending_payment:'Votre compte reste limité jusqu’à la confirmation du paiement de l’abonnement choisi.',
+    subscription_expired:'Votre abonnement mensuel a expiré. Renouvelez-le pour rétablir l’accès au portail patient.',
+    subscription_plan_heading:'Choisissez votre abonnement', selected_plan:'Abonnement choisi',
+    messaging_plan_required:'La messagerie sécurisée avec l’équipe de soins est incluse dans les forfaits Accompagnement et Premium. Choisissez un forfait pour utiliser cette fonction.',
+    subscription_payment_unavailable:'Le paiement de l’abonnement en ligne est temporairement indisponible. L’abonnement ne sera activé qu’après confirmation du paiement.',
+    subscription_manual_renewal:'L’abonnement est payé chaque mois. L’accès reste actif jusqu’à la date d’échéance affichée ; renouvelez-le manuellement, sans prélèvement automatique.',
+    subscription_legacy_basic:'Ancien forfait Basique (payé)',
+    demo_subscription_exempt:'Ce compte de démonstration est exempté du paiement de l’abonnement.',
+    feature_video_calls:'Consultations vidéo planifiées (frais de consultation séparés)',
+    feature_voice_calls:'Consultations vocales planifiées (frais de consultation séparés)', feature_messaging:'Messagerie sécurisée avec l’équipe de soins',
+    feature_medical_records:'Profil et dossiers médicaux', feature_home_visits:'Un crédit mensuel de visite infirmière à domicile (selon disponibilité)',
+    feature_appointment_booking:'Prise de rendez-vous en personne (frais de consultation séparés)', feature_health_hub:'Espace Santé public et ressources de prévention',
     upgrade_now:'Mettre à Niveau Maintenant', downgrade_plan:'Réduire le Plan', cancel_subscription:'Annuler l\'Abonnement',
     billing_currency_usd:'USD ($)', billing_currency_xaf:'XAF (FCFA)',
     subscription_expires:'Expire', subscription_expires_soon:'Expire Bientôt',
-    subscribe_basic:'S\'Abonner à Basique', subscribe_premium:'S\'Abonner à Premium',
+    subscribe_essential:'Choisir Essentiel', subscribe_standard:'Choisir Accompagnement', subscribe_premium:'Choisir Premium',
+    i_in_person:'Rendez-vous en personne',
     checkout:'Passer la Commande', billing_address:'Adresse de Facturation', pay_now:'Payer Maintenant',
     trial_ends:'L\'essai se termine', days_remaining:'jours restants',
     renews_monthly:'Renouvellement mensuel', renews_on:'Renouvellement le',
@@ -2665,7 +2718,7 @@ const EXERCISE_ESSENTIALS = [
 
 // ═══════════════════════ STATE ═══════════════════════
 let CU = null; // current user
-const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,failed:false,busy:false,offline:false};
+const ApiState={enabled:false,authenticated:false,loading:false,ready:null,providerConfigured:false,subscriptionPaymentsAvailable:false,failed:false,busy:false,offline:false};
 async function apiRequest(path, method='GET', body, timeout=15000) {
   const response=await fetch(path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});
   if (response.status===204) return {};
@@ -2704,7 +2757,7 @@ async function initializeBackend() {
       ApiState.offline=true;
     }
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
-    ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage; ApiState.paymentsAvailable=!!config?.paymentsAvailable;
+    ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage; ApiState.paymentsAvailable=!!config?.paymentsAvailable; ApiState.subscriptionPaymentsAvailable=!!config?.subscriptionPaymentsAvailable;
     DB.users=[];
     ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
     if (ApiState.offline) DB.users=WEB_DEMO_USERS.map(user=>({...user}));
@@ -2737,7 +2790,7 @@ async function backendRegister(localUser) {
   if (ApiState.busy) return;
   ApiState.busy=true;
   const payload={};
-  ['name','email','password','role','phone','whatsappNumber','whatsappNotificationsConsent','specialty','hospital','department','consultationFee','idDocumentType'].forEach(key=>{if(localUser[key]!==undefined&&localUser[key]!=='')payload[key]=localUser[key];});
+  ['name','email','password','role','phone','whatsappNumber','whatsappNotificationsConsent','specialty','hospital','department','consultationFee','idDocumentType','subscriptionTier'].forEach(key=>{if(localUser[key]!==undefined&&localUser[key]!=='')payload[key]=localUser[key];});
   // Professional licence numbers go to the server so an administrator can verify them (nurses enter it as nurseId).
   const licence=localUser.licenseNo||(localUser.role==='nurse'?localUser.nurseId:'');
   if (licence) payload.licenseNo=String(licence).trim().slice(0,60);
@@ -2748,8 +2801,7 @@ async function backendRegister(localUser) {
     const {data,queued}=await HFAOffline.submitRegistration('/api/auth/register',payload);
     $('rpa').value='';
     if (queued) { swtTab('login'); $('le').value=localUser.email; amsg(t('offline_registration_queued'),'i'); }
-    else if (data.user.role==='patient') { installBackendSession(data,localUser); await HFAOffline.afterOnlineLogin(data.user,localUser.password); goApp(); }
-    else { swtTab('login'); $('le').value=localUser.email; $('amsg').textContent=t('pending_review_msg'); }
+    else { installBackendSession(data,localUser); await HFAOffline.afterOnlineLogin(data.user,localUser.password); goApp(); }
   } catch(error) { $('amsg').textContent=error.message; }
   finally { ApiState.busy=false; }
 }
@@ -2781,7 +2833,7 @@ async function beginWhatsAppVerification() {
   } catch(error) { $('wa-status').textContent=error.message; }
 }
 async function refreshBackendNotifications() {
-  if (!ApiState.enabled||!ApiState.authenticated||!CU) return;
+  if (!ApiState.enabled||!ApiState.authenticated||!CU||CU.onboardingRequired||CU.status==='pending_approval') return;
   try {
     const data=await apiRequest('/api/session');
     if (!CU||CU.id!==data.user.id) return;
@@ -3015,8 +3067,13 @@ async function confirmFeePayment(doctorId) {
 
 // ═══════════════════════ SUBSCRIPTIONS ═══════════════════════
 function getSubscription(patientId) {
-  if (ApiState.enabled) { const sub=G(patientId)?.subscription; return sub?.status==='active' ? {patientId, ...sub} : undefined; }
-  return DB.subscriptions.find(s => s.patientId === patientId && s.status === 'active');
+  const sub = ApiState.enabled ? G(patientId)?.subscription : DB.subscriptions.find(s => s.patientId === patientId);
+  return sub?.status==='active' && sub.renewalDate >= new Date().toISOString().slice(0,10) ? {patientId, ...sub} : undefined;
+}
+function hasPaidPatientSubscription(user) {
+  if (!user || user.role!=='patient' || user.demoOnly) return true;
+  const sub=getSubscription(user.id);
+  return !!sub && ['essential','standard','premium','basic'].includes(sub.tier);
 }
 async function refreshOwnAccount() {
   const data=await apiRequest('/api/session');
@@ -3026,14 +3083,16 @@ async function refreshOwnAccount() {
 }
 
 function getTierName(tier) {
-  return tier === 'free' ? t('subscription_tier_free')
-    : tier === 'basic' ? t('subscription_tier_basic')
+  return tier === 'basic' ? t('subscription_legacy_basic')
+    : tier === 'essential' ? t('subscription_tier_essential')
+    : tier === 'standard' ? t('subscription_tier_standard')
     : tier === 'premium' ? t('subscription_tier_premium') : tier;
 }
 
 function getTierDesc(tier) {
-  return tier === 'free' ? t('free_tier_desc')
-    : tier === 'basic' ? t('basic_tier_desc')
+  return tier === 'basic' ? t('standard_tier_desc')
+    : tier === 'essential' ? t('essential_tier_desc')
+    : tier === 'standard' ? t('standard_tier_desc')
     : tier === 'premium' ? t('premium_tier_desc') : '';
 }
 
@@ -3048,15 +3107,18 @@ function hasIncludedPremiumHomeVisit(patientId, visitDate) {
 }
 
 function canAccessFeature(patientId, feature) {
+  const user=G(patientId);
+  if (user?.demoOnly) return true;
   const sub = getSubscription(patientId);
-  const tier = sub ? sub.tier : 'free';
+  const tier = sub ? sub.tier : '';
   const accessMap = {
-    'messaging': ['basic', 'premium'],
-    'video_calls': ['basic', 'premium'],
-    'voice_calls': ['basic', 'premium'],
-    'medical_records': ['basic', 'premium'],
+    'messaging': ['basic', 'standard', 'premium'],
+    'video_calls': ['basic', 'standard', 'premium'],
+    'voice_calls': ['basic', 'standard', 'premium'],
+    'medical_records': ['essential', 'standard', 'premium', 'basic'],
     'home_visits': ['premium'],
-    'appointment_booking': ['basic', 'premium'],
+    'appointment_booking': ['essential', 'standard', 'premium', 'basic'],
+    'health_hub': ['essential', 'standard', 'premium', 'basic'],
   };
   return accessMap[feature] ? accessMap[feature].includes(tier) : false;
 }
@@ -3242,7 +3304,8 @@ function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
   toggleSidebar(false);
   buildSidebar();
-  navigate('dashboard');
+  navigate(CU && (CU.onboardingRequired || CU.status==='pending_approval') ? 'complete-profile'
+    : CU?.role==='patient'&&!hasPaidPatientSubscription(CU) ? 'subscriptions' : 'dashboard');
 }
 
 // Phones only: the sidebar slides in over the page (CSS keeps it fixed on wider screens).
@@ -3272,7 +3335,7 @@ function swtTab(tab) {
   $('tl').textContent = t('sign_in');
   $('tr').textContent = t('register');
   $('amsg').innerHTML = '';
-  if (tab==='register' && RROLE==='patient' && typeof HFAPatientRegistration!=='undefined') HFAPatientRegistration.mount();
+  if (tab==='register') setRole(RROLE);
   if (tab==='register' && typeof HFAFacilities!=='undefined') HFAFacilities.fillDatalist();
   updateDemoLoginCard();
 }
@@ -3285,9 +3348,24 @@ function setRole(r) {
   $('pf').classList.toggle('hid', r!=='patient');
   $('rb-ph').classList.toggle('active',r==='pharmacist');
   $('phf').classList.toggle('hid',r!=='pharmacist');
-  $('reg-common').classList.toggle('hid', r==='patient');
-  $('reg-submit').classList.toggle('hid', r==='patient');
-  if (typeof HFAPatientRegistration!=='undefined') { if (r==='patient' && !$('fr').classList.contains('hid')) HFAPatientRegistration.mount(); else if (r!=='patient') HFAPatientRegistration.unmount(); }
+  $('reg-common').classList.remove('hid');
+  $('reg-submit').classList.remove('hid');
+  $('reg-onboarding-note').classList.remove('hid');
+  $('reg-subscription').classList.toggle('hid',r!=='patient');
+  $('rplan').required=r==='patient';
+  $('pf').classList.add('hid');
+  for (const [sectionId, fieldId] of [['df','rli'],['nf','rni']]) {
+    const section=$(sectionId), field=$(fieldId);
+    section.querySelectorAll(':scope > *').forEach(element=>element.classList.add('hid'));
+    section.querySelectorAll('.fg').forEach(element=>element.classList.add('hid'));
+    field.closest('.fg').classList.remove('hid');
+    field.closest('.fr')?.classList.remove('hid');
+    field.closest('.fr')?.querySelectorAll('.fg').forEach(element=>{ if(element!==field.closest('.fg')) element.classList.add('hid'); });
+    section.classList.toggle('hid', r!==(sectionId==='df'?'doctor':'nurse'));
+  }
+  $('rli').required=r==='doctor';
+  $('rni').required=r==='nurse';
+  if (typeof HFAPatientRegistration!=='undefined') HFAPatientRegistration.unmount();
 }
 
 function tpw(id) { const e=$(id); e.type = e.type==='password' ? 'text' : 'password'; }
@@ -3394,47 +3472,34 @@ function doReg() {
   if (ApiState.loading) { ApiState.ready.then(()=>doReg()); return; }
   if (ApiState.failed) return amsg(t('backend_unavailable'));
   const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
-  if (!name||!email||!pass) return amsg(t('fill_required'));
-  if (pass.length<6) return amsg(t('password_short'));
-  if (ApiState.enabled&&pass.length<12) return amsg(t('backend_password_short'));
+  const phone=$('rph').value.trim();
+  if (!name||!pass||(!email&&!phone)) return amsg(t('fill_required'));
+  if (email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return amsg(t('invalid_creds'));
+  if (!email&&!/^\+[1-9]\d{7,14}$/.test(phone.replace(/[\s()-]/g,''))) return amsg(t('fill_required'));
+  if (pass.length<12) return amsg(t('backend_password_short'));
   if (RROLE==='pharmacist') { registerPharmacist(); return; }
-  if (RROLE==='doctor'&&!$('rsp').value) return amsg(t('spec_required'));
-  if (RROLE==='doctor'&&!$('rcf').value) return amsg(t('fee_required'));
-  if (RROLE==='doctor'&&!validConsultationFee($('rcf').value)) return amsg(t('fee_range_required'));
-  if (RROLE==='nurse'&&!$('rns').value) return amsg(t('nurse_spec_required'));
-  const whatsappNumber=RROLE==='patient'?normalizeWhatsAppNumber($('rwa').value):null;
-  if (RROLE==='patient'&&!whatsappNumber) return amsg(t('whatsapp_number_required'));
-  const idInput = RROLE==='doctor' ? $('rid-d') : RROLE==='nurse' ? $('rid-n') : $('rid-p');
-  if (!idInput || !idInput.files.length) return amsg(t('id_required'));
-  const idDocumentType = $(idInput.id.replace('rid-', 'rid-type-')).value;
-  if (!['national_id','passport'].includes(idDocumentType)) return amsg(t('id_type_required'));
-  if (RROLE==='patient'&&!$('rpc').checked) return amsg(t('patient_commitment_required'));
+  if (RROLE==='patient'&&!$('rplan').value) return amsg(t('subscription_plan_required'));
+  if (RROLE==='doctor'&&!$('rli').value.trim()) return amsg(t('license_required'));
+  if (RROLE==='nurse'&&!$('rni').value.trim()) return amsg(t('license_required'));
   if (!$('rtc').checked) return amsg(t('terms_required'));
-  if (DB.users.find(u=>u.email.toLowerCase()===email.toLowerCase())) return amsg(t('email_exists'));
-  finishReg(idInput, idDocumentType, whatsappNumber);
+  if (email&&DB.users.find(u=>u.email.toLowerCase()===email.toLowerCase())) return amsg(t('email_exists'));
+  finishReg();
 }
-function finishReg(idInput, idDocumentType, whatsappNumber) {
-  const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value;
+function finishReg() {
+  const name=$('rn').value.trim(), email=$('re').value.trim(), pass=$('rpa').value, phone=$('rph').value.trim();
   const id = RROLE.slice(0,3)+Date.now();
   // Doctors and nurses require admin verification before they may access the platform.
   const initialStatus = (RROLE==='doctor'||RROLE==='nurse') ? 'pending_approval' : 'active';
-  const base = {id,role:RROLE,name,email,password:pass,phone:$('rph').value,status:initialStatus,createdAt:todayD()};
-  const extra = RROLE==='doctor' ? {specialty:$('rsp').value,licenseNo:$('rli').value,hospital:$('rhd').value,consultationFee:parseFloat($('rcf').value)||0}
-    : RROLE==='nurse' ? {department:$('rde').value,specialty:$('rns').value,nurseId:$('rni').value,hospital:$('rhn').value,qualifications:$('rqu').value}
-    : {whatsappNumber,whatsappNotificationsConsent:$('rwa-consent').checked,whatsappConsentAt:$('rwa-consent').checked?tsNow():null,dateOfBirth:$('rdb').value,gender:$('rge').value,bloodType:$('rbl').value,allergies:$('ral').value||'None',address:$('rad').value,emergencyContact:$('rec').value,assignedDoctor:null,assignedNurse:null,medicalHistory:''};
-  const finalize = (idFields) => {
+  const base = {id,role:RROLE,name,email,phone,password:pass,status:initialStatus,createdAt:todayD()};
+  const extra = RROLE==='doctor' ? {licenseNo:$('rli').value.trim()}
+    : RROLE==='nurse' ? {licenseNo:$('rni').value.trim(),nurseId:$('rni').value.trim()}
+    : RROLE==='patient' ? {subscriptionTier:$('rplan').value} : {};
+  const finalize = () => {
     // Accounts exist only on the HFA server; this browser never creates one.
     if (!ApiState.enabled) { amsg(t('accounts_unavailable_body'),'i'); return; }
-    backendRegister({...base,...extra,...idFields});
+    backendRegister({...base,...extra});
   };
-  if (idInput && idInput.files.length) {
-    const file = idInput.files[0];
-    const reader = new FileReader();
-    reader.onload = () => finalize({idDocumentType,idDocumentName:file.name,idDocumentData:reader.result,idUploadedAt:tsNow(),idVerificationStatus:'pending'});
-    reader.readAsDataURL(file);
-  } else {
-    finalize({});
-  }
+  finalize();
 }
 
 function doLogout() {
@@ -3458,7 +3523,11 @@ function buildSidebar() {
   $('snm').textContent = CU.name;
   $('sem').textContent = CU.email;
   $('shfa').textContent = CU.hfaId || '';
-  const nav = (NAV[r]||[]).map(sec => ({
+  const profileOnly = CU.onboardingRequired || CU.status==='pending_approval';
+  const subscriptionOnly = !profileOnly && r==='patient' && !hasPaidPatientSubscription(CU);
+  $('sb-security').classList.toggle('hid',profileOnly||subscriptionOnly);
+  const nav = profileOnly ? [{s:'',items:[{id:'complete-profile',l:()=>t('profile_completion_title'),i:'user'}]}]
+    : subscriptionOnly ? [{s:'',items:[{id:'subscriptions',l:()=>t('subscriptions'),i:'shield'}]}] : (NAV[r]||[]).map(sec => ({
     s: sec.s,
     items: sec.items.filter(item => !['mgr-a','portal-access'].includes(item.id) || isSuperAdmin(CU))
   })).filter(sec => sec.items.length);
@@ -3490,6 +3559,8 @@ function renderBottomNav() {
 }
 
 function navigate(page) {
+  if (CU && (CU.onboardingRequired || CU.status==='pending_approval') && page!=='complete-profile') page='complete-profile';
+  else if (CU?.role==='patient'&&!hasPaidPatientSubscription(CU)&&page!=='subscriptions') page='subscriptions';
   CP = page;
   document.querySelectorAll('.ni').forEach(el=>el.classList.remove('active'));
   const el = $('ni-'+page); if (el) el.classList.add('active');
@@ -3498,6 +3569,62 @@ function navigate(page) {
   renderBottomNav();
   // Keep offline work if the app is closed (not while a Super Admin previews or acts for someone else).
   if (typeof HFAOffline!=='undefined' && !(typeof PortalAccess!=='undefined' && PortalAccess.active())) HFAOffline.saveSoon();
+}
+
+function renderProfessionalCompletion(pc) {
+  $('tbt').textContent=t('profile_completion_title');
+  if (!CU.onboardingRequired) {
+    pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('profile_completion_title')}</h2></div><div class="card"><div class="alt ao" role="status">${t('profile_completion_waiting')}</div><button type="button" class="btn bd2 bsm mt18" onclick="doLogout()">${t('sign_out')}</button></div></div>`;
+    return;
+  }
+  const field=(id,label,type='text',required=true,attrs='')=>`<div class="fg"><label class="fl" for="pc-${id}">${t(label)}</label><input class="fc" id="pc-${id}" type="${type}" ${required?'required':''} ${attrs}></div>`;
+  const file=(id,label)=>`<div class="fg"><label class="fl" for="pc-${id}">${t(label)}</label><input class="fc" id="pc-${id}" type="file" accept="application/pdf,image/png,image/jpeg,image/webp" required></div>`;
+  const select=(id,label,options)=>`<div class="fg"><label class="fl" for="pc-${id}">${t(label)}</label><select class="fc" id="pc-${id}" required>${options}</select></div>`;
+  let fields='';
+  if (CU.role==='doctor') fields=`<div class="fr">${field('specialty','pc_specialty')}${field('hospital','pc_hospital')}</div>
+    ${select('fee','pc_fee',`<option value="">${t('pc_select')}</option>${Array.from({length:16},(_,i)=>`<option value="${i+5}">USD ${i+5}</option>`).join('')}`)}
+    ${field('qualifications','pc_qualifications')}${select('identityType','pc_identity_type',`<option value="">${t('pc_select')}</option><option value="national_id">${t('id_type_national_id')}</option><option value="passport">${t('id_type_passport')}</option>`)}${file('identityFile','pc_identity_file')}`;
+  else if (CU.role==='nurse') fields=`<div class="fr">${field('department','pc_department')}${field('hospital','pc_hospital')}</div>
+    ${field('specialty','pc_specialty')}${field('qualifications','pc_qualifications')}
+    <div class="card"><h3 class="ct">${t('nw_reg_title')}</h3>${field('school','pc_school')}${field('graduationYear','pc_graduation','number',true,`min="1960" max="${new Date().getFullYear()}"`)}
+    ${field('supervisorName','pc_supervisor_name')}${field('supervisorPosition','pc_supervisor_position')}${field('supervisorInstitution','pc_supervisor_institution')}
+    ${field('supervisorPhone','pc_supervisor_phone','tel',true,'placeholder="+237 6XX XXX XXX"')}${field('supervisorEmail','pc_supervisor_email','email',false)}</div>
+    ${select('identityType','pc_identity_type',`<option value="">${t('pc_select')}</option><option value="national_id">${t('id_type_national_id')}</option><option value="passport">${t('id_type_passport')}</option>`)}${file('identityFile','pc_identity_file')}`;
+  else if (CU.role==='pharmacist') {
+    const regionOptions=[['adamawa','Adamawa','Adamaoua'],['centre','Centre','Centre'],['east','East','Est'],['far_north','Far North','Extrême-Nord'],['littoral','Littoral','Littoral'],['north','North','Nord'],['north_west','North West','Nord-Ouest'],['west','West','Ouest'],['south','South','Sud'],['south_west','South West','Sud-Ouest']].map(([value,en,fr])=>`<option value="${value}">${LANG==='fr'?fr:en}</option>`).join('');
+    fields=`${field('pharmacyName','pharmacy_name')}${field('pharmacyAddress','pharmacy_address')}${field('pharmacyLocation','pharmacy_location')}
+      ${field('businessRegistration','pharmacy_business')}${field('minsanteAuthorization','pharmacy_minsante')}${field('ownerName','pharmacy_owner_name')}
+      ${select('ownerIdType','pc_identity_type',`<option value="">${t('pc_select')}</option><option value="national_id">${t('id_type_national_id')}</option><option value="passport">${t('id_type_passport')}</option>`)}
+      ${field('ownerIdNumber','pharmacy_owner_id_number')}${select('pharmacyRegion','pharmacy_region',`<option value="">${t('pc_select')}</option>${regionOptions}`)}${field('pharmacyTown','pharmacy_town')}
+      <h3 class="ct mt18">${t('pharmacy_docs_title')}</h3>${[['pharmacistLicense','pharmacy_doc_license'],['businessLicense','pharmacy_doc_business'],['minsanteAuthorization','pharmacy_doc_minsante'],['ownerIdentity','pharmacy_doc_owner_id']].map(([id,label])=>file(`doc-${id}`,label)).join('')}`;
+  } else fields=`<div class="alt ae">${t('profile_completion_error')}</div>`;
+  pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('profile_completion_title')}</h2><p>${t('profile_completion_intro')}</p></div>
+    <form class="card" id="pc-completion-form" onsubmit="return false">${fields}<div id="pc-completion-status" class="mu sm" role="status"></div>
+      <button type="button" class="btn bp mt18" id="pc-completion-submit" onclick="submitProfessionalProfile()">${t('profile_completion_save')}</button>
+      <button type="button" class="btn bd2 bsm mt18" onclick="doLogout()">${t('sign_out')}</button></form></div>`;
+}
+async function submitProfessionalProfile() {
+  const form=$('pc-completion-form'),status=$('pc-completion-status'),button=$('pc-completion-submit');
+  if (!form?.reportValidity()) return;
+  const text=id=>$(`pc-${id}`).value.trim();
+  const document=async id=>{
+    const selected=$(`pc-${id}`).files[0];
+    if (!selected) throw new Error(t('pc_identity_file'));
+    const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(reader.error||new Error(t('profile_completion_error')));reader.readAsDataURL(selected);});
+    return {fileName:selected.name.replace(/[<>\\/\u0000-\u001f]/g,'_').slice(0,180),content:data};
+  };
+  const body={};
+  try {
+    button.disabled=true;status.textContent='';
+    if (CU.role==='doctor') Object.assign(body,{specialty:text('specialty'),hospital:text('hospital'),consultationFee:Number(text('fee')),qualifications:text('qualifications'),idDocumentType:text('identityType'),idDocument:await document('identityFile')});
+    else if (CU.role==='nurse') Object.assign(body,{department:text('department'),hospital:text('hospital'),specialty:text('specialty'),qualifications:text('qualifications'),nurseApplication:{school:text('school'),graduationYear:Number(text('graduationYear')),supervisor:{name:text('supervisorName'),position:text('supervisorPosition'),institution:text('supervisorInstitution'),phone:text('supervisorPhone'),...(text('supervisorEmail')?{email:text('supervisorEmail')}: {})}},idDocumentType:text('identityType'),idDocument:await document('identityFile')});
+    else if (CU.role==='pharmacist') Object.assign(body,{pharmacyName:text('pharmacyName'),pharmacyAddress:text('pharmacyAddress'),pharmacyLocation:text('pharmacyLocation'),pharmacyLicense:CU.pharmacyLicense||CU.licenseNo,businessRegistration:text('businessRegistration'),minsanteAuthorization:text('minsanteAuthorization'),ownerName:text('ownerName'),ownerIdType:text('ownerIdType'),ownerIdNumber:text('ownerIdNumber'),pharmacyRegion:text('pharmacyRegion'),pharmacyTown:text('pharmacyTown'),documents:{
+      pharmacistLicense:await document('doc-pharmacistLicense'),businessLicense:await document('doc-businessLicense'),minsanteAuthorization:await document('doc-minsanteAuthorization'),ownerIdentity:await document('doc-ownerIdentity')
+    }});
+    const data=await apiRequest('/api/v1/account/profile','PUT',body,30000);
+    installBackendSession(data);buildSidebar();navigate('complete-profile');
+  } catch(error) { status.textContent=error.message||t('profile_completion_error'); }
+  finally { if(button?.isConnected) button.disabled=false; }
 }
 
 // ═══════════════════════ PAGE ROUTER ═══════════════════════
@@ -3519,6 +3646,7 @@ function renderPage(page) {
   if (page==='triage-queue' && ['doctor','nurse','admin'].includes(r) && typeof HFATriageUI!=='undefined') return HFATriageUI.renderQueue(pc);
   if (page==='portal-access' && isSuperAdmin(CU) && typeof PortalAccess!=='undefined') return PortalAccess.renderPage(pc);
   if (page==='complete-profile' && r==='patient' && typeof HFAPatientRegistration!=='undefined') return HFAPatientRegistration.renderPage(pc);
+  if (page==='complete-profile' && r!=='patient') return renderProfessionalCompletion(pc);
   if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
   if (page==='facilities' && r==='admin' && typeof HFAFacilities!=='undefined') return HFAFacilities.renderRegister(pc);
   if (typeof HFANurses!=='undefined' && HFANurses.handles(page, r)) return HFANurses.renderPage(page, pc);
@@ -4481,96 +4609,60 @@ function renderCarePlan(pc) {
 
 function renderSubscriptions(pc) {
   $('tbt').textContent=t('subscriptions');
-  const sub = getSubscription(CU.id);
-  const tier = sub ? sub.tier : 'free';
-  const tierName = getTierName(tier);
-  
+  const sub = getSubscription(CU.id), stored=CU.subscription;
+  const selectedTier = sub?.tier || stored?.tier || '';
+  const expired = !sub && stored?.status==='active' && stored.renewalDate && stored.renewalDate < new Date().toISOString().slice(0,10);
   const tiers = [
-    {
-      id: 'free',
-      name: t('subscription_tier_free'),
-      desc: t('free_tier_desc'),
-      price: 0,
-      features: [t('feature_medical_records'), t('feature_appointment_booking')],
-      current: tier === 'free',
-      upgrade: tier !== 'free',
-      button: tier === 'free' ? null : t('downgrade_plan')
-    },
-    {
-      id: 'basic',
-      name: t('subscription_tier_basic'),
-      desc: t('basic_tier_desc'),
-      price: 2,
-      currency: 'USD',
-      period: t('month'),
-      features: [t('feature_unlimited_chat'), t('feature_video_calls'), t('feature_voice_calls'), t('feature_messaging'), t('feature_medical_records'), t('feature_appointment_booking')],
-      current: tier === 'basic',
-      upgrade: tier === 'free',
-      button: tier === 'basic' ? null : (tier === 'free' ? t('subscribe_basic') : t('downgrade_plan'))
-    },
-    {
-      id: 'premium',
-      name: t('subscription_tier_premium'),
-      desc: t('premium_tier_desc'),
-      price: 10,
-      currency: 'USD',
-      period: t('month'),
-      features: [t('feature_unlimited_chat'), t('feature_video_calls'), t('feature_voice_calls'), t('feature_messaging'), t('feature_medical_records'), t('feature_home_visits'), t('feature_appointment_booking')],
-      current: tier === 'premium',
-      upgrade: tier !== 'premium',
-      button: tier === 'premium' ? null : t('subscribe_premium')
-    }
+    { id:'essential', name:t('subscription_tier_essential'), desc:t('essential_tier_desc'), price:1000, features:[t('feature_medical_records'),t('feature_appointment_booking'),t('feature_health_hub')] },
+    { id:'standard', name:t('subscription_tier_standard'), desc:t('standard_tier_desc'), price:3000, features:[t('feature_medical_records'),t('feature_appointment_booking'),t('feature_health_hub'),t('feature_messaging'),t('feature_voice_calls'),t('feature_video_calls')] },
+    { id:'premium', name:t('subscription_tier_premium'), desc:t('premium_tier_desc'), price:10000, features:[t('feature_medical_records'),t('feature_appointment_booking'),t('feature_health_hub'),t('feature_messaging'),t('feature_voice_calls'),t('feature_video_calls'),t('feature_home_visits')] }
   ];
-  
   let html = `<div class="page"><div class="ph"><h2>${t('subscriptions')}</h2><p>${t('my_subscription')}</p></div>`;
-  
-  if (sub) {
-    const daysRemaining = Math.ceil((new Date(sub.renewalDate) - new Date()) / (1000 * 60 * 60 * 24));
+  if (CU.demoOnly) {
+    html += `<div class="alt ai" role="status">${t('demo_subscription_exempt')}</div>`;
+  } else if (sub) {
     html += `<div class="card" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:24px;border-radius:8px;margin-bottom:20px">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
         <div>
           <div style="font-size:14px;opacity:0.8">${t('current_plan')}</div>
-          <div style="font-size:28px;font-weight:600;margin-top:4px">${tierName}</div>
+          <div style="font-size:28px;font-weight:600;margin-top:4px">${hx(getTierName(sub.tier))}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:24px;font-weight:600">${money(sub.amount,sub.currency||'USD')}</div>
+          <div style="font-size:24px;font-weight:600">${money(sub.amount,sub.currency||'XAF')}</div>
           <div style="font-size:12px;opacity:0.8">/${t('month')}</div>
         </div>
       </div>
       <div style="font-size:13px;opacity:0.9">${t('subscription_status')}: <strong>${t('active_subscription')}</strong></div>
       <div style="font-size:13px;opacity:0.9;margin-top:4px">${t('renewal_date')}: <strong>${sub.renewalDate}</strong></div>
+      <div style="font-size:12px;opacity:0.85;margin-top:6px">${t('subscription_manual_renewal')}</div>
     </div>`;
-  } else {
-    html += `<div class="card" style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px">
-      <div style="text-align:center">
-        <div style="font-size:18px;font-weight:600;color:#333">${t('subscription_tier_free')}</div>
-        <div style="font-size:13px;color:#666;margin-top:8px">${t('free_tier_desc')}</div>
-      </div>
-    </div>`;
+  } else if (!CU.demoOnly) {
+    html += `<div class="alt ai" role="status">${expired?t('subscription_expired'):t('subscription_pending_payment')}</div>`;
   }
-  
-  html += `<div class="card"><div class="ch"><div class="ct">${t('upgrade_subscription')}</div></div>
+  if (!CU.demoOnly) html += `<div class="card"><div class="ch"><div class="ct">${t('subscription_plan_heading')}</div></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;padding:12px 0">`;
   
-  tiers.forEach(t_item => {
-    const isCurrent = t_item.current;
+  if (!CU.demoOnly) tiers.forEach(t_item => {
+    const isCurrent = !!sub && sub.tier === t_item.id;
+    const isSelected = !sub && selectedTier === t_item.id;
     const borderColor = isCurrent ? '#667eea' : '#ddd';
     const bgColor = isCurrent ? '#f3f7ff' : '#fff';
     html += `<div style="border:2px solid ${borderColor};border-radius:8px;padding:16px;background:${bgColor};position:relative">
       ${isCurrent ? `<div style="position:absolute;top:-12px;left:16px;background:#667eea;color:white;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600">${t('current_plan')}</div>` : ''}
+      ${isSelected ? `<div style="position:absolute;top:-12px;left:16px;background:#667eea;color:white;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600">${t('selected_plan')}</div>` : ''}
       <div style="font-size:16px;font-weight:600;margin-top:${isCurrent?'8px':'0'}">${hx(t_item.name)}</div>
       <div style="font-size:13px;color:#666;margin-top:4px">${t_item.desc}</div>
-      ${t_item.price > 0 ? `<div style="font-size:20px;font-weight:600;margin-top:12px">${money(t_item.price,t_item.currency)}/${t_item.period}</div>` : `<div style="font-size:14px;color:#999;margin-top:12px">${t('free')}</div>`}
+      <div style="font-size:20px;font-weight:600;margin-top:12px">${money(t_item.price,'XAF')}/${t('month')}</div>
       <ul style="list-style:none;padding:12px 0;margin:0;border-top:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0">
         ${t_item.features.map(f => `<li style="padding:6px 0;font-size:13px;display:flex;align-items:center"><span style="margin-right:8px">${IC.chk}</span>${f}</li>`).join('')}
       </ul>
-      ${t_item.button ? `<button class="btn ${isCurrent?'bse':'bp'} bsm w100 mt8" onclick="upgradeSubscription('${t_item.id}')">${t_item.button}</button>` : `<button class="btn bse bsm w100 mt8" disabled>${t('current_plan')}</button>`}
+      ${isCurrent ? `<button class="btn bse bsm w100 mt8" disabled>${t('current_plan')}</button>` : `<button class="btn bp bsm w100 mt8" onclick="upgradeSubscription('${t_item.id}')">${t(`subscribe_${t_item.id}`)}</button>`}
     </div>`;
   });
+  if (!CU.demoOnly) html += `</div><p class="mu sm">${t('subscription_manual_renewal')}</p></div>`;
+  if (!ApiState.subscriptionPaymentsAvailable && !CU.demoOnly) html += `<div class="alt ai mt8" role="status">${t('subscription_payment_unavailable')}</div>`;
   
-  html += `</div></div>`;
-  
-  if (sub && sub.tier === 'premium') {
+  if (sub && sub.tier === 'premium' && !CU.demoOnly) {
     const homeVisits = DB.homeVisits.filter(hv => hv.patientId === CU.id);
     html += `<div class="card"><div class="ch"><div><div class="ct">${t('home_visit_title')}</div><div class="rating-note">${t('home_visit_desc')}</div></div></div>
       ${homeVisits.length ? homeVisits.map(hv => `
@@ -4586,7 +4678,7 @@ function renderSubscriptions(pc) {
       `).join('') : `<div class="emp"><p>${t('no_upcoming_visits')}</p></div>`}
       <button class="btn bp bsm w100 mt8" onclick="scheduleHomeVisit()">${t('schedule_visit')}</button>
     </div>`;
-  } else {
+  } else if (!CU.demoOnly) {
     html += `<div class="card"><div class="ch"><div><div class="ct">${t('home_visit_title')}</div><div class="rating-note">${t('home_visit_desc')}</div></div></div><div class="emp"><p>${t('home_visit_premium_only')}</p><button class="btn bg2 bsm mt8" onclick="upgradeSubscription('premium')">${t('subscribe_premium')}</button></div></div>`;
   }
   
@@ -4595,56 +4687,24 @@ function renderSubscriptions(pc) {
 }
 
 async function upgradeSubscription(tierId) {
+  const prices={essential:1000,standard:3000,premium:10000};
+  if (CU.demoOnly) return;
+  if (!prices[tierId]) return alert(t('subscription_plan_required'));
+  if (!ApiState.subscriptionPaymentsAvailable) return alert(t('subscription_payment_unavailable'));
   if (ApiState.enabled) {
     try {
-      if (tierId==='free') await apiRequest('/api/v1/subscription/free','POST',{});
-      else {
-        const prices={basic:2,premium:10};
-        const receipt=await Payment.create().from(CU.id).amount(prices[tierId]).currency('USD').purpose('subscription').describe(`${tierId} subscription`).method('mobile_money').meta({tier:tierId}).process();
-        if (receipt.status==='due') { alert(t('payments_unavailable_short')); return; }
-        if (receipt.status!=='completed') { alert(t('payment_failed')); return; }
-      }
+      const receipt=await Payment.create().from(CU.id).amount(prices[tierId]).currency('XAF').purpose('subscription')
+        .describe(`${tierId} monthly subscription`).method('mobile_money').meta({tier:tierId}).process();
+      if (receipt.status==='due') { alert(t('subscription_payment_unavailable')); return; }
+      if (receipt.status!=='completed') { alert(t('payment_failed')); return; }
       await refreshOwnAccount(); // the server activates the plan once MTN confirms
       log('UPDATE_SUBSCRIPTION', 'Billing', {tier: tierId});
+      navigate(CU.onboardingRequired?'complete-profile':hasPaidPatientSubscription(CU)?'dashboard':'subscriptions');
     } catch (error) { alert(error.message); }
     renderSubscriptions($('pgc'));
     return;
   }
-  const sub = getSubscription(CU.id) || {patientId: CU.id, startDate: tsNow().split(' ')[0]};
-  const tierPrices = {free: 0, basic: 2, premium: 10};
-  const amount = tierPrices[tierId];
-  sub.tier = tierId;
-  sub.status = 'active';
-  sub.currency = 'USD';
-  sub.amount = amount;
-  sub.renewalDate = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
-  sub.monthlyVisitsAllowed = tierId === 'premium' ? 1 : 0;
-  sub.monthlyVisitsUsed = 0;
-
-  if (amount > 0) {
-    try {
-      const receipt = await Payment.create().from(CU.id).amount(amount).currency('USD')
-        .purpose('subscription').describe(`${tierId} subscription`).method('mobile_money')
-        .meta({tier: tierId}).process();
-      sub.paymentStatus = receipt.status;
-    } catch (err) {
-      sub.paymentStatus = 'failed';
-    }
-  } else {
-    sub.paymentStatus = 'completed';
-  }
-  
-  if (!sub.id) {
-    sub.id = 'sub' + Date.now();
-    DB.subscriptions.push(sub);
-  } else {
-    const idx = DB.subscriptions.findIndex(s => s.id === sub.id);
-    if (idx >= 0) DB.subscriptions[idx] = sub;
-  }
-  
-  log('UPDATE_SUBSCRIPTION', 'Billing', {tier: tierId, status: 'upgraded'});
-  notifyPatientActivity(sub.patientId,'Billing');
-  renderSubscriptions($('pgc'));
+  alert(t('subscription_payment_unavailable'));
 }
 
 function scheduleHomeVisit() {
@@ -5037,6 +5097,11 @@ const RCOL = {admin:'#c4902a',doctor:'#12a07a',nurse:'#2e8bc0',patient:'#8a9bb0'
 function renderMessages(pc) {
   $('tbt').textContent=t('comm_title');
   pc.style.padding='0';
+  if (CU.role==='patient'&&!canAccessFeature(CU.id,'messaging')) {
+    pc.innerHTML=`<div class="page"><div class="ph"><h2>${t('comm_title')}</h2></div><div class="card"><div class="emp"><p>${t('messaging_plan_required')}</p>
+      <button class="btn bp bsm mt8" onclick="navigate('subscriptions')">${t('subscription_plan_heading')}</button></div></div></div>`;
+    return;
+  }
   const contacts=myContacts(), selId=SC?.id;
   pc.innerHTML=`<div class="cw${SC?' has-chat':''}">
     <div class="cl">
@@ -5325,7 +5390,9 @@ function saveApt() {
 
 function showBookApt(serviceCode='PC-VIRTUAL', triageCaseId=null) {
   if (CU?.role==='patient' && typeof HFACompletion!=='undefined' && !HFACompletion.require('book')) return;
-  if (CU?.role==='patient') {
+  const remoteAvailable=CU?.role!=='patient'||canAccessFeature(CU.id,'video_calls');
+  APTMODE=remoteAvailable?'video':'in_person';
+  if (CU?.role==='patient'&&remoteAvailable) {
     const assessment = triageCaseId && window.HFATriageUI?.assessmentForBooking(triageCaseId);
     if (!assessment) return window.HFATriageUI?.startBooking(serviceCode);
     BOOKING_TRIAGE = assessment;
@@ -5334,18 +5401,19 @@ function showBookApt(serviceCode='PC-VIRTUAL', triageCaseId=null) {
   const referral=activeSpecialistReferral(CU.id), mySpec=referral?.status==='accepted'?G(referral.specialistDoctorId):null;
   const docs=DB.users.filter(u=>u.role==='doctor'&&u.status==='active');
   BOOKDOC = serviceCode==='SPECIALIST-REFERRAL'&&mySpec ? mySpec.id : (myDoc ? myDoc.id : (docs[0]?.id || null));
-  APTSERVICE=VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-VIRTUAL';
+  APTSERVICE=remoteAvailable&&VIRTUAL_SERVICES.some(service=>service.code===serviceCode)?serviceCode:'PC-INPERSON';
   openMo(`<div class="mh"><div class="mt2">${t('book_apt')}</div><button class="mc" onclick="closeMo()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     ${myDoc?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()"><option value="${myDoc.id}" ${BOOKDOC===myDoc.id?'selected':''}>${hx(myDoc.name)} — ${tv(myDoc.specialty||t('doctor'))} · ${hx(providerCredentialText(myDoc))}</option>${mySpec?`<option value="${mySpec.id}" ${BOOKDOC===mySpec.id?'selected':''}>${hx(mySpec.name)} — ${tv(mySpec.specialty||t('assigned_specialist'))} · ${hx(providerCredentialText(mySpec))}</option>`:''}</select><div class="mu sm" style="margin-top:4px">${mySpec?t('generalist_first_notice'):''}</div></div><div id="bk-doc-fee"></div>`
       :docs.length?`<div class="fg"><label class="fl" for="bk-doc">${t('choose_doctor')}</label><select class="fc" id="bk-doc" onchange="BOOKDOC=this.value;bkRenderDocFee()">${docs.map(d=>`<option value="${d.id}" ${d.id===BOOKDOC?'selected':''}>${hx(d.name)} — ${tv(d.specialty||'')}${d.consultationFee?` (${money(d.consultationFee)})`:''} · ${hx(providerCredentialText(d))}</option>`).join('')}</select></div>
         <div id="bk-doc-fee"></div>`
       :`<div class="alt ae">${t('no_doctors_available')}</div>`}
-    <div class="fg"><label class="fl" for="bk-sv">${t('virtual_services_title')}</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${tv(service.name)}</option>`).join('')}</select></div>
+    ${remoteAvailable?`<div class="fg"><label class="fl" for="bk-sv">${t('virtual_services_title')}</label><select class="fc" id="bk-sv" onchange="APTSERVICE=this.value">${VIRTUAL_SERVICES.map(service=>`<option value="${service.code}" ${service.code===APTSERVICE?'selected':''}>${tv(service.name)}</option>`).join('')}</select></div>`:''}
     <div class="fg"><label class="fl">${t('i_consultation_mode')}</label>
       <div style="display:flex;gap:6px">
-        <button id="bk-v" class="btn bp" style="flex:1" onclick="setAptMode('video')">${t('i_video')}</button>
+        ${remoteAvailable?`<button id="bk-v" class="btn bp" style="flex:1" onclick="setAptMode('video')">${t('i_video')}</button>
         <button id="bk-vo" class="btn bs" style="flex:1" onclick="setAptMode('voice')">${t('i_voice')}</button>
-        <button id="bk-t" class="btn bs" style="flex:1" onclick="setAptMode('text')">${t('text_chat')}</button>
+        <button id="bk-t" class="btn bs" style="flex:1" onclick="setAptMode('text')">${t('text_chat')}</button>`:''}
+        <button id="bk-in" class="btn ${remoteAvailable?'bs':'bp'}" style="flex:1" onclick="setAptMode('in_person')">${t('i_in_person')}</button>
       </div>
     </div>
     <div class="fr"><div class="fg"><label class="fl" for="bk-d">${t('preferred_date')}</label><input type="date" class="fc" id="bk-d" data-v="future-date" required></div><div class="fg"><label class="fl" for="bk-t2">${t('preferred_time')}</label><input type="time" class="fc" id="bk-t2" data-v="time" data-date="bk-d" required></div></div>
@@ -5362,8 +5430,8 @@ function bkRenderDocFee() {
 }
 function setAptMode(m) {
   APTMODE=m;
-  ['bk-v','bk-vo','bk-t'].forEach(id=>{ const el=$(id); if(el){el.className='btn bs';el.style.flex='1';} });
-  const active=$({'video':'bk-v','voice':'bk-vo','text':'bk-t'}[m]);
+  ['bk-v','bk-vo','bk-t','bk-in'].forEach(id=>{ const el=$(id); if(el){el.className='btn bs';el.style.flex='1';} });
+  const active=$({'video':'bk-v','voice':'bk-vo','text':'bk-t','in_person':'bk-in'}[m]);
   if(active){active.className='btn bp';active.style.flex='1';}
 }
 function saveBooking() {
@@ -5372,7 +5440,7 @@ function saveBooking() {
     $('bk-error').textContent=t('st_offline_booking');
     return;
   }
-  if (CU?.role==='patient' && (!BOOKING_TRIAGE || BOOKING_TRIAGE.level!=='routine')) {
+  if (CU?.role==='patient' && APTMODE!=='in_person' && (!BOOKING_TRIAGE || BOOKING_TRIAGE.level!=='routine')) {
     $('bk-error').textContent='Complete SLY’s symptom check before booking a remote consultation.';
     return;
   }
@@ -5380,7 +5448,8 @@ function saveBooking() {
   const error=appointmentScheduleError(CU.id,docId,date,time,durationMinutes);
   if (error) { $('bk-error').textContent=error; return; }
   if(!CU.assignedDoctor){ CU.assignedDoctor=docId; }
-  const service=VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
+  const service=APTMODE==='in_person'?{code:'PC-INPERSON',name:LANG==='fr'?'Rendez-vous en personne':'In-person appointment'}
+    :VIRTUAL_SERVICES.find(item=>item.code===APTSERVICE)||VIRTUAL_SERVICES[0];
   DB.appointments.push({id:'apt'+Date.now(),patientId:CU.id,doctorId:docId,nurseId:CU.assignedNurse||'',date,time,durationMinutes,mode:APTMODE,type:'consultation',serviceCode:service.code,serviceName:service.name,encounterClass:'VR',notes:$('bk-n').value,triageCaseId:BOOKING_TRIAGE?.id,triageSummary:BOOKING_TRIAGE?.summary,status:'scheduled'});
   BOOKING_TRIAGE = null;
   notifyPatientActivity(CU.id,'Appointments');

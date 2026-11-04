@@ -177,7 +177,6 @@
     if (box) { const values = {}; box.querySelectorAll('input').forEach(input => { values[input.id] = input.value; }); box.outerHTML = applicationFields('reg'); Object.entries(values).forEach(([id, value]) => { if ($(id)) $(id).value = value; }); }
   }
   wrap('updateStaticHTML', original => { original(); relabel(); });
-  wrap('backendRegister', (original, localUser) => original(localUser?.role === 'nurse' && $('reg-nw-school') ? { ...localUser, nurseApplication: application('reg') } : localUser));
   // Administrators adding a nurse give the same information.
   wrap('showAddUser', (original, role) => {
     original(role);

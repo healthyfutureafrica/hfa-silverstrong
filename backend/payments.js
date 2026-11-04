@@ -14,7 +14,7 @@ const { seal } = require('./records');
 const { filesConfigured } = require('./files');
 
 const USD_TO_XAF = 600; // same fixed CEMAC rate as the prices shown in the app
-const SUBSCRIPTION_USD = { basic: 2, premium: 10 };
+const SUBSCRIPTION_XAF = { essential: 1000, standard: 3000, premium: 10000 };
 const RESCHEDULE_USD = 5;
 const DEFAULT_HOME_VISIT_USD = 10;
 const TIMEOUT_MS = 10 * 60 * 1000; // the payer has 10 minutes to approve on their phone
@@ -63,7 +63,10 @@ class Payments {
 
   /** Price in USD decided by the server for this purpose. */
   priceUsd(payer, { purpose, targetId, tier }) {
-    if (purpose === 'subscription') { if (!SUBSCRIPTION_USD[tier]) throw Object.assign(new Error('Choose a paid plan'), { status: 400 }); return SUBSCRIPTION_USD[tier]; }
+    if (purpose === 'subscription') {
+      if (!SUBSCRIPTION_XAF[tier]) throw Object.assign(new Error('Choose one of the paid monthly plans'), { status: 400 });
+      return SUBSCRIPTION_XAF[tier] / USD_TO_XAF;
+    }
     if (purpose === 'appointment_reschedule') return RESCHEDULE_USD;
     const target = targetId && this.store.user(targetId);
     if (purpose === 'consultation_fee') { if (target?.role !== 'doctor' || !(target.consultationFee > 0)) throw Object.assign(new Error('This doctor has no consultation fee'), { status: 400 }); return target.consultationFee; }
@@ -85,14 +88,18 @@ class Payments {
     }
     const msisdn = normaliseMsisdn(input.msisdn, { sandbox: this.sandbox });
     if (!msisdn) throw Object.assign(new Error('Enter a valid MTN Mobile Money number, for example 6 7X XX XX XX'), { status: 400 });
-    const usd = this.priceUsd(payer, input), amount = Math.round(usd * USD_TO_XAF), id = randomUUID(), reference = randomUUID(), now = Date.now();
+    if (input.purpose === 'subscription' && this.mtn.currency !== 'XAF') throw Object.assign(new Error('Subscriptions can only be charged in XAF'), { status: 503 });
+    const usd = this.priceUsd(payer, input);
+    const amount = input.purpose === 'subscription' ? SUBSCRIPTION_XAF[input.tier] : Math.round(usd * USD_TO_XAF);
+    const currency = input.purpose === 'subscription' ? 'XAF' : this.mtn.currency;
+    const id = randomUUID(), reference = randomUUID(), now = Date.now();
     const sealed = seal(this.config, `payment-msisdn:${id}`, Buffer.from(msisdn));
     this.store.db.prepare(`INSERT INTO payments (id,payer_id,purpose,target_id,details,amount,currency,usd,provider,provider_reference,idempotency_key,msisdn_nonce,msisdn_encrypted,msisdn_tag,status,created_at,expires_at,next_poll_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id, payer.id, input.purpose, input.targetId || input.tier || null, JSON.stringify(input.details || {}), amount, this.mtn.currency, usd, 'mtn_momo', reference,
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id, payer.id, input.purpose, input.targetId || input.tier || null, JSON.stringify(input.details || {}), amount, currency, usd, 'mtn_momo', reference,
       input.idempotencyKey, sealed.nonce, sealed.encrypted, sealed.tag, 'pending', new Date(now).toISOString(), now + TIMEOUT_MS, now + POLL_BACKOFF_SECONDS[0] * 1000);
-    this.store.audit(payer.id, 'PAYMENT_REQUESTED', { targetId: payer.id, details: { paymentId: id, purpose: input.purpose, amount, currency: this.mtn.currency } });
+    this.store.audit(payer.id, 'PAYMENT_REQUESTED', { targetId: payer.id, details: { paymentId: id, purpose: input.purpose, amount, currency } });
     try {
-      await this.client.requestToPay({ referenceId: reference, amount, currency: this.mtn.currency, externalId: id, msisdn, payerMessage: 'HFA SilverStrong', payeeNote: input.purpose.replace(/_/g, ' ') });
+      await this.client.requestToPay({ referenceId: reference, amount, currency, externalId: id, msisdn, payerMessage: 'HFA SilverStrong', payeeNote: input.purpose.replace(/_/g, ' ') });
     } catch (error) {
       if (error instanceof ProviderError && !error.retriable) this.finalise(id, 'failed', { failureReason: `provider_rejected_${error.status}` });
       // Otherwise the outcome is unknown (timeout, 5xx): stay pending; status checks will learn the truth.
@@ -109,9 +116,14 @@ class Payments {
       const changed = this.store.db.prepare("UPDATE payments SET status=?,provider_status=?,failure_reason=?,financial_transaction_id=?,completed_at=?,next_poll_at=NULL WHERE id=? AND status='pending'")
         .run(status, fields.providerStatus || null, fields.failureReason || null, fields.financialTransactionId || null, new Date().toISOString(), id).changes;
       if (changed && status === 'successful' && row.purpose === 'subscription') {
-        const start = new Date(), renewal = new Date(start); renewal.setMonth(renewal.getMonth() + 1);
+        const now = new Date(), today = now.toISOString().slice(0, 10), current = this.store.user(row.payer_id)?.subscription;
+        const baseDate = current?.status === 'active' && current.renewalDate >= today
+          ? new Date(`${current.renewalDate}T00:00:00.000Z`) : now;
+        const start = new Date(now), renewal = new Date(Date.UTC(baseDate.getUTCFullYear(), baseDate.getUTCMonth() + 1, Math.min(
+          baseDate.getUTCDate(), new Date(Date.UTC(baseDate.getUTCFullYear(), baseDate.getUTCMonth() + 2, 0)).getUTCDate()
+        )));
         this.store.updateUser(row.payer_id, { profile: { subscription: { tier: row.target_id, status: 'active', startDate: start.toISOString().slice(0, 10), renewalDate: renewal.toISOString().slice(0, 10),
-          monthlyVisitsAllowed: row.target_id === 'premium' ? 1 : 0, amount: row.usd, currency: 'USD', paymentId: id, paymentStatus: 'completed' } } });
+          monthlyVisitsAllowed: row.target_id === 'premium' ? 1 : 0, amount: row.amount, currency: row.currency, paymentId: id, paymentStatus: 'completed' } } });
       }
       if (changed) this.store.audit(row.payer_id, status === 'successful' ? 'PAYMENT_SUCCEEDED' : 'PAYMENT_FAILED', { targetId: row.payer_id, details: { paymentId: id, purpose: row.purpose, reason: fields.failureReason || null } });
       this.store.db.exec('COMMIT');
@@ -167,16 +179,25 @@ function installPaymentRoutes(app, config, store, authenticated, payments) {
   const patientOnly = (request, response, next) => request.user.role !== 'patient' || request.impersonator ? response.status(403).json({ error: 'Only the patient can pay' }) : next();
 
   app.get('/api/v1/payments/options', authenticated, (request, response) => response.json(envelope({
-    available: payments.available, provider: payments.available ? 'mtn_momo' : null, currency: payments.mtn.currency, sandbox: payments.sandbox,
-    usdToXaf: USD_TO_XAF, prices: { subscription: SUBSCRIPTION_USD, appointmentReschedule: RESCHEDULE_USD }
+    available: payments.available, subscriptionAvailable: payments.available && payments.mtn.currency === 'XAF',
+    provider: payments.available ? 'mtn_momo' : null, currency: payments.mtn.currency, sandbox: payments.sandbox,
+    usdToXaf: USD_TO_XAF, prices: { subscription: SUBSCRIPTION_XAF, appointmentReschedule: RESCHEDULE_USD }
   })));
 
   app.post('/api/v1/payments', authenticated, patientOnly, async (request, response) => {
     if (!payments.available) return response.status(503).json({ error: 'Online payment is not available yet. Pay at the health facility.', code: 'payments_unavailable' });
     const input = z.object({
-      purpose: z.enum(PURPOSES), targetId: z.string().max(100).optional(), tier: z.enum(['basic', 'premium']).optional(), msisdn: z.string().max(30),
+      purpose: z.enum(PURPOSES), targetId: z.string().max(100).optional(), tier: z.enum(['essential', 'standard', 'premium']).optional(), msisdn: z.string().max(30),
       idempotencyKey: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/), details: z.record(z.string(), z.union([z.string().max(200), z.number()])).optional()
     }).strict().parse(request.body);
+    const subscription = request.user.subscription;
+    const hasCurrentPlan = subscription?.status === 'active'
+      && ['essential', 'standard', 'premium', 'basic'].includes(subscription.tier)
+      && typeof subscription.renewalDate === 'string'
+      && subscription.renewalDate >= new Date().toISOString().slice(0, 10);
+    if (!hasCurrentPlan && input.purpose !== 'subscription') {
+      return response.status(403).json({ error: 'Choose and pay for a patient subscription before making other payments', code: 'subscription_required' });
+    }
     try {
       const { payment, replayed } = await payments.initiate(request.user, input);
       response.status(replayed ? 200 : 202).json(envelope({ payment, replayed }, payment.status === 'pending' ? 'Approve the payment request on your phone' : `Payment ${payment.status}`));
@@ -193,12 +214,6 @@ function installPaymentRoutes(app, config, store, authenticated, payments) {
     response.json(envelope({ payment: payments.summary(row) }));
   });
 
-  // The free plan needs no payment.
-  app.post('/api/v1/subscription/free', authenticated, patientOnly, (request, response) => {
-    const start = new Date().toISOString().slice(0, 10);
-    store.updateUser(request.user.id, { profile: { subscription: { tier: 'free', status: 'active', startDate: start, renewalDate: null, monthlyVisitsAllowed: 0, amount: 0, currency: null, paymentStatus: 'completed' } } });
-    response.json(envelope({ user: store.user(request.user.id) }));
-  });
 }
 
-module.exports = { Payments, installPaymentRoutes, installPaymentWebhook, normaliseMsisdn, mtnConfig, USD_TO_XAF, SUBSCRIPTION_USD, RESCHEDULE_USD };
+module.exports = { Payments, installPaymentRoutes, installPaymentWebhook, normaliseMsisdn, mtnConfig, USD_TO_XAF, SUBSCRIPTION_XAF, RESCHEDULE_USD };

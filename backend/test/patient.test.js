@@ -43,7 +43,7 @@ const fullProfile = () => ({
 });
 
 const patientInput = () => ({
-  name: 'Synthetic Patient Ngwa', password: 'Synthetic-password-123', role: 'patient', phone: '+237677123456',
+  name: 'Synthetic Patient Ngwa', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677123456',
   whatsappNumber: '+237677123456', whatsappNotificationsConsent: true, preferredLanguage: 'fr', healthProfile: fullProfile()
 });
 
@@ -161,8 +161,9 @@ test('other African country profiles accept user-entered local areas without imp
 test('profile pictures are validated, converted to WebP, encrypted, replaced and removed', async () => {
   const store = new Store(), app = await startServer(store);
   try {
-    const owner = store.createUser({ name: 'Amina Synthetic', email: 'avatar-owner@example.invalid', role: 'patient' }, 'unused', 'active');
-    const other = store.createUser({ name: 'Other Synthetic', email: 'avatar-other@example.invalid', role: 'patient' }, 'unused', 'active');
+    const paidProfile = { subscription: { tier: 'essential', status: 'active', amount: 1000, currency: 'XAF', renewalDate: '2099-12-31' } };
+    const owner = store.createUser({ name: 'Amina Synthetic', email: 'avatar-owner@example.invalid', role: 'patient', profile: paidProfile }, 'unused', 'active');
+    const other = store.createUser({ name: 'Other Synthetic', email: 'avatar-other@example.invalid', role: 'patient', profile: paidProfile }, 'unused', 'active');
     const cookie = `hfa_session=${store.createSession(owner.id)}`, otherCookie = `hfa_session=${store.createSession(other.id)}`;
     const png = size => sharp({ create: { width: size, height: size, channels: 3, background: { r: 0, g: 107, b: 63 } } }).png().toBuffer();
     const path = `/api/v1/users/${owner.id}/avatar`;
@@ -216,10 +217,11 @@ test('profile pictures are validated, converted to WebP, encrypted, replaced and
 test('existing patients complete their health profile later; nobody else can write it', async () => {
   const store = new Store(), app = await startServer(store);
   try {
-    const patient = store.createUser({ name: 'Legacy Patient', email: 'legacy@example.invalid', role: 'patient', whatsappNumber: '+237600000009' }, 'unused', 'active');
+    const patient = store.createUser({ name: 'Legacy Patient', email: 'legacy@example.invalid', role: 'patient', whatsappNumber: '+237600000009',profile:{onboardingRequired:true} }, 'unused', 'active');
     const doctor = store.createUser({ name: 'Synthetic Doctor', email: 'doctor-write@example.invalid', role: 'doctor' }, 'unused', 'active');
     const cookie = `hfa_session=${store.createSession(patient.id)}`, doctorCookie = `hfa_session=${store.createSession(doctor.id)}`;
     const path = `/api/v1/users/${patient.id}/health-profile`;
+    assert.equal((await app.request('/api/notifications',undefined,cookie,'GET')).status,403,'incomplete patient profiles cannot use portal APIs');
     const big = { fileName: 'carnet.pdf', content: Buffer.concat([Buffer.from('%PDF-1.4 '), Buffer.alloc(100000, 32)]).toString('base64') };
     assert.equal((await app.request(path, { healthProfile: fullProfile() }, doctorCookie, 'PUT')).status, 403);
     assert.equal((await app.request(path, { healthProfile: { ...fullProfile(), extra: 1 } }, cookie, 'PUT')).status, 400);
@@ -227,6 +229,7 @@ test('existing patients complete their health profile later; nobody else can wri
     assert.equal(saved.status, 200, 'documents larger than the 32 kB default JSON limit are accepted here');
     const { user } = await saved.json();
     assert.equal(user.healthProfile.location.division, 'Mezam');
+    assert.equal(user.onboardingRequired,false);
     assert.equal(user.vaccinationDocument.mime, 'application/pdf');
     assert.equal(user.preferredLanguage, 'en');
     const session = await (await app.request('/api/session', undefined, cookie, 'GET')).json();

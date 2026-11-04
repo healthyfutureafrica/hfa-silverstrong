@@ -32,7 +32,7 @@ test('consent register, licence register and medication safety alerts are real, 
     const registration = await app.request('/api/auth/register', { name: 'Dr Synthetic Licence', email: 'licence-doc@example.invalid', password: 'Synthetic-pass-123', role: 'doctor', specialty: 'General Medicine', hospital: 'Synthetic Governance Hospital', consultationFee: 10, licenseNo: 'CM-MED-2026-0001' });
     const doctor = (await registration.json()).user;
     assert.equal(store.user(doctor.id).licenseNo, 'CM-MED-2026-0001');
-    store.updateUser(doctor.id, { status: 'active' });
+    store.updateUser(doctor.id, { status: 'active', profile: { onboardingRequired: false } });
     const doctorCookie = cookieOf(await app.request('/api/auth/login', { email: 'licence-doc@example.invalid', password: 'Synthetic-pass-123' }));
     store.createUser({ name: 'Dr Synthetic Elsewhere', email: 'gov-other@example.invalid', role: 'doctor', profile: { hospital: 'Another Governance Hospital' } }, await hashPassword('Synthetic-pass-123'), 'active');
     const otherCookie = cookieOf(await app.request('/api/auth/login', { email: 'gov-other@example.invalid', password: 'Synthetic-pass-123' }));
@@ -54,7 +54,7 @@ test('consent register, licence register and medication safety alerts are real, 
     }, await hashPassword('Synthetic-pass-123'), 'active');
 
     // A patient at the doctor's hospital, allergic to penicillin, taking amoxicillin.
-    const patientResponse = await app.request('/api/auth/register', { name: 'Synthetic Patient Allergy', password: 'Synthetic-pass-123', role: 'patient', phone: '+237677888001', hospitalId: store.listedHospitals().find(item => item.name === 'Synthetic Governance Hospital').id, healthProfile: profile() });
+    const patientResponse = await app.request('/api/auth/register', { name: 'Synthetic Patient Allergy', password: 'Synthetic-pass-123', role: 'patient', subscriptionTier: 'essential', phone: '+237677888001', hospitalId: store.listedHospitals().find(item => item.name === 'Synthetic Governance Hospital').id, healthProfile: profile() });
     const patientPayload = await patientResponse.json(), patient = patientPayload.user;
     const publicDoctor = patientPayload.users.find(item => item.id === doctor.id);
     assert.equal(publicDoctor.credentialReview.status, 'verified');

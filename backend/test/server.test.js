@@ -7,7 +7,7 @@ const { mkdtempSync, rmSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 
-test('pharmacists register with uploaded documents and need administrator validation before login',async()=>{
+test('pharmacists create a short account, complete credentials later, and remain restricted until review',async()=>{
   const store=new Store(),config={origin:'http://localhost:8080',ready:false,fileEncryptionKey:'34'.repeat(32)};
   const server=createApp(config,store,{}).listen(0,'127.0.0.1');
   await new Promise(resolve=>server.once('listening',resolve));
@@ -15,22 +15,26 @@ test('pharmacists register with uploaded documents and need administrator valida
   const request=(path,body,cookie,method='POST')=>fetch(base+path,{method,headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,...(cookie?{Cookie:cookie}:{})},body:body===undefined?undefined:JSON.stringify(body)});
   const pdf=Buffer.from('%PDF-1.4 synthetic pharmacy document');
   const documents=Object.fromEntries(['pharmacistLicense','businessLicense','minsanteAuthorization','ownerIdentity'].map(kind=>[kind,{fileName:kind+'.pdf',content:pdf.toString('base64')}]));
-  const input={name:'Synthetic Pharmacist',email:'pharmacist@example.invalid',password:'Synthetic-password-123',pharmacyName:'Synthetic Pharmacy',pharmacyAddress:'1 Test Street',pharmacyLocation:'Douala, Cameroon',pharmacyLicense:'TEST-LICENSE',businessRegistration:'TEST-RCCM',minsanteAuthorization:'TEST-MINSANTE',ownerName:'Synthetic Owner',ownerIdType:'passport',ownerIdNumber:'TEST-PASSPORT',documents};
+  const input={name:'Synthetic Pharmacist',email:'pharmacist@example.invalid',password:'Synthetic-password-123',pharmacyLicense:'TEST-LICENSE'};
   try {
     assert.equal((await request('/api/auth/register',{name:input.name,email:input.email,password:input.password,role:'pharmacist'})).status,400);
-    assert.equal((await request('/api/auth/register/pharmacist',{...input,ownerIdNumber:undefined})).status,400);
-    assert.equal((await request('/api/auth/register/pharmacist',{...input,documents:{...documents,ownerIdentity:undefined}})).status,400);
-    assert.equal((await request('/api/auth/register/pharmacist',{...input,documents:{...documents,businessLicense:{fileName:'x.html',content:Buffer.from('<html>').toString('base64')}}})).status,400);
-    assert.equal(store.credentials(input.email),undefined);
     const registered=await request('/api/auth/register/pharmacist',input);
     assert.equal(registered.status,201);
-    const {user}=await registered.json();
-    assert.equal(user.status,'pending_approval');assert.equal(registered.headers.get('set-cookie'),null);
-    assert.equal(user.ownerName,'Synthetic Owner');assert.equal(user.pharmacyDocuments.ownerIdentity.mime,'application/pdf');
+    const {user}=await registered.json(),pharmacyCookie=registered.headers.get('set-cookie').split(';')[0];
+    assert.equal(user.status,'pending_approval');assert.equal(user.onboardingRequired,true);assert.ok(pharmacyCookie);
+    assert.equal(user.pharmacyLicense,'TEST-LICENSE');
+    assert.equal(store.db.prepare('SELECT hfa_number FROM users WHERE id=?').get(user.id).hfa_number,null);
+    assert.equal((await request('/api/pharmacy',undefined,pharmacyCookie,'GET')).status,403);
+    assert.equal((await request('/api/v1/account/profile',{},pharmacyCookie,'PUT')).status,400);
+    const completion={pharmacyName:'Synthetic Pharmacy',pharmacyAddress:'1 Test Street',pharmacyLocation:'Douala, Cameroon',pharmacyLicense:'TEST-LICENSE',businessRegistration:'TEST-RCCM',minsanteAuthorization:'TEST-MINSANTE',ownerName:'Synthetic Owner',ownerIdType:'passport',ownerIdNumber:'TEST-PASSPORT',pharmacyRegion:'littoral',pharmacyTown:'Douala',documents};
+    assert.equal((await request('/api/v1/account/profile',completion,pharmacyCookie,'PUT')).status,200);
+    const updated=store.user(user.id);
+    assert.equal(updated.onboardingRequired,false);assert.equal(updated.ownerName,'Synthetic Owner');assert.equal(updated.pharmacyDocuments.ownerIdentity.mime,'application/pdf');
+    assert.match(updated.hfaId,/^HFA-PH-LT-DLA-/);
     assert.equal(store.db.prepare('SELECT COUNT(*) AS total FROM uploaded_files WHERE owner_id=?').get(user.id).total,4);
     assert.equal(store.db.prepare('SELECT encrypted FROM uploaded_files WHERE owner_id=?').all(user.id).some(row=>Buffer.from(row.encrypted).includes(pdf)),false);
     assert.equal((await request('/api/auth/register/pharmacist',input)).status,409);
-    assert.equal((await request('/api/auth/login',{email:input.email,password:input.password})).status,403);
+    assert.equal((await request('/api/pharmacy',undefined,pharmacyCookie,'GET')).status,403,'complete profiles still wait for administrator approval');
     const patient=store.createUser({name:'Synthetic Patient',email:'patient-docs@example.invalid',role:'patient'},'unused','active');
     assert.equal((await request('/api/admin/users/'+user.id+'/documents/ownerIdentity',undefined,`hfa_session=${store.createSession(patient.id)}`,'GET')).status,403);
     const admin=store.createUser({name:'Synthetic Admin',email:'admin-pharmacy@example.invalid',role:'admin'},'unused','active');
@@ -47,13 +51,55 @@ test('pharmacists register with uploaded documents and need administrator valida
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
 
-test('pharmacy registration is refused without encrypted document storage',async()=>{
+test('pharmacy signup can start without document storage but profile completion cannot',async()=>{
   const store=new Store(),config={origin:'http://localhost:8080',ready:false};
   const server=createApp(config,store,{}).listen(0,'127.0.0.1');
   await new Promise(resolve=>server.once('listening',resolve));
   try {
-    const response=await fetch(`http://127.0.0.1:${server.address().port}/api/auth/register/pharmacist`,{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},body:'{}'});
-    assert.equal(response.status,503);
+    const response=await fetch(`http://127.0.0.1:${server.address().port}/api/auth/register/pharmacist`,{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1'},body:JSON.stringify({name:'Synthetic Pharmacist',email:'pharmacy@example.invalid',password:'Synthetic-password-123',pharmacyLicense:'TEST-LICENSE'})});
+    assert.equal(response.status,201);
+    const cookie=response.headers.get('set-cookie').split(';')[0];
+    const pdf={fileName:'document.pdf',content:'JVBERi0='};
+    const profile={pharmacyName:'Synthetic Pharmacy',pharmacyAddress:'1 Test Street',pharmacyLocation:'Douala, Cameroon',pharmacyLicense:'TEST-LICENSE',businessRegistration:'TEST-RCCM',minsanteAuthorization:'TEST-MINSANTE',ownerName:'Synthetic Owner',ownerIdType:'passport',ownerIdNumber:'TEST-PASSPORT',pharmacyRegion:'littoral',pharmacyTown:'Douala',documents:Object.fromEntries(['pharmacistLicense','businessLicense','minsanteAuthorization','ownerIdentity'].map(kind=>[kind,pdf]))};
+    const completion=await fetch(`http://127.0.0.1:${server.address().port}/api/v1/account/profile`,{method:'PUT',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Cookie:cookie},body:JSON.stringify(profile)});
+    assert.equal(completion.status,503,'the server refuses to save supporting documents without encryption');
+  } finally {await new Promise(resolve=>server.close(resolve));store.close();}
+});
+
+test('minimal doctor and email-only patient signups are limited to profile completion',async()=>{
+  const store=new Store(),config={origin:'http://localhost:8080',ready:false,fileEncryptionKey:'56'.repeat(32)};
+  const server=createApp(config,store,{}).listen(0,'127.0.0.1');
+  await new Promise(resolve=>server.once('listening',resolve));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const request=(path,body,cookie,method='POST')=>fetch(base+path,{method,headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,...(cookie?{Cookie:cookie}:{})},body:body===undefined?undefined:JSON.stringify(body)});
+  try {
+    const missingPlan=await request('/api/auth/register',{name:'Synthetic Email Patient',email:'email-patient@example.invalid',password:'Synthetic-password-123',role:'patient'});
+    assert.equal(missingPlan.status,400,'a patient must choose a paid plan during signup');
+    const patientResponse=await request('/api/auth/register',{name:'Synthetic Email Patient',email:'email-patient@example.invalid',password:'Synthetic-password-123',role:'patient',subscriptionTier:'essential'});
+    assert.equal(patientResponse.status,201);
+    const patient=(await patientResponse.json()).user,patientCookie=patientResponse.headers.get('set-cookie').split(';')[0];
+    assert.equal(patient.phone,'');assert.equal(patient.onboardingRequired,true);
+    assert.equal((await request('/api/session',undefined,patientCookie,'GET')).status,200);
+    assert.equal((await request('/api/v1/payments/options',undefined,patientCookie,'GET')).status,403);
+
+    assert.equal((await request('/api/auth/register',{name:'Synthetic Doctor',email:'short-doctor@example.invalid',password:'Synthetic-password-123',role:'doctor'})).status,400);
+    const doctorResponse=await request('/api/auth/register',{name:'Synthetic Doctor',email:'short-doctor@example.invalid',password:'Synthetic-password-123',role:'doctor',licenseNo:'TEST-MED-1'});
+    assert.equal(doctorResponse.status,201);
+    const doctor=(await doctorResponse.json()).user,doctorCookie=doctorResponse.headers.get('set-cookie').split(';')[0];
+    assert.equal(doctor.status,'pending_approval');assert.equal(doctor.onboardingRequired,true);
+    assert.equal((await request('/api/notifications',undefined,doctorCookie,'GET')).status,403);
+    const pdf={fileName:'identity.pdf',content:Buffer.from('%PDF-1.4 synthetic identity').toString('base64')};
+    const completion=await request('/api/v1/account/profile',{specialty:'General Medicine',hospital:'Synthetic Clinic',consultationFee:10,qualifications:'Medical degree',idDocumentType:'passport',idDocument:pdf},doctorCookie,'PUT');
+    assert.equal(completion.status,200);
+    assert.equal(store.user(doctor.id).onboardingRequired,false);
+    assert.equal((await request('/api/notifications',undefined,doctorCookie,'GET')).status,403,'complete professionals remain restricted pending approval');
+    const admin=store.createUser({name:'Synthetic Admin',email:'profile-admin@example.invalid',role:'admin'},'unused','active');
+    const adminCookie=`hfa_session=${store.createSession(admin.id)}`;
+    assert.equal((await request(`/api/admin/users/${doctor.id}`,{status:'active'},adminCookie,'PATCH')).status,200);
+    assert.equal((await request('/api/notifications',undefined,doctorCookie,'GET')).status,200);
+    const phoneOnly=await request('/api/auth/register',{name:'Synthetic Phone Doctor',phone:'+237 600 000 111',password:'Synthetic-password-123',role:'doctor',licenseNo:'TEST-MED-2'});
+    assert.equal(phoneOnly.status,201);
+    assert.equal((await request('/api/auth/login',{email:'+237600000111',password:'Synthetic-password-123'})).status,200);
   } finally {await new Promise(resolve=>server.close(resolve));store.close();}
 });
 
@@ -62,8 +108,9 @@ test('encrypted file uploads are owner-scoped, idempotent and require reauthenti
   const database=join(directory,'test.sqlite');
   let store=new Store(database);
   const config={origin:'http://localhost:8080',ready:false,fileEncryptionKey:'12'.repeat(32)};
-  const user=store.createUser({name:'Synthetic Owner',email:'owner@example.invalid',role:'patient'},'unused','active');
-  const other=store.createUser({name:'Synthetic Other',email:'other@example.invalid',role:'patient'},'unused','active');
+  const paidProfile={subscription:{tier:'essential',status:'active',amount:1000,currency:'XAF',renewalDate:'2099-12-31'}};
+  const user=store.createUser({name:'Synthetic Owner',email:'owner@example.invalid',role:'patient',profile:paidProfile},'unused','active');
+  const other=store.createUser({name:'Synthetic Other',email:'other@example.invalid',role:'patient',profile:paidProfile},'unused','active');
   const server=createApp(config,store,{}).listen(0,'127.0.0.1');
   await new Promise(resolve=>server.once('listening',resolve));
   const base=`http://127.0.0.1:${server.address().port}`,id=randomUUID();
@@ -115,10 +162,11 @@ test('authenticated API blocks forged recipients, roles, origins and unconfigure
     method: 'POST', headers: { 'Content-Type': 'application/json', 'X-HFA-Request': '1', Origin: origin, ...(cookie ? { Cookie: cookie } : {}) }, body: JSON.stringify(body)
   });
   try {
-    const registered = await request('/api/auth/register', { name: 'Synthetic Patient', email: 'patient@example.invalid', password: 'Synthetic-password-123', role: 'patient', whatsappNumber: '+237600000000', whatsappNotificationsConsent: true });
+    const registered = await request('/api/auth/register', { name: 'Synthetic Patient', email: 'patient@example.invalid', password: 'Synthetic-password-123', role: 'patient', subscriptionTier:'essential', whatsappNumber: '+237600000000', whatsappNotificationsConsent: true });
     assert.equal(registered.status, 201);
     const { user } = await registered.json();
     const cookie = registered.headers.get('set-cookie').split(';')[0];
+    store.updateUser(user.id,{profile:{onboardingRequired:false,subscription:{tier:'essential',status:'active',amount:1000,currency:'XAF',renewalDate:'2099-12-31'}}});
     assert.match(registered.headers.get('set-cookie'), /HttpOnly/);
     assert.match(registered.headers.get('set-cookie'), /SameSite=Strict/);
     assert.equal(user.password, undefined);
@@ -145,7 +193,7 @@ test('authenticated API blocks forged recipients, roles, origins and unconfigure
 test('pharmacy orders reserve stock once and enforce ownership, expiry and prescription review',async()=>{
   const store=new Store(),config={origin:'http://localhost:8080',ready:false};
   const pharmacy=store.createUser({name:'Synthetic Pharmacy',email:'orders-pharmacy@example.invalid',role:'pharmacist',profile:{pharmacyValidatedAt:'test',pharmacyName:'Test Pharmacy'}},'unused','active');
-  const patient=store.createUser({name:'Synthetic Buyer',email:'buyer@example.invalid',role:'patient'},'unused','active');
+  const patient=store.createUser({name:'Synthetic Buyer',email:'buyer@example.invalid',role:'patient',profile:{subscription:{tier:'essential',status:'active',amount:1000,currency:'XAF',renewalDate:'2099-12-31'}}},'unused','active');
   const server=createApp(config,store,{}).listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
   const base=`http://127.0.0.1:${server.address().port}`,pc=`hfa_session=${store.createSession(pharmacy.id)}`,uc=`hfa_session=${store.createSession(patient.id)}`;
   const request=(path,body,cookie,method='POST')=>fetch(base+path,{method,headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin,Cookie:cookie},body:JSON.stringify(body)});
@@ -190,7 +238,7 @@ test('registration stores the identity document encrypted and sessions last seve
   const base=`http://127.0.0.1:${server.address().port}`;
   const post=(path,body)=>fetch(base+path,{method:'POST',headers:{'Content-Type':'application/json','X-HFA-Request':'1',Origin:config.origin},body:JSON.stringify(body)});
   const png=Buffer.from([137,80,78,71,13,10,26,10,1,2,3]);
-  const input={name:'Synthetic Patient',email:'identity@example.invalid',password:'Synthetic-password-123',role:'patient',whatsappNumber:'+237600000001',idDocumentType:'passport',idDocument:{fileName:'passport.png',content:png.toString('base64')}};
+  const input={name:'Synthetic Patient',email:'identity@example.invalid',password:'Synthetic-password-123',role:'patient',subscriptionTier:'essential',whatsappNumber:'+237600000001',idDocumentType:'passport',idDocument:{fileName:'passport.png',content:png.toString('base64')}};
   try {
     assert.equal((await post('/api/auth/register',{...input,idDocumentType:undefined})).status,400);
     assert.equal((await post('/api/auth/register',{...input,idDocument:{fileName:'x.txt',content:Buffer.from('plain text').toString('base64')}})).status,400);

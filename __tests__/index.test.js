@@ -65,7 +65,7 @@ describe('index.html sanity checks', () => {
     expect(content).toContain('<div class="pc2" onclick="goAuth(\'login\',\'admin\')">');
     expect(content).toContain("noAccounts() && !(tab==='login' && (['admin','pharmacist'].includes(role)||staticDemoAvailable()))");
     expect(content).toContain("['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body')");
-    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v47'");
+    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v49'");
   });
 
   test('first visit opens the platform in a saved or browser-supported language', () => {
@@ -132,24 +132,13 @@ describe('index.html sanity checks', () => {
       vm.createContext(context);
       const source=fs.readFileSync(path.join(__dirname,'..','pharmacist.js'),'utf8').split('NAV.admin[2].items.push')[0];
       vm.runInContext(source,context);
-      context.phReadFile=jest.fn().mockResolvedValue('data:application/pdf;base64,JVBERi0=');
       return {context,fields};
     }
     const PH_DOC_KINDS=['pharmacistLicense','businessLicense','minsanteAuthorization','ownerIdentity'];
-    test.each(['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization','ownerName','ownerIdType','ownerIdNumber'])('requires %s before pharmacist registration',async name=>{
-      const {context,fields}=pharmacyContext();fields['ph-'+name].value='';
+    test('requires the pharmacist licence before registration',async()=>{
+      const {context,fields}=pharmacyContext();fields['ph-pharmacyLicense'].value='';
       await context.registerPharmacist();
-      expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('pharmacy_required');
-    });
-    test.each(PH_DOC_KINDS)('requires the %s document at registration',async kind=>{
-      const {context,fields}=pharmacyContext();fields['phd-'+kind].files=[];
-      await context.registerPharmacist();
-      expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('pharmacy_docs_required');
-    });
-    test.each([[{type:'text/html',size:1024}],[{type:'application/pdf',size:2*1024*1024+1}],[{type:'image/png',size:0}]])('rejects unsupported or oversized document %j',async file=>{
-      const {context,fields}=pharmacyContext();fields['phd-ownerIdentity'].files=[{name:'id',...file}];
-      await context.registerPharmacist();
-      expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('pharmacy_docs_required');
+      expect(context.DB.users).toHaveLength(0);expect(context.amsg).toHaveBeenCalledWith('license_required');
     });
     test('never creates a pharmacy account in the browser without the HFA server',async()=>{
       const {context}=pharmacyContext();await context.registerPharmacist();
@@ -162,14 +151,13 @@ describe('index.html sanity checks', () => {
       ['pharmacyName','pharmacyAddress','pharmacyLocation','pharmacyLicense','businessRegistration','minsanteAuthorization','ownerName','ownerIdNumber'].forEach(name=>{user[name]='Synthetic '+name;});
       user.ownerIdType='passport';context.DB.users.push(user);return user;
     };
-    test('sends documents with the backend pharmacy registration',async()=>{
+    test('sends only account details and pharmacist licence at registration',async()=>{
       const {context}=pharmacyContext();context.ApiState.enabled=true;
-      context.HFAOffline={submitRegistration:jest.fn().mockResolvedValue({data:{}})};await context.registerPharmacist();
+      context.HFAOffline={submitRegistration:jest.fn().mockResolvedValue({queued:true})};await context.registerPharmacist();
       const [path,body]=context.HFAOffline.submitRegistration.mock.calls[0];
       expect(path).toBe('/api/auth/register/pharmacist');
-      expect(body.role).toBeUndefined();expect(body.ownerIdNumber).toBe('Synthetic ownerIdNumber');
-      expect(Object.keys(body.documents)).toEqual(PH_DOC_KINDS);
-      expect(body.documents.businessLicense).toEqual({fileName:'businessLicense.pdf',content:'JVBERi0='});
+      expect(body).toEqual({name:'Synthetic Pharmacist',email:'pharmacist@example.invalid',password:'Synthetic-password-123',phone:'+237600000000',pharmacyLicense:'Synthetic pharmacyLicense'});
+      expect(context.amsg).toHaveBeenCalledWith('offline_registration_queued','i');
     });
     test('blocks approval when a registration document is missing',async()=>{
       const {context,fields}=pharmacyContext();const user=pendingPharmacy(context);
@@ -201,11 +189,11 @@ describe('index.html sanity checks', () => {
       expect(context.HFAOffline.enqueue.mock.calls.map(([request])=>request.method)).toEqual(['PATCH','PATCH','POST']);
       expect(context.apiRequest).not.toHaveBeenCalled();
     });
-    test('saves a pharmacy registration on the device when the server is unreachable',async()=>{
+    test('queues a short pharmacist registration when the server is unreachable',async()=>{
       const {context}=pharmacyContext();context.ApiState.enabled=true;
       context.HFAOffline={submitRegistration:jest.fn().mockResolvedValue({queued:true})};
       await context.registerPharmacist();
-      expect(context.HFAOffline.submitRegistration).toHaveBeenCalledWith('/api/auth/register/pharmacist',expect.objectContaining({ownerName:'Synthetic ownerName',documents:expect.objectContaining({ownerIdentity:{fileName:'ownerIdentity.pdf',content:'JVBERi0='}})}));
+      expect(context.HFAOffline.submitRegistration).toHaveBeenCalledWith('/api/auth/register/pharmacist',expect.objectContaining({pharmacyLicense:'Synthetic pharmacyLicense'}));
       expect(context.amsg).toHaveBeenCalledWith('offline_registration_queued','i');
     });
     test('converts XAF inventory entry to canonical USD exactly once',async()=>{
@@ -653,9 +641,10 @@ describe('index.html sanity checks', () => {
     });
   });
 
-  describe('ID document type uploads', () => {
+  describe('profile document uploads', () => {
     function uploadContext(role='patient', documentType='passport') {
       const fields = {};
+      Object.assign(fields,{rn:{value:'Synthetic User'},re:{value:'synthetic@example.invalid'},rpa:{value:'Synthetic-password-123'},rph:{value:'+237600000000'},rtc:{checked:true},rli:{value:'TEST-MED-1'},rni:{value:'TEST-NUR-1'}});
       ['d','n','p'].forEach(suffix => {
         fields['rid-'+suffix] = {id:'rid-'+suffix,files:[{name:'synthetic-id.pdf'}]};
         fields['rid-type-'+suffix] = {value:documentType};
@@ -688,34 +677,20 @@ describe('index.html sanity checks', () => {
       return {context,fields};
     }
 
-    test.each(['doctor','nurse','patient'])('requires an ID type for %s registration', role => {
+    test.each(['doctor','nurse','patient'])('defers identity documents for %s signup', role => {
       const {context} = uploadContext(role, '');
       context.doReg();
-      expect(context.amsg).toHaveBeenCalledWith('id_type_required');
+      expect(context.backendRegister).toHaveBeenCalledTimes(1);
       expect(context.FileReader).not.toHaveBeenCalled();
-      expect(context.DB.users).toHaveLength(0);
+      expect(context.DB.users[0]).not.toHaveProperty('idDocumentData');
+      expect(context.DB.users[0]).not.toHaveProperty('idDocumentType');
     });
 
-    test.each(['doctor','nurse','patient'])('stores the selected ID type for %s registration', role => {
+    test.each(['doctor','nurse','patient'])('does not upload identity documents during %s signup', role => {
       const {context} = uploadContext(role, 'passport');
       context.doReg();
-      expect(context.DB.users[0]).toMatchObject({idDocumentType:'passport',idDocumentName:'synthetic-id.pdf',idVerificationStatus:'pending'});
-    });
-
-    test.each(['','600000000','+000000000','+237abc000000','+1234567890123456'])('patient registration rejects invalid WhatsApp number %s', number => {
-      const {context,fields}=uploadContext();
-      fields['rwa'].value=number;
-      context.doReg();
-      expect(context.amsg).toHaveBeenCalledWith('whatsapp_number_required');
-      expect(context.DB.users).toHaveLength(0);
+      expect(context.DB.users[0]).not.toHaveProperty('idDocumentType');
       expect(context.FileReader).not.toHaveBeenCalled();
-    });
-
-    test.each([false,true])('patient registration stores normalized WhatsApp number and opt-in %s', consent => {
-      const {context,fields}=uploadContext();
-      fields['rwa-consent'].checked=consent;
-      context.doReg();
-      expect(context.DB.users[0]).toMatchObject({whatsappNumber:'+237600000000',whatsappNotificationsConsent:consent,whatsappConsentAt:consent?'test timestamp':null});
     });
 
     test.each(['','unsupported','drivers_license'])('blocks profile uploads with invalid ID type %s', documentType => {
@@ -745,10 +720,10 @@ describe('index.html sanity checks', () => {
       expect(context.FileReader).not.toHaveBeenCalled();
     });
 
-    test.each(['doctor','nurse','patient'])('rejects driver licenses for %s registration', role => {
+    test.each(['doctor','nurse','patient'])('does not collect ID type during %s signup', role => {
       const {context}=uploadContext(role,'drivers_license');
       context.doReg();
-      expect(context.amsg).toHaveBeenCalledWith('id_type_required');
+      expect(context.backendRegister).toHaveBeenCalledTimes(1);
       expect(context.FileReader).not.toHaveBeenCalled();
     });
 
@@ -1178,7 +1153,7 @@ describe('index.html sanity checks', () => {
     expect(content).toContain('Psychiatric and Mental Health Nursing');
     expect(content).toContain('const NURSE_SPECIALTIES = [');
     expect(content).toContain('id="au-ns"');
-    expect(content).toContain("specialty:$('rns').value");
+    expect(content).toContain("specialty:text('specialty')");
     expect(content).toContain('id="rns" required');
     expect(content).toContain("Please select your medical specialty.");
     expect(content).toContain("Please select your nursing specialty.");
