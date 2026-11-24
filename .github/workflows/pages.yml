@@ -44,3 +44,21 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify published demo
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          asset_url="${SITE_URL%/}/assets/hfa-logo.svg"
+          for attempt in {1..10}; do
+            page_status="$(curl --silent --location --max-time 10 --output /tmp/hfa-pages.html --write-out '%{http_code}' "$SITE_URL" 2>/dev/null || true)"
+            asset_status="$(curl --silent --location --max-time 10 --output /dev/null --write-out '%{http_code}' "$asset_url" 2>/dev/null || true)"
+            if [[ "$page_status" == "200" && "$asset_status" == "200" ]] && grep -q 'id="lnd-signin"' /tmp/hfa-pages.html; then
+              echo "Published demo and logo are available at $SITE_URL"
+              exit 0
+            fi
+            echo "Published demo not ready (page=$page_status, logo=$asset_status), retry $attempt/10"
+            sleep 6
+          done
+          echo "Published demo failed its HTTP/content check at $SITE_URL"
+          exit 1

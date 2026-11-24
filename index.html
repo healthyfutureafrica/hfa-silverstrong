@@ -1337,6 +1337,14 @@ body{font-size:15px}
         <input type="checkbox" id="rtc" style="margin-top:3px">
         <label class="fl" for="rtc" style="font-weight:400"><span id="lbl-agree-terms">I have read and agree to the</span> <span class="alk" onclick="showTerms()" id="lbl-read-terms">Terms &amp; Conditions</span></label>
       </div>
+      <div class="fg" style="display:flex;align-items:flex-start;gap:8px">
+        <input type="checkbox" id="rprivacy" style="margin-top:3px">
+        <label class="fl" for="rprivacy" style="font-weight:400"><span id="lbl-agree-privacy">I have read and agree to the</span> <span class="alk" onclick="showLegalPreview('privacy')" id="lbl-read-privacy">Privacy &amp; Data Protection Policy</span></label>
+      </div>
+      <div class="fg" style="display:flex;align-items:flex-start;gap:8px">
+        <input type="checkbox" id="rconf" style="margin-top:3px">
+        <label class="fl" for="rconf" style="font-weight:400"><span id="lbl-agree-confidentiality">I have read and agree to the</span> <span class="alk" onclick="showLegalPreview('confidentiality')" id="lbl-read-confidentiality">Confidentiality &amp; Medical Secrecy Policy</span></label>
+      </div>
       <button type="button" class="btn bp w100 mt8" onclick="doReg()" data-i18n="create_btn">Create Account</button>
       </div>
       <div class="afo" id="afo-reg">Have an account? <span class="alk" onclick="swtTab('login')">Sign in</span></div>
@@ -1537,7 +1545,7 @@ const T = {
     demo_signin_title:'Web testing accounts', demo_signin_notice:'Synthetic accounts for testing the web interface only. Do not enter real health information; demo changes are not saved.',
     demo_passwords:'Passwords: doctors Doctor@123 · nurses Nurse@123 · lab Lab@123 · pharmacist Pharmacist@123 · patients Patient@123.',
     demo_try_patient:'Try Demo as Emmanuel Tabe',
-    skip_main:'Skip to main content', legal_privacy:'Legal & Privacy', compliance_nav:'Compliance Centre',
+    skip_main:'Skip to main content', legal_privacy:'Legal & Privacy', policy_nav:'HFA Policy', compliance_nav:'Compliance Centre',
     privacy_nav:'Privacy & Data Protection', confidentiality_nav:'Confidentiality & Medical Secrecy',
 
     // Topbar page titles
@@ -1622,6 +1630,8 @@ const T = {
     terms_accept_btn:'I Agree — Close', terms_recorded:'Terms & Conditions accepted and recorded.',
     terms_and_conditions:'Terms & Conditions', read_terms_link:'Terms & Conditions',
     agree_terms_label:'I have read and agree to the', terms_required:'You must read and accept the Terms & Conditions to register.',
+    agree_privacy_label:'I have read and agree to the', read_privacy_link:'Privacy & Data Protection Policy', privacy_required:'You must read and acknowledge the Privacy & Data Protection Policy to register.',
+    agree_confidentiality_label:'I have read and agree to the', read_confidentiality_link:'Confidentiality & Medical Secrecy Policy', confidentiality_required:'You must read and acknowledge the Confidentiality & Medical Secrecy Policy to register.',
     terms_accept_btn:'I Agree — Close', terms_recorded:'Terms & Conditions accepted and recorded.',
     save_changes:'Save Changes', confirm:'Confirm', send:'Send',
     join_video:'Join Video', join_call:'Join Call', open_chat:'Open Chat',
@@ -1894,7 +1904,7 @@ const T = {
     demo_signin_title:'Comptes de test Web', demo_signin_notice:'Comptes synthétiques pour tester uniquement l’interface Web. Ne saisissez pas de vraies informations de santé ; les modifications de démonstration ne sont pas enregistrées.',
     demo_passwords:'Mots de passe : médecins Doctor@123 · infirmiers Nurse@123 · laboratoire Lab@123 · pharmacien Pharmacist@123 · patients Patient@123.',
     demo_try_patient:'Essayer la démo comme Emmanuel Tabe',
-    skip_main:'Aller au contenu principal', legal_privacy:'Juridique & Confidentialité', compliance_nav:'Centre de Conformité',
+    skip_main:'Aller au contenu principal', legal_privacy:'Juridique & Confidentialité', policy_nav:'Politique HFA', compliance_nav:'Centre de Conformité',
     privacy_nav:'Confidentialité & Protection des Données', confidentiality_nav:'Secret Médical & Confidentialité',
 
     // Topbar page titles
@@ -1981,6 +1991,8 @@ const T = {
     terms_accept_btn:'J\'Accepte — Fermer', terms_recorded:'Conditions Générales acceptées et enregistrées.',
     terms_and_conditions:'Conditions Générales', read_terms_link:'Conditions Générales',
     agree_terms_label:'J\'ai lu et j\'accepte les', terms_required:'Vous devez lire et accepter les Conditions Générales pour vous inscrire.',
+    agree_privacy_label:'J\'ai lu et j\'accepte la', read_privacy_link:'Politique de Confidentialité et Protection des Données', privacy_required:'Vous devez lire et reconnaître la Politique de Confidentialité et Protection des Données pour vous inscrire.',
+    agree_confidentiality_label:'J\'ai lu et j\'accepte la', read_confidentiality_link:'Politique de Confidentialité et Secret Médical', confidentiality_required:'Vous devez lire et reconnaître la Politique de Confidentialité et Secret Médical pour vous inscrire.',
     terms_accept_btn:'J\'Accepte — Fermer', terms_recorded:'Conditions Générales acceptées et enregistrées.',
     save_changes:'Enregistrer les Modifications', confirm:'Confirmer', send:'Envoyer',
     join_video:'Rejoindre Vidéo', join_call:'Rejoindre l\'Appel', open_chat:'Ouvrir le Chat',
@@ -2339,6 +2351,10 @@ function updateStaticHTML() {
     'lbl-agree-terms': t('agree_terms_label'),
     'lbl-patient-commitment': t('patient_commitment_label'),
     'lbl-read-terms': t('read_terms_link'),
+    'lbl-agree-privacy': t('agree_privacy_label'),
+    'lbl-read-privacy': t('read_privacy_link'),
+    'lbl-agree-confidentiality': t('agree_confidentiality_label'),
+    'lbl-read-confidentiality': t('read_confidentiality_link'),
     'lbl-id-doc-d': t('id_document_label'),
     'lbl-id-doc-n': t('id_document_label'),
     'lbl-id-doc-p': t('id_document_label_patient'),
@@ -3219,7 +3235,7 @@ const NAV = {
     {s:()=>t('platform_overview'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'admin-control',l:()=>t('control_center'),i:'grid'},{id:'audit',l:()=>t('audit_logs'),i:'shield'}]},
     {s:()=>t('user'),items:[{id:'mgr-approvals',l:()=>pendingApprovalsLabel(),i:'shield'},{id:'mgr-d',l:()=>t('doctors'),i:'pulse'},{id:'mgr-n',l:()=>t('nurses'),i:'heart'},{id:'mgr-p',l:()=>t('patients'),i:'user'},{id:'facilities',l:()=>t('facilities_nav'),i:'grid'}]},
     {s:()=>t('administration'),items:[{id:'portal-access',l:()=>t('pa_nav'),i:'shield'},{id:'mgr-a',l:()=>t('administrators'),i:'user'},{id:'integrations',l:()=>t('integrations_nav'),i:'clip'},{id:'triage-queue',l:()=>t('triage_queue_nav'),i:'pulse'},{id:'safety',l:()=>t('safety_nav'),i:'shield'}]},
-    {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'policy',l:()=>t('policy_nav'),i:'shield'},{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('platform_overview'),items:[{id:'appointments',l:()=>t('all_appointments'),i:'cal'},{id:'messages',l:()=>t('communications'),i:'msg'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'fh-analytics',l:()=>t('fh_analytics_nav'),i:'heart'}]},
   ],
@@ -3227,27 +3243,27 @@ const NAV = {
     {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'hospital-patients',l:()=>t('hospital_patients_nav'),i:'shield'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consultations'),i:'vid'}]},
     {s:()=>t('medical_records'),items:[{id:'records',l:()=>t('medical_records'),i:'file'}]},
-    {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'policy',l:()=>t('policy_nav'),i:'shield'},{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
   ],
   nurse:[
     {s:()=>t('dashboard'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'patients',l:()=>t('my_patients'),i:'user'},{id:'hospital-patients',l:()=>t('hospital_patients_nav'),i:'shield'},{id:'appointments',l:()=>t('appointments'),i:'cal'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consultations'),i:'vid'}]},
     {s:()=>t('care_notes'),items:[{id:'carenotes',l:()=>t('care_notes'),i:'clip'}]},
-    {s:()=>t('legal_privacy'),items:[{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'policy',l:()=>t('policy_nav'),i:'shield'},{id:'compliance',l:()=>t('compliance_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
   ],
   labtech:[
     {s:()=>t('lab_portal'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'lab-results',l:()=>t('lab_results'),i:'file'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'}]},
-    {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'policy',l:()=>t('policy_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
   ],
   pharmacist:[
     {s:()=>t('pharmacist'),items:[{id:'dashboard',l:()=>t('pharmacy_portal'),i:'clip'},{id:'pharmacy',l:()=>t('pharmacy_inventory'),i:'file'}]},
-    {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'policy',l:()=>t('policy_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'}]},
   ],
   patient:[
     {s:()=>t('health_records'),items:[{id:'dashboard',l:()=>t('dashboard'),i:'grid'},{id:'appointments',l:()=>t('my_appointments'),i:'cal'},{id:'records',l:()=>t('health_records'),i:'file'},{id:'careplan',l:()=>t('care_plan_nav'),i:'clip'},{id:'subscriptions',l:()=>t('subscriptions'),i:'go'},{id:'complete-profile',l:()=>t('wz_my_profile'),i:'user'}]},
     {s:()=>t('communications'),items:[{id:'messages',l:()=>t('messages'),i:'msg'},{id:'consult',l:()=>t('consult_now'),i:'vid'},{id:'pharmacy',l:()=>t('pharmacy_shop'),i:'clip'}]},
-    {s:()=>t('legal_privacy'),items:[{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
+    {s:()=>t('legal_privacy'),items:[{id:'policy',l:()=>t('policy_nav'),i:'shield'},{id:'privacy',l:()=>t('privacy_nav'),i:'file'},{id:'confidentiality',l:()=>t('confidentiality_nav'),i:'clip'}]},
     {s:()=>t('free_hub_nav'),items:[{id:'freehub',l:()=>t('free_hub_nav'),i:'heart'}]},
   ],
 };
@@ -3359,6 +3375,35 @@ function showTerms() {
       ${sections.map(sec=>`<div style="margin-bottom:14px"><h3 style="font-size:.88rem;color:var(--t1);margin-bottom:4px">${lt(sec.title)}</h3><p class="mu sm" style="line-height:1.6">${lt(sec.text)}</p></div>`).join('')}
     </div>
     <div class="mf"><button class="btn bp w100" onclick="closeMo()">${t('terms_accept_btn')}</button></div>`);
+}
+
+function legalPreviewContent(type) {
+  const content={
+    privacy:{title:{en:'Privacy & Data Protection Policy',fr:'Politique de Confidentialité et Protection des Données'},body:{en:'HFA SilverStrong collects only information needed to provide healthcare coordination, identity verification, appointments, payments, communications, laboratory workflows, and safety oversight. Access is role-based and audit-logged. Health information is shared only with authorised members of the care team or where a lawful exception applies. You may request access, correction, restriction, or deletion where applicable. By continuing, you acknowledge that you have read this policy and understand how your data is handled.',fr:'HFA SilverStrong collecte uniquement les informations nécessaires à la coordination des soins, la vérification d’identité, les rendez-vous, les paiements, les communications, les résultats de laboratoire et la sécurité. L’accès est basé sur les rôles et journalisé. Les données de santé ne sont partagées qu’avec les membres autorisés de l’équipe de soins ou lorsqu’une exception légale s’applique. Vous pouvez demander l’accès, la rectification, la limitation ou la suppression lorsque cela est applicable. En continuant, vous reconnaissez avoir lu cette politique et compris le traitement de vos données.'}},
+    confidentiality:{title:{en:'Confidentiality & Medical Secrecy Policy',fr:'Politique de Confidentialité et Secret Médical'},body:{en:'Every user must protect patient identity, diagnoses, test results, consultation content, care notes, and uploaded records. Users must access information only for an authorised care, laboratory, safety, or administrative purpose, must not disclose it outside approved channels, and must report suspected unauthorised access promptly. These duties continue after the account or care relationship ends.',fr:'Chaque utilisateur doit protéger l’identité du patient, les diagnostics, les résultats de tests, le contenu des consultations, les notes de soins et les dossiers téléchargés. Les informations ne doivent être consultées que pour un objectif de soins, de laboratoire, de sécurité ou d’administration autorisé, ne doivent pas être divulguées hors des canaux approuvés et tout accès suspect doit être signalé rapidement. Ces obligations continuent après la fermeture du compte ou la fin de la relation de soins.'}}
+  };
+  return content[type]||content.privacy;
+}
+function showLegalPreview(type) {
+  const content=legalPreviewContent(type);
+  openMo(`<div class="mh"><div class="mt2">${lt(content.title)}</div><button class="mc" onclick="closeMo()">${IC.x}</button></div><p class="mu sm" style="line-height:1.7">${lt(content.body)}</p><div class="mf"><button class="btn bp w100" onclick="closeMo()">${t('terms_accept_btn')}</button></div>`);
+}
+function renderPolicy(pc) {
+  $('tbt').textContent=t('policy_nav');
+  const sections=LANG==='fr' ? [
+    ['Objectif et sécurité','HFA SilverStrong soutient la coordination des soins virtuels et ne remplace pas les services d’urgence.'],
+    ['Accès basé sur les rôles','Les patients, cliniciens, laboratoires et administrateurs reçoivent uniquement l’accès nécessaire à leur mission.'],
+    ['Données et traçabilité','Les accès aux données de santé, résultats de laboratoire et documents sont limités, journalisés et soumis aux contrôles de la plateforme.'],
+    ['Conduite professionnelle','Toute information fournie doit être exacte. La falsification, l’usurpation, le harcèlement, l’accès abusif et le partage non autorisé sont interdits.'],
+    ['Signalement et mesures','Les incidents doivent être signalés à l’administration. HFA peut suspendre un compte et transmettre les incidents graves aux autorités compétentes.']
+  ]:[
+    ['Purpose and safety','HFA SilverStrong supports virtual care coordination and does not replace emergency services.'],
+    ['Role-based access','Patients, clinicians, laboratories, and administrators receive only the access necessary for their duties.'],
+    ['Data and auditability','Access to health data, laboratory results, and uploaded records is restricted, logged, and subject to platform controls.'],
+    ['Professional conduct','All information must be accurate. Falsification, impersonation, harassment, misuse, and unauthorised disclosure are prohibited.'],
+    ['Reporting and enforcement','Incidents must be reported to administration. HFA may suspend accounts and refer serious incidents to competent authorities.']
+  ];
+  pc.innerHTML=`<div class="page"><div class="legal-hero"><h2>${t('policy_nav')}</h2><p>${LANG==='fr'?'Politique opérationnelle de Healthy Future Africa pour la sécurité, la confidentialité et l’utilisation responsable de HFA SilverStrong.':'Healthy Future Africa operational policy for safety, confidentiality, and responsible use of HFA SilverStrong.'}</p></div><div class="card">${sections.map(([title,text])=>`<div class="legal-card" style="margin-bottom:14px"><h3>${title}</h3><p>${text}</p></div>`).join('')}</div></div>`;
 }
 function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
@@ -3545,6 +3590,8 @@ function doReg() {
   if (pass.length<12) return amsg(t('backend_password_short'));
   if (RROLE==='patient'&&!$('rplan').value) return amsg(t('subscription_plan_required'));
   if (!$('rtc').checked) return amsg(t('terms_required'));
+  if (!$('rprivacy').checked) return amsg(t('privacy_required'));
+  if (!$('rconf').checked) return amsg(t('confidentiality_required'));
   if (email&&DB.users.find(u=>u.email.toLowerCase()===email.toLowerCase())) return amsg(t('email_exists'));
   finishReg();
 }
@@ -3744,6 +3791,7 @@ function renderRolePage(page, r, pc) {
   if (page==='consult')  return renderConsult(pc);
   if (page==='privacy') return renderPrivacy(pc);
   if (page==='confidentiality') return renderConfidentiality(pc);
+  if (page==='policy') return renderPolicy(pc);
   if (page==='compliance' && r!=='patient') return renderCompliance(pc);
   if (r==='admin') {
     if (page==='dashboard') renderAdminDash(pc);

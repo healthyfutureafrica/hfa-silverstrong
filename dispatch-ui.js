@@ -183,7 +183,7 @@
   NAV.ambulance = [
     { s: () => t('ds_crew_nav'), items: [{ id: 'dashboard', l: () => t('ds_crew_job'), i: 'pulse' }] },
     { s: () => t('communications'), items: [{ id: 'messages', l: () => t('messages'), i: 'msg' }] },
-    { s: () => t('legal_privacy'), items: [{ id: 'privacy', l: () => t('privacy_nav'), i: 'file' }, { id: 'confidentiality', l: () => t('confidentiality_nav'), i: 'clip' }] }
+    { s: () => t('legal_privacy'), items: [{ id: 'policy', l: () => t('policy_nav'), i: 'shield' }, { id: 'privacy', l: () => t('privacy_nav'), i: 'file' }, { id: 'confidentiality', l: () => t('confidentiality_nav'), i: 'clip' }] }
   ];
   let crewTimer = null, crewWatch = null, crewLastPosition = 0, crewDuty = null;
   function stopCrew() { clearInterval(crewTimer); crewTimer = null; if (crewWatch !== null && navigator.geolocation) navigator.geolocation.clearWatch(crewWatch); crewWatch = null; }

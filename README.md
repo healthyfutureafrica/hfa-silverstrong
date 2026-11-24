@@ -357,7 +357,9 @@ This pipeline deploys the static public site only. It does not make the clinical
 The GitHub Pages workflow and Cloudflare publish the public site after pushes to `main` (normally
 `https://healthyfutureafrica.github.io/hfa-silverstrong/` and `https://www.healthyfutureafrica.org`). It holds no
 accounts and keeps no health data: the Free Health Hub and the anonymous symptom check (rules only; answers stay on
-the screen) work there; everything else needs the HFA server (see [DEPLOY.md](DEPLOY.md)).
+the screen) work there; everything else needs the HFA server (see [DEPLOY.md](DEPLOY.md)). After each deploy the
+[Pages workflow](https://github.com/healthyfutureafrica/hfa-silverstrong/actions/workflows/pages.yml) checks that the
+public page and its logo load; if the site is unavailable, check the latest workflow run before sharing the link.
 
 ## E-prescriptions, lab orders and support
 
