@@ -770,6 +770,7 @@
       applyLegacy(CU);
       log('UPDATE_HEALTH_PROFILE', 'Medical Records');
       RS = null;
+      buildSidebar(); // the completed profile opens the full patient menu
       navigate('dashboard');
       const page = document.querySelector('#pgc .page');
       page?.insertAdjacentHTML('afterbegin', `<div class="alt ao" role="status">${esc(t('wz_saved_done'))}</div>`);

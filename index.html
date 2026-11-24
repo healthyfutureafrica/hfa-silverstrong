@@ -3409,8 +3409,14 @@ function goApp() {
   hide('land'); hide('auth-wrap'); show('app-wrap');
   toggleSidebar(false);
   buildSidebar();
-  navigate(CU && (CU.onboardingRequired || CU.status==='pending_approval') ? 'complete-profile'
-    : CU?.role==='patient'&&!hasPaidPatientSubscription(CU) ? 'subscriptions' : 'dashboard');
+  navigate(requiredSetupPage() || 'dashboard');
+}
+// New patients pay their subscription first, then complete their profile; professionals complete their profile first.
+function requiredSetupPage() {
+  if (!CU) return null;
+  if (CU.role==='patient' && !hasPaidPatientSubscription(CU)) return 'subscriptions';
+  if (CU.onboardingRequired || CU.status==='pending_approval') return 'complete-profile';
+  return null;
 }
 
 // Phones only: the sidebar slides in over the page (CSS keeps it fixed on wider screens).
@@ -3631,8 +3637,9 @@ function buildSidebar() {
   $('snm').textContent = CU.name;
   $('sem').textContent = CU.email;
   $('shfa').textContent = CU.hfaId || '';
-  const profileOnly = CU.onboardingRequired || CU.status==='pending_approval';
-  const subscriptionOnly = !profileOnly && r==='patient' && !hasPaidPatientSubscription(CU);
+  const setupPage = requiredSetupPage();
+  const profileOnly = setupPage==='complete-profile';
+  const subscriptionOnly = setupPage==='subscriptions';
   $('sb-security').classList.toggle('hid',profileOnly||subscriptionOnly);
   const nav = profileOnly ? [{s:'',items:[{id:'complete-profile',l:()=>t('profile_completion_title'),i:'user'}]}]
     : subscriptionOnly ? [{s:'',items:[{id:'subscriptions',l:()=>t('subscriptions'),i:'shield'}]}] : (NAV[r]||[]).map(sec => ({
@@ -3667,8 +3674,8 @@ function renderBottomNav() {
 }
 
 function navigate(page) {
-  if (CU && (CU.onboardingRequired || CU.status==='pending_approval') && page!=='complete-profile') page='complete-profile';
-  else if (CU?.role==='patient'&&!hasPaidPatientSubscription(CU)&&page!=='subscriptions') page='subscriptions';
+  const setupPage = requiredSetupPage();
+  if (setupPage) page = setupPage;
   CP = page;
   document.querySelectorAll('.ni').forEach(el=>el.classList.remove('active'));
   const el = $('ni-'+page); if (el) el.classList.add('active');
@@ -4811,7 +4818,10 @@ async function upgradeSubscription(tierId) {
       if (receipt.status!=='completed') { alert(t('payment_failed')); return; }
       await refreshOwnAccount(); // the server activates the plan once MTN confirms
       log('UPDATE_SUBSCRIPTION', 'Billing', {tier: tierId});
-      navigate(CU.onboardingRequired?'complete-profile':hasPaidPatientSubscription(CU)?'dashboard':'subscriptions');
+      // Paid: the sidebar opens up and a new patient moves on to completing the profile.
+      buildSidebar();
+      navigate(requiredSetupPage() || 'dashboard');
+      return;
     } catch (error) { alert(error.message); }
     renderSubscriptions($('pgc'));
     return;

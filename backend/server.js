@@ -170,7 +170,9 @@ function createApp(config, store, provider) {
     // Help & support stays reachable for patients who have not paid (billing problems are a common reason to ask).
     const supportRoute = user.role === 'patient' && request.path.startsWith('/api/v1/support');
     if (user.status !== 'active' && !completionRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
-    if (user.onboardingRequired && !completionRoute && !emergencyRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
+    // New patients pay their subscription first and complete the profile afterwards.
+    const firstSubscriptionPayment = user.role === 'patient' && !paidSubscription && paymentRoute;
+    if (user.onboardingRequired && !completionRoute && !emergencyRoute && !firstSubscriptionPayment) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
     if (user.role === 'patient' && !paidSubscription && !completionRoute && !paymentRoute && !emergencyRoute && !supportRoute) {
       return response.status(403).json({ error: 'Choose and pay for a patient subscription before using the portal', code: 'subscription_required' });
     }

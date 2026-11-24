@@ -27,7 +27,10 @@ describe('payments', () => {
     expect(content).toContain("subscription_tier_essential:'Essential (XAF 1,000/month)'");
     expect(content).toContain("subscription_tier_standard:'Care (XAF 3,000/month)'");
     expect(content).toContain("subscription_tier_premium:'Premium (XAF 10,000/month)'");
-    expect(content).toContain("CU?.role==='patient'&&!hasPaidPatientSubscription(CU) ? 'subscriptions'");
+    // A new patient pays first, then completes the profile.
+    const setup = content.match(/^function requiredSetupPage\(\) \{[^]*?^}/m)[0];
+    expect(setup.indexOf("CU.role==='patient' && !hasPaidPatientSubscription(CU)")).toBeLessThan(setup.indexOf('CU.onboardingRequired'));
+    expect(upgrade).toContain("navigate(requiredSetupPage() || 'dashboard')");
     expect(content).not.toContain("'/api/v1/subscription/free'");
   });
 

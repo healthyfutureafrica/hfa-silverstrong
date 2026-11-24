@@ -123,3 +123,32 @@ test('patients pay with MTN MoMo for server-priced items; results come only from
     assert.equal((await pay({ purpose: 'subscription', tier: 'free', msisdn: '677000666', idempotencyKey: 'key-free-plan-1' })).status, 400, 'free is not a valid paid plan');
   } finally { await app.close(); store.close(); }
 });
+
+test('a new patient pays the subscription at registration and completes the profile afterwards', async () => {
+  const store = new Store();
+  const requests = [], statuses = new Map();
+  const mtnClient = {
+    requestToPay: async params => { requests.push(params); statuses.set(params.referenceId, { status: 'PENDING' }); },
+    getStatus: async reference => statuses.get(reference) || { status: 'NOT_FOUND' }
+  };
+  const app = await startServer(store, { ...base, mtn: { ready: true, currency: 'XAF', targetEnvironment: 'mtncameroon', callbackSecret: secret }, mtnClient });
+  try {
+    const registered = await app.request('/api/auth/register', { name: 'Synthetic New Patient', password: 'Synthetic-password-123', role: 'patient', subscriptionTier: 'standard', phone: '+237677000777' });
+    const patient = cookieOf(registered), patientId = (await registered.json()).user.id;
+    assert.equal(store.user(patientId).onboardingRequired, true, 'the profile is still to be completed');
+    assert.equal((await app.request('/api/v1/payments/options', undefined, patient)).status, 200);
+    const started = await app.request('/api/v1/payments', { purpose: 'subscription', tier: 'standard', msisdn: '677000777', idempotencyKey: 'key-first-plan-1' }, patient);
+    assert.equal(started.status, 202, 'the subscription can be paid before the profile is completed');
+    const payment = (await started.json()).data.payment;
+    assert.equal((await app.request('/api/v1/payments', { purpose: 'appointment_reschedule', msisdn: '677000777', idempotencyKey: 'key-first-other-1' }, patient)).status, 403, 'only the subscription can be paid at this stage');
+    statuses.set(requests[0].referenceId, { status: 'SUCCESSFUL', amount: '3000', currency: 'XAF' });
+    assert.equal((await (await app.request(`/api/v1/payments/${payment.id}`, undefined, patient)).json()).data.payment.status, 'successful');
+    assert.equal(store.user(patientId).subscription.status, 'active');
+    const profileStillDue = await app.request('/api/notifications', undefined, patient);
+    assert.equal(profileStillDue.status, 403, 'after paying, the profile must be completed before the portal opens');
+    assert.match((await profileStillDue.json()).error, /Complete your profile/);
+    assert.equal((await app.request('/api/v1/payments', { purpose: 'appointment_reschedule', msisdn: '677000777', idempotencyKey: 'key-first-other-2' }, patient)).status, 403, 'other payments wait for the completed profile');
+    store.updateUser(patientId, { profile: { onboardingRequired: false } });
+    assert.equal((await app.request('/api/notifications', undefined, patient)).status, 200, 'paid plan plus completed profile opens the portal');
+  } finally { await app.close(); store.close(); }
+});

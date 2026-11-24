@@ -88,7 +88,8 @@ test('minimal doctor and email-only patient signups are limited to profile compl
     const patient=(await patientResponse.json()).user,patientCookie=patientResponse.headers.get('set-cookie').split(';')[0];
     assert.equal(patient.phone,'');assert.equal(patient.onboardingRequired,true);
     assert.equal((await request('/api/session',undefined,patientCookie,'GET')).status,200);
-    assert.equal((await request('/api/v1/payments/options',undefined,patientCookie,'GET')).status,403);
+    assert.equal((await request('/api/v1/payments/options',undefined,patientCookie,'GET')).status,200,'a new patient pays the subscription before completing the profile');
+    assert.equal((await request('/api/notifications',undefined,patientCookie,'GET')).status,403,'the rest of the portal stays closed until payment and profile are done');
 
     const starterDoctor=await request('/api/auth/register',{name:'Synthetic Starter Doctor',email:'starter-doctor@example.invalid',password:'Synthetic-password-123',role:'doctor'});
     assert.equal(starterDoctor.status,201,'professional account creation does not require KYC documents');
