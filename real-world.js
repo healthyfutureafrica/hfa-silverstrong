@@ -12,6 +12,7 @@
   Object.assign(T.en, {
     rw_forgot: 'Forgot password?', rw_forgot_title: 'Reset your password', rw_forgot_body: 'Call or visit your clinic or HFA. After checking who you are, they give you a one-time reset code (valid 30 minutes). Enter it here with a new password.',
     rw_code: 'Reset code', rw_new_pw: 'New password (at least 12 characters)', rw_reset_btn: 'Set new password', rw_reset_done: 'Password changed. Sign in with your new password.',
+    rw_revoke_offline_btn: 'Revoke offline access (lost or stolen phone)', rw_revoke_offline_done: 'Offline access revoked. Copies of this account on any device can no longer be unlocked online and are erased when the device reconnects.',
     rw_reset_code_btn: 'Create password reset code', rw_reset_code_title: 'One-time reset code', rw_reset_code_body: 'Give this code to the person only after checking who they are (CNI, phone number on file). It works once, for 30 minutes.',
     rw_id_title: 'Identity documents to verify', rw_id_none: 'No identity documents waiting.', rw_id_open: 'Open document', rw_verify: 'Verified', rw_reject_id: 'Not valid',
     rw_hub_note: 'Anonymous counts from everyone who used the Free Health Hub in the last 30 days. No names, accounts or search words are kept.'
@@ -19,6 +20,7 @@
   Object.assign(T.fr, {
     rw_forgot: 'Mot de passe oublié ?', rw_forgot_title: 'Réinitialiser votre mot de passe', rw_forgot_body: 'Appelez ou rendez-vous à votre clinique ou chez HFA. Après avoir vérifié votre identité, on vous donne un code de réinitialisation à usage unique (valable 30 minutes). Saisissez-le ici avec un nouveau mot de passe.',
     rw_code: 'Code de réinitialisation', rw_new_pw: 'Nouveau mot de passe (au moins 12 caractères)', rw_reset_btn: 'Enregistrer le nouveau mot de passe', rw_reset_done: 'Mot de passe changé. Connectez-vous avec votre nouveau mot de passe.',
+    rw_revoke_offline_btn: 'Révoquer l’accès hors ligne (téléphone perdu ou volé)', rw_revoke_offline_done: 'Accès hors ligne révoqué. Les copies de ce compte ne peuvent plus être déverrouillées en ligne et sont effacées à la reconnexion de l’appareil.',
     rw_reset_code_btn: 'Créer un code de réinitialisation', rw_reset_code_title: 'Code de réinitialisation à usage unique', rw_reset_code_body: 'Donnez ce code à la personne uniquement après avoir vérifié son identité (CNI, numéro enregistré). Il fonctionne une fois, pendant 30 minutes.',
     rw_id_title: 'Pièces d’identité à vérifier', rw_id_none: 'Aucune pièce d’identité en attente.', rw_id_open: 'Ouvrir le document', rw_verify: 'Vérifiée', rw_reject_id: 'Non valable',
     rw_hub_note: 'Chiffres anonymes de toutes les personnes ayant utilisé l’Espace Santé gratuit ces 30 derniers jours. Aucun nom, compte ni mot recherché n’est conservé.'
@@ -131,7 +133,13 @@
     original(id);
     const user = G(id);
     if (!online() || CU?.role !== 'admin' || !user || user.role === 'admin') return;
-    $('mbox')?.insertAdjacentHTML('beforeend', `<div class="mt18"><button type="button" class="btn bs bsm" id="rw-reset-code">🔑 ${esc(t('rw_reset_code_btn'))}</button><div id="rw-reset-out" class="mt8"></div></div>`);
+    $('mbox')?.insertAdjacentHTML('beforeend', `<div class="mt18"><button type="button" class="btn bs bsm" id="rw-reset-code">🔑 ${esc(t('rw_reset_code_btn'))}</button> <button type="button" class="btn bd2 bsm" id="rw-revoke-offline">📵 ${esc(t('rw_revoke_offline_btn'))}</button><div id="rw-reset-out" class="mt8"></div></div>`);
+    $('rw-revoke-offline').onclick = async () => {
+      try {
+        await apiRequest(`/api/v1/admin/users/${encodeURIComponent(id)}/revoke-offline`, 'POST', {});
+        $('rw-reset-out').innerHTML = `<div class="alt ao">${esc(t('rw_revoke_offline_done'))}</div>`;
+      } catch (error) { $('rw-reset-out').innerHTML = `<div class="alt ae">${esc(error.message)}</div>`; }
+    };
     $('rw-reset-code').onclick = async () => {
       try {
         const { data } = await apiRequest(`/api/v1/admin/users/${encodeURIComponent(id)}/reset-code`, 'POST', {});

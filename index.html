@@ -1360,7 +1360,7 @@ body{font-size:15px}
         <div class="av" id="sav"></div>
         <div><div class="un" id="snm"></div><div class="ue" id="sem"></div><div class="ue" id="shfa" style="font-family:var(--fm)"></div></div>
       </div>
-      <button type="button" class="sb-security" onclick="navigate('security')"><span aria-hidden="true">🔒</span> <span data-i18n="sec_nav">Account security</span></button>
+      <button type="button" class="sb-security" id="sb-security" onclick="navigate('security')"><span aria-hidden="true">🔒</span> <span data-i18n="sec_nav">Account security</span></button>
       <div class="sb-lang">
       <button type="button" class="sb-lang-btn" id="slb-pick" onclick="openLangPicker()">Language</button>
       <button type="button" class="sb-lang-btn active" id="slb-en" onclick="setLang('en')">EN</button>
@@ -1508,7 +1508,7 @@ const T = {
     profile_completion_title:'Complete your profile', profile_completion_intro:'Add the required details and submit your identity and professional documents. Your account remains restricted until the required profile is complete and HFA finishes its review.',
     profile_completion_waiting:'Your profile details are submitted. HFA must review and approve your account before you can use the portal.',
     profile_completion_save:'Submit profile for review', profile_completion_saved:'Profile submitted. Your account is waiting for HFA review.', profile_completion_error:'Could not submit your profile.',
-    pc_specialty:'Specialty', pc_department:'Department', pc_hospital:'Hospital or clinic', pc_fee:'Consultation fee (USD)', pc_qualifications:'Qualifications', pc_identity_type:'Identity document type', pc_identity_file:'National ID card or passport',
+    pc_specialty:'Specialty', pc_department:'Department', pc_hospital:'Hospital or clinic', pc_fee:'Consultation fee', pc_qualifications:'Qualifications', pc_identity_type:'Identity document type', pc_identity_file:'National ID card or passport',
     pc_school:'Nursing school', pc_graduation:'Year of graduation', pc_supervisor_name:'Supervisor full name', pc_supervisor_position:'Supervisor position', pc_supervisor_institution:'Supervisor institution', pc_supervisor_phone:'Supervisor phone', pc_supervisor_email:'Supervisor email (optional)',
     pc_select:'Select…', pc_license:'Professional licence number',
     password_short:'Password must be at least 6 characters.',
@@ -1865,7 +1865,7 @@ const T = {
     profile_completion_title:'Complétez votre profil', profile_completion_intro:'Ajoutez les informations requises et transmettez vos pièces d’identité et justificatifs professionnels. Votre compte reste limité jusqu’à ce que le profil soit complet et que HFA ait terminé son examen.',
     profile_completion_waiting:'Votre profil a été envoyé. HFA doit examiner et valider votre compte avant que vous puissiez utiliser le portail.',
     profile_completion_save:'Envoyer le profil pour examen', profile_completion_saved:'Profil envoyé. Votre compte est en attente d’examen par HFA.', profile_completion_error:'Impossible d’envoyer votre profil.',
-    pc_specialty:'Spécialité', pc_department:'Service', pc_hospital:'Hôpital ou clinique', pc_fee:'Tarif de consultation (USD)', pc_qualifications:'Qualifications', pc_identity_type:'Type de pièce d’identité', pc_identity_file:'Carte nationale d’identité ou passeport',
+    pc_specialty:'Spécialité', pc_department:'Service', pc_hospital:'Hôpital ou clinique', pc_fee:'Tarif de consultation', pc_qualifications:'Qualifications', pc_identity_type:'Type de pièce d’identité', pc_identity_file:'Carte nationale d’identité ou passeport',
     pc_school:'École de soins infirmiers', pc_graduation:'Année de diplôme', pc_supervisor_name:'Nom complet du superviseur', pc_supervisor_position:'Poste du superviseur', pc_supervisor_institution:'Établissement du superviseur', pc_supervisor_phone:'Téléphone du superviseur', pc_supervisor_email:'E-mail du superviseur (facultatif)',
     pc_select:'Choisir…', pc_license:'Numéro de licence professionnelle',
     password_short:'Le mot de passe doit contenir au moins 6 caractères.',
@@ -2345,7 +2345,7 @@ function updateStaticHTML() {
     'lbl-id-type-d': t('id_type_label'),
     'lbl-id-type-n': t('id_type_label'),
     'lbl-id-type-p': t('id_type_label'),
-    'lbl-consult-fee-hint': t('consultation_fee_hint'),
+    'lbl-consult-fee-hint': localPriceText(t('consultation_fee_hint')),
     'lbl-id-doc-ph-d': t('id_document_ph'),
     'lbl-id-doc-ph-n': t('id_document_ph'),
     'lbl-id-doc-ph-p': t('id_document_ph'),
@@ -3427,7 +3427,7 @@ function updateAuthLayout(tab) {
   wrap.classList.toggle('auth-register',tab==='register');
   wrap.classList.toggle('auth-login',tab!=='register');
   if (!AUTH_SELECTED_ROLE) { chip.classList.add('hid'); chip.textContent=''; return; }
-  const labels={patient:t('patient'),doctor:t('doctor'),nurse:t('nurse'),pharmacist:t('pharmacist'),labtech:t('labtech'),admin:t('admin')};
+  const labels={patient:t('patient'),doctor:t('doctor'),nurse:t('nurse'),pharmacist:t('pharmacist'),labtech:t('labtech'),ambulance:t('ambulance'),admin:t('admin')};
   chip.textContent=`${tab==='register'?(LANG==='fr'?'Créer un compte':'Create account'):(LANG==='fr'?'Portail':'Portal')}: ${labels[AUTH_SELECTED_ROLE]||AUTH_SELECTED_ROLE}`;
   chip.classList.remove('hid');
 }
@@ -3576,7 +3576,7 @@ function doLogout() {
 function buildSidebar() {
   const r = CU.role;
   $('srb').textContent = String(tv((r==='admin' && CU.adminRole) ? CU.adminRole : r)).toUpperCase();
-  $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp',labtech:'rl',pharmacist:'rd'}[r];
+  $('srb').className = 'sb-rb ' + {admin:'ra',doctor:'rd',nurse:'rn',patient:'rp',labtech:'rl',pharmacist:'rd',ambulance:'ra'}[r];
   if (typeof HFAAvatar!=='undefined') { $('sav').className='av-slot'; $('sav').innerHTML=HFAAvatar.html(CU,{size:'sm',ring:true,editable:true}); }
   else $('sav').textContent = ini(CU.name);
   $('snm').textContent = CU.name;
@@ -3642,7 +3642,7 @@ function renderProfessionalCompletion(pc) {
   let fields='';
   if (CU.role==='doctor') fields=`<div class="fr">${field('specialty','pc_specialty')}${field('hospital','pc_hospital')}</div>
     ${field('licenseNo','license_no') }
-    ${select('fee','pc_fee',`<option value="">${t('pc_select')}</option>${Array.from({length:16},(_,i)=>`<option value="${i+5}">USD ${i+5}</option>`).join('')}`)}
+    ${select('fee','pc_fee',consultationFeeOptions(''))}
     ${field('qualifications','pc_qualifications')}${select('identityType','pc_identity_type',`<option value="">${t('pc_select')}</option><option value="national_id">${t('id_type_national_id')}</option><option value="passport">${t('id_type_passport')}</option>`)}${file('identityFile','pc_identity_file')}`;
   else if (CU.role==='nurse') fields=`<div class="fr">${field('department','pc_department')}${field('hospital','pc_hospital')}</div>
     ${field('specialty','pc_specialty')}${field('licenseNo','license_no')}${field('qualifications','pc_qualifications')}
@@ -3710,6 +3710,7 @@ function renderPage(page) {
   if (page==='hospital-patients' && ['doctor','nurse'].includes(r) && typeof HFAFacilities!=='undefined') return HFAFacilities.renderHospitalPatients(pc);
   if (page==='facilities' && r==='admin' && typeof HFAFacilities!=='undefined') return HFAFacilities.renderRegister(pc);
   if (typeof HFANurses!=='undefined' && HFANurses.handles(page, r)) return HFANurses.renderPage(page, pc);
+  if (typeof HFADispatch!=='undefined' && HFADispatch.handles(page, r)) return HFADispatch.renderPage(page, pc);
   if (typeof HFAEarnings!=='undefined' && HFAEarnings.handles(page, r)) return HFAEarnings.renderPage(page, pc);
   if (page==='dashboard' && typeof HFACompletion!=='undefined') {
     const result = renderRolePage(page, r, pc);
@@ -5543,7 +5544,7 @@ function showAddUser(role) {
     <div class="fg"><label class="fl">${t('email_lbl')}</label><input class="fc" type="email" id="au-e" data-v="email" maxlength="254" required placeholder="${t('i_email_example')}"></div>
     <div class="fg"><label class="fl">${t('phone_lbl')}</label><input class="fc" id="au-ph" data-v="phone" maxlength="20" placeholder="+237 6XX XXX XXX"></div>
     <div class="fg"><label class="fl">${t('password')}</label><input class="fc" type="password" id="au-pw" data-v="password" minlength="12" maxlength="128" required autocomplete="new-password" placeholder="${t('temp_password')}"></div>
-    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">${t('specialty')}</label><select class="fc" id="au-sp"><option value="">${t('select')}</option>${SPECIALTIES.map(s=>`<option value="${s}">${tv(s)}</option>`).join('')}</select></div><div class="fg"><label class="fl">${t('license_no')}</label><input class="fc" id="au-li" data-v="licence" maxlength="60" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">${t('hospital')}</label><input class="fc" id="au-ho" maxlength="160" placeholder="${t('i_institution')}"></div><div class="fg"><label class="fl">${t('consultation_fee')} (${priceCurrency()})</label><select class="fc" id="au-cf">${consultationFeeOptions()}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div></div>`:''}
+    ${role==='doctor'?`<div class="fr"><div class="fg"><label class="fl">${t('specialty')}</label><select class="fc" id="au-sp"><option value="">${t('select')}</option>${SPECIALTIES.map(s=>`<option value="${s}">${tv(s)}</option>`).join('')}</select></div><div class="fg"><label class="fl">${t('license_no')}</label><input class="fc" id="au-li" data-v="licence" maxlength="60" placeholder="CM-MED-YYYY-XXXX"></div></div><div class="fr"><div class="fg"><label class="fl">${t('hospital')}</label><input class="fc" id="au-ho" maxlength="160" placeholder="${t('i_institution')}"></div><div class="fg"><label class="fl">${t('consultation_fee')} (${priceCurrency()})</label><select class="fc" id="au-cf">${consultationFeeOptions()}</select><p class="mu sm" style="margin-top:4px">${localPriceText(t('consultation_fee_hint'))}</p></div></div>`:''}
     ${role==='nurse'?`<div class="fr"><div class="fg"><label class="fl">${t('department')}</label><input class="fc" id="au-de" maxlength="120" placeholder="${t('i_dept_ph')}"></div><div class="fg"><label class="fl">${t('i_nursing_specialty')}</label><select class="fc" id="au-ns"><option value="">${t('select')}</option>${NURSE_SPECIALTIES.map(s=>`<option value="${s}">${tv(s)}</option>`).join('')}</select></div></div><div class="fr"><div class="fg"><label class="fl">${t('pc_nurse_id')}</label><input class="fc" id="au-ni" data-v="licence" maxlength="60" placeholder="CM-NUR-YYYY-XXXX"></div><div class="fg"><label class="fl">${t('hospital')}</label><input class="fc" id="au-ho" maxlength="160" placeholder="${t('i_institution')}"></div></div>`:''}
     ${role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="au-ar">${isSuperAdmin(CU)?`<option>${t('super_admin_role')}</option>`:''}<option>${t('platform_owner')}</option><option>${t('clinical_operations')}</option><option>${t('compliance_officer')}</option><option>${t('support_admin')}</option></select></div>`:''}
     ${role==='patient'?`${ApiState.enabled?`<div class="fg"><label class="fl" for="au-wa">${t('whatsapp_number')}</label><input class="fc" id="au-wa" data-v="phone" maxlength="20" type="tel" placeholder="+237600000000" required></div>`:''}<div class="fr"><div class="fg"><label class="fl">${t('dob_lbl')}</label><input class="fc" type="date" id="au-db" data-v="dob"></div><div class="fg"><label class="fl">${t('blood_type_lbl')}</label><select class="fc" id="au-bt"><option value="">${t('select')}</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div>
@@ -5564,7 +5565,7 @@ function saveAddUser(role) {
   }
   if(!n||!e||!pw){alert(t('i_fill_required'));return;}
   if(role==='admin' && !isSuperAdmin(CU)){alert(t('super_admin_only_msg'));return;}
-  if(role==='doctor' && !validConsultationFee($('au-cf')?.value)){alert(t('fee_range_required'));return;}
+  if(role==='doctor' && !validConsultationFee($('au-cf')?.value)){alert(localPriceText(t('fee_range_required')));return;}
   if(DB.users.find(u=>u.email.toLowerCase()===e.toLowerCase())){alert(t('i_email_in_use'));return;}
   const id=role.slice(0,3)+Date.now();
   const adminRole = role==='admin' ? ($('au-ar')?.value||'Support Administrator') : null;
@@ -5589,7 +5590,7 @@ function showEditUser(id) {
     <div class="fg"><label class="fl" id="lbl-name">${t('full_name_lbl')}</label><input class="fc" id="eu-n" data-v="name" maxlength="120" required value="${hx(u.name)}"></div>
     <div class="fg"><label class="fl">${t('phone_lbl')}</label><input class="fc" id="eu-ph" data-v="phone" maxlength="20" value="${u.phone||''}"></div>
     <div class="fg"><label class="fl">${t('status')}</label><select class="fc" id="eu-st"><option value="active" ${u.status==='active'?'selected':''}>${t('active')}</option>${(u.role==='doctor'||u.role==='nurse'||u.role==='admin')?`<option value="pending_approval" ${u.status==='pending_approval'?'selected':''}>${t('pending_approval')}</option><option value="rejected" ${u.status==='rejected'?'selected':''}>${t('rejected')}</option>`:''}<option value="suspended" ${u.status==='suspended'?'selected':''}>${t('suspended')}</option></select></div>
-    ${u.role==='doctor'?`<div class="fg"><label class="fl">${t('consultation_fee')} (${priceCurrency()})</label><select class="fc" id="eu-cf">${consultationFeeOptions(u.consultationFee||'')}</select><p class="mu sm" style="margin-top:4px">${t('consultation_fee_hint')}</p></div>`:''}
+    ${u.role==='doctor'?`<div class="fg"><label class="fl">${t('consultation_fee')} (${priceCurrency()})</label><select class="fc" id="eu-cf">${consultationFeeOptions(u.consultationFee||'')}</select><p class="mu sm" style="margin-top:4px">${localPriceText(t('consultation_fee_hint'))}</p></div>`:''}
     ${u.role==='admin'?`<div class="fg"><label class="fl">${t('admin_role_lbl')}</label><select class="fc" id="eu-ar">${isSuperAdmin(CU)?`<option ${u.adminRole==='Super Admin'?'selected':''}>${t('super_admin_role')}</option>`:''}<option ${u.adminRole==='Platform Owner'?'selected':''}>${t('platform_owner')}</option><option ${u.adminRole==='Clinical Operations'?'selected':''}>${t('clinical_operations')}</option><option ${u.adminRole==='Compliance Officer'?'selected':''}>${t('compliance_officer')}</option><option ${u.adminRole==='Support Administrator'?'selected':''}>${t('support_admin')}</option></select></div>`:''}
     ${u.role==='patient'?`<div class="fg"><label class="fl">${t('assign_doctor')}</label><select class="fc" id="eu-dc"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='doctor').map(d=>`<option value="${d.id}" ${u.assignedDoctor===d.id?'selected':''}>${hx(d.name)}</option>`).join('')}</select></div>
     <div class="fg"><label class="fl">${t('assign_nurse')}</label><select class="fc" id="eu-nr"><option value="">${t('none_lbl')}</option>${DB.users.filter(x=>x.role==='nurse').map(n=>`<option value="${n.id}" ${u.assignedNurse===n.id?'selected':''}>${hx(n.name)}</option>`).join('')}</select></div>`:''}
@@ -5609,7 +5610,7 @@ function saveEditUser(id) {
   const previous=JSON.stringify([u.name,u.phone,u.status,u.assignedDoctor,u.assignedNurse]);
   u.name=$('eu-n').value.trim()||u.name;
   u.phone=$('eu-ph').value.trim(); u.status=$('eu-st').value;
-  if($('eu-cf')&&!validConsultationFee($('eu-cf').value)){alert(t('fee_range_required'));return;}
+  if($('eu-cf')&&!validConsultationFee($('eu-cf').value)){alert(localPriceText(t('fee_range_required')));return;}
   if($('eu-cf')) u.consultationFee=parseFloat($('eu-cf').value)||0;
   if($('eu-ar')) u.adminRole=$('eu-ar').value;
   if($('eu-dc')) u.assignedDoctor=$('eu-dc').value||null;
@@ -5715,6 +5716,7 @@ window.addEventListener('load',()=>{
 <script src="hfa-triage.js"></script>
 <script src="triage-assistant.js"></script>
 <script src="ambulance.js"></script>
+<script src="dispatch-ui.js"></script>
 <script src="hfa-surveillance.js"></script>
 <script src="hfa-ai-eval.js"></script>
 <script src="ai-assist.js"></script>

@@ -29,6 +29,8 @@ const { installHubStats } = require('./hub-stats');
 const { installGovernanceRoutes } = require('./governance');
 const { installNurseWorkforceRoutes, recordApplication, nurseApplication } = require('./nurse-workforce');
 const { installEarningsRoutes } = require('./earnings');
+const { installOfflineKeyRoutes, rotateOfflineKey } = require('./offline-keys');
+const { installDispatchRoutes } = require('./dispatch');
 const { createPayoutProvider } = require('./payouts');
 const { passwordProblem } = require('./account-security');
 const COUNTRY_DATA = require('../country-data.js');
@@ -44,7 +46,7 @@ const MAX_REGISTRATION_DOCUMENT=2*1024*1024;
 const uploadedDocument=z.object({fileName:z.string().min(1).max(180).regex(/^[^<>\u0000-\u001f/\\]+$/),content:z.string().min(4).max(Math.ceil(MAX_REGISTRATION_DOCUMENT/3)*4).regex(/^[A-Za-z0-9+/]+={0,2}$/)}).strict();
 const registration = z.object({
   name: personName, email: z.string().email().max(254).transform(value => value.toLowerCase()).optional(),
-  password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist']),
+  password: z.string().min(12).max(128).regex(/\S/), role: z.enum(['patient', 'doctor', 'nurse', 'labtech', 'pharmacist', 'ambulance']),
   subscriptionTier: z.enum(['essential', 'standard', 'premium']).optional(),
   countryCode: z.enum(COUNTRY_DATA.all().map(country => country.code)).default('CM'),
   phone: contactPhone.optional(), whatsappNumber: phone.optional(), whatsappNotificationsConsent: z.boolean().optional(),
@@ -161,14 +163,16 @@ function createApp(config, store, provider) {
       || request.path === '/api/v1/payments'
       || /^\/api\/v1\/payments\/[^/]+$/.test(request.path)
     ) || request.method === 'POST' && request.path === '/api/v1/payments';
+    // Emergency help is never held back by payment, an unfinished profile or two-step enrolment (patients only).
+    const emergencyRoute = user.role === 'patient' && request.path.startsWith('/api/v1/sos');
     if (user.status !== 'active' && !completionRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
-    if (user.onboardingRequired && !completionRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
-    if (user.role === 'patient' && !paidSubscription && !completionRoute && !paymentRoute) {
+    if (user.onboardingRequired && !completionRoute && !emergencyRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
+    if (user.role === 'patient' && !paidSubscription && !completionRoute && !paymentRoute && !emergencyRoute) {
       return response.status(403).json({ error: 'Choose and pay for a patient subscription before using the portal', code: 'subscription_required' });
     }
     request.user = user;
     request.impersonator = details.impersonator; // set while a Super Admin is signed in as this account
-    if (config.requireMfa && !user.mfaEnabled && !details.impersonator && !(request.method === 'GET' && request.path === '/api/session') && !mfaRoute) {
+    if (config.requireMfa && !user.mfaEnabled && !details.impersonator && !(request.method === 'GET' && request.path === '/api/session') && !mfaRoute && !emergencyRoute) {
       return response.status(403).json({ error: 'Set up two-step sign-in before using your account', code: 'mfa_required' });
     }
     next();
@@ -183,6 +187,8 @@ function createApp(config, store, provider) {
   installPharmacyRoutes(app,store,authenticated);
   installAvatarRoutes(app,config,store,authenticated);
   installFacilityRoutes(app,store,authenticated,admin);
+  installOfflineKeyRoutes(app,store,authenticated,admin);
+  installDispatchRoutes(app,config,store,authenticated,admin);
   installAdminAccessRoutes(app,config,store,authenticated,admin,{ cookieToken, withHealth });
   installPrivacyRoutes(app,config,store,authenticated,admin);
   installGovernanceRoutes(app,config,store,authenticated,admin);
@@ -235,6 +241,7 @@ function createApp(config, store, provider) {
   app.post('/api/auth/register', authLimit, express.json({ limit: '7mb' }), async (request, response) => {
     const input = registration.parse(request.body);
     if (input.role === 'labtech') return response.status(403).json({ error: 'Administrator provisions laboratory staff' });
+    if (input.role === 'ambulance') return response.status(403).json({ error: 'Administrator provisions ambulance crews' });
     if ((input.healthProfile || input.vaccinationDocument) && !filesConfigured(config)) return response.status(503).json({ error: 'Encrypted health record storage is not configured' });
     if (input.hospitalId && !listedHospital(input.hospitalId)) return response.status(400).json({ error: 'hospitalId: Choose a hospital from the list' });
     let vaccination = null;
@@ -469,6 +476,7 @@ function createApp(config, store, provider) {
     if (!user || user.role === 'admin') return response.sendStatus(403);
     store.updateUser(user.id, { status: 'deleted' });
     store.db.prepare('DELETE FROM sessions WHERE user_id=?').run(user.id);
+    rotateOfflineKey(store, user.id, { revoked: true });
     store.audit(request.user.id, 'ACCOUNT_DELETED', { targetId: user.id, details: { role: user.role }, ip: request.ip });
     response.sendStatus(204);
   });

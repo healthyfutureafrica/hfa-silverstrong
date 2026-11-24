@@ -25,6 +25,7 @@
     pc_on: 'On', pc_off: 'Off', pc_saving: 'Saving…', pc_saved: 'Saved. Your choice is recorded with the date and time.',
     pc_consent_history: 'History of my choices', pc_no_history: 'No changes since registration.', pc_given: 'given', pc_withdrawn: 'withdrawn',
     pc_consent_profile_needed: 'Complete your health profile to set these choices.',
+    pc_device_title: 'Offline copy on this device', pc_device_body: 'If you chose to keep working offline, an encrypted copy of your records is kept on this device for up to 7 days after your last connection. It opens only with your password, is erased after 5 wrong passwords, and HFA can erase it remotely if you report the phone lost or stolen. On a shared or borrowed device, remove it now — changes not yet sent are lost.', pc_device_remove: 'Remove offline copy from this device', pc_device_none: 'There is no offline copy of your account on this device.',
     pc_access_title: 'Who has opened my record', pc_access_body: 'Every time someone else opens your health information or changes your account, it is recorded here. If you do not recognise an entry, ask for a review below.',
     pc_access_empty: 'Nobody else has opened your record yet.',
     pc_act_HEALTH_RECORD_VIEW: 'Opened your health profile', pc_act_DOCUMENT_VIEWED: 'Viewed a document you uploaded', pc_act_ACCOUNT_UPDATED_BY_ADMIN: 'Changed your account details',
@@ -60,6 +61,7 @@
     pc_on: 'Activé', pc_off: 'Désactivé', pc_saving: 'Enregistrement…', pc_saved: 'Enregistré. Votre choix est consigné avec la date et l’heure.',
     pc_consent_history: 'Historique de mes choix', pc_no_history: 'Aucun changement depuis l’inscription.', pc_given: 'donné', pc_withdrawn: 'retiré',
     pc_consent_profile_needed: 'Complétez votre profil de santé pour faire ces choix.',
+    pc_device_title: 'Copie hors ligne sur cet appareil', pc_device_body: 'Si vous travaillez hors ligne, une copie chiffrée de vos dossiers est conservée sur cet appareil jusqu’à 7 jours après votre dernière connexion. Elle ne s’ouvre qu’avec votre mot de passe, est effacée après 5 mots de passe incorrects, et HFA peut l’effacer à distance en cas de perte ou de vol. Sur un appareil partagé ou emprunté, supprimez-la maintenant — les modifications non envoyées seront perdues.', pc_device_remove: 'Supprimer la copie hors ligne de cet appareil', pc_device_none: 'Aucune copie hors ligne de votre compte sur cet appareil.',
     pc_access_title: 'Qui a consulté mon dossier', pc_access_body: 'Chaque fois qu’une autre personne consulte vos informations de santé ou modifie votre compte, c’est consigné ici. Si vous ne reconnaissez pas une ligne, demandez une vérification ci-dessous.',
     pc_access_empty: 'Personne d’autre n’a encore consulté votre dossier.',
     pc_act_HEALTH_RECORD_VIEW: 'A consulté votre profil de santé', pc_act_DOCUMENT_VIEWED: 'A consulté un document que vous avez déposé', pc_act_ACCOUNT_UPDATED_BY_ADMIN: 'A modifié les informations de votre compte',
@@ -144,6 +146,7 @@
         <div class="pc-actions"><button type="button" class="btn bp" id="pc-fhir">${esc(t('pc_export_fhir'))}</button><button type="button" class="btn bs" id="pc-summary">${esc(t('pc_export_summary'))}</button></div>
         <p class="mu sm mt8">${esc(t('pc_export_note'))}</p><div id="pc-export-msg" aria-live="polite"></div></div>
       <div class="card mb18"><div class="ch"><div class="ct">✅ ${esc(t('pc_consent_title'))}</div></div><p class="mu sm">${esc(t('pc_consent_body'))}</p><div id="pc-consents" aria-live="polite"><p class="mu sm">…</p></div></div>` : ''}
+      ${CU.role !== 'admin' && typeof HFAOffline !== 'undefined' ? `<div class="card mb18"><div class="ch"><div class="ct">📵 ${esc(t('pc_device_title'))}</div></div><p class="mu sm">${esc(t('pc_device_body'))}</p><div id="pc-device"></div></div>` : ''}
       <div class="card mb18"><div class="ch"><div class="ct">👁️ ${esc(t('pc_access_title'))}</div></div><p class="mu sm">${esc(t('pc_access_body'))}</p><div id="pc-access"><p class="mu sm">…</p></div></div>
       <div class="card mb18"><div class="ch"><div class="ct">📨 ${esc(t('pc_requests_title'))}</div></div><p class="mu sm">${esc(t('pc_requests_body'))}</p>
         <form id="pc-request-form" novalidate class="mt8">
@@ -163,6 +166,14 @@
     $('pc-request-form').addEventListener('submit', submitRequest);
     paintAccess();
     paintRequests();
+    paintDevice();
+  }
+
+  async function paintDevice() {
+    const box = $('pc-device'); if (!box) return;
+    const has = await HFAOffline.hasDeviceCopy().catch(() => false);
+    box.innerHTML = has ? `<button type="button" class="btn bd2 bsm" id="pc-device-remove">${esc(t('pc_device_remove'))}</button>` : `<p class="mu sm">${esc(t('pc_device_none'))}</p>`;
+    if (has) $('pc-device-remove').addEventListener('click', async () => { await HFAOffline.forgetDevice(); paintDevice(); });
   }
 
   async function paintConsents() {

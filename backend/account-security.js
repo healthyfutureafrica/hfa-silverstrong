@@ -2,6 +2,7 @@
 const { createHmac, randomBytes, randomInt, createCipheriv, createDecipheriv, timingSafeEqual } = require('node:crypto');
 const { z } = require('zod');
 const QRCode = require('qrcode');
+const { rotateOfflineKey } = require('./offline-keys');
 const { digest, hashPassword, verifyPassword } = require('./store');
 const { filesConfigured } = require('./files');
 const { maskEmail } = require('./mailer');
@@ -125,6 +126,7 @@ function installAccountSecurity(app, config, store, authenticated, { authLimit, 
       store.db.prepare('UPDATE users SET password_hash=?, password_changed_at=? WHERE id=?').run(hash, new Date().toISOString(), request.user.id);
       store.db.prepare('DELETE FROM sessions WHERE user_id=? AND token_hash!=?').run(request.user.id, currentToken);
       store.db.prepare('DELETE FROM mfa_challenges WHERE user_id=?').run(request.user.id);
+      rotateOfflineKey(store, request.user.id); // other devices' offline copies are erased when they reconnect
       store.audit(request.user.id, 'PASSWORD_CHANGED', { targetId: request.user.id, ip: request.ip });
       store.db.exec('COMMIT');
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }

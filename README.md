@@ -126,6 +126,21 @@ or emergency results direct the patient to in-person or emergency care instead.
   ambulance payments, including Orange Money, or confirm a booking. The dynamic directory requires an HFA
   backend-connected installation; the static public demo can still show the direct emergency call but cannot
   load or administer live hospital contacts.
+- **HFA ambulance dispatch (partner fleet).** Signed-in patients have an **SOS** button on every screen. It sends
+  their GPS position to `POST /api/v1/sos` (`backend/dispatch.js`); the server offers the job to the nearest
+  registered partner ambulance whose crew is on duty and has reported its position in the last 30 minutes
+  (straight-line distance × 1.4 road factor). A crew has 60 seconds to accept in the **Ambulance crew** portal; a
+  decline or no answer moves the offer to the next nearest unit. The patient sees each real step (asking a crew,
+  accepted, en route, on scene, transporting, handed over), the crew's phone and an ETA only after a crew accepts,
+  and keeps the emergency number and hospital contacts throughout. With no free unit the patient is told at once
+  and administrators are alerted. Crews see the patient's name, phone, live location and an emergency summary
+  (blood group, genotype, conditions, drug allergies, medicines) only after accepting; each view appears in the
+  patient's "Who has opened my record". SOS is never blocked by payment, an unfinished profile or two-step
+  enrolment. Crew accounts (`ambulance` role, HFA number `HFA-AM-0001-<check>`) are created only by
+  administrators, who manage units and crews in **Ambulance fleet** and follow requests in **SOS console**
+  (manual assignment, closing). This works once real partner ambulances and crews are registered; until then no
+  request can be accepted and patients are directed to `1515` and the hospital directory. See
+  [docs/ambulance-integration.md](docs/ambulance-integration.md).
 - **Clinician handover.** Cases go to the **Triage queue** of doctors and nurses assigned to the patient or
   working at the hospital the patient is registered under, most urgent first, with a plain summary (answers,
   danger signs asked and answered "no", allergies, conditions and medicines from the health profile). Emergencies
@@ -359,6 +374,27 @@ the screen) work there; everything else needs the HFA server (see [DEPLOY.md](DE
 - Existing authenticated sessions refresh account notifications when connectivity returns. The service worker never caches API responses or credentials. Only explicitly saved files enter the separate encrypted upload vault described below; other failed account requests must be retried explicitly.
 - Offline account sign-in, registration, appointment confirmation, real consultations, payments, and WhatsApp delivery are not supported. Browser eviction or clearing site data removes offline availability; another successful online visit prepares it again.
 - Full clinical offline synchronization requires server-owned records, device encryption and opt-in, account isolation, idempotent writes, version/conflict handling, and explicit pending/confirmed states. These are prerequisites before introducing an offline medical outbox.
+
+### Offline accounts (7 days) and device security
+
+After one online password sign-in, an account can sign in and keep working without internet for up to 7 days
+since it last reached the server (`offline-session.js`); changes are queued and sent on reconnection. The device
+copy is protected against loss, theft and shared phones:
+
+- **No usable key on the device.** The snapshot, queued changes and saved files are encrypted (AES-256-GCM) with a
+  random data key that is stored only wrapped: once with a key derived from the password (PBKDF2-SHA-256) for
+  offline sign-in, and once with a per-account secret held by the server (`GET /api/v1/me/offline-key`,
+  `backend/offline-keys.js`) so a signed-in session can resume without retyping the password. Copying the
+  browser's storage does not reveal the records without the password.
+- **Wrong passwords.** Five wrong offline passwords erase the copy and its queue from the device.
+- **Expiry.** The readable snapshot is deleted after 7 days without a connection.
+- **Remote erase.** Administrators can **Revoke offline access** (Users → edit) when a phone is lost or stolen;
+  password resets, password changes and account deletion do the same. The server secret is rotated, so the old
+  copy no longer unlocks online and is erased when the device reconnects.
+- **Shared devices.** **My data & privacy → Offline copy on this device** removes the copy immediately.
+- Administrator data is never cached offline, and an administrator "signed in as" someone cannot read their
+  offline secret. Copies made by earlier versions (whose key was stored on the device) are upgraded at the next
+  sign-in.
 
 ### Durable Offline Files
 

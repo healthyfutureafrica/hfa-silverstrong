@@ -6,6 +6,7 @@
 //   Pharmacy    HFA-PH-<region>-<town>-0001-<check>   e.g. HFA-PH-LT-DLA-0001-5
 //   Laboratory  HFA-LB-<region>-<town>-0001-<check>
 //   Admin       HFA-AD-0001-<check>
+//   Ambulance   HFA-AM-0001-<check>                   ambulance crew member
 //
 // Region codes are the official ISO 3166-2:CM codes. The final digit is a Luhn check digit over the
 // letters and numbers, so a mistyped number is detected. Numbers never change once issued.
@@ -14,7 +15,7 @@
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.HFANumbering = api;
 })(typeof self !== 'undefined' ? self : this, function () {
-  const PORTAL = { doctor: 'DR', nurse: 'NS', patient: 'PT', pharmacist: 'PH', labtech: 'LB', admin: 'AD' };
+  const PORTAL = { doctor: 'DR', nurse: 'NS', patient: 'PT', pharmacist: 'PH', labtech: 'LB', admin: 'AD', ambulance: 'AM' };
   const SEQUENCE_WIDTH = { PT: 6 };
   const NO_HOSPITAL = 'HFA';
   const UNKNOWN_REGION = 'XX', UNKNOWN_TOWN = 'XXX';
@@ -120,7 +121,7 @@
     return `HFA-${body}-${checkDigit(body)}`;
   }
 
-  const PATTERN = /^HFA-((?:DR|NS|PT)-[A-Z0-9]{3,6}|(?:PH|LB)-[A-Z]{2}-[A-Z0-9]{3,6}|AD)-(\d{4,})-(\d)$/;
+  const PATTERN = /^HFA-((?:DR|NS|PT)-[A-Z0-9]{3,6}|(?:PH|LB)-[A-Z]{2}-[A-Z0-9]{3,6}|AD|AM)-(\d{4,})-(\d)$/;
   function parse(number) {
     const match = PATTERN.exec(String(number || '').trim().toUpperCase());
     if (!match) return null;

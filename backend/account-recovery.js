@@ -4,6 +4,7 @@
 // and every step is audited. Resetting signs the account out everywhere.
 const { randomInt } = require('node:crypto');
 const { z } = require('zod');
+const { rotateOfflineKey } = require('./offline-keys');
 const { hashPassword, digest } = require('./store');
 
 const CODE_MS = 30 * 60000, MAX_ATTEMPTS = 5;
@@ -50,6 +51,7 @@ function installAccountRecovery(app, store, authenticated, admin, { authLimit, p
       store.db.prepare('UPDATE users SET password_hash=?, password_changed_at=? WHERE id=?').run(hash, new Date().toISOString(), user.id);
       store.db.prepare('DELETE FROM sessions WHERE user_id=?').run(user.id);
       store.db.prepare('DELETE FROM password_resets WHERE user_id=?').run(user.id);
+      rotateOfflineKey(store, user.id); // device copies made with the old password stop unlocking online
       store.audit(user.id, 'PASSWORD_RESET', { targetId: user.id, details: { codeCreatedBy: row.created_by }, ip: request.ip });
       store.db.exec('COMMIT');
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }

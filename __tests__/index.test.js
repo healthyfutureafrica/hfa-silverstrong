@@ -65,7 +65,7 @@ describe('index.html sanity checks', () => {
     expect(content).toContain('<div class="pc2" onclick="goAuth(\'login\',\'admin\')">');
     expect(content).toContain("noAccounts() && !(tab==='login' && (['admin','pharmacist'].includes(role)||staticDemoAvailable()))");
     expect(content).toContain("['admin','pharmacist'].includes(RROLE)?t('backend_unavailable'):t('accounts_unavailable_body')");
-    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v49'");
+    expect(fs.readFileSync(path.join(__dirname, '..', 'service-worker.js'), 'utf8')).toContain("const CACHE_NAME='hfa-public-v50'");
   });
 
   test('first visit opens the platform in a saved or browser-supported language', () => {
@@ -272,7 +272,7 @@ describe('index.html sanity checks', () => {
       let pending;
       handlers.install({waitUntil:promise=>{pending=promise;}});
       await pending;
-      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/country-data.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/portal-access.js','https://example.invalid/hfa/security.js','https://example.invalid/hfa/hfa-fhir.js','https://example.invalid/hfa/privacy-centre.js','https://example.invalid/hfa/session-guard.js','https://example.invalid/hfa/clinical-sync.js','https://example.invalid/hfa/mobile-money.js','https://example.invalid/hfa/calls.js','https://example.invalid/hfa/real-world.js','https://example.invalid/hfa/governance-ui.js','https://example.invalid/hfa/hfa-triage.js','https://example.invalid/hfa/triage-assistant.js','https://example.invalid/hfa/ambulance.js','https://example.invalid/hfa/hfa-surveillance.js','https://example.invalid/hfa/hfa-ai-eval.js','https://example.invalid/hfa/ai-assist.js','https://example.invalid/hfa/ai-centre.js','https://example.invalid/hfa/nurse-workforce.js','https://example.invalid/hfa/earnings.js','https://example.invalid/hfa/validation.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
+      expect([...saved.keys()]).toEqual(['https://example.invalid/hfa/','https://example.invalid/hfa/offline.js','https://example.invalid/hfa/offline-uploads.js','https://example.invalid/hfa/offline-session.js','https://example.invalid/hfa/pharmacist.js','https://example.invalid/hfa/hfa-numbering.js','https://example.invalid/hfa/i18n.js','https://example.invalid/hfa/hfa-ui.js','https://example.invalid/hfa/country-data.js','https://example.invalid/hfa/patient-registration.js','https://example.invalid/hfa/portal-access.js','https://example.invalid/hfa/security.js','https://example.invalid/hfa/hfa-fhir.js','https://example.invalid/hfa/privacy-centre.js','https://example.invalid/hfa/session-guard.js','https://example.invalid/hfa/clinical-sync.js','https://example.invalid/hfa/mobile-money.js','https://example.invalid/hfa/calls.js','https://example.invalid/hfa/real-world.js','https://example.invalid/hfa/governance-ui.js','https://example.invalid/hfa/hfa-triage.js','https://example.invalid/hfa/triage-assistant.js','https://example.invalid/hfa/ambulance.js','https://example.invalid/hfa/dispatch-ui.js','https://example.invalid/hfa/hfa-surveillance.js','https://example.invalid/hfa/hfa-ai-eval.js','https://example.invalid/hfa/ai-assist.js','https://example.invalid/hfa/ai-centre.js','https://example.invalid/hfa/nurse-workforce.js','https://example.invalid/hfa/earnings.js','https://example.invalid/hfa/validation.js','https://example.invalid/hfa/assets/hfa-logo.svg']);
       expect(context.self.skipWaiting).toHaveBeenCalled();
       handlers.activate({waitUntil:promise=>{pending=promise;}});
       await pending;
@@ -529,12 +529,14 @@ describe('index.html sanity checks', () => {
           write:async(store,records,remove)=>records.forEach(record=>remove?tables[store].delete(record[keys[store]]):tables[store].set(record[keys[store]],{...record})),
         };
         const clock={now:Date.UTC(2026,9,1)};
-        const context={crypto:webcrypto,TextEncoder,TextDecoder,Uint8Array,JSON};
+        const context={crypto:webcrypto,TextEncoder,TextDecoder,Uint8Array,JSON,atob};
         vm.createContext(context);
         const source=fs.readFileSync(path.join(__dirname,'..','offline-session.js'),'utf8');
         vm.runInContext(source.split('globalThis.OfflineSession=OfflineSession;')[0]+'globalThis.OfflineSession=OfflineSession;',context);
-        const make=()=>new context.OfflineSession({storage,cryptography:webcrypto,now:()=>clock.now});
-        return {make,clock,tables};
+        // The HFA server's per-account secret (backend/offline-keys.js); null = offline or revoked.
+        const server={secret:webcrypto.getRandomValues(new Uint8Array(32))};
+        const make=()=>new context.OfflineSession({storage,cryptography:webcrypto,now:()=>clock.now,serverKey:async()=>server.secret});
+        return {make,clock,tables,server,storage};
       }
       const user={id:'pha-1',email:'Pharmacy@Example.invalid'};
 
@@ -572,6 +574,71 @@ describe('index.html sanity checks', () => {
         const reopened=make();await reopened.signIn(user.email,'Changed-password-456');
         expect((await reopened.loadSnapshot()).db.medicalDocuments[0].fileName).toBe('private-scan.pdf');
       },15000);
+
+      test('never stores the data key: the copy opens only with the password or the server secret',async()=>{
+        const {make,tables,server}=offlineContext();
+        const device=make();await device.remember(user,'Synthetic-password-123');
+        await device.saveSnapshot({user,db:{medicalDocuments:[{fileName:'private-scan.pdf'}]}});
+        const stored=tables.profiles.get('pha-1');
+        expect(stored.key).toBeUndefined();expect(stored.verifier).toBeUndefined();
+        expect(stored.passwordWrap).toBeDefined();expect(stored.serverWrap).toBeDefined();
+        server.secret=null;                                           // offline: only the password can open it
+        await expect(make().signIn(user.email,'Wrong-password-123')).rejects.toThrow('invalid_creds');
+        const reopened=make();await reopened.signIn(user.email,'Synthetic-password-123');
+        expect((await reopened.loadSnapshot()).db.medicalDocuments[0].fileName).toBe('private-scan.pdf');
+      },30000);
+
+      test('erases the copy and its queue after five wrong offline passwords',async()=>{
+        const {make,tables}=offlineContext();
+        const device=make();await device.remember(user,'Synthetic-password-123');
+        await device.enqueue({path:'/api/x',method:'POST',body:{}});
+        for (let attempt=1;attempt<5;attempt++) await expect(make().signIn(user.email,'Wrong-password-'+attempt)).rejects.toThrow('invalid_creds');
+        expect(tables.profiles.get('pha-1').failures).toBe(4);
+        await expect(make().signIn(user.email,'Wrong-password-5')).rejects.toThrow('offline_wiped');
+        expect(tables.profiles.size).toBe(0);expect(tables.outbox.size).toBe(0);
+        await expect(make().signIn(user.email,'Synthetic-password-123')).rejects.toThrow('offline_no_account');
+      },60000);
+
+      test('a correct password resets the failure count',async()=>{
+        const {make,tables}=offlineContext();
+        await make().remember(user,'Synthetic-password-123');
+        await expect(make().signIn(user.email,'Wrong-password-1')).rejects.toThrow('invalid_creds');
+        await make().signIn(user.email,'Synthetic-password-123');
+        expect(tables.profiles.get('pha-1').failures).toBe(0);
+      },30000);
+
+      test('revoking offline access erases the device copy when it reconnects',async()=>{
+        const {make,tables,server}=offlineContext();
+        const {webcrypto}=require('node:crypto');
+        const device=make();await device.remember(user,'Synthetic-password-123');
+        await device.saveSnapshot({user,db:{notes:['secret']}});
+        server.secret=webcrypto.getRandomValues(new Uint8Array(32)); // administrator revoked: the server rotated the secret
+        expect(await make().resume('pha-1')).toBeNull();
+        expect(tables.profiles.size).toBe(0);
+        const fresh=make();await fresh.remember(user,'Synthetic-password-123');
+        expect(await fresh.loadSnapshot()).toBeNull();                 // a new, empty copy; the old one is gone
+      },30000);
+
+      test('deletes the readable copy after seven days without a connection',async()=>{
+        const {make,clock,tables}=offlineContext();
+        const device=make();await device.remember(user,'Synthetic-password-123');
+        await device.saveSnapshot({user,db:{}});
+        clock.now+=7*86400000+1000;
+        expect(await make().purgeExpired()).toBe(1);
+        expect(tables.profiles.get('pha-1').snapshot).toBeNull();
+      },30000);
+
+      test('upgrades copies made by the earlier version, which kept the key on the device',async()=>{
+        const {make,tables,clock}=offlineContext();
+        const {webcrypto}=require('node:crypto');
+        const legacy=make(),salt=webcrypto.getRandomValues(new Uint8Array(16)),key=await legacy.newKey();
+        const snapshot=await legacy.seal(key,{user,db:{notes:['kept']}},'pha-1:snapshot');
+        tables.profiles.set('pha-1',{userId:'pha-1',email:'pharmacy@example.invalid',phone:'',salt,verifier:await legacy.verifier('Synthetic-password-123',salt),key,snapshot,lastOnlineAt:clock.now});
+        const device=make();await device.signIn(user.email,'Synthetic-password-123');
+        expect((await device.loadSnapshot()).db.notes).toEqual(['kept']);
+        const stored=tables.profiles.get('pha-1');
+        expect(stored.v).toBe(2);expect(stored.key).toBeUndefined();expect(stored.verifier).toBeUndefined();
+      },30000);
 
       test('replays queued changes in order, stops on network loss and drops refused ones',async()=>{
         const {make,tables}=offlineContext();
