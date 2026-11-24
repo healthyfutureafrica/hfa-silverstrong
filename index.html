@@ -230,6 +230,16 @@ tbody tr:hover{background:#fcfdfe}
 .contact-tile h2{font-family:var(--fd);font-size:1rem;color:var(--go-l);margin-bottom:10px}
 .contact-tile p,.contact-tile a{display:block;color:rgba(255,255,255,.82);font-size:.88rem;line-height:1.7;overflow-wrap:anywhere}
 .contact-tile a:hover{color:var(--go-l)}
+.about-hfa{max-width:860px;margin:0 auto;padding:8px 20px 56px;line-height:1.7}
+.about-hfa h1{font-family:var(--fd);font-size:1.6rem;line-height:1.25;margin:12px 0 14px;padding-top:26px;border-top:1px solid rgba(255,255,255,.12)}
+.about-hfa h2{font-family:var(--fd);font-size:1.1rem;color:var(--go-l);margin:26px 0 8px}
+.about-hfa p,.about-hfa li{color:rgba(255,255,255,.82);font-size:.92rem}
+.about-hfa p{margin-bottom:10px}
+.about-hfa ol,.about-hfa ul{padding-left:22px;margin-bottom:10px}
+.about-hfa li{margin-bottom:8px}
+.about-hfa strong{color:#fff}
+.about-hfa a{color:var(--go-l);overflow-wrap:anywhere}
+.about-hfa-leader{padding:16px 18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);margin-bottom:12px}
 .donate-dock{position:fixed;right:18px;bottom:18px;z-index:500;color:var(--t1);font-size:.78rem}
 .donate-dock summary{list-style:none;display:flex;align-items:center;gap:10px;min-width:220px;padding:10px 14px;background:linear-gradient(120deg,#005833,#007848);border:1px solid rgba(252,209,22,.55);border-radius:var(--rl);box-shadow:0 10px 28px rgba(0,55,33,.3);cursor:pointer;transition:var(--tr)}
 .donate-dock summary::-webkit-details-marker{display:none}
@@ -1182,6 +1192,7 @@ body{font-size:15px}
     <div class="lnr">
       <button type="button" class="btn bgh land-nav-btn" onclick="goLand()" id="contact-back">← Back to Home</button>
       <button type="button" class="btn bgh land-nav-btn" onclick="goFreeHub()" id="contact-fh">Free Health Hub</button>
+      <button type="button" class="btn bgh land-nav-btn" onclick="toggleAboutHfa()" id="contact-about" aria-expanded="false" aria-controls="about-hfa">About HFA Platform</button>
       <button type="button" class="btn bgh land-nav-btn nav-ghost lang-toggle" onclick="toggleLang()" lang="fr">🌐 Français</button>
     </div>
   </nav>
@@ -1204,6 +1215,51 @@ body{font-size:15px}
         <p>Chenfor Junction, Mile 1, Limbe, SW Region, Cameroon</p>
       </section>
     </div>
+  </section>
+  <section id="about-hfa" class="about-hfa hid" aria-labelledby="about-hfa-title" lang="en">
+    <h1 id="about-hfa-title">Healthy Future Africa — Platform Summary</h1>
+    <p>Healthy Future Africa (HFA) is a Cameroonian digital health organisation founded and led by Eng. Chinjie Sylvester Nkeh, a DevOps and Cloud Infrastructure Engineer with a Diploma in Healthcare Management. Headquartered in Limbe, South West Region, Cameroon, HFA was built on the conviction that quality healthcare is a universal right — not a privilege reserved for those who live near a clinic, can afford transport, or happen to have a doctor in their community.</p>
+
+    <h2>The Problem</h2>
+    <p>Africa faces the most severe healthcare workforce shortage on the planet. The World Health Organisation reports just 24 doctors and nurses per 10,000 people in sub-Saharan Africa — roughly half the minimum needed to deliver basic care. In Cameroon, most of the population lives in rural and semi-urban areas where the nearest clinic can be hours away. Transport is costly, roads are poor, and patients routinely delay care until a condition becomes life-threatening.</p>
+    <p>Brain drain compounds the crisis. For every ten doctors trained in Africa, at least one now works abroad. The result: patients travel long distances for consultations that last minutes, preventable conditions go undetected, emergency response is slow or absent, and medical records are so fragmented that dangerous prescribing errors are routine.</p>
+
+    <h2>The Solution</h2>
+    <p>The HFA Tele Healthcare Platform is a fully integrated, multi-portal digital health ecosystem that connects every actor in the care chain — from first symptom to prescription, from lab result to emergency dispatch — through six purpose-built portals:</p>
+    <ol>
+      <li><strong>Patient Portal</strong> — Patients book consultations by video, voice or text chat, access their health records, order medicines, and trigger an SOS emergency alert, all from a smartphone. A Vital Health Card stores blood group, genotype, allergies, known conditions and consultation history, travelling with the patient and available to any clinician in an emergency.</li>
+      <li><strong>Doctor Portal</strong> — A complete digital practice. Doctors manage their patient panel, conduct encrypted video consultations, write clinical notes and digital prescriptions, and receive instant lab result alerts.</li>
+      <li><strong>Nurse Portal</strong> — Nurses document observations and vital signs, coordinate follow-ups, and communicate securely with supervising doctors. Critical for community health workers in rural areas where doctors are scarce.</li>
+      <li><strong>Pharmacist Portal</strong> — Pharmacists receive digital prescriptions, manage dispensing workflows, and communicate with patients and care teams — eliminating the errors and delays of paper-based dispensing.</li>
+      <li><strong>Laboratory Portal</strong> — Labs receive test orders and upload results directly to the patient record, triggering automatic doctor notifications and closing a chain that breaks routinely in Cameroon's current system.</li>
+      <li><strong>Admin Panel</strong> — System-wide management for HFA operations: user accounts, subscriptions, analytics, and service-level monitoring.</li>
+    </ol>
+    <p>Beyond subscriptions, HFA offers two free public tools open to anyone with no login required: the SLY Symptom Checker (WHO-guidelines-based, checks 12 danger signs, covers 26 self-care topics, bilingual in English and French) and the Health Hub (an offline-capable library of trusted health content).</p>
+
+    <h2>Technical Architecture</h2>
+    <p>The platform is built as a Progressive Web Application (PWA) — installable on any smartphone without an app store, working on both Android and iOS. Its local-first architecture enables a 7-day offline mode: health records, care plans, SLY and the Health Hub are stored on-device and sync automatically when connectivity returns. This makes the platform genuinely usable in areas with unreliable internet.</p>
+    <p>The backend runs on Amazon Web Services (AWS) with auto-scaling compute, managed databases, CDN delivery and AES-256 encrypted storage — engineered for high availability. Security is built to HIPAA-aligned standards: end-to-end encrypted video (WebRTC/DTLS-SRTP), TLS 1.3 for all data in transit, role-based access control, and a full audit trail across every portal.</p>
+
+    <h2>Subscription Model</h2>
+    <p>HFA uses a tiered subscription model calibrated to Cameroonian income levels:</p>
+    <ul>
+      <li><strong>Essential — XAF 1,000/month (~USD 1.65):</strong> Symptom checker, Health Hub, basic records and messaging</li>
+      <li><strong>Care — XAF 3,000/month (~USD 5):</strong> Full video consultations, appointments, Vital Health Card, pharmacy ordering</li>
+      <li><strong>Premium — XAF 10,000/month (~USD 16.50):</strong> Priority scheduling, specialist referrals, emergency SOS priority, family accounts for up to 4 dependants</li>
+    </ul>
+    <p>Doctors, nurses, pharmacists and laboratories each pay a professional subscription. Additional revenue comes from pharmacy commissions, laboratory referral fees, institutional and corporate contracts, and anonymised public health data analytics. The model reaches sustainability through volume, not premium pricing — keeping access affordable while building a large subscriber base.</p>
+
+    <h2>Projected Impact &amp; Investment</h2>
+    <p>The digital health market across sub-Saharan Africa is projected to reach USD 11 billion by 2030, growing at over 28% annually. With mobile penetration above 85% in Cameroon and smartphone adoption accelerating, the conditions are ideal.</p>
+    <p>A seed investment of USD 300,000 will fund: platform completion and production launch, market activation campaigns and clinical partnership agreements, team buildout in technical and operations roles, regulatory compliance, and 12 months of operational runway. Projected milestones: 5,000 patients in 6 months, 15,000 patients in 12 months, with expansion into Douala, Yaoundé and Buea within the first year.</p>
+    <p>At 15,000 patients, HFA will have extended healthcare access to a population equivalent to a small Cameroonian city — people who previously had to travel hours or forgo care entirely.</p>
+
+    <h2>Leadership</h2>
+    <div class="about-hfa-leader">
+      <p><strong>Eng. Chinjie Sylvester Nkeh — Founder &amp; Executive Director</strong><br>DevOps and Cloud Infrastructure Engineer | Diploma in Healthcare Management</p>
+      <p>📧 <a href="mailto:csn@healthyfutureafrica.org">csn@healthyfutureafrica.org</a> | 📱 <a href="tel:+237676698072">(+237) 676 698 072</a><br>🌐 <a href="https://www.healthyfutureafrica.org" target="_blank" rel="noopener noreferrer">www.healthyfutureafrica.org</a></p>
+    </div>
+    <p>Eng. Nkeh brings the rare combination of cloud infrastructure expertise and healthcare domain knowledge needed to build a platform that works for Africa — not a solution imported from elsewhere, but one designed from the ground up for the nurse in a rural village, the mother booking her child's first consultation, and the pharmacist managing prescriptions without paper.</p>
   </section>
 </div>
 
@@ -2427,6 +2483,7 @@ function updateStaticHTML() {
   const fhc = $('fh-contact'); if(fhc) fhc.textContent = 'Contact';
   const cb = $('contact-back'); if(cb) cb.textContent = LANG==='fr'?'← Retour à l\'Accueil':'← Back to Home';
   const cfh = $('contact-fh'); if(cfh) cfh.textContent = LANG==='fr'?'Espace Santé Gratuit':'Free Health Hub';
+  const cabout = $('contact-about'); if(cabout) cabout.textContent = LANG==='fr'?'À propos de la plateforme HFA':'About HFA Platform';
   const ctitle = $('contact-title'); if(ctitle) ctitle.textContent = LANG==='fr'?'Contacter Healthy Future Africa':'Contact Healthy Future Africa';
   const cintro = $('contact-intro'); if(cintro) cintro.textContent = LANG==='fr'?'Nous sommes là pour vous aider. Contactez-nous par WhatsApp, e-mail ou rendez-vous à notre bureau.':'We’re here to help. Reach us by WhatsApp, email, or visit our office.';
   const cwhatsapp = $('contact-whatsapp-title'); if(cwhatsapp) cwhatsapp.textContent = 'WhatsApp';
@@ -3285,6 +3342,13 @@ function goFreeHub() {
 function goContact() {
   hide('land'); hide('auth-wrap'); hide('app-wrap'); hide('free-hub'); show('contact-page');
   window.scrollTo(0,0);
+}
+function toggleAboutHfa() {
+  const section=$('about-hfa'), button=$('contact-about');
+  const open=section.classList.contains('hid');
+  section.classList.toggle('hid',!open);
+  button.setAttribute('aria-expanded',String(open));
+  if (open) section.scrollIntoView({behavior:'smooth',block:'start'});
 }
 // True on a copy of the site that has no HFA server behind it (the public information website).
 const noAccounts = () => !ApiState.enabled && !ApiState.loading && !ApiState.failed;

@@ -1348,6 +1348,15 @@ describe('index.html sanity checks', () => {
     expect(content).toContain("const HFA_CONTACT_EMAIL = 'healthyfutureafrica@gmail.com';");
   });
 
+  test('the Contact page has an About HFA Platform button that reveals the platform summary', () => {
+    expect(content).toContain('onclick="toggleAboutHfa()" id="contact-about" aria-expanded="false" aria-controls="about-hfa">About HFA Platform</button>');
+    expect(content).toContain('<section id="about-hfa" class="about-hfa hid"');
+    for (const heading of ['Healthy Future Africa — Platform Summary', '<h2>The Problem</h2>', '<h2>The Solution</h2>', '<h2>Technical Architecture</h2>', '<h2>Subscription Model</h2>', '<h2>Projected Impact &amp; Investment</h2>', '<h2>Leadership</h2>']) {
+      expect(content).toContain(heading);
+    }
+    expect(content).toContain('function toggleAboutHfa()');
+  });
+
   test('provides public contact details and persistent donation information', () => {
     for (const text of [
       'id="contact-page"',
