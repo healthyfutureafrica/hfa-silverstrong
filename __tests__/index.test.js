@@ -1355,6 +1355,12 @@ describe('index.html sanity checks', () => {
       expect(content).toContain(heading);
     }
     expect(content).toContain('function toggleAboutHfa()');
+    // The summary describes what the app really does.
+    const about = content.slice(content.indexOf('<section id="about-hfa"'), content.indexOf('</section>', content.indexOf('<section id="about-hfa"')));
+    expect(about).toContain('seven purpose-built portals');
+    expect(about).toContain('<strong>Care — XAF 3,000/month (~USD 5):</strong> Everything in Essential, plus secure messaging and video and voice consultations');
+    expect(about).toContain('<strong>Premium — XAF 10,000/month (~USD 16.67):</strong> Everything in Care, plus one nurse home visit per month');
+    for (const claim of ['family accounts', 'Amazon Web Services', 'professional subscription', 'installable', 'TLS 1.3']) expect(about).not.toContain(claim);
   });
 
   test('provides public contact details and persistent donation information', () => {
