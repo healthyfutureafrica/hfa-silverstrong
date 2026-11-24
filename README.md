@@ -1,6 +1,43 @@
 # hfa-silverstrong
 A three-in-one application that covers 1. healthcare, 2. fitness & health tips and 3. pharmacy or health products expo sections and sales. An App that brings doctors/nurses and patients on one platform facilitating consultations and exchanges between both sides both through text and video and a secure data management of all interactions.
 
+## Portals and features
+
+Six role portals, matching the HFA Portal Walkthrough:
+
+| Portal | What it does |
+| --- | --- |
+| Patient | Dashboard with next-appointment **Join**, always-visible **SOS** button, quick tiles, **Vital Health Card** (blood group, genotype, allergies, conditions, medicines), prescriptions tracker with refill requests, lab results released by the doctor |
+| Doctor | Today's appointments / pending labs / new messages / active patients, patient record, **e-prescribing with interaction and allergy screening** sent to a pharmacy, lab orders, lab review with clinical note and care-plan update, flag a patient for nurse follow-up |
+| Nurse | Today's patients (urgent / pending / done), **record vital signs** that sync to the record as LOINC observations and alert the doctor when abnormal |
+| Pharmacist | Incoming e-prescriptions with stock and safety checks, mark ready (patient notified, stock reduced), collection, inventory |
+| Laboratory | Worklist, result entry with live reference-range flags (critical results alert the doctor), signed report upload |
+| Admin | Platform KPIs, user management incl. pharmacists and laboratories with licence verification, plan changes, **SOS emergency console**, support tickets |
+
+| Ambulance crew | Current job with the patient's live GPS, one-tap navigation, Vital Health Card, and Accept → En route → On scene → Transporting → Handed over |
+
+Also: the public **SLY Symptom Checker** (no login, bilingual, danger-sign triage), in-call chat, notes and Vital Health Card during video consultations, and Help & Support tickets for every role.
+
+### Plans (monthly, XAF)
+
+Free (SLY, Free Health Hub, SOS, Vital Health Card) · **Essential XAF 1,000** (messaging, booking, records, e-prescriptions, lab results) · **Basic XAF 3,000** (adds voice and video consultations) · **Premium XAF 10,000** (adds a monthly home visit). Prices live in `PLAN_PRICES_XAF` in `index.html`.
+
+### Ambulance dispatch
+
+SOS sends the **nearest available ambulance** to the patient's live GPS location, alerts the care team and HFA desk, and gives the crew the Vital Health Card. The patient sees a live ETA. Unanswered jobs are reassigned, and when no partner unit is free nearby the alert escalates to SAMU **119**. Without data, the alert is queued and the patient can call 119 or text their location. How to connect real ambulance operators: [docs/ambulance-integration.md](docs/ambulance-integration.md).
+
+### Secure 7-day offline mode
+
+- **Opt-in offline copy.** Ticking "Keep my records available offline" at sign-in stores only that user's own records, encrypted with AES-256-GCM. The key comes from their password (PBKDF2-SHA-256, 600,000 rounds). Admin data is never stored on a device.
+- **Offline sign-in.** Without internet, signing in unlocks that copy, and changes sync automatically on reconnect.
+- **Automatic erasure.** The copy is deleted 7 days after the last sync, after 5 wrong passwords, or when an admin revokes offline access (lost or stolen phone).
+- **Auto-lock** after 10 minutes without activity. Passwords are stored only as salted hashes.
+- **Encrypted demo store.** The shared demo store is encrypted at rest. Tampered data is rejected.
+- **Content-Security-Policy and headers.** The page carries a Content-Security-Policy, and Docker serves it with security headers (`nginx/default.conf`).
+- **Service worker.** `sw.js` caches only the app shell, never patient data or API calls.
+
+Demo sign-ins for the new roles: `geyong@hfa.org` / `Pharma@123` (pharmacist), `medlab@hfa.org` / `Lab@1234` (laboratory), `crew.limbe@hfa.org` / `Crew@1234` (ambulance crew).
+
 ## Environment notes
 
 - CI runs on GitHub-hosted Ubuntu runners and validates HTML linting, Jest tests, Docker image build, and a container smoke test.
@@ -12,7 +49,7 @@ A three-in-one application that covers 1. healthcare, 2. fitness & health tips a
 - `.github/workflows/ci.yml`: lint + tests + docker build
 - `.github/workflows/docker-publish.yml`: smoke-test and publish `latest` plus SHA-tagged images to GHCR on `main`
 - `.github/workflows/release.yml`: build and push tagged container images to GHCR on semantic version tags
-- `.github/workflows/pages.yml`: publish only `index.html` and `assets/` to GitHub Pages on every push to `main`
+- `.github/workflows/pages.yml`: publish only `index.html`, `sw.js`, `manifest.webmanifest` and `assets/` to GitHub Pages on every push to `main`
 - `docker-compose.yml`: local static web container on `http://localhost:8080`
 
 ## AWS deployment with Jenkins
@@ -53,5 +90,5 @@ This pipeline deploys the current demo frontend only. It does not make the clini
 
 The GitHub Pages workflow publishes the static demo after pushes to `main`. Enable **Settings > Pages > Build and deployment > GitHub Actions** in the repository, then open the URL shown by the `Publish shareable demo` workflow. For this repository it will normally be `https://healthyfutureafrica.github.io/hfa-silverstrong/`.
 
-The landing page includes a one-click **Try Demo** entry for the patient experience. The Admin portal is intentionally excluded from that shortcut; use the provisioned Super Admin account through normal sign-in. This demo stores data in browser memory only, resets on refresh, and must never receive real patient data or production credentials.
+The landing page includes a one-click **Try Demo** entry for the patient experience. The Admin portal is intentionally excluded from that shortcut; use the provisioned Super Admin account through normal sign-in. This demo keeps its data encrypted in the browser (IndexedDB) so it survives refreshes and works offline; use **Control Center → Reset demo data** to start over. It must never receive real patient data or production credentials.
 

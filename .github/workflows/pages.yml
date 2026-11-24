@@ -36,7 +36,7 @@ jobs:
       - name: Prepare Pages artifact
         run: |
           mkdir -p dist
-          cp index.html dist/
+          cp index.html sw.js manifest.webmanifest dist/
           cp -R assets dist/assets
 
       - name: Upload demo artifact

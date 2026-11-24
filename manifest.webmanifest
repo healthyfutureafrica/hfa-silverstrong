@@ -1,0 +1,14 @@
+{
+  "name": "HFA SilverStrong — Healthy Future Africa",
+  "short_name": "HFA",
+  "description": "Telehealth for patients, doctors, nurses, pharmacists and laboratories — works offline for 7 days.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e2240",
+  "theme_color": "#0a6b50",
+  "lang": "en",
+  "icons": [
+    { "src": "assets/hfa-logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
