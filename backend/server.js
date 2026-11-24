@@ -31,6 +31,8 @@ const { installNurseWorkforceRoutes, recordApplication, nurseApplication } = req
 const { installEarningsRoutes } = require('./earnings');
 const { installOfflineKeyRoutes, rotateOfflineKey } = require('./offline-keys');
 const { installDispatchRoutes } = require('./dispatch');
+const { installPrescriptionRoutes } = require('./prescriptions');
+const { installSupportRoutes } = require('./support');
 const { createPayoutProvider } = require('./payouts');
 const { passwordProblem } = require('./account-security');
 const COUNTRY_DATA = require('../country-data.js');
@@ -165,9 +167,11 @@ function createApp(config, store, provider) {
     ) || request.method === 'POST' && request.path === '/api/v1/payments';
     // Emergency help is never held back by payment, an unfinished profile or two-step enrolment (patients only).
     const emergencyRoute = user.role === 'patient' && request.path.startsWith('/api/v1/sos');
+    // Help & support stays reachable for patients who have not paid (billing problems are a common reason to ask).
+    const supportRoute = user.role === 'patient' && request.path.startsWith('/api/v1/support');
     if (user.status !== 'active' && !completionRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
     if (user.onboardingRequired && !completionRoute && !emergencyRoute) return response.status(403).json({ error: 'Complete your profile and required reviews before using the portal' });
-    if (user.role === 'patient' && !paidSubscription && !completionRoute && !paymentRoute && !emergencyRoute) {
+    if (user.role === 'patient' && !paidSubscription && !completionRoute && !paymentRoute && !emergencyRoute && !supportRoute) {
       return response.status(403).json({ error: 'Choose and pay for a patient subscription before using the portal', code: 'subscription_required' });
     }
     request.user = user;
@@ -189,6 +193,8 @@ function createApp(config, store, provider) {
   installFacilityRoutes(app,store,authenticated,admin);
   installOfflineKeyRoutes(app,store,authenticated,admin);
   installDispatchRoutes(app,config,store,authenticated,admin);
+  installPrescriptionRoutes(app,store,authenticated);
+  installSupportRoutes(app,store,authenticated,admin);
   installAdminAccessRoutes(app,config,store,authenticated,admin,{ cookieToken, withHealth });
   installPrivacyRoutes(app,config,store,authenticated,admin);
   installGovernanceRoutes(app,config,store,authenticated,admin);

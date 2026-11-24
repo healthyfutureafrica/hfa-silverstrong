@@ -9,6 +9,7 @@
 // - Optimistic concurrency: every write names the version it changes; a stale write gets 409 and the current copy.
 // - Patients see lab results only once released, and every write is in the audit log.
 const { z } = require('zod');
+const { prescriptionRules, labOrderRules } = require('./prescriptions');
 const express = require('express');
 const { filesConfigured } = require('./files');
 const { seal, unseal } = require('./records');
@@ -43,6 +44,11 @@ const COLLECTIONS = {
     schema: z.object({ patientId: userId, nurseId: userId, doctorId: optionalUser, status: z.string().max(40) }).passthrough() },
   reviews: { patient: 'patientId', people: ['providerId'], author: 'patientId',
     schema: z.object({ patientId: userId, providerId: userId, rating: z.number().int().min(1).max(5), comment: z.string().max(1000).optional() }).passthrough() },
+  // E-prescriptions and lab test orders: extra rules in backend/prescriptions.js.
+  prescriptions: { patient: 'patientId', people: ['patientId', 'doctorId', 'pharmacistId'], author: 'doctorId', authorRole: 'doctor',
+    schema: z.object({ patientId: userId, doctorId: userId, pharmacistId: userId }).passthrough() },
+  labOrders: { patient: 'patientId', people: ['doctorId', 'labTechId'], author: 'doctorId', authorRole: 'doctor',
+    schema: z.object({ patientId: userId, doctorId: userId, labTechId: userId, testType: z.string().max(200) }).passthrough() },
   carePlans: { patient: 'patientId', people: ['ownerId'], author: 'ownerId', clinicianOnly: true,
     schema: z.object({ patientId: userId, ownerId: userId, title: z.string().max(200), status: z.string().max(40) }).passthrough() }
 };
@@ -219,6 +225,11 @@ function installClinicalRoutes(app, config, store, authenticated) {
       if (!triage.rulesSummary) return response.status(400).json({ error: 'The SLY handover is unavailable; complete the symptom check again' });
       data = { ...data, triageCaseId: triageCase.id, triageLevel, triageSummary: triage.rulesSummary };
     }
+    if (collection === 'prescriptions' || collection === 'labOrders') {
+      const outcome = collection === 'prescriptions' ? prescriptionRules(config, store, actor, data, existingData) : labOrderRules(store, actor, data, existingData);
+      if (outcome.error) return response.status(outcome.status || 400).json({ error: outcome.error, ...(outcome.findings ? { findings: outcome.findings } : {}) });
+      data = { ...outcome.data, id: request.params.id };
+    }
     // What the record says must make sense (dates, people in the right roles, nothing empty by mistake).
     const mistake = contentProblem(store, collection, data, previous ? open(previous) : null)
       // A home visit must fit the nurse's current weekly timetable (required lazily: nurse-workforce uses this module).
@@ -231,6 +242,17 @@ function installClinicalRoutes(app, config, store, authenticated) {
     else store.db.prepare('INSERT INTO clinical_records VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
       .run(collection, request.params.id, patientId, people, version, sealed.nonce, sealed.encrypted, sealed.tag, now, actor.id, now, actor.id);
     if (patientId && patientId !== actor.id) store.audit(actor.id, existing ? 'CLINICAL_RECORD_UPDATED' : 'CLINICAL_RECORD_CREATED', { targetId: patientId, details: { collection, id: request.params.id }, ip: request.ip });
+    // A result uploaded for a lab order completes that order in the same step (one write, no ordering problem).
+    if (!existing && collection === 'labResults' && typeof data.orderId === 'string') {
+      const orderRow = store.db.prepare("SELECT * FROM clinical_records WHERE collection='labOrders' AND id=?").get(data.orderId);
+      const order = orderRow && open(orderRow);
+      if (order && order.labTechId === actor.id && order.patientId === data.patientId && ['ordered', 'sample_received'].includes(order.status)) {
+        const completed = { ...order, status: 'completed', resultId: request.params.id, completedAt: now, history: [...(order.history || []), { status: 'completed', at: now, by: actor.id }] };
+        const sealedOrder = seal(config, context('labOrders', orderRow.id), Buffer.from(JSON.stringify(completed)));
+        store.db.prepare('UPDATE clinical_records SET version=?,nonce=?,encrypted=?,tag=?,updated_at=?,updated_by=? WHERE collection=? AND id=?')
+          .run(orderRow.version + 1, sealedOrder.nonce, sealedOrder.encrypted, sealedOrder.tag, now, actor.id, 'labOrders', orderRow.id);
+      }
+    }
     const row = store.db.prepare('SELECT * FROM clinical_records WHERE collection=? AND id=?').get(collection, request.params.id);
     response.status(existing ? 200 : 201).json({ success: true, data: view(actor, row, data), message: 'Saved', timestamp: now });
   });

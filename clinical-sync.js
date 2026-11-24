@@ -8,7 +8,7 @@
 // - Changes made offline stay in the encrypted offline copy (with the versions below) and are sent on reconnect.
 // - New records from others (messages, bookings, results) arrive every few seconds.
 (function () {
-  const COLLECTIONS = ['appointments', 'messages', 'careNotes', 'doctorReports', 'medicalDocuments', 'labResults', 'specialistReferrals', 'homeVisits', 'reviews', 'carePlans'];
+  const COLLECTIONS = ['appointments', 'messages', 'careNotes', 'doctorReports', 'medicalDocuments', 'labResults', 'specialistReferrals', 'homeVisits', 'reviews', 'carePlans', 'prescriptions', 'labOrders'];
   const PUSH_MS = 3000, PULL_MS = 10000, FAST_PULL_MS = 5000;
 
   Object.assign(T.en, {

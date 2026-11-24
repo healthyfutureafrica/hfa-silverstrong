@@ -359,6 +359,29 @@ The GitHub Pages workflow and Cloudflare publish the public site after pushes to
 accounts and keeps no health data: the Free Health Hub and the anonymous symptom check (rules only; answers stay on
 the screen) work there; everything else needs the HFA server (see [DEPLOY.md](DEPLOY.md)).
 
+## E-prescriptions, lab orders and support
+
+- **E-prescriptions** (`backend/prescriptions.js`, `care-tools-ui.js`): a doctor caring for the patient writes a
+  prescription under **Prescriptions & tests** and sends it to an administrator-validated pharmacy. Before sending,
+  `hfa-medsafety.js` (shared by the screen and the server) checks it against the allergies and medicines recorded in
+  the patient's health profile: allergies and cross-allergies (e.g. penicillin → amoxicillin), well-documented major
+  and moderate interactions (e.g. warfarin + ibuprofen) and duplicates. A major warning needs a written reason,
+  which is stored with the prescription and shown to the pharmacist. The server re-runs the check and refuses a
+  major warning without a reason. The pharmacy marks it **ready** (the patient is notified) and **collected**; the
+  patient follows it under **My prescriptions & tests** and can ask for a refill once collected; the prescriber
+  can cancel it while it is waiting. Nothing else can be changed after sending. The rules screen common problems
+  only and need clinician review before real patients, like the triage rules.
+- **Lab test orders**: doctors order a test (routine or urgent, with clinical information) from a laboratory. It
+  appears on the technician's **Test orders** worklist; uploading the result from the order links them and
+  completes the order in one step. Results still go through the specialist's review and release as before.
+- **Danger alerts on vital signs**: when a nurse files a home-visit report with dangerous readings
+  (`backend/vital-alerts.js`: hypertensive crisis, low blood pressure, extreme pulse, high fever, SpO₂ < 92 %, …),
+  the doctor in charge receives an urgent notification at once (administrators when there is none).
+- **Help & support** (`backend/support.js`): everyone, including patients who have not paid yet, can open a request
+  (account, payments, app, care, privacy); administrators answer and resolve it from the same page. Support is not
+  for emergencies; the page points to SOS and the emergency number.
+- **Vital Health Card in video calls**: doctors and nurses can open the patient's card during a video call.
+
 ## Offline Access
 
 ### Pages Reachability and Loading

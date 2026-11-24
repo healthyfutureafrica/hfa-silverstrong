@@ -2806,7 +2806,7 @@ async function initializeBackend() {
     ApiState.enabled=true; ApiState.providerConfigured=!!config?.providerConfigured;
     ApiState.requireMfa=ApiState.offline||!!config?.requireMfa; ApiState.requireAdminMfa=!!config?.requireAdminMfa; ApiState.aiTriage=!!config?.aiTriage; ApiState.paymentsAvailable=!!config?.paymentsAvailable; ApiState.subscriptionPaymentsAvailable=!!config?.subscriptionPaymentsAvailable;
     DB.users=[];
-    ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts'].forEach(key=>{DB[key]=[];});
+    ['appointments','messages','careNotes','doctorReports','medicalDocuments','labResults','specialistReferrals','carePlans','triageCases','subscriptions','homeVisits','notifications','whatsappAlerts','prescriptions','labOrders'].forEach(key=>{DB[key]=[];});
     if (ApiState.offline) DB.users=WEB_DEMO_USERS.map(user=>({...user}));
     updateStaticHTML();
     if (ApiState.offline) return;
@@ -2816,6 +2816,8 @@ async function initializeBackend() {
     if (session.ok) {
       const data=await session.json(); installBackendSession(data);
       if (data.user.mfaEnabled || data.user.demoOnly) await HFAOffline.afterSessionRestore(data.user);
+      // Records stay in sync on every restored session; only the offline copy depends on two-step sign-in.
+      else if (typeof HFAClinicalSync!=='undefined') await HFAClinicalSync.start();
       LANG_RETURN_SCREEN='app';
     }
   } catch (error) { ApiState.failed=true; }
@@ -3711,6 +3713,7 @@ function renderPage(page) {
   if (page==='facilities' && r==='admin' && typeof HFAFacilities!=='undefined') return HFAFacilities.renderRegister(pc);
   if (typeof HFANurses!=='undefined' && HFANurses.handles(page, r)) return HFANurses.renderPage(page, pc);
   if (typeof HFADispatch!=='undefined' && HFADispatch.handles(page, r)) return HFADispatch.renderPage(page, pc);
+  if (typeof HFACareTools!=='undefined' && HFACareTools.handles(page, r)) return HFACareTools.renderPage(page, pc);
   if (typeof HFAEarnings!=='undefined' && HFAEarnings.handles(page, r)) return HFAEarnings.renderPage(page, pc);
   if (page==='dashboard' && typeof HFACompletion!=='undefined') {
     const result = renderRolePage(page, r, pc);
@@ -5717,6 +5720,8 @@ window.addEventListener('load',()=>{
 <script src="triage-assistant.js"></script>
 <script src="ambulance.js"></script>
 <script src="dispatch-ui.js"></script>
+<script src="hfa-medsafety.js"></script>
+<script src="care-tools-ui.js"></script>
 <script src="hfa-surveillance.js"></script>
 <script src="hfa-ai-eval.js"></script>
 <script src="ai-assist.js"></script>

@@ -11,6 +11,7 @@
 //    Until it is current the nurse cannot be booked for home visits, and bookings must fit the timetable.
 const { randomUUID } = require('node:crypto');
 const { z } = require('zod');
+const { vitalDangers } = require('./vital-alerts');
 const { seal, unseal } = require('./records');
 const { filesConfigured } = require('./files');
 const { ensureClinicalTable } = require('./clinical');
@@ -337,10 +338,17 @@ function installNurseWorkforceRoutes(app, config, store, authenticated, admin) {
     } catch (error) { store.db.exec('ROLLBACK'); throw error; }
     if (!steps.feedback_at) notify(store, visit.data.patientId, 'Home Visits', 'HFA SilverStrong: New activity on your account needs your attention. Sign in securely to review it. This is an automated notification. Do not reply.');
     const doctorId = doctorInCharge(visit.data);
+    // Dangerous readings alert the doctor in charge at once (generic text; details stay in the encrypted report).
+    const dangers = vitalDangers(input.vitals);
+    if (dangers.length) {
+      if (doctorId) notify(store, doctorId, 'Urgent Care', 'HFA SilverStrong: URGENT — a home visit report shows dangerous vital signs. Sign in now to review the patient.');
+      else tellAdmins('HFA SilverStrong: URGENT — a home visit report shows dangerous vital signs and has no doctor in charge. Assign one now.');
+      store.audit(request.user.id, 'VITALS_DANGER_ALERT', { targetId: visit.data.patientId, details: { visitId: visit.data.id, signs: dangers.length } });
+    }
     if (doctorId) notify(store, doctorId, 'Home Visits', 'HFA SilverStrong: A home visit report is waiting for your confirmation. Sign in to review it.');
     else tellAdmins('HFA SilverStrong: A home visit report has no doctor in charge. Sign in and assign one under Home visits.');
     settle(visit.data);
-    response.status(201).json(ok(progressView(request.user, visitOf(visit.data.id).data, stepsOf(visit.data.id)), 'Report filed'));
+    response.status(201).json(ok({ ...progressView(request.user, visitOf(visit.data.id).data, stepsOf(visit.data.id)), dangers }, dangers.length ? 'Report filed — the doctor was alerted about dangerous vital signs' : 'Report filed'));
   });
 
   app.post('/api/v1/home-visits/:id/feedback', authenticated, own, storage, (request, response) => {
